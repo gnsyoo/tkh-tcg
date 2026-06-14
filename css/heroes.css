@@ -82,6 +82,123 @@
   100% { transform: translateX(0); filter: none; }
 }
 
+/* ===== Combat FX layer (persists across re-renders) ===== */
+#combatScreen { position: relative; }
+.fx-layer {
+  position: absolute; inset: 0;
+  pointer-events: none; overflow: visible; z-index: 30;
+}
+.fx { position: absolute; transform: translate(-50%, -50%); pointer-events: none; }
+
+.fx-float {
+  font-weight: 900; font-size: 22px;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.9), 0 0 10px currentColor;
+  animation: fxFloat 1s ease-out forwards;
+}
+.fx-float.big { font-size: 30px; }
+@keyframes fxFloat {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+  18% { opacity: 1; transform: translate(-50%, -120%) scale(1.15); }
+  100% { opacity: 0; transform: translate(-50%, -240%) scale(1); }
+}
+
+.fx-slash {
+  width: 80px; height: 80px;
+  background:
+    linear-gradient(135deg, transparent 44%, #fff 48%, #fff 52%, transparent 56%);
+  filter: drop-shadow(0 0 6px #fff);
+  animation: fxSlash 0.42s ease-out forwards;
+}
+@keyframes fxSlash {
+  0% { opacity: 0; transform: translate(-50%, -50%) rotate(-30deg) scale(0.4); }
+  30% { opacity: 1; transform: translate(-50%, -50%) rotate(-12deg) scale(1.1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) rotate(0deg) scale(1.4); }
+}
+
+.fx-burst {
+  width: 70px; height: 70px; border-radius: 50%;
+  background: radial-gradient(circle, var(--c, #fff) 0%, transparent 65%);
+  animation: fxBurst 0.5s ease-out forwards;
+}
+@keyframes fxBurst {
+  0% { opacity: 0.9; transform: translate(-50%, -50%) scale(0.2); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.6); }
+}
+.fx-ring {
+  width: 50px; height: 50px; border-radius: 50%;
+  border: 3px solid var(--c, #fff);
+  animation: fxRing 0.5s ease-out forwards;
+}
+@keyframes fxRing {
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(0.3); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(2.2); }
+}
+.fx-particle {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--c, #ffd0d0); box-shadow: 0 0 6px var(--c, #ffd0d0);
+  animation: fxParticle 0.6s ease-out forwards;
+}
+@keyframes fxParticle {
+  0% { opacity: 1; transform: translate(-50%, -50%); }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.3); }
+}
+.fx-sparkle {
+  font-size: 16px; color: #8effb0;
+  text-shadow: 0 0 8px currentColor;
+  animation: fxSparkle 0.85s ease-out forwards; animation-delay: var(--delay, 0ms);
+  opacity: 0;
+}
+@keyframes fxSparkle {
+  0% { opacity: 0; transform: translate(-50%, -30%) scale(0.4); }
+  30% { opacity: 1; transform: translate(-50%, -90%) scale(1.1); }
+  100% { opacity: 0; transform: translate(-50%, -170%) scale(0.7); }
+}
+.fx-proj {
+  font-size: 18px; filter: drop-shadow(0 0 6px currentColor);
+  animation: fxProj 0.36s ease-in forwards;
+}
+@keyframes fxProj {
+  0% { opacity: 0.2; transform: translate(-50%, -50%) scale(0.6); }
+  20% { opacity: 1; }
+  100% { opacity: 1; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1); }
+}
+.fx-death {
+  font-size: 34px;
+  animation: fxDeath 0.7s ease-out forwards;
+}
+@keyframes fxDeath {
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(0.6) rotate(0deg); }
+  100% { opacity: 0; transform: translate(-50%, -150%) scale(1.5) rotate(40deg); }
+}
+
+.fx-banner {
+  position: absolute; left: 50%; top: 38%; transform: translate(-50%, -50%);
+  font-weight: 900; font-size: clamp(22px, 6vw, 36px); white-space: nowrap;
+  color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,0.9);
+  animation: fxBanner 1.1s ease-out forwards; z-index: 40;
+}
+.fx-banner.foe-turn { color: var(--foe); }
+.fx-banner.round { color: var(--gold); }
+.fx-banner.boss { color: #ff8a4c; font-size: clamp(26px, 8vw, 46px); text-shadow: 0 0 24px #ff8a4c, 0 2px 12px #000; }
+@keyframes fxBanner {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.6); letter-spacing: 8px; }
+  20% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); letter-spacing: 2px; }
+  80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -130%) scale(1); }
+}
+
+#combatScreen.shake-sm { animation: shakeSm 0.24s ease; }
+#combatScreen.shake-big { animation: shakeBig 0.42s ease; }
+@keyframes shakeSm {
+  0%,100% { transform: translate(0,0); } 25% { transform: translate(-3px,2px); }
+  50% { transform: translate(3px,-2px); } 75% { transform: translate(-2px,-1px); }
+}
+@keyframes shakeBig {
+  0%,100% { transform: translate(0,0); } 15% { transform: translate(-7px,4px) rotate(-0.4deg); }
+  35% { transform: translate(7px,-4px) rotate(0.4deg); } 55% { transform: translate(-5px,3px); }
+  75% { transform: translate(5px,-2px); } 90% { transform: translate(-2px,1px); }
+}
+
 .combat-mid { display: flex; align-items: center; gap: 12px; margin: 12px 0; }
 .energy { font-weight: 800; font-size: 15px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .energy .orb { width: 16px; height: 16px; border-radius: 50%; background: rgba(255,255,255,0.12); display: inline-block; }

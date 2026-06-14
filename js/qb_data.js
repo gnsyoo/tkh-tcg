@@ -57,7 +57,18 @@ var QB_CARDS = [
     ab: { t:'buff', who:'ally', cells:[[-1,1],[1,1],[0,1]], val:2, txt:'전방 아군 +2' } },
   { id: 'behemoth',   name: '베히모스',     emoji: '🦏', rank: 3, power: 10, enh: [[0,1]] },
   { id: 'valkyrie',   name: '발키리',       emoji: '🪽', rank: 3, power: 6, enh: [[-1,0],[1,0]],
-    ab: { t:'buff', who:'ally', cells:[[-1,0],[1,0]], val:2, txt:'상하 아군 +2' } }
+    ab: { t:'buff', who:'ally', cells:[[-1,0],[1,0]], val:2, txt:'상하 아군 +2' } },
+
+  // ---------- expanded pool ----------
+  { id: 'fairy',      name: '요정',         emoji: '🧚', rank: 1, power: 1, enh: [[-1,1],[0,1],[1,1]],
+    ab: { t:'buff', who:'ally', cells:[[0,1]], val:1, txt:'앞 칸 아군 +1' } },
+  { id: 'ghoul',      name: '구울',         emoji: '🧟', rank: 2, power: 4, enh: [[0,1],[1,0]] },
+  { id: 'wyvern',     name: '와이번',       emoji: '🐲', rank: 2, power: 5, enh: [[-1,1],[1,1]] },
+  { id: 'sphinx',     name: '스핑크스',     emoji: '🦁', rank: 2, power: 3, enh: [[0,1]],
+    ab: { t:'buff', who:'ally', cells:[[-1,0],[1,0],[0,1],[0,-1]], val:1, txt:'사방 아군 +1' } },
+  { id: 'colossus',   name: '콜로서스',     emoji: '🗿', rank: 3, power: 9, enh: [[-1,0],[1,0]] },
+  { id: 'archfiend',  name: '대마왕',       emoji: '👺', rank: 3, power: 7, enh: [[-1,1],[0,1],[1,1]],
+    ab: { t:'debuff', who:'enemy', cells:[[-1,1],[0,1],[1,1]], val:2, txt:'전방 적 -2' } }
 ];
 
 var QB_BY_ID = {};

@@ -174,7 +174,16 @@
     run.party.forEach(function (h) { h.block = 0; h.tempAtk = relicSum('startAtk'); h.acted = false; });
     run.combat = { type: type, enemies: enemies, round: 0, energy: 0, sel: null, targeting: false, pending: null, log: [] };
     show('combatScreen');
-    logMsg('전투 시작!');
+    if (type === 'boss') {
+      fxBanner('⚠ ' + enemies[0].name + ' 등장!', 'boss', 1500);
+      shake('big');
+      logMsg('💀 보스 ' + enemies[0].name + ' 출현!');
+    } else if (type === 'elite') {
+      fxBanner('정예 전투!', 'round', 1100);
+      logMsg('전투 시작!');
+    } else {
+      logMsg('전투 시작!');
+    }
     beginRound();
   }
 
@@ -191,6 +200,7 @@
     rollIntents();
     c.sel = null; c.targeting = false; c.pending = null;
     renderCombat();
+    if (c.round >= 2) fxBanner('라운드 ' + c.round, 'round', 850);
   }
 
   function rollIntents() {
@@ -208,16 +218,84 @@
     el.scrollTop = el.scrollHeight;
   }
 
-  function floatOn(el, text, color) {
-    var d = document.createElement('div');
-    d.className = 'float-dmg';
-    d.textContent = text;
-    d.style.color = color || '#fff';
-    d.style.left = '50%';
-    d.style.top = '8px';
-    el.appendChild(d);
-    setTimeout(function () { d.remove(); }, 950);
+  /* ---------- combat FX (rendered into the persistent #fxLayer) ---------- */
+  function fxLayerEl() { return document.getElementById('fxLayer'); }
+  function rectOf(el) {
+    if (!el || typeof el.getBoundingClientRect !== 'function') return null;
+    var layer = fxLayerEl();
+    if (!layer || typeof layer.getBoundingClientRect !== 'function') return null;
+    var r = el.getBoundingClientRect(), lr = layer.getBoundingClientRect();
+    if (!r.width && !r.height) return null;
+    return { x: r.left - lr.left + r.width / 2, y: r.top - lr.top + r.height / 2, w: r.width, h: r.height };
   }
+  function spawn(cls, x, y, html, ms) {
+    var layer = fxLayerEl();
+    if (!layer || typeof layer.appendChild !== 'function' || typeof document.createElement !== 'function') return null;
+    var d = document.createElement('div');
+    if (!d || !d.style) return null;
+    d.className = 'fx ' + cls; d.style.left = x + 'px'; d.style.top = y + 'px';
+    if (html) d.innerHTML = html;
+    layer.appendChild(d);
+    setTimeout(function () { if (d.remove) d.remove(); }, ms || 900);
+    return d;
+  }
+  function fxFloat(x, y, text, color, big) { var d = spawn('fx-float' + (big ? ' big' : ''), x, y, '', 1000); if (d) { d.textContent = text; d.style.color = color || '#fff'; } }
+  function fxSlash(x, y) { spawn('fx-slash', x, y, '', 420); }
+  function fxBurst(x, y, color) { var d = spawn('fx-burst', x, y, '', 500); if (d) d.style.setProperty('--c', color || '#fff'); }
+  function fxRing(x, y, color) { var d = spawn('fx-ring', x, y, '', 500); if (d) d.style.setProperty('--c', color || '#fff'); }
+  function fxParticles(x, y, n, color) {
+    for (var i = 0; i < (n || 6); i++) {
+      var ang = Math.random() * 6.283, dist = 14 + Math.random() * 24;
+      var d = spawn('fx-particle', x, y, '', 620);
+      if (d) { d.style.setProperty('--c', color || '#ffd0d0'); d.style.setProperty('--dx', (Math.cos(ang) * dist) + 'px'); d.style.setProperty('--dy', (Math.sin(ang) * dist) + 'px'); }
+    }
+  }
+  function fxSparkle(x, y, color, n) {
+    for (var i = 0; i < (n || 5); i++) {
+      var dx = (Math.random() - 0.5) * 34;
+      var d = spawn('fx-sparkle', x + dx, y, '✦', 850);
+      if (d) { d.style.color = color || '#8effb0'; d.style.setProperty('--delay', (i * 60) + 'ms'); }
+    }
+  }
+  function fxProj(x1, y1, x2, y2, glyph, color) {
+    var d = spawn('fx-proj', x1, y1, glyph || '●', 360);
+    if (d) { if (color) d.style.color = color; d.style.setProperty('--dx', (x2 - x1) + 'px'); d.style.setProperty('--dy', (y2 - y1) + 'px'); }
+  }
+  function fxBanner(text, cls, ms) {
+    var layer = fxLayerEl();
+    if (!layer || typeof document.createElement !== 'function') return;
+    var d = document.createElement('div');
+    if (!d) return;
+    d.className = 'fx-banner ' + (cls || ''); d.textContent = text;
+    layer.appendChild(d);
+    setTimeout(function () { if (d.remove) d.remove(); }, ms || 1100);
+  }
+  function shake(level) {
+    var sc = document.getElementById('combatScreen');
+    if (!sc || !sc.classList) return;
+    var cls = level === 'big' ? 'shake-big' : 'shake-sm';
+    sc.classList.add(cls);
+    setTimeout(function () { sc.classList.remove(cls); }, level === 'big' ? 420 : 240);
+  }
+  // impact effect on an enemy at element `el`; physical=slash, else colored burst
+  function fxHitEnemy(el, dmg, kind) {
+    var p = rectOf(el); if (!p) return;
+    if (kind === 'aoe') { fxBurst(p.x, p.y, '#ff8a4c'); fxParticles(p.x, p.y, 8, '#ffcaa0'); }
+    else { fxSlash(p.x, p.y); fxBurst(p.x, p.y, '#ffffff'); fxParticles(p.x, p.y, 7, '#ffc6c6'); }
+    fxFloat(p.x, p.y, '-' + dmg, '#ff9a9a', kind !== 'aoe');
+  }
+  function fxHitHero(el, dmg, blocked) {
+    var p = rectOf(el); if (!p) return;
+    if (blocked) fxFloat(p.x, p.y - 14, '🛡' + blocked, '#9fd2ff');
+    if (dmg > 0) { fxSlash(p.x, p.y); fxBurst(p.x, p.y, '#ff6b6b'); fxParticles(p.x, p.y, 6, '#ffb0b0'); fxFloat(p.x, p.y, '-' + dmg, '#ff9a9a', true); }
+  }
+  function fxSupport(el, text, color, type) {
+    var p = rectOf(el); if (!p) return;
+    if (type === 'shield') fxRing(p.x, p.y, color);
+    fxSparkle(p.x, p.y, color, 5);
+    fxFloat(p.x, p.y, text, color);
+  }
+  function fxDeathAt(el, emoji) { var p = rectOf(el); if (!p) return; spawn('fx-death', p.x, p.y, emoji || '💥', 700); }
 
   function renderCombat() {
     var c = run.combat;
@@ -328,22 +406,21 @@
     }
   }
 
-  function flash(el) {
-    if (!el || !el.classList) return;
-    el.classList.add('hitflash');
-    setTimeout(function () { el.classList.remove('hitflash'); }, 240);
-  }
-  function dmgEnemy(e, dmg, el) {
+  function dmgEnemy(e, dmg, el, kind) {
+    var wasAlive = e.hp > 0;
     var d = dmg;
     if (e.block > 0) { var ab = Math.min(e.block, d); e.block -= ab; d -= ab; }
     e.hp -= d;
-    if (el) { floatOn(el, '-' + dmg, '#ff8a8a'); flash(el); }
+    fxHitEnemy(el, dmg, kind);
+    if (e.hp <= 0 && wasAlive) fxDeathAt(el, e.emoji);
   }
   function dmgHero(h, dmg, el) {
-    var d = dmg;
-    if (h.block > 0) { var ab = Math.min(h.block, d); h.block -= ab; d -= ab; if (el && ab) floatOn(el, '🛡' + ab, '#9fd2ff'); }
+    var wasAlive = h.hp > 0;
+    var d = dmg, blocked = 0;
+    if (h.block > 0) { var ab = Math.min(h.block, d); h.block -= ab; d -= ab; blocked = ab; }
     h.hp -= d;
-    if (el && d > 0) { floatOn(el, '-' + d, '#ff8a8a'); flash(el); }
+    fxHitHero(el, d, blocked);
+    if (h.hp <= 0 && wasAlive) fxDeathAt(el, h.def.emoji);
   }
   function enemyEl(idx) { return document.querySelector('#enemyRow .unit[data-idx="' + idx + '"]'); }
   function partyEl(idx) { return document.querySelector('#partyRow .unit[data-idx="' + idx + '"]'); }
@@ -353,8 +430,9 @@
     var dmg = h.atk + (h.tempAtk || 0);
     TCG.sfx('attack');
     dmgEnemy(enemy, dmg, enemyEl(c.enemies.indexOf(enemy)));
+    shake('sm');
     var ls = relicSum('lifesteal');
-    if (ls) h.hp = Math.min(h.maxHp, h.hp + ls);
+    if (ls) { h.hp = Math.min(h.maxHp, h.hp + ls); var pe = rectOf(partyEl(run.party.indexOf(h))); if (pe) fxFloat(pe.x, pe.y, '+' + ls, '#7ef0b5'); }
     logMsg(h.def.name + ' → ' + enemy.name + ' ' + dmg + ' 피해');
     finishHeroAction(h);
   }
@@ -363,32 +441,38 @@
     c.energy -= sk.cost;
     TCG.sfx(sk.type === 'heal' ? 'heal' : 'skill');
     var pw = h.atk + (h.tempAtk || 0);
+    var heroPos = rectOf(partyEl(run.party.indexOf(h)));
     if (sk.type === 'strike') {
       var dmg = pw + sk.val;
       dmgEnemy(target, dmg, enemyEl(c.enemies.indexOf(target)));
+      shake('big');
       logMsg(h.def.name + ' 「' + sk.name + '」 ' + dmg + ' 피해');
     } else if (sk.type === 'aoe') {
-      living(c.enemies).forEach(function (e) { dmgEnemy(e, sk.val, enemyEl(c.enemies.indexOf(e))); });
+      living(c.enemies).forEach(function (e) { dmgEnemy(e, sk.val, enemyEl(c.enemies.indexOf(e)), 'aoe'); });
+      shake('big');
       logMsg(h.def.name + ' 「' + sk.name + '」 전체 ' + sk.val + ' 피해');
     } else if (sk.type === 'multi') {
       for (var i = 0; i < sk.val; i++) {
         var alive = living(c.enemies); if (!alive.length) break;
         var e2 = TCG.pick(alive);
+        var ep = rectOf(enemyEl(c.enemies.indexOf(e2)));
+        if (heroPos && ep) fxProj(heroPos.x, heroPos.y, ep.x, ep.y, '🏹', '#ffe08a');
         dmgEnemy(e2, pw, enemyEl(c.enemies.indexOf(e2)));
       }
+      shake('sm');
       logMsg(h.def.name + ' 「' + sk.name + '」 ' + sk.val + '회 공격');
     } else if (sk.type === 'heal') {
       if (target) {
         target.hp = Math.min(target.maxHp, target.hp + sk.val);
         if (h.def.id === 'oracle') target.block = (target.block || 0) + 5;
-        floatOn(partyEl(run.party.indexOf(target)), '+' + sk.val, '#7ef0b5');
+        fxSupport(partyEl(run.party.indexOf(target)), '+' + sk.val, '#7ef0b5');
       }
       logMsg(h.def.name + ' 「' + sk.name + '」 ' + (target ? target.def.name : '') + ' 회복');
     } else if (sk.type === 'shield') {
-      if (target) { target.block = (target.block || 0) + sk.val; floatOn(partyEl(run.party.indexOf(target)), '🛡+' + sk.val, '#9fd2ff'); }
+      if (target) { target.block = (target.block || 0) + sk.val; fxSupport(partyEl(run.party.indexOf(target)), '🛡+' + sk.val, '#9fd2ff', 'shield'); }
       logMsg(h.def.name + ' 「' + sk.name + '」 방어막 부여');
     } else if (sk.type === 'buff') {
-      if (target) { target.tempAtk = (target.tempAtk || 0) + sk.val; floatOn(partyEl(run.party.indexOf(target)), '⚔+' + sk.val, '#8effb0'); }
+      if (target) { target.tempAtk = (target.tempAtk || 0) + sk.val; fxSupport(partyEl(run.party.indexOf(target)), '⚔+' + sk.val, '#ffd86b'); }
       logMsg(h.def.name + ' 「' + sk.name + '」 공격력 강화');
     }
     finishHeroAction(h);
@@ -411,6 +495,7 @@
     var c = run.combat;
     c.phase = 'enemy'; c.sel = null; c.targeting = false; c.pending = null;
     renderCombat();
+    fxBanner('적의 턴', 'foe-turn', 850);
     var foes = living(c.enemies);
     var step = 0;
     function next() {
@@ -425,9 +510,11 @@
       var intent = e.intent;
       TCG.sfx('hit');
       if (intent.type === 'aoe') {
+        shake('big');
         living(run.party).forEach(function (h) { dmgHero(h, intent.dmg, partyEl(run.party.indexOf(h))); });
         logMsg(e.name + ' 전체 공격 ' + intent.dmg);
       } else {
+        shake('sm');
         var targets = living(run.party);
         if (targets.length) {
           var t = DCFG.smart ? lowest(run.party) : TCG.pick(targets);
