@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0d0b1a">
+<title>로그라이크 TCG 목업</title>
+<link rel="stylesheet" href="css/common.css">
+<link rel="stylesheet" href="css/home.css">
+</head>
+<body class="home-body">
+  <div class="home-wrap">
+    <header class="home-header">
+      <h1 class="home-title">⚔️ 로그라이크 TCG <span>목업</span></h1>
+      <p class="home-sub">두 가지 카드 게임 프로토타입 · PC / 모바일 플레이 지원</p>
+    </header>
+
+    <section class="diff-section">
+      <h2 class="section-label">난이도 선택</h2>
+      <div class="diff-picker" id="diffPicker">
+        <button class="diff-btn" data-diff="easy">하 <small>Easy</small></button>
+        <button class="diff-btn active" data-diff="normal">중 <small>Normal</small></button>
+        <button class="diff-btn" data-diff="hard">상 <small>Hard</small></button>
+      </div>
+    </section>
+
+    <section class="games-grid">
+      <a class="game-card heroes" id="cardHeroes" href="heroes.html">
+        <div class="game-art">🛡️⚔️🏹</div>
+        <h3>영웅모집</h3>
+        <p class="game-tag">Heroes Wanted 스타일</p>
+        <p class="game-desc">파티를 모집하고 노드 맵을 탐험하는 로그라이크 턴제 전투. 영웅 카드를 수집해 덱을 강화하세요.</p>
+        <span class="play-pill">플레이 ▶</span>
+      </a>
+
+      <a class="game-card queens" id="cardQueens" href="queensblood.html">
+        <div class="game-art">🃏♟️👑</div>
+        <h3>퀸즈 블러드</h3>
+        <p class="game-tag">Queen's Blood 스타일</p>
+        <p class="game-desc">3×5 보드에 카드를 배치해 폰을 확장하고 각 열의 파워로 점수를 겨루는 전략 카드 게임. 30종 이상의 카드.</p>
+        <span class="play-pill">플레이 ▶</span>
+      </a>
+    </section>
+
+    <footer class="home-foot">
+      <p>웹 목업 · 최종 빌드는 Unity 예정 · 구현 언어: HTML / CSS / Vanilla JavaScript</p>
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      var diff = localStorage.getItem('tcg_difficulty') || 'normal';
+      function applyDiff(d) {
+        diff = d;
+        localStorage.setItem('tcg_difficulty', d);
+        document.querySelectorAll('.diff-btn').forEach(function (b) {
+          b.classList.toggle('active', b.dataset.diff === d);
+        });
+        updateLinks();
+      }
+      function updateLinks() {
+        document.getElementById('cardHeroes').setAttribute('href', 'heroes.html?diff=' + diff);
+        document.getElementById('cardQueens').setAttribute('href', 'queensblood.html?diff=' + diff);
+      }
+      document.getElementById('diffPicker').addEventListener('click', function (e) {
+        var btn = e.target.closest('.diff-btn');
+        if (btn) applyDiff(btn.dataset.diff);
+      });
+      applyDiff(diff);
+    })();
+  </script>
+</body>
+</html>

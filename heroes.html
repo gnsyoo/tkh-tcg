@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0d0b1a">
+<title>영웅모집 · 목업</title>
+<link rel="stylesheet" href="css/common.css">
+<link rel="stylesheet" href="css/heroes.css">
+</head>
+<body>
+  <div class="topbar">
+    <a class="backlink" href="index.html">← 메뉴</a>
+    <h2>영웅모집</h2>
+    <span class="spacer"></span>
+    <span class="pill" id="goldPill">💰 0</span>
+    <span class="pill" id="floorPill">층 1</span>
+    <span class="pill" id="diffPill">난이도</span>
+  </div>
+
+  <main class="hw-main" id="hwMain">
+    <!-- Map screen -->
+    <section class="screen" id="mapScreen">
+      <h3 class="screen-title">🗺️ 진행 경로</h3>
+      <p class="screen-sub">다음 목적지를 선택하세요</p>
+      <div class="map-track" id="mapTrack"></div>
+      <div class="party-bar" id="mapParty"></div>
+    </section>
+
+    <!-- Combat screen -->
+    <section class="screen" id="combatScreen" hidden>
+      <div class="enemy-row" id="enemyRow"></div>
+      <div class="combat-mid">
+        <div class="energy" id="energyBox"></div>
+        <div class="combat-log" id="combatLog"></div>
+      </div>
+      <div class="party-row" id="partyRow"></div>
+      <div class="action-bar" id="actionBar" hidden></div>
+      <div class="combat-foot">
+        <span class="hint" id="combatHint">영웅을 선택해 행동하세요</span>
+        <button class="btn primary" id="endTurnBtn">턴 종료</button>
+      </div>
+    </section>
+
+    <!-- Reward screen -->
+    <section class="screen" id="rewardScreen" hidden>
+      <h3 class="screen-title" id="rewardTitle">🎉 승리!</h3>
+      <p class="screen-sub" id="rewardSub">보상을 선택하세요</p>
+      <div class="reward-cards" id="rewardCards"></div>
+      <button class="btn ghost" id="rewardSkip">건너뛰기 (골드만 받기)</button>
+    </section>
+
+    <!-- Rest screen -->
+    <section class="screen" id="restScreen" hidden>
+      <h3 class="screen-title">🔥 모닥불</h3>
+      <p class="screen-sub">잠시 휴식을 취합니다</p>
+      <div class="rest-opts">
+        <button class="rest-card" id="restHeal"><span class="rc-ico">💖</span><b>휴식</b><small>파티 전원 HP 40% 회복</small></button>
+        <button class="rest-card" id="restTrain"><span class="rc-ico">💪</span><b>단련</b><small>영웅 1명 최대 HP +6, 공격력 +2</small></button>
+      </div>
+      <div class="party-bar" id="restParty"></div>
+    </section>
+
+    <!-- Shop screen -->
+    <section class="screen" id="shopScreen" hidden>
+      <h3 class="screen-title">🛒 상점</h3>
+      <p class="screen-sub">골드로 영웅과 물약을 구매하세요</p>
+      <div class="shop-items" id="shopItems"></div>
+      <button class="btn primary" id="shopLeave">떠나기</button>
+    </section>
+
+    <!-- Treasure / event -->
+    <section class="screen" id="eventScreen" hidden>
+      <h3 class="screen-title" id="eventTitle">💎 보물</h3>
+      <p class="screen-sub" id="eventSub"></p>
+      <div class="reward-cards" id="eventChoices"></div>
+    </section>
+  </main>
+
+  <!-- Game over / victory -->
+  <div class="overlay" id="overModal" hidden>
+    <div class="modal">
+      <h2 id="overTitle"></h2>
+      <p id="overText"></p>
+      <div style="display:flex;gap:10px;justify-content:center;">
+        <button class="btn primary" id="overAgain">새 모험</button>
+        <a class="btn ghost" href="index.html">메뉴로</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hero detail tooltip -->
+  <div class="overlay" id="heroModal" hidden>
+    <div class="modal" id="heroModalBody" style="max-width:340px;"></div>
+  </div>
+
+  <script src="js/util.js"></script>
+  <script src="js/heroes_data.js"></script>
+  <script src="js/heroes.js"></script>
+</body>
+</html>
