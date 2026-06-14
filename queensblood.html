@@ -63,7 +63,7 @@
         <li><b>폰(♟️)</b> · 카드는 자신이 점령한 칸의 폰 레벨이 카드의 <b>요구 등급(핍)</b> 이상일 때만 놓을 수 있습니다. 당신은 왼쪽 끝 열을, 상대는 오른쪽 끝 열을 1레벨로 시작합니다.</li>
         <li><b>확장</b> · 카드를 놓으면 카드의 강화 패턴(테두리 표시)에 따라 빈 칸에 폰을 +1 부여하여 영역을 넓힙니다(최대 3).</li>
         <li><b>능력</b> · 일부 카드는 아군 파워 증가/적 파워 감소 등의 지속 효과를 가집니다.</li>
-        <li><b>종료</b> · 양쪽이 <b>연속으로 2회 패스</b>하면 게임이 끝나고 점수를 정산합니다. (놓을 카드가 없으면 자동으로 패스됩니다)</li>
+        <li><b>종료</b> · <b>양쪽이 연달아 패스</b>하면 종료 여부를 물어본 뒤, 확인하면 무력 총합으로 정산합니다. (놓을 카드가 없으면 자동으로 패스됩니다)</li>
       </ul>
       <div style="text-align:center;margin-top:14px;">
         <button class="btn primary" id="rulesClose">확인</button>
@@ -81,6 +81,17 @@
         <button class="btn ghost" id="deckSave">저장</button>
         <button class="btn primary" id="deckStart">이 덱으로 시작</button>
         <button class="btn ghost" id="deckClose">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="confirmEndModal" hidden>
+    <div class="modal">
+      <h2>⚑ 게임 종료?</h2>
+      <p id="confirmEndText">양측이 연속으로 패스했습니다. 종료하고 정산하시겠습니까?</p>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:8px;">
+        <button class="btn primary" id="confirmEndYes">종료하고 정산</button>
+        <button class="btn ghost" id="confirmEndNo">계속하기</button>
       </div>
     </div>
   </div>

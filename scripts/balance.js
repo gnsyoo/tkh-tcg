@@ -128,10 +128,12 @@ async function heroesRun(diff) {
     const sc = cur();
     if (sc === 'mapScreen') {
       floor++;
-      const re = /<button class="node-btn" data-node="([^"]+)"( disabled)?/g; let m, pick = null;
-      while ((m = re.exec(g('mapTrack')._html))) { if (!m[2]) { pick = m[1]; break; } }
-      if (!pick) break;
-      g('mapTrack').fire('click', mkEvt('.node-btn', { node: pick }, []));
+      if (!/data-act="battle"/.test(g('mapTrack')._html)) break;
+      // occasionally use 정비(rest) before battle if available, to mimic real play
+      if (/data-act="rest"(?![^>]*disabled)/.test(g('mapTrack')._html) && Math.random() < 0.7) {
+        g('mapTrack').fire('click', mkEvt('.camp-btn', { act: 'rest' }, []));
+      }
+      g('mapTrack').fire('click', mkEvt('.camp-btn', { act: 'battle' }, []));
     } else if (sc === 'combatScreen') {
       const hre = /<div class="unit([^"]*)" data-side="party" data-idx="(\d+)"/g; let hm, hero = -1;
       while ((hm = hre.exec(g('partyRow')._html))) { if (hm[1].indexOf('selectable') !== -1) { hero = parseInt(hm[2], 10); break; } }
@@ -169,7 +171,7 @@ async function heroesRun(diff) {
       else g('eventChoices').fire('click', { target: { id: 'evGo', closest: () => null } });
     } else break;
   }
-  return { win: g('overTitle').textContent.indexOf('정복') !== -1, floor };
+  return { win: g('overTitle').textContent.indexOf('통일') !== -1, floor };
 }
 async function runHeroes() {
   const runs = Math.min(N, 300);

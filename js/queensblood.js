@@ -231,11 +231,12 @@
       you: { deck: buildDeck(getPlayerDeck()), hand: [], lastPass: false },
       foe: { deck: buildDeck(aiIds), hand: [], lastPass: false },
       turn: 'you',
-      passes: 0,
       selected: -1,
       over: false,
-      busy: false
+      busy: false,
+      awaitingEnd: false
     };
+    document.getElementById('confirmEndModal').hidden = true;
     draw(state.you, 5);
     draw(state.foe, 5);
     render();
@@ -272,11 +273,11 @@
     placeOnBoard(state.board, def, who, r, c);
     TCG.sfx('place');
     p.hand.splice(handIdx, 1);
-    p.lastPass = false;
-    state.passes = 0;
+    // any placement breaks the consecutive-pass streak for both players
+    state.you.lastPass = false;
+    state.foe.lastPass = false;
     state.selected = -1;
-    // The match ends only on two consecutive passes (handled in doPass);
-    // a full board simply leaves no legal moves, so both sides will pass.
+    // The match ends only when BOTH players pass in succession (handled in doPass);
     state.turn = (who === 'you') ? 'foe' : 'you';
     render();
     startTurn();
@@ -285,13 +286,21 @@
   function doPass(forced) {
     var who = state.turn;
     state[who].lastPass = true;
-    state.passes++;
+    if (!forced) TCG.sfx('tap');
     if (!forced) TCG.toast((who === 'you' ? '당신' : '상대') + ' 패스');
-    if (state.passes >= 2) { render(); endGame(); return; }
+    // end only when BOTH players have passed consecutively — and ask first
+    if (state.you.lastPass && state.foe.lastPass) { promptEnd(); return; }
     state.selected = -1;
     state.turn = (who === 'you') ? 'foe' : 'you';
     render();
     startTurn();
+  }
+
+  function promptEnd() {
+    state.awaitingEnd = true;
+    state.busy = false;
+    render();
+    document.getElementById('confirmEndModal').hidden = false;
   }
 
   function endGame() {
@@ -321,7 +330,7 @@
     var ti = document.getElementById('turnInd');
     ti.textContent = state.over ? '게임 종료' : (state.turn === 'you' ? '당신의 턴' : '상대의 턴…');
     ti.classList.toggle('foe-turn', state.turn === 'foe' && !state.over);
-    document.getElementById('passBtn').disabled = state.over || state.turn !== 'you' || state.busy;
+    document.getElementById('passBtn').disabled = state.over || state.turn !== 'you' || state.busy || state.awaitingEnd;
   }
 
   function renderScore() {
@@ -421,7 +430,7 @@
 
   /* ---------- input ---------- */
   handEl.addEventListener('click', function (e) {
-    if (state.over || state.busy || state.turn !== 'you') return;
+    if (state.over || state.busy || state.awaitingEnd || state.turn !== 'you') return;
     var card = e.target.closest('.hand-card');
     if (!card) return;
     var i = parseInt(card.dataset.i, 10);
@@ -431,7 +440,7 @@
   });
 
   boardEl.addEventListener('click', function (e) {
-    if (state.over || state.busy || state.turn !== 'you') return;
+    if (state.over || state.busy || state.awaitingEnd || state.turn !== 'you') return;
     var tile = e.target.closest('.tile');
     if (!tile || !tile.classList.contains('placeable')) return;
     if (state.selected < 0) return;
@@ -440,8 +449,24 @@
   });
 
   document.getElementById('passBtn').addEventListener('click', function () {
-    if (state.over || state.busy || state.turn !== 'you') return;
+    if (state.over || state.busy || state.awaitingEnd || state.turn !== 'you') return;
     doPass(false);
+  });
+
+  document.getElementById('confirmEndYes').addEventListener('click', function () {
+    document.getElementById('confirmEndModal').hidden = true;
+    state.awaitingEnd = false;
+    endGame();
+  });
+  document.getElementById('confirmEndNo').addEventListener('click', function () {
+    document.getElementById('confirmEndModal').hidden = true;
+    state.awaitingEnd = false;
+    state.you.lastPass = false;
+    state.foe.lastPass = false;
+    state.turn = 'you';
+    state.selected = -1;
+    render();
+    startTurn();
   });
 
   /* ---------- deck builder ---------- */

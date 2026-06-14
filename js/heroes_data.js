@@ -86,7 +86,7 @@ var HW_HEROES = [
 var HW_BY_ID = {};
 HW_HEROES.forEach(function (h) { HW_BY_ID[h.id] = h; });
 
-var HW_STARTERS = ['glad', 'knight', 'priest']; // 전위 · 조인 · 순유
+var HW_STARTERS = ['glad', 'knight', 'priest', 'berserk']; // 전위 · 조인 · 순유 · 장비
 
 /* 적 (삼국지 세력) */
 var HW_ENEMIES = {
@@ -131,27 +131,32 @@ var HW_RELICS = [
 
 /* Difficulty tuning */
 var HW_DIFF = {
-  easy:   { eHp:0.78, eAtk:0.78, gold:1.3, smart:false, startGold:60 },
-  normal: { eHp:0.95, eAtk:0.95, gold:1.0, smart:false, startGold:40 },
+  easy:   { eHp:0.70, eAtk:0.68, gold:1.4, smart:false, startGold:70 },
+  normal: { eHp:0.90, eAtk:0.88, gold:1.0, smart:false, startGold:45 },
   hard:   { eHp:1.22, eAtk:1.18, gold:0.8, smart:true,  startGold:25 }
 };
 
-/* Run map template: each stage offers a choice of node types. */
-var HW_MAP = [
-  ['battle'],
-  ['battle', 'rest'],
-  ['battle', 'treasure'],
-  ['elite', 'shop'],
-  ['battle', 'rest'],
-  ['elite', 'treasure'],
-  ['shop', 'rest'],
-  ['boss']
-];
-var HW_NODE_INFO = {
-  battle:   { icon:'⚔️', label:'전투',   color:'#e8536b' },
-  elite:    { icon:'🎖️', label:'정예',   color:'#c77dff' },
-  rest:     { icon:'🏕️', label:'주둔',   color:'#46c98b' },
-  shop:     { icon:'🏪', label:'저잣거리', color:'#f5c542' },
-  treasure: { icon:'📦', label:'보물',   color:'#5aa6ff' },
-  boss:     { icon:'🏯', label:'보스',   color:'#ff8a4c' }
+/* 적장(스테이지 보스) — 스테이지 진행에 따라 난이도 가산 */
+var HW_COMMANDERS = {
+  cmd_huaxiong:  { name:'화웅',   emoji:'🪓', hp:30,  atk:7 },
+  cmd_yuanshao:  { name:'원소',   emoji:'🎌', hp:36,  atk:7 },
+  cmd_xiahoudun: { name:'하후돈', emoji:'⚔️', hp:42,  atk:8 },
+  cmd_caocao:    { name:'조조',   emoji:'👑', hp:52,  atk:9, aoe:true },
+  cmd_xiahouyuan:{ name:'하후연', emoji:'🏹', hp:58,  atk:9 },
+  cmd_luxun:     { name:'육손',   emoji:'🔥', hp:66,  atk:10, aoe:true },
+  cmd_simayi:    { name:'사마의', emoji:'🪶', hp:70,  atk:10, aoe:true },
+  cmd_simayan:   { name:'사마염', emoji:'👑', hp:78,  atk:10, aoe:true }
 };
+
+/* 전역(campaign) — 8개 역사 스테이지. 뒤로 갈수록 난이도 상승.
+ * reward: 'hero'(영웅 영입) | 'relic'(유물) | 'final'(클리어) */
+var HW_STAGES = [
+  { name:'반동탁 연합군', year:'191년', desc:'동탁의 전횡에 맞서 제후들이 결집한 전투', boss:'cmd_huaxiong',   adds:1, reward:'hero' },
+  { name:'관도대전',     year:'200년', desc:'조조가 원소를 꺾고 하북의 패권을 잡은 전환점', boss:'cmd_yuanshao',  adds:1, reward:'hero' },
+  { name:'장판파 전투',   year:'208년', desc:'퇴각하는 유비를 조운·장비가 지켜낸 전투', boss:'cmd_xiahoudun', adds:2, reward:'hero' },
+  { name:'적벽대전',     year:'208년', desc:'손권·유비 연합군이 화공으로 조조 대군을 격파', boss:'cmd_caocao',    adds:2, reward:'relic' },
+  { name:'정군산 전투',   year:'219년', desc:'유비군이 하후연을 베고 한중을 차지', boss:'cmd_xiahouyuan', adds:2, reward:'hero' },
+  { name:'이릉대전',     year:'222년', desc:'관우의 복수에 나선 유비가 육손에게 대패', boss:'cmd_luxun',     adds:2, reward:'hero' },
+  { name:'제갈량의 북벌', year:'228~234년', desc:'촉의 제갈량이 위를 향해 거듭 북벌에 나섬', boss:'cmd_simayi',   adds:3, reward:'relic' },
+  { name:'위·촉·오 멸망', year:'263~280년', desc:'사마염이 진(晉)을 세워 천하를 통일', boss:'cmd_simayan',  adds:2, reward:'final' }
+];

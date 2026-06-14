@@ -26,6 +26,39 @@
 .node-btn .n-sub { font-size: 10px; color: var(--ink-dim); }
 .node-btn:disabled { cursor: default; }
 
+/* ---- Campaign (역사 스테이지) ---- */
+.camp-stage {
+  background: var(--panel); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px; padding: 10px 12px; transition: opacity 0.15s, border-color 0.15s;
+}
+.camp-stage.done { opacity: 0.55; }
+.camp-stage.locked { opacity: 0.42; }
+.camp-stage.current { border-color: rgba(240,195,60,0.5); box-shadow: 0 0 0 1px rgba(240,195,60,0.28), var(--shadow); }
+.cs-head { display: flex; align-items: center; gap: 10px; }
+.cs-no {
+  width: 26px; height: 26px; border-radius: 50%; flex: 0 0 auto;
+  background: rgba(240,195,60,0.18); color: var(--gold); font-weight: 900; font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+}
+.camp-stage.current .cs-no { background: var(--gold); color: #3a2600; }
+.cs-title { flex: 1; display: flex; flex-direction: column; line-height: 1.15; }
+.cs-title b { font-size: 15px; }
+.cs-title small { font-size: 11px; color: var(--ink-dim); }
+.cs-flag { font-size: 11px; font-weight: 800; color: var(--ink-dim); white-space: nowrap; }
+.camp-stage.current .cs-flag { color: var(--gold); }
+.cs-desc { font-size: 12px; color: var(--ink-dim); margin: 8px 0; line-height: 1.5; }
+.cs-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.camp-btn {
+  background: linear-gradient(180deg, #3a2a20, #2a1c14); color: var(--ink);
+  border: 1px solid rgba(255,255,255,0.16); border-radius: 10px;
+  padding: 9px 16px; font-weight: 800; font-size: 13px;
+  transition: transform 0.08s, box-shadow 0.12s;
+}
+.camp-btn:hover:not(:disabled) { box-shadow: 0 0 0 2px rgba(240,195,60,0.25); }
+.camp-btn:active:not(:disabled) { transform: translateY(1px); }
+.camp-btn.primary { background: linear-gradient(180deg, var(--gold), var(--gold-soft)); color: #3a2600; border-color: var(--gold); }
+.camp-btn:disabled { opacity: 0.4; }
+
 /* party bar (mini portraits) */
 .party-bar { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 6px; }
 .mini-hero {
