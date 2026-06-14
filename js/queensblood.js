@@ -441,6 +441,16 @@
     newGame();
   });
 
+  /* ---------- test/debug handle (no effect on gameplay) ---------- */
+  if (typeof window !== 'undefined') {
+    window.__QB__ = {
+      ROWS: ROWS, COLS: COLS, diff: diff,
+      makeBoard: makeBoard, placeOnBoard: placeOnBoard, canPlace: canPlace,
+      legalMovesFor: legalMovesFor, scoreOf: scoreOf, laneSums: laneSums,
+      effGrid: effGrid, cloneBoard: cloneBoard, territory: territory, boardFull: boardFull
+    };
+  }
+
   /* ---------- boot ---------- */
   document.getElementById('diffPill').textContent = '난이도 ' + TCG.diffLabel(diff);
   newGame();

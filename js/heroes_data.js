@@ -75,9 +75,9 @@ var HW_RELICS = [
 
 /* Difficulty tuning */
 var HW_DIFF = {
-  easy:   { eHp:0.85, eAtk:0.85, gold:1.3, smart:false, startGold:60 },
-  normal: { eHp:1.0,  eAtk:1.0,  gold:1.0, smart:false, startGold:40 },
-  hard:   { eHp:1.28, eAtk:1.22, gold:0.8, smart:true,  startGold:25 }
+  easy:   { eHp:0.78, eAtk:0.78, gold:1.3, smart:false, startGold:60 },
+  normal: { eHp:0.95, eAtk:0.95, gold:1.0, smart:false, startGold:40 },
+  hard:   { eHp:1.22, eAtk:1.18, gold:0.8, smart:true,  startGold:25 }
 };
 
 /* Run map template: each stage offers a choice of node types. */

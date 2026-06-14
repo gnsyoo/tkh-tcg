@@ -395,8 +395,12 @@
 
   function winCombat() {
     var c = run.combat;
-    // revive downed heroes at 25%
-    run.party.forEach(function (h) { if (h.hp <= 0) h.hp = Math.max(1, Math.round(h.maxHp * 0.25)); h.tempAtk = 0; h.block = 0; });
+    // revive downed heroes, then heal the whole party a little (reduces run attrition)
+    run.party.forEach(function (h) {
+      if (h.hp <= 0) h.hp = Math.max(1, Math.round(h.maxHp * 0.35));
+      h.hp = Math.min(h.maxHp, h.hp + Math.round(h.maxHp * 0.15));
+      h.tempAtk = 0; h.block = 0;
+    });
     var wh = relicSum('winHeal');
     if (wh) run.party.forEach(function (h) { h.hp = Math.min(h.maxHp, h.hp + wh); });
     // gold
