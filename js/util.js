@@ -49,10 +49,56 @@ var TCG = (function () {
 
   function delay(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
 
+  /* ---------- sound (WebAudio, no asset files) ---------- */
+  var audioCtx = null, muted = false;
+  try { muted = localStorage.getItem('tcg_muted') === '1'; } catch (e) {}
+  function ensureCtx() {
+    if (audioCtx) return audioCtx;
+    var AC = (typeof window !== 'undefined') && (window.AudioContext || window.webkitAudioContext);
+    if (!AC) return null;
+    try { audioCtx = new AC(); } catch (e) { audioCtx = null; }
+    return audioCtx;
+  }
+  function audioResume() { var c = ensureCtx(); if (c && c.state === 'suspended') { try { c.resume(); } catch (e) {} } }
+  function blip(freq, dur, type, gain, when) {
+    var c = ensureCtx(); if (!c || muted) return;
+    try {
+      var t = c.currentTime + (when || 0);
+      var o = c.createOscillator(), g = c.createGain();
+      o.type = type || 'sine'; o.frequency.value = freq;
+      g.gain.value = 0.0001;
+      o.connect(g); g.connect(c.destination);
+      g.gain.exponentialRampToValueAtTime(gain || 0.12, t + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.start(t); o.stop(t + dur + 0.03);
+    } catch (e) {}
+  }
+  var SFX = {
+    tap: function () { blip(330, 0.05, 'square', 0.04); },
+    place: function () { blip(440, 0.08, 'triangle', 0.09); blip(660, 0.08, 'triangle', 0.07, 0.04); },
+    attack: function () { blip(200, 0.07, 'sawtooth', 0.09); },
+    hit: function () { blip(130, 0.12, 'square', 0.11); },
+    skill: function () { blip(520, 0.06, 'square', 0.08); blip(740, 0.1, 'triangle', 0.08, 0.05); },
+    heal: function () { blip(520, 0.1, 'sine', 0.09); blip(820, 0.12, 'sine', 0.07, 0.07); },
+    win: function () { [523, 659, 784, 1047].forEach(function (f, i) { blip(f, 0.18, 'triangle', 0.11, i * 0.1); }); },
+    lose: function () { [392, 330, 262].forEach(function (f, i) { blip(f, 0.26, 'sawtooth', 0.09, i * 0.12); }); },
+    reward: function () { [659, 880].forEach(function (f, i) { blip(f, 0.14, 'triangle', 0.1, i * 0.08); }); }
+  };
+  function sfx(name) { if (SFX[name]) SFX[name](); }
+  function toggleMute() { muted = !muted; try { localStorage.setItem('tcg_muted', muted ? '1' : '0'); } catch (e) {} return muted; }
+  function isMuted() { return muted; }
+  // resume audio on first user gesture (browser autoplay policy)
+  if (typeof document !== 'undefined' && document.addEventListener) {
+    var _once = function () { audioResume(); document.removeEventListener('pointerdown', _once); document.removeEventListener('keydown', _once); };
+    document.addEventListener('pointerdown', _once);
+    document.addEventListener('keydown', _once);
+  }
+
   return {
     getDifficulty: getDifficulty,
     diffLabel: diffLabel,
     rand: rand, pick: pick, shuffle: shuffle, clamp: clamp,
-    toast: toast, floatText: floatText, delay: delay
+    toast: toast, floatText: floatText, delay: delay,
+    sfx: sfx, toggleMute: toggleMute, isMuted: isMuted, audioResume: audioResume
   };
 })();

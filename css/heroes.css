@@ -73,6 +73,15 @@
   position: absolute; bottom: 4px; right: 4px; font-size: 12px;
 }
 
+.unit.hitflash { animation: hitFlash 0.26s ease; }
+@keyframes hitFlash {
+  0% { transform: translateX(0); }
+  18% { transform: translateX(-4px) scale(1.04); filter: brightness(1.9) saturate(1.4); }
+  42% { transform: translateX(4px); }
+  66% { transform: translateX(-2px); }
+  100% { transform: translateX(0); filter: none; }
+}
+
 .combat-mid { display: flex; align-items: center; gap: 12px; margin: 12px 0; }
 .energy { font-weight: 800; font-size: 15px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .energy .orb { width: 16px; height: 16px; border-radius: 50%; background: rgba(255,255,255,0.12); display: inline-block; }

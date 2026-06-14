@@ -31,12 +31,50 @@
     document.getElementById('diffPill').textContent = '난이도 ' + TCG.diffLabel(diff);
   }
 
+  /* ---------- save / continue ---------- */
+  function saveRun() {
+    try {
+      if (!run) return;
+      localStorage.setItem('hw_save', JSON.stringify({
+        v: 1, diff: diff,
+        party: run.party.map(function (h) { return { id: h.def.id, maxHp: h.maxHp, atk: h.atk, hp: h.hp, uid: h.uid }; }),
+        gold: run.gold, stage: run.stage,
+        relics: run.relics.map(function (r) { return r.id; }),
+        path: run.path
+      }));
+    } catch (e) {}
+  }
+  function clearSave() { try { localStorage.removeItem('hw_save'); } catch (e) {} }
+  function loadSave() {
+    try {
+      var raw = localStorage.getItem('hw_save'); if (!raw) return null;
+      var d = JSON.parse(raw);
+      if (!d || !Array.isArray(d.party) || !d.party.length) return null;
+      if (!d.party.every(function (h) { return HW_BY_ID[h.id]; })) return null;
+      return d;
+    } catch (e) { return null; }
+  }
+  function resumeRun(d) {
+    var relicById = {}; HW_RELICS.forEach(function (r) { relicById[r.id] = r; });
+    run = {
+      party: d.party.map(function (h) {
+        return { uid: h.uid || (h.id + '_' + Math.random().toString(36).slice(2, 7)), def: HW_BY_ID[h.id], maxHp: h.maxHp, atk: h.atk, hp: h.hp };
+      }),
+      gold: d.gold || 0, stage: d.stage || 0,
+      relics: (d.relics || []).map(function (id) { return relicById[id]; }).filter(Boolean),
+      path: d.path || [], combat: null
+    };
+    updateTop(); renderMap(); show('mapScreen');
+  }
+
   /* ---------- run lifecycle ---------- */
   function newRun() {
+    clearSave();
     run = { party: HW_STARTERS.map(mkHero), gold: DCFG.startGold, stage: 0, relics: [], path: [], combat: null };
     updateTop();
     renderMap();
     show('mapScreen');
+    saveRun();
   }
 
   /* ---------- MAP ---------- */
@@ -71,7 +109,8 @@
     document.getElementById('mapParty').innerHTML = run.party.map(miniHero).join('');
   }
   function nodeBtn(type, info, disabled, current) {
-    return '<button class="node-btn" data-node="' + type + '"' + (disabled ? ' disabled' : '') + '>' +
+    info = info || HW_NODE_INFO[type] || HW_NODE_INFO.battle;
+    return '<button class="node-btn" data-node="' + (type || 'battle') + '"' + (disabled ? ' disabled' : '') + '>' +
       '<span class="n-ico" style="filter:drop-shadow(0 0 6px ' + info.color + ')">' + info.icon + '</span>' +
       '<span class="n-label">' + info.label + '</span>' +
       '<span class="n-sub">' + (current ? '선택' : '') + '</span></button>';
@@ -81,6 +120,7 @@
     if (!btn || btn.disabled) return;
     var type = btn.dataset.node;
     run.path[run.stage] = type;
+    TCG.sfx('tap');
     enterNode(type);
   });
   document.getElementById('mapParty').addEventListener('click', onMiniClick);
@@ -103,6 +143,7 @@
     if (run.stage >= HW_MAP.length) { victory(); return; }
     renderMap();
     show('mapScreen');
+    saveRun();
   }
 
   /* ---------- COMBAT ---------- */
@@ -287,17 +328,22 @@
     }
   }
 
+  function flash(el) {
+    if (!el || !el.classList) return;
+    el.classList.add('hitflash');
+    setTimeout(function () { el.classList.remove('hitflash'); }, 240);
+  }
   function dmgEnemy(e, dmg, el) {
     var d = dmg;
     if (e.block > 0) { var ab = Math.min(e.block, d); e.block -= ab; d -= ab; }
     e.hp -= d;
-    if (el) floatOn(el, '-' + dmg, '#ff8a8a');
+    if (el) { floatOn(el, '-' + dmg, '#ff8a8a'); flash(el); }
   }
   function dmgHero(h, dmg, el) {
     var d = dmg;
     if (h.block > 0) { var ab = Math.min(h.block, d); h.block -= ab; d -= ab; if (el && ab) floatOn(el, '🛡' + ab, '#9fd2ff'); }
     h.hp -= d;
-    if (el && d > 0) floatOn(el, '-' + d, '#ff8a8a');
+    if (el && d > 0) { floatOn(el, '-' + d, '#ff8a8a'); flash(el); }
   }
   function enemyEl(idx) { return document.querySelector('#enemyRow .unit[data-idx="' + idx + '"]'); }
   function partyEl(idx) { return document.querySelector('#partyRow .unit[data-idx="' + idx + '"]'); }
@@ -305,6 +351,7 @@
   function doAttack(h, enemy) {
     var c = run.combat;
     var dmg = h.atk + (h.tempAtk || 0);
+    TCG.sfx('attack');
     dmgEnemy(enemy, dmg, enemyEl(c.enemies.indexOf(enemy)));
     var ls = relicSum('lifesteal');
     if (ls) h.hp = Math.min(h.maxHp, h.hp + ls);
@@ -314,6 +361,7 @@
   function doSkill(h, target) {
     var c = run.combat; var sk = h.def.skill;
     c.energy -= sk.cost;
+    TCG.sfx(sk.type === 'heal' ? 'heal' : 'skill');
     var pw = h.atk + (h.tempAtk || 0);
     if (sk.type === 'strike') {
       var dmg = pw + sk.val;
@@ -375,6 +423,7 @@
       var e = foes[step++];
       if (e.hp <= 0) { next(); return; }
       var intent = e.intent;
+      TCG.sfx('hit');
       if (intent.type === 'aoe') {
         living(run.party).forEach(function (h) { dmgHero(h, intent.dmg, partyEl(run.party.indexOf(h))); });
         logMsg(e.name + ' 전체 공격 ' + intent.dmg);
@@ -395,6 +444,7 @@
 
   function winCombat() {
     var c = run.combat;
+    TCG.sfx('win');
     // revive downed heroes, then heal the whole party a little (reduces run attrition)
     run.party.forEach(function (h) {
       if (h.hp <= 0) h.hp = Math.max(1, Math.round(h.maxHp * 0.35));
@@ -447,6 +497,7 @@
   }
   document.getElementById('rewardCards').addEventListener('click', function (e) {
     var card = e.target.closest('.reward-card'); if (!card) return;
+    TCG.sfx('reward');
     if (run.rewardMode === 'relic') {
       var r = HW_RELICS.find(function (x) { return x.id === card.dataset.relic; });
       run.relics.push(r); TCG.toast('유물 획득: ' + r.name); afterReward(); return;
@@ -571,11 +622,15 @@
 
   /* ---------- end states ---------- */
   function gameOver() {
+    clearSave();
+    TCG.sfx('lose');
     document.getElementById('overTitle').textContent = '💀 전멸';
     document.getElementById('overText').textContent = (run.stage + 1) + '층에서 파티가 전멸했습니다. 다시 도전하세요!';
     document.getElementById('overModal').hidden = false;
   }
   function victory() {
+    clearSave();
+    TCG.sfx('win');
     document.getElementById('overTitle').textContent = '👑 정복 완료!';
     document.getElementById('overText').textContent = '보스를 물리치고 모든 층을 클리어했습니다! 영웅들이 환호합니다.';
     document.getElementById('overModal').hidden = false;
@@ -605,5 +660,31 @@
   });
 
   /* ---------- boot ---------- */
-  newRun();
+  var muteBtn = document.getElementById('muteBtn');
+  if (muteBtn) {
+    muteBtn.textContent = TCG.isMuted() ? '🔇' : '🔊';
+    muteBtn.addEventListener('click', function () {
+      var m = TCG.toggleMute(); muteBtn.textContent = m ? '🔇' : '🔊';
+      TCG.audioResume(); if (!m) TCG.sfx('tap');
+    });
+  }
+  var saved = loadSave();
+  var continued = false;
+  document.getElementById('continueBtn').addEventListener('click', function () {
+    document.getElementById('startModal').hidden = true;
+    TCG.audioResume();
+    if (saved) resumeRun(saved); else newRun();
+  });
+  document.getElementById('newRunBtn').addEventListener('click', function () {
+    document.getElementById('startModal').hidden = true;
+    TCG.audioResume();
+    newRun();
+  });
+  if (saved) {
+    document.getElementById('startText').textContent =
+      '진행 중인 모험이 있습니다 (' + (saved.stage + 1) + '층 · 파티 ' + saved.party.length + '명). 이어서 하시겠어요?';
+    document.getElementById('startModal').hidden = false;
+  } else {
+    newRun();
+  }
 })();

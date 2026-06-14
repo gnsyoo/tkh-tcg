@@ -210,7 +210,46 @@
 .end-score .e-you { color: var(--you); }
 .end-score .e-foe { color: var(--foe); }
 
+/* Deck builder */
+.deck-modal { max-width: 720px; }
+.deck-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(82px, 1fr));
+  gap: 7px;
+  max-height: 56vh;
+  overflow-y: auto;
+  padding: 4px;
+  margin: 10px 0;
+}
+.deck-card {
+  position: relative;
+  border-radius: 9px;
+  background: linear-gradient(165deg, #241f47, #1a1638);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 5px;
+  cursor: pointer;
+  transition: transform 0.1s, border-color 0.12s, box-shadow 0.12s;
+  text-align: center;
+}
+.deck-card:hover { transform: translateY(-2px); }
+.deck-card.sel { border-color: var(--gold); box-shadow: 0 0 0 1.5px var(--gold), 0 4px 12px rgba(245,197,66,0.3); background: linear-gradient(165deg, #2e2752, #221c44); }
+.deck-card .dc-top { display: flex; justify-content: space-between; align-items: center; }
+.deck-card .hc-power { font-weight: 900; font-size: 13px; color: #fff; background: rgba(0,0,0,0.32); border-radius: 5px; padding: 0 5px; }
+.deck-card .dc-emoji { font-size: 26px; line-height: 1.1; }
+.deck-card .dc-name { font-size: 10px; font-weight: 800; }
+.deck-card .dc-ab { font-size: 8px; color: var(--gold); line-height: 1.1; min-height: 18px; }
+.deck-card .dc-check {
+  position: absolute; top: 3px; right: 4px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--gold); color: #2a1f00; font-size: 11px; font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+}
+.deck-card .rank-pips { display: flex; gap: 2px; }
+.deck-card .rank-pips .rp { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+.deck-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+
 @media (max-width: 420px) {
   .board { grid-template-columns: 22px repeat(5, 1fr) 22px; gap: 4px; }
   .hand-card { flex-basis: 94px; }
+  .deck-grid { grid-template-columns: repeat(auto-fill, minmax(74px, 1fr)); }
 }

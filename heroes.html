@@ -16,6 +16,7 @@
     <span class="pill" id="goldPill">💰 0</span>
     <span class="pill" id="floorPill">층 1</span>
     <span class="pill" id="diffPill">난이도</span>
+    <button class="btn ghost" id="muteBtn" style="padding:6px 10px;font-size:14px;" title="소리">🔊</button>
   </div>
 
   <main class="hw-main" id="hwMain">
@@ -76,6 +77,18 @@
       <div class="reward-cards" id="eventChoices"></div>
     </section>
   </main>
+
+  <!-- Continue / new run -->
+  <div class="overlay" id="startModal" hidden>
+    <div class="modal">
+      <h2>🗺️ 모험</h2>
+      <p id="startText">진행 중인 모험이 있습니다. 이어서 하시겠어요?</p>
+      <div style="display:flex;gap:10px;justify-content:center;">
+        <button class="btn primary" id="continueBtn">이어하기</button>
+        <button class="btn ghost" id="newRunBtn">새 모험</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Game over / victory -->
   <div class="overlay" id="overModal" hidden>

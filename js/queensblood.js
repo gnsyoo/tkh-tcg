@@ -212,11 +212,25 @@
     }
   }
 
+  var DECK_SIZE = 15;
+  function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  function getPlayerDeck() {
+    var saved = lsGet('qb_deck');
+    if (saved) {
+      try {
+        var ids = JSON.parse(saved);
+        if (Array.isArray(ids) && ids.length === DECK_SIZE && ids.every(function (id) { return QB_BY_ID[id]; })) return ids;
+      } catch (e) {}
+    }
+    return QB_DECK_PLAYER.slice();
+  }
+
   function newGame() {
     var aiIds = diff === 'hard' ? QB_DECK_AI_HARD : QB_DECK_AI_NORMAL;
     state = {
       board: makeBoard(),
-      you: { deck: buildDeck(QB_DECK_PLAYER), hand: [], lastPass: false },
+      you: { deck: buildDeck(getPlayerDeck()), hand: [], lastPass: false },
       foe: { deck: buildDeck(aiIds), hand: [], lastPass: false },
       turn: 'you',
       passes: 0,
@@ -258,6 +272,7 @@
     var p = state[who];
     var def = p.hand[handIdx];
     placeOnBoard(state.board, def, who, r, c);
+    TCG.sfx('place');
     p.hand.splice(handIdx, 1);
     p.lastPass = false;
     state.passes = 0;
@@ -284,8 +299,8 @@
     state.over = true;
     var s = scoreOf(state.board);
     var title, text;
-    if (s.you > s.foe) { title = '🏆 승리!'; text = '각 줄의 파워 차이 합계에서 앞섰습니다.'; }
-    else if (s.foe > s.you) { title = '😢 패배'; text = '상대가 더 많은 점수를 얻었습니다.'; }
+    if (s.you > s.foe) { title = '🏆 승리!'; text = '각 줄의 파워 차이 합계에서 앞섰습니다.'; TCG.sfx('win'); }
+    else if (s.foe > s.you) { title = '😢 패배'; text = '상대가 더 많은 점수를 얻었습니다.'; TCG.sfx('lose'); }
     else { title = '🤝 무승부'; text = '점수가 같습니다.'; }
     document.getElementById('endTitle').textContent = title;
     document.getElementById('endText').textContent = text;
@@ -430,6 +445,55 @@
     doPass(false);
   });
 
+  /* ---------- deck builder ---------- */
+  var builderDeck = null;
+  function openDeckBuilder() {
+    builderDeck = getPlayerDeck().slice();
+    renderDeckBuilder();
+    document.getElementById('deckModal').hidden = false;
+  }
+  function renderDeckBuilder() {
+    document.getElementById('deckCount').textContent = builderDeck.length + '/' + DECK_SIZE;
+    document.getElementById('deckGrid').innerHTML = QB_CARDS.map(function (c) {
+      var sel = builderDeck.indexOf(c.id) !== -1;
+      var rp = ''; for (var k = 0; k < c.rank; k++) rp += '<span class="rp"></span>';
+      return '<div class="deck-card' + (sel ? ' sel' : '') + '" data-id="' + c.id + '">' +
+        '<div class="dc-top"><div class="rank-pips">' + rp + '</div><span class="hc-power">' + c.power + '</span></div>' +
+        '<div class="dc-emoji">' + c.emoji + '</div>' +
+        '<div class="dc-name">' + c.name + '</div>' +
+        '<div class="dc-ab">' + (c.ab ? c.ab.txt : '') + '</div>' +
+        (sel ? '<div class="dc-check">✓</div>' : '') + '</div>';
+    }).join('');
+  }
+  document.getElementById('deckGrid').addEventListener('click', function (e) {
+    var card = e.target.closest('.deck-card'); if (!card) return;
+    var id = card.dataset.id;
+    var i = builderDeck.indexOf(id);
+    if (i !== -1) builderDeck.splice(i, 1);
+    else if (builderDeck.length >= DECK_SIZE) { TCG.toast('덱은 ' + DECK_SIZE + '장까지입니다'); return; }
+    else builderDeck.push(id);
+    TCG.sfx('tap');
+    renderDeckBuilder();
+  });
+  document.getElementById('deckDefault').addEventListener('click', function () {
+    builderDeck = QB_DECK_PLAYER.slice(); renderDeckBuilder();
+  });
+  document.getElementById('deckSave').addEventListener('click', function () {
+    if (builderDeck.length !== DECK_SIZE) { TCG.toast(DECK_SIZE + '장을 모두 채워주세요 (' + builderDeck.length + '/' + DECK_SIZE + ')'); return; }
+    lsSet('qb_deck', JSON.stringify(builderDeck)); TCG.toast('덱을 저장했습니다');
+  });
+  document.getElementById('deckStart').addEventListener('click', function () {
+    if (builderDeck.length !== DECK_SIZE) { TCG.toast(DECK_SIZE + '장을 모두 채워주세요 (' + builderDeck.length + '/' + DECK_SIZE + ')'); return; }
+    lsSet('qb_deck', JSON.stringify(builderDeck));
+    document.getElementById('deckModal').hidden = true;
+    document.getElementById('endModal').hidden = true;
+    newGame();
+  });
+  document.getElementById('deckClose').addEventListener('click', function () {
+    document.getElementById('deckModal').hidden = true;
+  });
+  document.getElementById('deckBtn').addEventListener('click', openDeckBuilder);
+
   document.getElementById('rulesBtn').addEventListener('click', function () {
     document.getElementById('rulesModal').hidden = false;
   });
@@ -452,6 +516,14 @@
   }
 
   /* ---------- boot ---------- */
+  var muteBtn = document.getElementById('muteBtn');
+  if (muteBtn) {
+    muteBtn.textContent = TCG.isMuted() ? '🔇' : '🔊';
+    muteBtn.addEventListener('click', function () {
+      var m = TCG.toggleMute(); muteBtn.textContent = m ? '🔇' : '🔊';
+      TCG.audioResume(); if (!m) TCG.sfx('tap');
+    });
+  }
   document.getElementById('diffPill').textContent = '난이도 ' + TCG.diffLabel(diff);
   newGame();
 })();
