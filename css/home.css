@@ -82,8 +82,8 @@
   opacity: 0.18;
   z-index: 0;
 }
-.game-card.heroes::before { background: radial-gradient(circle at 50% 0%, #ff8a4c, transparent 70%); }
-.game-card.queens::before { background: radial-gradient(circle at 50% 0%, #8a5cff, transparent 70%); }
+.game-card.heroes::before { background: radial-gradient(circle at 50% 0%, #e0483f, transparent 70%); }
+.game-card.queens::before { background: radial-gradient(circle at 50% 0%, #f0c33c, transparent 70%); }
 .game-card > * { position: relative; z-index: 1; }
 .game-card:hover {
   transform: translateY(-4px);

@@ -1,107 +1,107 @@
-/* ===== Heroes Wanted — data ===== */
-
-/* Hero cards. skill.target: 'enemy' | 'allEnemies' | 'lowestAlly' | 'ally' | 'self'
+/* ===== 삼국지 영웅모집 — data =====
+ * (이름/이모지/테마만 삼국지로. 스탯·스킬·id·밸런스는 추후 장수별로 세팅 예정.)
+ * skill.target: 'enemy' | 'allEnemies' | 'lowestAlly' | 'ally' | 'self'
  * skill.type:   'strike'(+val dmg single) | 'aoe'(val to all) | 'multi'(hits N, each = atk)
  *               'heal'(val) | 'shield'(val block) | 'buff'(+val atk) */
 var HW_HEROES = [
-  { id:'glad',   name:'검투사',   emoji:'🗡️', cls:'전사', rarity:'C', hp:32, atk:7,
-    skill:{ name:'강타', cost:2, type:'strike', val:6, target:'enemy', desc:'적 1명에게 공격력+6 피해' } },
-  { id:'knight', name:'기사',     emoji:'🛡️', cls:'수호', rarity:'C', hp:42, atk:5,
-    skill:{ name:'방패올리기', cost:1, type:'shield', val:9, target:'ally', desc:'아군 1명에게 방어막 9' } },
-  { id:'mage',   name:'마법사',   emoji:'🔮', cls:'마법', rarity:'R', hp:22, atk:5,
-    skill:{ name:'화염구', cost:3, type:'aoe', val:6, target:'allEnemies', desc:'모든 적에게 6 피해' } },
-  { id:'archer', name:'궁수',     emoji:'🏹', cls:'사격', rarity:'C', hp:24, atk:6,
+  { id:'glad',   name:'전위',   emoji:'⚔️', cls:'전사', rarity:'C', hp:32, atk:7,
+    skill:{ name:'쌍철극', cost:2, type:'strike', val:6, target:'enemy', desc:'적 1명에게 공격력+6 피해' } },
+  { id:'knight', name:'조인',   emoji:'🛡️', cls:'수호', rarity:'C', hp:42, atk:5,
+    skill:{ name:'견벽수성', cost:1, type:'shield', val:9, target:'ally', desc:'아군 1명에게 방어막 9' } },
+  { id:'mage',   name:'순욱',   emoji:'🔥', cls:'책략', rarity:'R', hp:22, atk:5,
+    skill:{ name:'화공', cost:3, type:'aoe', val:6, target:'allEnemies', desc:'모든 적에게 6 피해' } },
+  { id:'archer', name:'황충',   emoji:'🏹', cls:'궁수', rarity:'C', hp:24, atk:6,
     skill:{ name:'연속사격', cost:2, type:'multi', val:3, target:'enemy', desc:'무작위 적을 3회 공격' } },
-  { id:'priest', name:'성직자',   emoji:'✨', cls:'치유', rarity:'R', hp:26, atk:4,
-    skill:{ name:'치유의 빛', cost:2, type:'heal', val:15, target:'lowestAlly', desc:'가장 약한 아군 15 회복' } },
-  { id:'rogue',  name:'도적',     emoji:'🥷', cls:'암살', rarity:'C', hp:22, atk:8,
-    skill:{ name:'암습', cost:2, type:'strike', val:9, target:'enemy', desc:'적 1명에게 공격력+9 피해' } },
-  { id:'berserk',name:'광전사',   emoji:'🪓', cls:'전사', rarity:'R', hp:34, atk:9,
-    skill:{ name:'분노베기', cost:1, type:'strike', val:5, target:'enemy', desc:'적 1명에게 공격력+5 피해' } },
-  { id:'paladin',name:'팔라딘',   emoji:'⚜️', cls:'수호', rarity:'R', hp:38, atk:6,
-    skill:{ name:'축복', cost:2, type:'buff', val:4, target:'ally', desc:'아군 1명 공격력 +4 (전투 동안)' } },
-  { id:'valk',   name:'발키리',   emoji:'🪽', cls:'사격', rarity:'R', hp:28, atk:7,
-    skill:{ name:'천벌', cost:2, type:'aoe', val:5, target:'allEnemies', desc:'모든 적에게 5 피해' } },
-  { id:'druid',  name:'드루이드', emoji:'🌿', cls:'치유', rarity:'C', hp:30, atk:5,
-    skill:{ name:'재생', cost:1, type:'heal', val:9, target:'lowestAlly', desc:'가장 약한 아군 9 회복' } },
-  { id:'monk',   name:'몽크',     emoji:'👊', cls:'전사', rarity:'C', hp:30, atk:7,
-    skill:{ name:'연환권', cost:1, type:'multi', val:2, target:'enemy', desc:'무작위 적을 2회 공격' } },
-  { id:'warlock',name:'흑마법사', emoji:'💀', cls:'마법', rarity:'SR', hp:20, atk:6,
-    skill:{ name:'저주폭발', cost:3, type:'aoe', val:8, target:'allEnemies', desc:'모든 적에게 8 피해' } },
-  { id:'templar',name:'템플러',   emoji:'⚔️', cls:'수호', rarity:'R', hp:36, atk:6,
-    skill:{ name:'성스러운 방패', cost:2, type:'shield', val:12, target:'ally', desc:'아군 1명에게 방어막 12' } },
-  { id:'hunter', name:'사냥꾼',   emoji:'🐺', cls:'사격', rarity:'C', hp:26, atk:7,
+  { id:'priest', name:'순유',   emoji:'📜', cls:'책사', rarity:'R', hp:26, atk:4,
+    skill:{ name:'치료술', cost:2, type:'heal', val:15, target:'lowestAlly', desc:'가장 약한 아군 15 회복' } },
+  { id:'rogue',  name:'마대',   emoji:'🐎', cls:'기습', rarity:'C', hp:22, atk:8,
+    skill:{ name:'기습', cost:2, type:'strike', val:9, target:'enemy', desc:'적 1명에게 공격력+9 피해' } },
+  { id:'berserk',name:'장비',   emoji:'🍶', cls:'전사', rarity:'R', hp:34, atk:9,
+    skill:{ name:'장팔사모', cost:1, type:'strike', val:5, target:'enemy', desc:'적 1명에게 공격력+5 피해' } },
+  { id:'paladin',name:'손권',   emoji:'👑', cls:'군주', rarity:'R', hp:38, atk:6,
+    skill:{ name:'고무', cost:2, type:'buff', val:4, target:'ally', desc:'아군 1명 공격력 +4 (전투 동안)' } },
+  { id:'valk',   name:'태사자', emoji:'🏹', cls:'궁수', rarity:'R', hp:28, atk:7,
+    skill:{ name:'화살비', cost:2, type:'aoe', val:5, target:'allEnemies', desc:'모든 적에게 5 피해' } },
+  { id:'druid',  name:'정욱',   emoji:'📜', cls:'책사', rarity:'C', hp:30, atk:5,
+    skill:{ name:'구휼', cost:1, type:'heal', val:9, target:'lowestAlly', desc:'가장 약한 아군 9 회복' } },
+  { id:'monk',   name:'주창',   emoji:'🪓', cls:'전사', rarity:'C', hp:30, atk:7,
+    skill:{ name:'난격', cost:1, type:'multi', val:2, target:'enemy', desc:'무작위 적을 2회 공격' } },
+  { id:'warlock',name:'사마의', emoji:'🪶', cls:'책략', rarity:'SR', hp:20, atk:6,
+    skill:{ name:'화계', cost:3, type:'aoe', val:8, target:'allEnemies', desc:'모든 적에게 8 피해' } },
+  { id:'templar',name:'도겸',   emoji:'🏯', cls:'수호', rarity:'R', hp:36, atk:6,
+    skill:{ name:'성벽 방어', cost:2, type:'shield', val:12, target:'ally', desc:'아군 1명에게 방어막 12' } },
+  { id:'hunter', name:'마등',   emoji:'🏹', cls:'궁수', rarity:'C', hp:26, atk:7,
     skill:{ name:'정조준', cost:2, type:'strike', val:7, target:'enemy', desc:'적 1명에게 공격력+7 피해' } },
-  { id:'samurai',name:'사무라이', emoji:'🗾', cls:'전사', rarity:'SR', hp:30, atk:9,
-    skill:{ name:'발도', cost:2, type:'strike', val:11, target:'enemy', desc:'적 1명에게 공격력+11 피해' } },
-  { id:'oracle', name:'점술가',   emoji:'🔯', cls:'치유', rarity:'SR', hp:24, atk:5,
-    skill:{ name:'대천사 가호', cost:3, type:'heal', val:12, target:'lowestAlly', desc:'가장 약한 아군 12 회복 + 방어막' } },
-  // ---- expanded roster ----
-  { id:'spear',   name:'창병',     emoji:'🔱', cls:'전사', rarity:'C', hp:30, atk:8,
-    skill:{ name:'관통', cost:2, type:'strike', val:7, target:'enemy', desc:'적 1명에게 공격력+7 피해' } },
-  { id:'cavalier',name:'기병',     emoji:'🐎', cls:'전사', rarity:'R', hp:34, atk:8,
-    skill:{ name:'돌격', cost:2, type:'strike', val:8, target:'enemy', desc:'적 1명에게 공격력+8 피해' } },
-  { id:'ninja',   name:'닌자',     emoji:'🌑', cls:'암살', rarity:'R', hp:22, atk:9,
-    skill:{ name:'수리검 난사', cost:1, type:'multi', val:3, target:'enemy', desc:'무작위 적을 3회 공격' } },
-  { id:'dancer',  name:'무희',     emoji:'💃', cls:'사격', rarity:'R', hp:24, atk:6,
-    skill:{ name:'칼날 난무', cost:2, type:'multi', val:4, target:'enemy', desc:'무작위 적을 4회 공격' } },
-  { id:'shaman',  name:'주술사',   emoji:'🪬', cls:'마법', rarity:'R', hp:24, atk:6,
-    skill:{ name:'연쇄 번개', cost:3, type:'aoe', val:6, target:'allEnemies', desc:'모든 적에게 6 피해' } },
-  { id:'frost',   name:'빙결술사', emoji:'❄️', cls:'마법', rarity:'SR', hp:22, atk:6,
-    skill:{ name:'서리 폭풍', cost:3, type:'aoe', val:7, target:'allEnemies', desc:'모든 적에게 7 피해' } },
-  { id:'bulwark', name:'방패술사', emoji:'🧱', cls:'수호', rarity:'R', hp:46, atk:4,
-    skill:{ name:'철벽', cost:2, type:'shield', val:15, target:'ally', desc:'아군 1명에게 방어막 15' } },
-  { id:'bard',    name:'음유시인', emoji:'🎶', cls:'치유', rarity:'R', hp:26, atk:5,
-    skill:{ name:'응원가', cost:2, type:'buff', val:5, target:'ally', desc:'아군 1명 공격력 +5 (전투 동안)' } },
-  { id:'sage',    name:'현자',     emoji:'📜', cls:'치유', rarity:'SR', hp:26, atk:5,
-    skill:{ name:'대치유', cost:3, type:'heal', val:20, target:'lowestAlly', desc:'가장 약한 아군 20 회복' } },
-  { id:'reaper',  name:'사신',     emoji:'⚰️', cls:'암살', rarity:'SR', hp:24, atk:10,
-    skill:{ name:'사형선고', cost:2, type:'strike', val:13, target:'enemy', desc:'적 1명에게 공격력+13 피해' } }
+  { id:'samurai',name:'관우',   emoji:'🗡️', cls:'전사', rarity:'SR', hp:30, atk:9,
+    skill:{ name:'청룡언월도', cost:2, type:'strike', val:11, target:'enemy', desc:'적 1명에게 공격력+11 피해' } },
+  { id:'oracle', name:'제갈량', emoji:'🪶', cls:'책사', rarity:'SR', hp:24, atk:5,
+    skill:{ name:'팔진도', cost:3, type:'heal', val:12, target:'lowestAlly', desc:'가장 약한 아군 12 회복 + 방어막' } },
+  // ---- 추가 장수 ----
+  { id:'spear',   name:'안량',   emoji:'🔱', cls:'전사', rarity:'C', hp:30, atk:8,
+    skill:{ name:'창격', cost:2, type:'strike', val:7, target:'enemy', desc:'적 1명에게 공격력+7 피해' } },
+  { id:'cavalier',name:'마초',   emoji:'🐎', cls:'기마', rarity:'R', hp:34, atk:8,
+    skill:{ name:'서량철기', cost:2, type:'strike', val:8, target:'enemy', desc:'적 1명에게 공격력+8 피해' } },
+  { id:'ninja',   name:'여몽',   emoji:'🗡️', cls:'기습', rarity:'R', hp:22, atk:9,
+    skill:{ name:'백의도강', cost:1, type:'multi', val:3, target:'enemy', desc:'무작위 적을 3회 공격' } },
+  { id:'dancer',  name:'문추',   emoji:'🏹', cls:'궁수', rarity:'R', hp:24, atk:6,
+    skill:{ name:'연환사', cost:2, type:'multi', val:4, target:'enemy', desc:'무작위 적을 4회 공격' } },
+  { id:'shaman',  name:'방통',   emoji:'🔥', cls:'책략', rarity:'R', hp:24, atk:6,
+    skill:{ name:'연환계', cost:3, type:'aoe', val:6, target:'allEnemies', desc:'모든 적에게 6 피해' } },
+  { id:'frost',   name:'주유',   emoji:'🔥', cls:'책략', rarity:'SR', hp:22, atk:6,
+    skill:{ name:'적벽대화', cost:3, type:'aoe', val:7, target:'allEnemies', desc:'모든 적에게 7 피해' } },
+  { id:'bulwark', name:'허저',   emoji:'🛡️', cls:'수호', rarity:'R', hp:46, atk:4,
+    skill:{ name:'호위', cost:2, type:'shield', val:15, target:'ally', desc:'아군 1명에게 방어막 15' } },
+  { id:'bard',    name:'서서',   emoji:'📜', cls:'책사', rarity:'R', hp:26, atk:5,
+    skill:{ name:'계책', cost:2, type:'buff', val:5, target:'ally', desc:'아군 1명 공격력 +5 (전투 동안)' } },
+  { id:'sage',    name:'유비',   emoji:'👑', cls:'군주', rarity:'SR', hp:26, atk:5,
+    skill:{ name:'인덕', cost:3, type:'heal', val:20, target:'lowestAlly', desc:'가장 약한 아군 20 회복' } },
+  { id:'reaper',  name:'조운',   emoji:'🗡️', cls:'전사', rarity:'SR', hp:24, atk:10,
+    skill:{ name:'단기필마', cost:2, type:'strike', val:13, target:'enemy', desc:'적 1명에게 공격력+13 피해' } }
 ];
 var HW_BY_ID = {};
 HW_HEROES.forEach(function (h) { HW_BY_ID[h.id] = h; });
 
-var HW_STARTERS = ['glad', 'knight', 'priest'];
+var HW_STARTERS = ['glad', 'knight', 'priest']; // 전위 · 조인 · 순유
 
-/* Enemies by tier */
+/* 적 (삼국지 세력) */
 var HW_ENEMIES = {
   basic: [
-    { id:'slime',  name:'슬라임',   emoji:'🟢', hp:14, atk:4 },
-    { id:'gob',    name:'고블린',   emoji:'👺', hp:16, atk:5 },
-    { id:'bat',    name:'박쥐',     emoji:'🦇', hp:10, atk:6 },
-    { id:'wolf',   name:'늑대',     emoji:'🐺', hp:18, atk:5 },
-    { id:'skel',   name:'해골병',   emoji:'💀', hp:15, atk:5 },
-    { id:'spiderE',name:'독거미',   emoji:'🕷️', hp:16, atk:5 },
-    { id:'zombie', name:'좀비',     emoji:'🧟', hp:22, atk:4 },
-    { id:'impE',   name:'임프',     emoji:'😈', hp:12, atk:6 },
-    { id:'mush',   name:'버섯괴물', emoji:'🍄', hp:20, atk:5 }
+    { id:'slime',  name:'황건적 졸개', emoji:'☯️', hp:14, atk:4 },
+    { id:'gob',    name:'산적',       emoji:'🪓', hp:16, atk:5 },
+    { id:'bat',    name:'도적',       emoji:'🗡️', hp:10, atk:6 },
+    { id:'wolf',   name:'굶주린 이리', emoji:'🐺', hp:18, atk:5 },
+    { id:'skel',   name:'반란병',     emoji:'🔻', hp:15, atk:5 },
+    { id:'spiderE',name:'자객',       emoji:'🥷', hp:16, atk:5 },
+    { id:'zombie', name:'황건역사',   emoji:'💪', hp:22, atk:4 },
+    { id:'impE',   name:'노략꾼',     emoji:'🎒', hp:12, atk:6 },
+    { id:'mush',   name:'맹호',       emoji:'🐯', hp:20, atk:5 }
   ],
   elite: [
-    { id:'orc',    name:'오크 전사', emoji:'🧌', hp:34, atk:8 },
-    { id:'golem',  name:'바위 골렘', emoji:'🗿', hp:50, atk:6 },
-    { id:'witch',  name:'마녀',     emoji:'🧙', hp:28, atk:7, aoe:true },
-    { id:'bandit', name:'산적 두목', emoji:'🪓', hp:30, atk:9 },
-    { id:'ogre',   name:'오우거',   emoji:'👹', hp:42, atk:9 },
-    { id:'darkmage',name:'흑마도사', emoji:'🧙‍♂️', hp:30, atk:8, aoe:true },
-    { id:'troll',  name:'트롤',     emoji:'🧌', hp:48, atk:7 }
+    { id:'orc',    name:'황건적 두목', emoji:'☯️', hp:34, atk:8 },
+    { id:'golem',  name:'철갑병',     emoji:'🛡️', hp:50, atk:6 },
+    { id:'witch',  name:'요술사',     emoji:'🔮', hp:28, atk:7, aoe:true },
+    { id:'bandit', name:'산적 두목',   emoji:'🪓', hp:30, atk:9 },
+    { id:'ogre',   name:'적장',       emoji:'🐲', hp:42, atk:9 },
+    { id:'darkmage',name:'사술사',    emoji:'🔥', hp:30, atk:8, aoe:true },
+    { id:'troll',  name:'이민족 거한', emoji:'🪨', hp:48, atk:7 }
   ],
   boss: [
-    { id:'dragon', name:'고대 드래곤', emoji:'🐉', hp:130, atk:14, aoe:true },
-    { id:'lich',   name:'리치 군주',   emoji:'☠️', hp:110, atk:12, aoe:true },
-    { id:'mino',   name:'미노타우르스 왕', emoji:'🐂', hp:150, atk:13 },
-    { id:'demon',  name:'데몬 로드',   emoji:'👿', hp:138, atk:13, aoe:true },
-    { id:'hydra',  name:'독사 히드라', emoji:'🐍', hp:150, atk:12, aoe:true },
-    { id:'kraken2',name:'심연의 크라켄', emoji:'🦑', hp:160, atk:13 }
+    { id:'dragon', name:'여포',       emoji:'🐎', hp:130, atk:14, aoe:true },
+    { id:'lich',   name:'동탁',       emoji:'👹', hp:110, atk:12, aoe:true },
+    { id:'mino',   name:'화웅',       emoji:'🪓', hp:150, atk:13 },
+    { id:'demon',  name:'원술',       emoji:'👑', hp:138, atk:13, aoe:true },
+    { id:'hydra',  name:'장각',       emoji:'☯️', hp:150, atk:12, aoe:true },
+    { id:'kraken2',name:'남만왕 맹획', emoji:'🐘', hp:160, atk:13 }
   ]
 };
 
-/* Relics (passive battle bonuses) */
+/* 보물 (병법/군용품) */
 var HW_RELICS = [
-  { id:'banner', name:'강철 깃발',   emoji:'🚩', desc:'매 라운드 에너지 +1', effect:{ energy:1 } },
-  { id:'fang',   name:'흡혈 송곳니', emoji:'🦷', desc:'기본 공격 시 HP 2 회복',  effect:{ lifesteal:2 } },
-  { id:'drum',   name:'전쟁 북',     emoji:'🥁', desc:'전투 시작 시 전원 공격력 +2', effect:{ startAtk:2 } },
-  { id:'crest',  name:'수호자 문장', emoji:'🛡️', desc:'전투 시작 시 전원 방어막 5',  effect:{ startBlock:5 } },
-  { id:'chalice',name:'생명의 성배', emoji:'🏆', desc:'전투 승리 후 전원 HP 6 회복', effect:{ winHeal:6 } }
+  { id:'banner', name:'대장군 깃발', emoji:'🚩', desc:'매 라운드 에너지 +1', effect:{ energy:1 } },
+  { id:'fang',   name:'적토마',     emoji:'🐎', desc:'기본 공격 시 HP 2 회복',  effect:{ lifesteal:2 } },
+  { id:'drum',   name:'전고(戰鼓)', emoji:'🥁', desc:'전투 시작 시 전원 공격력 +2', effect:{ startAtk:2 } },
+  { id:'crest',  name:'방패 진형',  emoji:'🛡️', desc:'전투 시작 시 전원 방어막 5',  effect:{ startBlock:5 } },
+  { id:'chalice',name:'군량미',     emoji:'🍚', desc:'전투 승리 후 전원 HP 6 회복', effect:{ winHeal:6 } }
 ];
 
 /* Difficulty tuning */
@@ -124,9 +124,9 @@ var HW_MAP = [
 ];
 var HW_NODE_INFO = {
   battle:   { icon:'⚔️', label:'전투',   color:'#e8536b' },
-  elite:    { icon:'💀', label:'정예',   color:'#c77dff' },
-  rest:     { icon:'🔥', label:'휴식',   color:'#46c98b' },
-  shop:     { icon:'🛒', label:'상점',   color:'#f5c542' },
-  treasure: { icon:'💎', label:'보물',   color:'#5aa6ff' },
-  boss:     { icon:'👑', label:'보스',   color:'#ff8a4c' }
+  elite:    { icon:'🎖️', label:'정예',   color:'#c77dff' },
+  rest:     { icon:'🏕️', label:'주둔',   color:'#46c98b' },
+  shop:     { icon:'🏪', label:'저잣거리', color:'#f5c542' },
+  treasure: { icon:'📦', label:'보물',   color:'#5aa6ff' },
+  boss:     { icon:'🏯', label:'보스',   color:'#ff8a4c' }
 };

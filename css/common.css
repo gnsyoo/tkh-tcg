@@ -1,21 +1,22 @@
 /* ===== Shared base styles for the TCG mockups ===== */
 :root {
-  --bg-0: #0d0b1a;
-  --bg-1: #15122a;
-  --bg-2: #201a3d;
-  --panel: rgba(34, 28, 64, 0.72);
-  --panel-solid: #241d45;
-  --gold: #f5c542;
-  --gold-soft: #d9a826;
-  --ink: #ece8ff;
-  --ink-dim: #a99fd1;
-  --red: #e8536b;
-  --green: #46c98b;
+  /* 삼국지 테마: 먹빛 + 주홍 + 금 */
+  --bg-0: #140d0b;
+  --bg-1: #1f1411;
+  --bg-2: #2c1b15;
+  --panel: rgba(48, 30, 24, 0.74);
+  --panel-solid: #2a1a14;
+  --gold: #f0c33c;
+  --gold-soft: #cf9a2a;
+  --ink: #f3e9da;
+  --ink-dim: #c4ab90;
+  --red: #e0483f;
+  --green: #5bb87a;
   --blue: #5aa6ff;
   --you: #4f9bff;
-  --foe: #ff6b6b;
+  --foe: #e0483f;
   --radius: 14px;
-  --shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -30,8 +31,8 @@ body {
   font-family: "Trebuchet MS", "Noto Sans KR", system-ui, -apple-system, sans-serif;
   color: var(--ink);
   background:
-    radial-gradient(1200px 600px at 50% -10%, #2a2350 0%, transparent 60%),
-    linear-gradient(160deg, var(--bg-0), var(--bg-1) 60%, #0a0814);
+    radial-gradient(1200px 600px at 50% -10%, #43241b 0%, transparent 60%),
+    linear-gradient(160deg, var(--bg-0), var(--bg-1) 60%, #0c0706);
   background-attachment: fixed;
   -webkit-text-size-adjust: 100%;
 }
