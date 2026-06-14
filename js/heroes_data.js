@@ -56,7 +56,32 @@ var HW_HEROES = [
   { id:'sage',    name:'유비',   emoji:'👑', cls:'군주', rarity:'SR', hp:26, atk:5,
     skill:{ name:'인덕', cost:3, type:'heal', val:20, target:'lowestAlly', desc:'가장 약한 아군 20 회복' } },
   { id:'reaper',  name:'조운',   emoji:'🗡️', cls:'전사', rarity:'SR', hp:24, atk:10,
-    skill:{ name:'단기필마', cost:2, type:'strike', val:13, target:'enemy', desc:'적 1명에게 공격력+13 피해' } }
+    skill:{ name:'단기필마', cost:2, type:'strike', val:13, target:'enemy', desc:'적 1명에게 공격력+13 피해' } },
+  // ---- 추가 장수 2차 ----
+  { id:'caocao',   name:'조조',   emoji:'👑', cls:'군주', rarity:'SR', hp:30, atk:6,
+    skill:{ name:'간웅', cost:3, type:'buff', val:6, target:'ally', desc:'아군 1명 공격력 +6 (전투 동안)' } },
+  { id:'xiahoudun',name:'하후돈', emoji:'⚔️', cls:'전사', rarity:'R', hp:36, atk:8,
+    skill:{ name:'발시담정', cost:2, type:'strike', val:8, target:'enemy', desc:'적 1명에게 공격력+8 피해' } },
+  { id:'xiahouyuan',name:'하후연',emoji:'🏹', cls:'궁수', rarity:'R', hp:26, atk:7,
+    skill:{ name:'질풍사격', cost:1, type:'multi', val:3, target:'enemy', desc:'무작위 적을 3회 공격' } },
+  { id:'sunce',    name:'손책',   emoji:'🗡️', cls:'전사', rarity:'SR', hp:30, atk:9,
+    skill:{ name:'소패왕', cost:2, type:'strike', val:12, target:'enemy', desc:'적 1명에게 공격력+12 피해' } },
+  { id:'ganning',  name:'감녕',   emoji:'🏹', cls:'기습', rarity:'R', hp:26, atk:8,
+    skill:{ name:'백기겁영', cost:2, type:'strike', val:9, target:'enemy', desc:'적 1명에게 공격력+9 피해' } },
+  { id:'luxun',    name:'육손',   emoji:'🔥', cls:'책략', rarity:'SR', hp:22, atk:6,
+    skill:{ name:'이릉대화', cost:3, type:'aoe', val:9, target:'allEnemies', desc:'모든 적에게 9 피해' } },
+  { id:'jiangwei', name:'강유',   emoji:'⚔️', cls:'전사', rarity:'R', hp:32, atk:8,
+    skill:{ name:'기산북벌', cost:2, type:'strike', val:8, target:'enemy', desc:'적 1명에게 공격력+8 피해' } },
+  { id:'pangde',   name:'방덕',   emoji:'🪓', cls:'전사', rarity:'R', hp:34, atk:8,
+    skill:{ name:'항우의 용맹', cost:1, type:'strike', val:6, target:'enemy', desc:'적 1명에게 공격력+6 피해' } },
+  { id:'huanggai', name:'황개',   emoji:'🔥', cls:'수호', rarity:'R', hp:40, atk:6,
+    skill:{ name:'고육화공', cost:3, type:'aoe', val:6, target:'allEnemies', desc:'모든 적에게 6 피해' } },
+  { id:'zhanghe',  name:'장합',   emoji:'🐎', cls:'기마', rarity:'R', hp:32, atk:8,
+    skill:{ name:'우회 기동', cost:2, type:'strike', val:7, target:'enemy', desc:'적 1명에게 공격력+7 피해' } },
+  { id:'dengai',   name:'등애',   emoji:'📜', cls:'책사', rarity:'R', hp:26, atk:6,
+    skill:{ name:'기습 보급', cost:2, type:'shield', val:13, target:'ally', desc:'아군 1명에게 방어막 13' } },
+  { id:'huatuo',   name:'화타',   emoji:'🩹', cls:'의원', rarity:'SR', hp:24, atk:4,
+    skill:{ name:'청낭서', cost:2, type:'heal', val:18, target:'lowestAlly', desc:'가장 약한 아군 18 회복' } }
 ];
 var HW_BY_ID = {};
 HW_HEROES.forEach(function (h) { HW_BY_ID[h.id] = h; });

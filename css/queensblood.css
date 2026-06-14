@@ -186,6 +186,13 @@
   background: rgba(0,0,0,0.3); border-radius: 6px; padding: 0 6px;
 }
 .hand-card .hc-emoji { font-size: 34px; text-align: center; margin: 2px 0; }
+.hand-card .portrait { width: 100%; height: 46px; margin: 2px 0; }
+.hand-card .portrait .p-emoji { font-size: 30px; }
+.tile-card .portrait { position: absolute; inset: 0; border-radius: 7px; }
+.tile-card .portrait .p-emoji { font-size: 22px; }
+.tile-card .pw { z-index: 2; }
+.deck-card .portrait { width: 100%; height: 40px; margin: 2px 0; }
+.deck-card .portrait .p-emoji { font-size: 24px; }
 .hand-card .hc-name { font-size: 11px; font-weight: 800; text-align: center; line-height: 1.1; }
 .hand-card .hc-ab {
   font-size: 9px; color: var(--gold); text-align: center; line-height: 1.15;

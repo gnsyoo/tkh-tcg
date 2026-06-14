@@ -84,7 +84,7 @@
   }
   function miniHero(h) {
     return '<div class="mini-hero" data-uid="' + h.uid + '">' +
-      '<div class="mh-emoji">' + h.def.emoji + '</div>' +
+      TCG.portrait(h.def.emoji, h.def.id) +
       '<div class="mh-name">' + h.def.name + '</div>' +
       '<div class="mh-stats">❤' + h.hp + '/' + h.maxHp + ' ⚔' + h.atk + '</div>' +
       hpBar(h) + '</div>';
@@ -312,7 +312,7 @@
       return '<div class="unit enemy' + (dead ? ' dead' : '') + (tgt ? ' targetable' : '') + '" data-side="enemy" data-idx="' + idx + '">' +
         (dead ? '' : '<div class="u-intent">' + intentTxt + '</div>') +
         (e.block > 0 ? '<div class="u-block">🛡' + e.block + '</div>' : '') +
-        '<div class="u-emoji">' + e.emoji + '</div>' +
+        TCG.portrait(e.emoji, e.name) +
         '<div class="u-name">' + e.name + '</div>' +
         '<div class="u-hp-text">❤ ' + Math.max(0, e.hp) + '/' + e.maxHp + '</div>' +
         hpBar({ hp: Math.max(0, e.hp), maxHp: e.maxHp }, true) + '</div>';
@@ -330,7 +330,7 @@
       return '<div class="' + cls + '" data-side="party" data-idx="' + idx + '">' +
         '<div class="u-atk' + (h.tempAtk ? ' boosted' : '') + '">⚔' + (h.atk + (h.tempAtk || 0)) + '</div>' +
         (h.block > 0 ? '<div class="u-block">🛡' + h.block + '</div>' : '') +
-        '<div class="u-emoji">' + h.def.emoji + '</div>' +
+        TCG.portrait(h.def.emoji, h.def.id) +
         '<div class="u-name">' + h.def.name + '</div>' +
         '<div class="u-hp-text">❤ ' + Math.max(0, h.hp) + '/' + h.maxHp + '</div>' +
         hpBar({ hp: Math.max(0, h.hp), maxHp: h.maxHp }) +
@@ -576,7 +576,7 @@
   }
   function heroRewardCard(d) {
     return '<div class="reward-card" data-hero="' + d.id + '">' +
-      '<div class="rc-emoji">' + d.emoji + '</div>' +
+      TCG.portrait(d.emoji, d.id, 'rc-portrait') +
       '<div class="rc-name">' + d.name + '</div>' +
       '<div class="rc-rarity rar-' + d.rarity + '">' + d.rarity + ' · ' + d.cls + '</div>' +
       '<div class="rc-stats">❤' + d.hp + ' ⚔' + d.atk + '</div>' +
@@ -730,7 +730,7 @@
   function showHeroModal(h) {
     var d = h.def;
     document.getElementById('heroModalBody').innerHTML =
-      '<div style="font-size:48px">' + d.emoji + '</div>' +
+      TCG.portrait(d.emoji, d.id, 'modal-portrait') +
       '<h2>' + d.name + ' <span class="rar-' + d.rarity + '" style="font-size:14px">' + d.rarity + '</span></h2>' +
       '<p>' + d.cls + ' · ❤ ' + h.hp + '/' + h.maxHp + ' · ⚔ ' + h.atk + '</p>' +
       '<div style="background:rgba(0,0,0,.25);border-radius:10px;padding:10px;text-align:left;font-size:13px">' +

@@ -127,12 +127,10 @@
   }
 
   function scoreOf(b) {
+    // 승패 정산: 배치한 모든 카드의 (효과 적용) 무력 총합이 높은 쪽이 승리
     var lanes = laneSums(b);
     var you = 0, foe = 0;
-    lanes.forEach(function (l) {
-      if (l.you > l.foe) you += (l.you - l.foe);
-      else if (l.foe > l.you) foe += (l.foe - l.you);
-    });
+    lanes.forEach(function (l) { you += l.you; foe += l.foe; });
     return { you: you, foe: foe, lanes: lanes };
   }
 
@@ -277,7 +275,8 @@
     p.lastPass = false;
     state.passes = 0;
     state.selected = -1;
-    if (boardFull(state.board)) { render(); endGame(); return; }
+    // The match ends only on two consecutive passes (handled in doPass);
+    // a full board simply leaves no legal moves, so both sides will pass.
     state.turn = (who === 'you') ? 'foe' : 'you';
     render();
     startTurn();
@@ -299,9 +298,9 @@
     state.over = true;
     var s = scoreOf(state.board);
     var title, text;
-    if (s.you > s.foe) { title = '🏆 승리!'; text = '각 줄의 파워 차이 합계에서 앞섰습니다.'; TCG.sfx('win'); }
-    else if (s.foe > s.you) { title = '😢 패배'; text = '상대가 더 많은 점수를 얻었습니다.'; TCG.sfx('lose'); }
-    else { title = '🤝 무승부'; text = '점수가 같습니다.'; }
+    if (s.you > s.foe) { title = '🏆 승리!'; text = '연속 2회 패스로 종료 · 배치한 카드 무력 총합에서 앞섰습니다.'; TCG.sfx('win'); }
+    else if (s.foe > s.you) { title = '😢 패배'; text = '연속 2회 패스로 종료 · 상대의 무력 총합이 더 높았습니다.'; TCG.sfx('lose'); }
+    else { title = '🤝 무승부'; text = '연속 2회 패스로 종료 · 무력 총합이 같습니다.'; }
     document.getElementById('endTitle').textContent = title;
     document.getElementById('endText').textContent = text;
     document.getElementById('endScore').innerHTML =
@@ -329,7 +328,7 @@
     var s = scoreOf(state.board);
     var html = '<div class="score-total">' +
       '<span class="you-pts">' + s.you + '</span>' +
-      '<span class="vs">점수 (줄별 차이 합산)</span>' +
+      '<span class="vs">총 무력 (배치 카드 합산)</span>' +
       '<span class="foe-pts">' + s.foe + '</span></div>';
     document.getElementById('scoreboard').innerHTML = html;
   }
@@ -365,7 +364,7 @@
           var base = cell.card.def.power;
           var pwCls = eff > base ? ' buffed' : (eff < base ? ' debuffed' : '');
           html += '<div class="tile-card ' + cell.card.owner + '">' +
-            '<span class="emoji">' + cell.card.def.emoji + '</span>' +
+            TCG.portrait(cell.card.def.emoji, cell.card.def.id, 'tp') +
             '<span class="pw' + pwCls + '">' + eff + '</span></div>';
         }
         html += '</div>';
@@ -403,7 +402,7 @@
       for (var k = 0; k < def.rank; k++) rp += '<span class="rp"></span>';
       html += '<div class="' + cls + '" data-i="' + i + '">' +
         '<div class="hc-top"><div class="rank-pips">' + rp + '</div><span class="hc-power">' + def.power + '</span></div>' +
-        '<div class="hc-emoji">' + def.emoji + '</div>' +
+        TCG.portrait(def.emoji, def.id) +
         '<div class="hc-name">' + def.name + '</div>' +
         '<div class="hc-ab">' + (def.ab ? def.ab.txt : '') + '</div>' +
         enhGlyph(def) +
@@ -459,7 +458,7 @@
       var rp = ''; for (var k = 0; k < c.rank; k++) rp += '<span class="rp"></span>';
       return '<div class="deck-card' + (sel ? ' sel' : '') + '" data-id="' + c.id + '">' +
         '<div class="dc-top"><div class="rank-pips">' + rp + '</div><span class="hc-power">' + c.power + '</span></div>' +
-        '<div class="dc-emoji">' + c.emoji + '</div>' +
+        TCG.portrait(c.emoji, c.id) +
         '<div class="dc-name">' + c.name + '</div>' +
         '<div class="dc-ab">' + (c.ab ? c.ab.txt : '') + '</div>' +
         (sel ? '<div class="dc-check">✓</div>' : '') + '</div>';

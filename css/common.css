@@ -173,3 +173,27 @@ a { color: inherit; text-decoration: none; }
   font-weight: 700;
 }
 .backlink:hover { color: var(--gold); }
+
+/* ===== procedural card portrait (장수패) ===== */
+.portrait {
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 9px;
+  background:
+    radial-gradient(circle at 50% 26%, hsla(var(--h, 40), 75%, 60%, 0.4), transparent 62%),
+    linear-gradient(165deg, hsl(var(--h, 40), 44%, 32%), hsl(var(--h, 40), 50%, 14%));
+  box-shadow: inset 0 0 0 1.5px rgba(240, 195, 60, 0.55), inset 0 -8px 16px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+.portrait::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(135deg, rgba(255,255,255,0.06) 0 2px, transparent 2px 8px);
+}
+.portrait::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 34%; pointer-events: none;
+  background: linear-gradient(to top, rgba(0,0,0,0.45), transparent);
+}
+.portrait .p-emoji {
+  position: relative; z-index: 1; line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.7));
+}

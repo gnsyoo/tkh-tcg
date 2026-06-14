@@ -21,6 +21,18 @@ var TCG = (function () {
     return a;
   }
   function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+  // deterministic hue (0-359) from a string — used for procedural card portraits
+  function hue(str) {
+    str = String(str || '');
+    var h = 0;
+    for (var i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0;
+    return h % 360;
+  }
+  // portrait frame markup: a framed "silk" medallion with the emoji as the figure
+  function portrait(emoji, seed, extraClass) {
+    return '<div class="portrait ' + (extraClass || '') + '" style="--h:' + hue(seed) + '">' +
+      '<span class="p-emoji">' + emoji + '</span></div>';
+  }
 
   var toastEl = null;
   var toastTimer = null;
@@ -98,6 +110,7 @@ var TCG = (function () {
     getDifficulty: getDifficulty,
     diffLabel: diffLabel,
     rand: rand, pick: pick, shuffle: shuffle, clamp: clamp,
+    hue: hue, portrait: portrait,
     toast: toast, floatText: floatText, delay: delay,
     sfx: sfx, toggleMute: toggleMute, isMuted: isMuted, audioResume: audioResume
   };

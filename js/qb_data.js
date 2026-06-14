@@ -1,4 +1,4 @@
-/* ===== 히어로 블러드 — card database (38 cards) =====
+/* ===== 히어로즈 블러드 — card database (38 cards) =====
  * (이름/이모지만 삼국지로. 좌표·스탯·능력·id·덱은 그대로.)
  * Coordinate system (from the owner's perspective):
  *   enh / ability cells are [dRow, dCol]; +dCol = "forward" (toward the enemy).
@@ -69,7 +69,17 @@ var QB_CARDS = [
     ab: { t:'buff', who:'ally', cells:[[-1,0],[1,0],[0,1],[0,-1]], val:1, txt:'사방 아군 +1' } },
   { id: 'colossus',   name: '마초',     emoji: '🐎', rank: 3, power: 9, enh: [[-1,0],[1,0]] },
   { id: 'archfiend',  name: '화웅',     emoji: '🪓', rank: 3, power: 7, enh: [[-1,1],[0,1],[1,1]],
-    ab: { t:'debuff', who:'enemy', cells:[[-1,1],[0,1],[1,1]], val:2, txt:'전방 적 -2' } }
+    ab: { t:'debuff', who:'enemy', cells:[[-1,1],[0,1],[1,1]], val:2, txt:'전방 적 -2' } },
+
+  // ---------- 2차 추가 ----------
+  { id: 'crossbow',   name: '노궁병',   emoji: '🎯', rank: 1, power: 2, enh: [[0,1]] },
+  { id: 'ganning',    name: '감녕',     emoji: '🏹', rank: 2, power: 5, enh: [[-1,1],[1,1]] },
+  { id: 'jiangwei',   name: '강유',     emoji: '⚔️', rank: 2, power: 4, enh: [[0,1],[-1,0],[1,0]] },
+  { id: 'huanggai',   name: '황개',     emoji: '🔥', rank: 2, power: 3, enh: [[0,1]],
+    ab: { t:'debuff', who:'enemy', cells:[[0,1],[0,2]], val:1, txt:'정면 직선 적 -1' } },
+  { id: 'pangde',     name: '방덕',     emoji: '🪓', rank: 2, power: 5, enh: [[0,1],[1,0]] },
+  { id: 'luxun',      name: '육손',     emoji: '🔥', rank: 3, power: 6, enh: [[-1,0],[1,0],[0,1]],
+    ab: { t:'buff', who:'ally', scope:'row', val:2, txt:'같은 줄 아군 +2' } }
 ];
 
 var QB_BY_ID = {};
