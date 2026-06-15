@@ -234,7 +234,8 @@
       selected: -1,
       over: false,
       busy: false,
-      awaitingEnd: false
+      awaitingEnd: false,
+      youPasses: 0
     };
     document.getElementById('confirmEndModal').hidden = true;
     draw(state.you, 5);
@@ -273,11 +274,11 @@
     placeOnBoard(state.board, def, who, r, c);
     TCG.sfx('place');
     p.hand.splice(handIdx, 1);
-    // any placement breaks the consecutive-pass streak for both players
+    // 내가 카드를 놓으면 내 패스 누적이 초기화됨 (종료는 '내 패스 2회'로만)
+    if (who === 'you') state.youPasses = 0;
     state.you.lastPass = false;
     state.foe.lastPass = false;
     state.selected = -1;
-    // The match ends only when BOTH players pass in succession (handled in doPass);
     state.turn = (who === 'you') ? 'foe' : 'you';
     render();
     startTurn();
@@ -286,10 +287,12 @@
   function doPass(forced) {
     var who = state.turn;
     state[who].lastPass = true;
-    if (!forced) TCG.sfx('tap');
-    if (!forced) TCG.toast((who === 'you' ? '당신' : '상대') + ' 패스');
-    // end only when BOTH players have passed consecutively — and ask first
-    if (state.you.lastPass && state.foe.lastPass) { promptEnd(); return; }
+    if (!forced) { TCG.sfx('tap'); TCG.toast((who === 'you' ? '당신' : '상대') + ' 패스'); }
+    // 내가(플레이어) 2번 패스하면 종료 여부를 물어봄. 상대 패스로는 끝나지 않음.
+    if (who === 'you') {
+      state.youPasses = (state.youPasses || 0) + 1;
+      if (state.youPasses >= 2) { promptEnd(); return; }
+    }
     state.selected = -1;
     state.turn = (who === 'you') ? 'foe' : 'you';
     render();
@@ -307,9 +310,9 @@
     state.over = true;
     var s = scoreOf(state.board);
     var title, text;
-    if (s.you > s.foe) { title = '🏆 승리!'; text = '연속 2회 패스로 종료 · 배치한 카드 무력 총합에서 앞섰습니다.'; TCG.sfx('win'); }
-    else if (s.foe > s.you) { title = '😢 패배'; text = '연속 2회 패스로 종료 · 상대의 무력 총합이 더 높았습니다.'; TCG.sfx('lose'); }
-    else { title = '🤝 무승부'; text = '연속 2회 패스로 종료 · 무력 총합이 같습니다.'; }
+    if (s.you > s.foe) { title = '🏆 승리!'; text = '패스 2회로 종료 · 배치한 카드 무력 총합에서 앞섰습니다.'; TCG.sfx('win'); }
+    else if (s.foe > s.you) { title = '😢 패배'; text = '패스 2회로 종료 · 상대의 무력 총합이 더 높았습니다.'; TCG.sfx('lose'); }
+    else { title = '🤝 무승부'; text = '패스 2회로 종료 · 무력 총합이 같습니다.'; }
     document.getElementById('endTitle').textContent = title;
     document.getElementById('endText').textContent = text;
     document.getElementById('endScore').innerHTML =
@@ -461,6 +464,7 @@
   document.getElementById('confirmEndNo').addEventListener('click', function () {
     document.getElementById('confirmEndModal').hidden = true;
     state.awaitingEnd = false;
+    state.youPasses = 0;
     state.you.lastPass = false;
     state.foe.lastPass = false;
     state.turn = 'you';
