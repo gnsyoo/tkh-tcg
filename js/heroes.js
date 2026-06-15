@@ -9,23 +9,27 @@
   /* ---------- helpers ---------- */
   function mkHero(id) {
     var d = HW_BY_ID[id];
-    return { uid: id + '_' + Math.random().toString(36).slice(2, 7), def: d, atk: d.atk, weapon: null };
+    return { uid: id + '_' + Math.random().toString(36).slice(2, 7), def: d, atk: d.atk, weapons: [] };
   }
   function relicSum(key) {
     return run.relics.reduce(function (s, r) { return s + (r.effect[key] || 0); }, 0);
   }
-  // 무기 효과 헬퍼
-  function wpn(h) { return h && h.weapon ? HW_WEAPON_BY_ID[h.weapon] : null; }
-  function wpnVal(h, key) { var w = wpn(h); return w && w.effect[key] ? w.effect[key] : 0; }
+  // 무기 효과 헬퍼 (SSR은 무기 2개 장착 가능)
+  function weaponSlots(h) { return h && h.def && h.def.rarity === 'SSR' ? 2 : 1; }
+  function heroWpnIds(h) { return (h && h.weapons) ? h.weapons : []; }
+  function heroWpns(h) { return heroWpnIds(h).map(function (id) { return HW_WEAPON_BY_ID[id]; }).filter(Boolean); }
+  function wpnVal(h, key) { return heroWpns(h).reduce(function (s, w) { return s + (w.effect[key] || 0); }, 0); }
+  function hasWpnFlag(h, key) { return heroWpns(h).some(function (w) { return !!w.effect[key]; }); }
   function effAtk(h) { return h.atk + wpnVal(h, 'atk') + (run.combat ? (run.combat.atkBuff || 0) : 0); }
   function lordMaxHp() { return HW_LORD.hp + run.party.reduce(function (s, h) { return s + wpnVal(h, 'lordHp'); }, 0); }
   function lordMaxMp() { return HW_LORD.mp + run.party.reduce(function (s, h) { return s + wpnVal(h, 'lordMp'); }, 0); }
   function skillMp(sk) { return 2 + (sk.cost || 1); } // 스킬 MP 비용 3~5
+  function ownedHeroIds() { return run.party.map(function (h) { return h.def.id; }); } // 중복 수집 방지
   // 보유 무기 중 아직 장착되지 않은 것들(중복 보유 허용)
   function freeWeaponIds() {
     var owned = (run.weapons || []).slice();
     run.party.forEach(function (h) {
-      if (h.weapon) { var i = owned.indexOf(h.weapon); if (i !== -1) owned.splice(i, 1); }
+      heroWpnIds(h).forEach(function (wid) { var i = owned.indexOf(wid); if (i !== -1) owned.splice(i, 1); });
     });
     return owned;
   }
@@ -56,7 +60,7 @@
       if (!run) return;
       localStorage.setItem('hw_save', JSON.stringify({
         v: 3, diff: diff,
-        party: run.party.map(function (h) { return { id: h.def.id, atk: h.atk, uid: h.uid, weapon: h.weapon || null }; }),
+        party: run.party.map(function (h) { return { id: h.def.id, atk: h.atk, uid: h.uid, weapons: heroWpnIds(h).slice() }; }),
         gold: run.gold, mainStage: run.mainStage, subStage: run.subStage,
         relics: run.relics.map(function (r) { return r.id; }),
         weapons: run.weapons.slice(), sorties: run.sorties || 0,
@@ -78,7 +82,10 @@
     var relicById = {}; HW_RELICS.forEach(function (r) { relicById[r.id] = r; });
     run = {
       party: d.party.map(function (h) {
-        return { uid: h.uid || (h.id + '_' + Math.random().toString(36).slice(2, 7)), def: HW_BY_ID[h.id], atk: h.atk, weapon: (h.weapon && HW_WEAPON_BY_ID[h.weapon]) ? h.weapon : null };
+        var slots = (HW_BY_ID[h.id].rarity === 'SSR') ? 2 : 1;
+        var ws = Array.isArray(h.weapons) ? h.weapons.slice() : (h.weapon ? [h.weapon] : []); // 구버전 호환
+        ws = ws.filter(function (id) { return HW_WEAPON_BY_ID[id]; }).slice(0, slots);
+        return { uid: h.uid || (h.id + '_' + Math.random().toString(36).slice(2, 7)), def: HW_BY_ID[h.id], atk: h.atk, weapons: ws };
       }),
       gold: d.gold || 0,
       mainStage: Math.min(Math.max(0, d.mainStage || 0), HW_STAGES.length - 1),
@@ -106,13 +113,28 @@
     return '<div class="hpbar' + (foe ? ' foe' : '') + '"><i style="width:' + pct + '%"></i></div>';
   }
   function miniHero(h) {
-    var w = wpn(h);
+    var ws = heroWpns(h).map(function (w) { return w.emoji; }).join('');
     return '<div class="mini-hero" data-uid="' + h.uid + '">' +
+      '<span class="mh-rar rar-' + h.def.rarity + '">' + h.def.rarity + '</span>' +
       TCG.portrait(h.def.emoji, h.def.id) +
       '<div class="mh-name">' + h.def.name + '</div>' +
-      '<div class="mh-stats">⚔' + effAtk(h) + (w ? ' <span class="mh-wpn">' + w.emoji + '</span>' : '') + '</div></div>';
+      '<div class="mh-stats">⚔' + effAtk(h) + (ws ? ' <span class="mh-wpn">' + ws + '</span>' : '') + '</div></div>';
+  }
+  // 히어로즈 블러드 결과로 적립된 보너스 골드를 모험 골드에 반영(승리=가산, 패배=차감)
+  function applyBonusGold() {
+    try {
+      var b = parseInt(localStorage.getItem('hw_bonus_gold') || '0', 10);
+      if (b) {
+        localStorage.setItem('hw_bonus_gold', '0');
+        var before = run.gold;
+        run.gold = Math.max(0, run.gold + b);
+        var delta = run.gold - before;
+        TCG.toast('히어로즈 블러드 정산 골드 ' + (b > 0 ? '+' : '') + b + (delta !== b ? ' (적용 ' + delta + ')' : ''));
+      }
+    } catch (e) {}
   }
   function showMap() {
+    applyBonusGold();
     updateTop();
     renderCampaign();
     show('mapScreen');
@@ -373,10 +395,12 @@
     document.getElementById('enemyRow').innerHTML = c.enemies.map(function (e, idx) {
       var dead = e.hp <= 0;
       var tgt = c.targeting && c.pending && c.pending.side === 'enemy' && !dead;
-      var intentTxt = e.intent ? (e.intent.type === 'aoe' ? '💥' + e.intent.dmg : '⚔️' + e.intent.dmg) : '';
-      return '<div class="unit enemy' + (dead ? ' dead' : '') + (tgt ? ' targetable' : '') + '" data-side="enemy" data-idx="' + idx + '">' +
+      var charmed = e.charmed > 0;
+      var intentTxt = charmed ? '💤 매혹' : (e.intent ? (e.intent.type === 'aoe' ? '💥' + e.intent.dmg : '⚔️' + e.intent.dmg) : '');
+      return '<div class="unit enemy' + (dead ? ' dead' : '') + (tgt ? ' targetable' : '') + (charmed ? ' charmed' : '') + '" data-side="enemy" data-idx="' + idx + '">' +
         (dead ? '' : '<div class="u-intent">' + intentTxt + '</div>') +
         (e.block > 0 ? '<div class="u-block">🛡' + e.block + '</div>' : '') +
+        (charmed ? '<div class="u-charm">💗' + e.charmed + '</div>' : '') +
         (e.poison > 0 ? '<div class="u-poison">☠' + e.poison + '</div>' : '') +
         TCG.portrait(e.emoji, e.name) +
         '<div class="u-name">' + e.name + '</div>' +
@@ -424,13 +448,15 @@
       var sk = h.def.skill;
       var sel = c.sel && c.sel.uid === uid && !c.targeting;
       var cls = 'combat-card' + (sel ? ' selected' : '') + (canAct ? '' : ' unplayable');
-      var w = wpn(h);
+      var ws = heroWpns(h);
+      var wEmoji = ws.map(function (w) { return w.emoji; }).join('');
+      var wName = ws.map(function (w) { return w.name; }).join(', ');
       return '<div class="' + cls + '" data-uid="' + uid + '">' +
         TCG.portrait(h.def.emoji, h.def.id, 'cc-art') +
         '<div class="cc-name">' + h.def.name + '</div>' +
         '<div class="cc-atk">⚔' + effAtk(h) + '</div>' +
         '<div class="cc-def">🛡' + defenseOf(h) + '</div>' +
-        (w ? '<div class="cc-wpn" title="' + w.name + '">' + w.emoji + '</div>' : '') +
+        (wEmoji ? '<div class="cc-wpn" title="' + wName + '">' + wEmoji + '</div>' : '') +
         '<div class="cc-skill">' + sk.name + '</div></div>';
     }).join('') || '<div class="center-empty">카드 없음</div>';
 
@@ -452,7 +478,7 @@
     var canSkill = c.lord.mp >= mp;
     bar.hidden = false;
     bar.innerHTML =
-      '<button class="act-btn" data-act="attack">기본 공격<small>피해 ' + effAtk(h) + (wpnVal(h, 'doubleStrike') ? ' ×2' : '') + (wpnVal(h, 'poison') ? ' ☠' + wpnVal(h, 'poison') : '') + '</small></button>' +
+      '<button class="act-btn" data-act="attack">기본 공격<small>피해 ' + effAtk(h) + (hasWpnFlag(h, 'doubleStrike') ? ' ×2' : '') + (wpnVal(h, 'poison') ? ' ☠' + wpnVal(h, 'poison') : '') + '</small></button>' +
       '<button class="act-btn skill" data-act="skill"' + (canSkill ? '' : ' disabled') + '>' + sk.name + '<small>💧' + mp + ' · ' + sk.desc + '</small></button>' +
       '<button class="act-btn cancel" data-act="cancel">취소</button>';
   }
@@ -483,7 +509,7 @@
     // skill (MP 소모)
     var sk = h.def.skill;
     if (c.lord.mp < skillMp(sk)) { TCG.toast('MP가 부족합니다'); return; }
-    if (sk.type === 'strike') beginTarget('enemy', 'skill'); // 단일 적 대상
+    if (sk.type === 'strike' || sk.type === 'charm') beginTarget('enemy', 'skill'); // 단일 적 대상
     else doSkill(h, null); // aoe(전체)·multi(무작위)·heal/shield/buff(주공) 자동 처리
   });
   function beginTarget(side, kind) {
@@ -523,7 +549,7 @@
   function doAttack(h, enemy) {
     var c = run.combat;
     var dmg = effAtk(h);
-    var hits = wpnVal(h, 'doubleStrike') ? 2 : 1;
+    var hits = hasWpnFlag(h, 'doubleStrike') ? 2 : 1;
     TCG.sfx('attack');
     for (var k = 0; k < hits; k++) {
       if (enemy.hp <= 0) break;
@@ -568,6 +594,15 @@
       c.atkBuff = (c.atkBuff || 0) + sk.val;
       fxSupport(lordEl(), '⚔+' + sk.val, '#ffd86b');
       logMsg(h.def.name + ' 「' + sk.name + '」 전군 공격력 +' + sk.val);
+    } else if (sk.type === 'charm') {
+      // 적을 매혹 — 다음 자기 턴 행동 불가(매혹된 턴 수만큼)
+      if (target && target.hp > 0) {
+        target.charmed = (target.charmed || 0) + sk.val;
+        var cel = enemyEl(c.enemies.indexOf(target));
+        fxSupport(cel, '💗 매혹', '#ff9ad0');
+        if (cel && cel.classList) cel.classList.add('charmed');
+        logMsg(h.def.name + ' 「' + sk.name + '」 ' + target.name + ' ' + sk.val + '턴 매혹');
+      }
     }
     finishPlay();
   }
@@ -630,6 +665,13 @@
       }
       var e = foes[step++];
       if (e.hp <= 0) { next(); return; }
+      if (e.charmed > 0) { // 매혹된 적은 이번 턴 쉰다
+        e.charmed--;
+        fxSupport(enemyEl(c.enemies.indexOf(e)), '💤 매혹', '#ff9ad0');
+        logMsg(e.name + ' 매혹되어 행동 불가');
+        renderCombat();
+        setTimeout(next, 360); return;
+      }
       var intent = e.intent;
       TCG.sfx('hit');
       shake(intent.type === 'aoe' ? 'big' : 'sm');
@@ -670,9 +712,12 @@
     document.getElementById('rewardTitle').textContent = (mode === 'weapon' ? '💎 보물상자! +💰' : '🎉 승리! +💰') + gold;
     var box = document.getElementById('rewardCards');
     if (mode === 'hero') {
-      document.getElementById('rewardSub').textContent = '영입할 영웅 카드를 선택하세요';
-      var pool = TCG.shuffle(HW_HEROES).slice(0, 3);
-      box.innerHTML = pool.map(function (d) { return heroRewardCard(d); }).join('');
+      // 이미 보유한 장수는 중복으로 제시하지 않음
+      var have = ownedHeroIds();
+      var hpool = TCG.shuffle(HW_HEROES.filter(function (d) { return have.indexOf(d.id) === -1; })).slice(0, 3);
+      if (!hpool.length) { showReward('weapon', gold); return; } // 모두 보유 → 보물로 대체
+      document.getElementById('rewardSub').textContent = '영입할 영웅 카드를 선택하세요 (중복 없음)';
+      box.innerHTML = hpool.map(function (d) { return heroRewardCard(d); }).join('');
     } else if (mode === 'weapon') {
       document.getElementById('rewardSub').textContent = '획득할 보물(무기/보패)을 선택하세요 — 장수 상세에서 장착할 수 있습니다';
       var wpool = TCG.shuffle(HW_WEAPONS).slice(0, 3);
@@ -771,14 +816,16 @@
 
   /* ---------- SHOP ---------- */
   function showShop() {
-    var heroPool = TCG.shuffle(HW_HEROES).slice(0, 2);
+    var have = ownedHeroIds();
+    var heroPool = TCG.shuffle(HW_HEROES.filter(function (d) { return have.indexOf(d.id) === -1; })).slice(0, 2);
     var wpnPick = TCG.pick(HW_WEAPONS);
-    run.shop = [
-      { kind: 'hero', def: heroPool[0], cost: 35, sold: false },
-      { kind: 'hero', def: heroPool[1], cost: 45, sold: false },
+    run.shop = [];
+    if (heroPool[0]) run.shop.push({ kind: 'hero', def: heroPool[0], cost: 35, sold: false });
+    if (heroPool[1]) run.shop.push({ kind: 'hero', def: heroPool[1], cost: 45, sold: false });
+    run.shop.push(
       { kind: 'weapon', wid: wpnPick.id, cost: 40, sold: false },
       { kind: 'upgrade', cost: 28, sold: false }
-    ];
+    );
     renderShop();
     show('shopScreen');
   }
@@ -844,44 +891,88 @@
     document.getElementById('overText').textContent = '「' + (fst ? fst.name : '') + '」 서브 ' + (run.subStage + 1) + '/' + SUB_COUNT + ' 에서 주공이 쓰러졌습니다. 다시 도전하세요!';
     document.getElementById('overModal').hidden = false;
   }
-  function victory() {
+  function victory() { showCredits(); }
+
+  /* ---------- 엔딩 크레딧 (천하통일 후) ---------- */
+  function showCredits() {
     clearSave();
     TCG.sfx('win');
-    document.getElementById('overTitle').textContent = '👑 천하통일!';
-    document.getElementById('overText').textContent = '8개 전역을 모두 평정하고 천하를 통일했습니다! 위·촉·오를 아우른 영웅들이 환호합니다.';
-    document.getElementById('overModal').hidden = false;
+    var st = HW_STAGES.map(function (x) { return '⚔ ' + x.name + ' <span class="cr-year">' + x.year + '</span>'; }).join('<br>');
+    var roster = run.party.map(function (h) {
+      return h.def.emoji + ' <b>' + h.def.name + '</b> <span class="rar-' + h.def.rarity + '">' + h.def.rarity + '</span>';
+    }).join('<br>');
+    var relics = run.relics.length ? run.relics.map(function (r) { return r.emoji + ' ' + r.name; }).join(' · ') : '없음';
+    var totalGen = run.party.length;
+    var roll = document.getElementById('creditsRoll');
+    roll.innerHTML =
+      '<div class="cr-block cr-big">👑 천하통일</div>' +
+      '<div class="cr-block cr-sub">— 삼국지 영웅모집 —</div>' +
+      '<div class="cr-block cr-story">8개의 역사 전역을 모두 평정하고<br>주공께서 마침내 <b>천하를 통일</b>하셨습니다.<br><br>위·촉·오를 아우른 영웅들이<br>주공의 이름 아래 환호합니다.</div>' +
+      '<div class="cr-h">— 평정한 전역 —</div>' +
+      '<div class="cr-list">' + st + '</div>' +
+      '<div class="cr-h">— 함께한 장수 (' + totalGen + '명) —</div>' +
+      '<div class="cr-list">' + roster + '</div>' +
+      '<div class="cr-h">— 수집한 병법 —</div>' +
+      '<div class="cr-list">' + relics + '</div>' +
+      '<div class="cr-h">— 난이도 —</div>' +
+      '<div class="cr-list">' + TCG.diffLabel(diff) + '</div>' +
+      '<div class="cr-block cr-story" style="margin-top:30px">제작 · 기획 · 밸런싱<br><b>삼국지 카드 게임 팀</b></div>' +
+      '<div class="cr-block cr-sub">감사합니다 — 플레이해 주셔서 고맙습니다</div>' +
+      '<div class="cr-block cr-big" style="margin:40px 0">— 完 —</div>';
+    // 애니메이션 재시작
+    roll.classList.remove('rolling');
+    void (roll.offsetWidth || 0);
+    roll.classList.add('rolling');
+    document.getElementById('creditsModal').hidden = false;
   }
   document.getElementById('overAgain').addEventListener('click', function () {
     document.getElementById('overModal').hidden = true; newRun();
+  });
+  document.getElementById('creditsAgain').addEventListener('click', function () {
+    document.getElementById('creditsModal').hidden = true; newRun();
+  });
+  document.getElementById('creditsSkip').addEventListener('click', function () {
+    var roll = document.getElementById('creditsRoll');
+    roll.classList.toggle('paused');
   });
 
   /* ---------- hero detail ---------- */
   function showHeroModal(h) {
     var d = h.def;
-    var cur = wpn(h);
+    var slots = weaponSlots(h);
+    var equipped = heroWpnIds(h);
     var free = freeWeaponIds();
-    // 무기 장착 영역
-    var wpnHtml = '<div class="wpn-box"><div class="wpn-title">🗡️ 무기 (장수당 1개)</div>';
-    if (cur) {
-      wpnHtml += '<div class="wpn-cur"><span>' + cur.emoji + ' <b>' + cur.name + '</b> — ' + cur.desc + '</span>' +
-        '<button class="btn ghost wpn-act" data-wact="unequip">해제</button></div>';
-    } else {
-      wpnHtml += '<div class="wpn-cur none">장착된 무기 없음</div>';
+    var totalAtkBonus = wpnVal(h, 'atk');
+    // 무기 장착 영역 (SSR은 2칸)
+    var wpnHtml = '<div class="wpn-box"><div class="wpn-title">🗡️ 무기 (' + (d.rarity === 'SSR' ? 'SSR — 2개 장착 가능' : '1개 장착') + ')</div>';
+    // 장착 슬롯
+    for (var s = 0; s < slots; s++) {
+      var wid = equipped[s];
+      if (wid) {
+        var w = HW_WEAPON_BY_ID[wid];
+        wpnHtml += '<div class="wpn-cur"><span>' + w.emoji + ' <b>' + w.name + '</b> — ' + w.desc + '</span>' +
+          '<button class="btn ghost wpn-act" data-wact="unequip" data-slot="' + s + '">해제</button></div>';
+      } else {
+        wpnHtml += '<div class="wpn-cur none">빈 슬롯</div>';
+      }
     }
-    if (free.length) {
-      wpnHtml += '<div class="wpn-list">' + free.map(function (id) {
-        var w = HW_WEAPON_BY_ID[id];
-        return '<button class="wpn-opt" data-wact="equip" data-wid="' + id + '">' + w.emoji + ' ' + w.name +
-          '<small>' + w.desc + '</small></button>';
-      }).join('') + '</div>';
-    } else if (!cur) {
-      wpnHtml += '<div class="wpn-empty">보유한 무기가 없습니다 (보물상자에서 획득)</div>';
+    // 장착 가능한 무기 목록(빈 슬롯이 있을 때만)
+    if (equipped.length < slots) {
+      if (free.length) {
+        wpnHtml += '<div class="wpn-list">' + free.map(function (id) {
+          var fw = HW_WEAPON_BY_ID[id];
+          return '<button class="wpn-opt" data-wact="equip" data-wid="' + id + '">' + fw.emoji + ' ' + fw.name +
+            '<small>' + fw.desc + '</small></button>';
+        }).join('') + '</div>';
+      } else {
+        wpnHtml += '<div class="wpn-empty">보유한 무기가 없습니다 (보물상자에서 획득)</div>';
+      }
     }
     wpnHtml += '</div>';
     document.getElementById('heroModalBody').innerHTML =
       TCG.portrait(d.emoji, d.id, 'modal-portrait') +
       '<h2>' + d.name + ' <span class="rar-' + d.rarity + '" style="font-size:14px">' + d.rarity + '</span></h2>' +
-      '<p>' + d.cls + ' · ⚔ ' + effAtk(h) + (cur && cur.effect.atk ? ' (무기 +' + cur.effect.atk + ')' : '') + '</p>' +
+      '<p>' + d.cls + ' · ⚔ ' + effAtk(h) + (totalAtkBonus ? ' (무기 +' + totalAtkBonus + ')' : '') + '</p>' +
       '<div style="background:rgba(0,0,0,.25);border-radius:10px;padding:10px;text-align:left;font-size:13px">' +
       '<b style="color:var(--gold)">「' + d.skill.name + '」</b> 💧' + skillMp(d.skill) + '<br>' +
       '<span style="color:var(--ink-dim)">' + d.skill.desc + '</span></div>' +
@@ -893,8 +984,11 @@
     document.getElementById('heroModalBody').querySelectorAll('[data-wact]').forEach(function (b) {
       b.addEventListener('click', function () {
         TCG.sfx('tap');
-        if (b.dataset.wact === 'unequip') h.weapon = null;
-        else h.weapon = b.dataset.wid;
+        if (b.dataset.wact === 'unequip') {
+          h.weapons.splice(parseInt(b.dataset.slot, 10), 1);
+        } else if (h.weapons.length < weaponSlots(h)) {
+          h.weapons.push(b.dataset.wid);
+        }
         saveRun();
         showHeroModal(h); // 다시 렌더
       });

@@ -2,10 +2,11 @@
  * (이름/이모지/테마만 삼국지로. 스탯·스킬·id·밸런스는 추후 장수별로 세팅 예정.)
  * skill.target: 'enemy' | 'allEnemies' | 'lowestAlly' | 'ally' | 'self'
  * skill.type:   'strike'(+val dmg single) | 'aoe'(val to all) | 'multi'(hits N, each = atk)
- *               'heal'(val) | 'shield'(val block) | 'buff'(+val atk) */
+ *               'heal'(val) | 'shield'(val block) | 'buff'(+val atk) | 'charm'(적 val턴 행동불가)
+ * rarity:       'C' | 'R' | 'SR' | 'SSR'(무기 2개 장착 가능) */
 var HW_HEROES = [
-  { id:'glad',   name:'전위',   emoji:'⚔️', cls:'전사', rarity:'C', hp:32, atk:7,
-    skill:{ name:'쌍철극', cost:2, type:'strike', val:6, target:'enemy', desc:'적 1명에게 공격력+6 피해' } },
+  { id:'glad',   name:'전위',   emoji:'⚔️', cls:'전사', rarity:'SSR', hp:40, atk:11,
+    skill:{ name:'쌍철극', cost:2, type:'strike', val:9, target:'enemy', desc:'적 1명에게 공격력+9 피해' } },
   { id:'knight', name:'조인',   emoji:'🛡️', cls:'수호', rarity:'C', hp:42, atk:5,
     skill:{ name:'견벽수성', cost:1, type:'shield', val:9, target:'ally', desc:'아군 1명에게 방어막 9' } },
   { id:'mage',   name:'순욱',   emoji:'🔥', cls:'책략', rarity:'R', hp:22, atk:5,
@@ -24,12 +25,12 @@ var HW_HEROES = [
     skill:{ name:'화살비', cost:2, type:'aoe', val:5, target:'allEnemies', desc:'모든 적에게 5 피해' } },
   { id:'monk',   name:'주창',   emoji:'🪓', cls:'전사', rarity:'C', hp:30, atk:7,
     skill:{ name:'난격', cost:1, type:'multi', val:2, target:'enemy', desc:'무작위 적을 2회 공격' } },
-  { id:'warlock',name:'사마의', emoji:'🪶', cls:'책략', rarity:'SR', hp:20, atk:6,
-    skill:{ name:'화계', cost:3, type:'aoe', val:8, target:'allEnemies', desc:'모든 적에게 8 피해' } },
-  { id:'samurai',name:'관우',   emoji:'🗡️', cls:'전사', rarity:'SR', hp:30, atk:9,
-    skill:{ name:'청룡언월도', cost:2, type:'strike', val:11, target:'enemy', desc:'적 1명에게 공격력+11 피해' } },
-  { id:'oracle', name:'제갈량', emoji:'🪶', cls:'책사', rarity:'SR', hp:24, atk:5,
-    skill:{ name:'팔진도', cost:3, type:'heal', val:12, target:'lowestAlly', desc:'가장 약한 아군 12 회복 + 방어막' } },
+  { id:'warlock',name:'사마의', emoji:'🪶', cls:'책략', rarity:'SSR', hp:38, atk:11,
+    skill:{ name:'화계', cost:3, type:'aoe', val:14, target:'allEnemies', desc:'모든 적에게 14 피해 (총사령관)' } },
+  { id:'samurai',name:'관우',   emoji:'🗡️', cls:'전사', rarity:'SSR', hp:40, atk:13,
+    skill:{ name:'청룡언월도', cost:2, type:'strike', val:14, target:'enemy', desc:'적 1명에게 공격력+14 피해' } },
+  { id:'oracle', name:'제갈량', emoji:'🪶', cls:'책사', rarity:'SSR', hp:34, atk:8,
+    skill:{ name:'팔진도', cost:3, type:'heal', val:16, target:'lowestAlly', desc:'주공 16 회복 + 방어막' } },
   // ---- 추가 장수 ----
   { id:'cavalier',name:'마초',   emoji:'🐎', cls:'기마', rarity:'R', hp:34, atk:8,
     skill:{ name:'서량철기', cost:2, type:'strike', val:8, target:'enemy', desc:'적 1명에게 공격력+8 피해' } },
@@ -45,13 +46,13 @@ var HW_HEROES = [
     skill:{ name:'계책', cost:2, type:'buff', val:5, target:'ally', desc:'아군 1명 공격력 +5 (전투 동안)' } },
   { id:'sage',    name:'유비',   emoji:'👑', cls:'군주', rarity:'SR', hp:26, atk:5,
     skill:{ name:'인덕', cost:3, type:'heal', val:20, target:'lowestAlly', desc:'가장 약한 아군 20 회복' } },
-  { id:'reaper',  name:'조운',   emoji:'🗡️', cls:'전사', rarity:'SR', hp:24, atk:10,
-    skill:{ name:'단기필마', cost:2, type:'strike', val:13, target:'enemy', desc:'적 1명에게 공격력+13 피해' } },
+  { id:'reaper',  name:'조운',   emoji:'🗡️', cls:'전사', rarity:'SSR', hp:34, atk:14,
+    skill:{ name:'단기필마', cost:2, type:'strike', val:16, target:'enemy', desc:'적 1명에게 공격력+16 피해' } },
   // ---- 추가 장수 2차 ----
-  { id:'caocao',   name:'조조',   emoji:'👑', cls:'군주', rarity:'SR', hp:30, atk:6,
-    skill:{ name:'간웅', cost:3, type:'buff', val:6, target:'ally', desc:'아군 1명 공격력 +6 (전투 동안)' } },
-  { id:'xiahoudun',name:'하후돈', emoji:'⚔️', cls:'전사', rarity:'R', hp:36, atk:8,
-    skill:{ name:'발시담정', cost:2, type:'strike', val:8, target:'enemy', desc:'적 1명에게 공격력+8 피해' } },
+  { id:'caocao',   name:'조조',   emoji:'👑', cls:'군주', rarity:'SSR', hp:40, atk:9,
+    skill:{ name:'간웅', cost:3, type:'buff', val:8, target:'ally', desc:'전군 공격력 +8 (전투 동안)' } },
+  { id:'xiahoudun',name:'하후돈', emoji:'⚔️', cls:'전사', rarity:'SSR', hp:44, atk:11,
+    skill:{ name:'발시담정', cost:2, type:'strike', val:11, target:'enemy', desc:'적 1명에게 공격력+11 피해' } },
   { id:'xiahouyuan',name:'하후연',emoji:'🏹', cls:'궁수', rarity:'R', hp:26, atk:7,
     skill:{ name:'질풍사격', cost:1, type:'multi', val:3, target:'enemy', desc:'무작위 적을 3회 공격' } },
   { id:'sunce',    name:'손책',   emoji:'🗡️', cls:'전사', rarity:'SR', hp:30, atk:9,
@@ -81,7 +82,32 @@ var HW_HEROES = [
   { id:'dengai',   name:'등애',   emoji:'📜', cls:'책사', rarity:'R', hp:26, atk:6,
     skill:{ name:'기습 보급', cost:2, type:'shield', val:13, target:'ally', desc:'아군 1명에게 방어막 13' } },
   { id:'pangde',   name:'방덕',   emoji:'🪓', cls:'전사', rarity:'R', hp:34, atk:8,
-    skill:{ name:'항우의 용맹', cost:1, type:'strike', val:6, target:'enemy', desc:'적 1명에게 공격력+6 피해' } }
+    skill:{ name:'항우의 용맹', cost:1, type:'strike', val:6, target:'enemy', desc:'적 1명에게 공격력+6 피해' } },
+  // ---- 추가 장수 3차 ----
+  { id:'jiaxu',    name:'가후',   emoji:'📜', cls:'책략', rarity:'SR', hp:24, atk:6,
+    skill:{ name:'독사의 계', cost:3, type:'aoe', val:9, target:'allEnemies', desc:'모든 적에게 9 피해' } },
+  { id:'xuhuang',  name:'서황',   emoji:'🪓', cls:'전사', rarity:'R', hp:36, atk:8,
+    skill:{ name:'장구지계', cost:2, type:'strike', val:9, target:'enemy', desc:'적 1명에게 공격력+9 피해' } },
+  { id:'diaochan', name:'초선',   emoji:'💃', cls:'무희', rarity:'SR', hp:20, atk:4,
+    skill:{ name:'경국지색', cost:2, type:'charm', val:1, target:'enemy', desc:'적 1명을 1턴 매혹시켜 행동 불가' } },
+  { id:'xiaoqiao', name:'소교',   emoji:'🌸', cls:'무희', rarity:'R', hp:20, atk:4,
+    skill:{ name:'미인계', cost:2, type:'charm', val:1, target:'enemy', desc:'적 1명을 1턴 매혹시켜 행동 불가' } },
+  { id:'daqiao',   name:'대교',   emoji:'🌺', cls:'무희', rarity:'R', hp:20, atk:4,
+    skill:{ name:'경성지미', cost:2, type:'charm', val:1, target:'enemy', desc:'적 1명을 1턴 매혹시켜 행동 불가' } },
+  { id:'yuejin',   name:'악진',   emoji:'🗡️', cls:'전사', rarity:'R', hp:30, atk:8,
+    skill:{ name:'선등陷陣', cost:1, type:'multi', val:3, target:'enemy', desc:'무작위 적을 3회 공격' } },
+  { id:'manchong', name:'만총',   emoji:'📜', cls:'책사', rarity:'C', hp:28, atk:5,
+    skill:{ name:'수성 방략', cost:2, type:'shield', val:12, target:'ally', desc:'주공 방어막 +12' } },
+  { id:'zhangliao', name:'장료',  emoji:'🐎', cls:'전사', rarity:'SR', hp:36, atk:10,
+    skill:{ name:'소요진', cost:2, type:'strike', val:12, target:'enemy', desc:'적 1명에게 공격력+12 피해' } },
+  { id:'caopi',    name:'조비',   emoji:'👑', cls:'군주', rarity:'SR', hp:30, atk:6,
+    skill:{ name:'수선受禪', cost:3, type:'buff', val:6, target:'ally', desc:'전군 공격력 +6 (전투 동안)' } },
+  { id:'gongsunzan',name:'공손찬',emoji:'🐎', cls:'기마', rarity:'R', hp:34, atk:8,
+    skill:{ name:'백마의종', cost:2, type:'strike', val:8, target:'enemy', desc:'적 1명에게 공격력+8 피해' } },
+  { id:'weiyan',   name:'위연',   emoji:'🪓', cls:'전사', rarity:'R', hp:34, atk:9,
+    skill:{ name:'자오곡 기습', cost:2, type:'strike', val:9, target:'enemy', desc:'적 1명에게 공격력+9 피해' } },
+  { id:'hejin',    name:'하진',   emoji:'🛡️', cls:'수호', rarity:'C', hp:40, atk:5,
+    skill:{ name:'대장군 위엄', cost:1, type:'shield', val:10, target:'ally', desc:'주공 방어막 +10' } }
 ];
 var HW_BY_ID = {};
 HW_HEROES.forEach(function (h) { HW_BY_ID[h.id] = h; });
@@ -151,9 +177,9 @@ HW_WEAPONS.forEach(function (w) { HW_WEAPON_BY_ID[w.id] = w; });
 
 /* Difficulty tuning */
 var HW_DIFF = {
-  easy:   { eHp:1.02, eAtk:1.14, gold:1.4, smart:false, startGold:70 },
-  normal: { eHp:1.12, eAtk:1.22, gold:1.0, smart:false, startGold:50 },
-  hard:   { eHp:1.24, eAtk:1.30, gold:0.9, smart:true, startGold:40 }
+  easy:   { eHp:1.04, eAtk:1.22, gold:1.4, smart:false, startGold:70 },
+  normal: { eHp:1.15, eAtk:1.27, gold:1.0, smart:false, startGold:50 },
+  hard:   { eHp:1.24, eAtk:1.37, gold:0.9, smart:true, startGold:40 }
 };
 
 /* 적장(스테이지 보스) — 스테이지 진행에 따라 난이도 가산 */

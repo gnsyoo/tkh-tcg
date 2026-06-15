@@ -306,17 +306,40 @@
     document.getElementById('confirmEndModal').hidden = false;
   }
 
+  // 결과를 삼국지 영웅모집 골드로 정산: 승리 시 +포인트, 패배 시 -포인트
+  function settleHeroesGold(points, win) {
+    var delta = win ? points : -points;
+    try {
+      var cur = parseInt(localStorage.getItem('hw_bonus_gold') || '0', 10) || 0;
+      localStorage.setItem('hw_bonus_gold', String(cur + delta));
+    } catch (e) {}
+    return delta;
+  }
   function endGame() {
     state.over = true;
     var s = scoreOf(state.board);
-    var title, text;
-    if (s.you > s.foe) { title = '🏆 승리!'; text = '패스 2회로 종료 · 배치한 카드 무력 총합에서 앞섰습니다.'; TCG.sfx('win'); }
-    else if (s.foe > s.you) { title = '😢 패배'; text = '패스 2회로 종료 · 상대의 무력 총합이 더 높았습니다.'; TCG.sfx('lose'); }
-    else { title = '🤝 무승부'; text = '패스 2회로 종료 · 무력 총합이 같습니다.'; }
+    var title, text, goldNote = '';
+    if (s.you > s.foe) {
+      title = '🏆 승리!';
+      var gw = settleHeroesGold(s.you, true);
+      text = '패스 2회로 종료 · 배치한 카드 무력 총합에서 앞섰습니다.';
+      goldNote = '🏅 승리 포인트 ' + s.you + ' → 영웅모집 골드 +' + gw;
+      TCG.sfx('win');
+    } else if (s.foe > s.you) {
+      title = '😢 패배';
+      var gl = settleHeroesGold(s.you, false);
+      text = '패스 2회로 종료 · 상대의 무력 총합이 더 높았습니다.';
+      goldNote = '💸 포인트 ' + s.you + ' → 영웅모집 골드 ' + gl;
+      TCG.sfx('lose');
+    } else {
+      title = '🤝 무승부';
+      text = '패스 2회로 종료 · 무력 총합이 같습니다. (골드 정산 없음)';
+    }
     document.getElementById('endTitle').textContent = title;
     document.getElementById('endText').textContent = text;
     document.getElementById('endScore').innerHTML =
-      '<span class="e-you">' + s.you + '</span><span style="color:var(--ink-dim)">:</span><span class="e-foe">' + s.foe + '</span>';
+      '<span class="e-you">' + s.you + '</span><span style="color:var(--ink-dim)">:</span><span class="e-foe">' + s.foe + '</span>' +
+      (goldNote ? '<div class="gold-note">' + goldNote + '</div>' : '');
     document.getElementById('endModal').hidden = false;
     render();
   }

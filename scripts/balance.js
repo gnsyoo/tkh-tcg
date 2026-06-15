@@ -118,13 +118,14 @@ async function heroesRun(diff) {
   const s = sandbox(diff);
   load(s, ['js/util.js', 'js/heroes_data.js', 'js/heroes.js']);
   const g = id => s.document.getElementById(id);
-  ['overModal', 'heroModal'].forEach(id => g(id).hidden = true);
+  ['overModal', 'heroModal', 'creditsModal'].forEach(id => g(id).hidden = true);
   const screens = ['mapScreen', 'combatScreen', 'rewardScreen', 'restScreen', 'shopScreen', 'eventScreen'];
   const cur = () => screens.find(x => g(x).hidden === false);
-  let floor = 0;
+  let floor = 0, won = false;
   for (let i = 0; i < 40000; i++) {
     await tick();
     if (g('overModal').hidden === false) break;
+    if (g('creditsModal').hidden === false) { won = true; break; } // 천하통일 → 엔딩 크레딧
     const sc = cur();
     if (sc === 'mapScreen') {
       floor++;
@@ -165,8 +166,9 @@ async function heroesRun(diff) {
       // 4) keep the last card for defense → end turn
       if (!g('endTurnBtn').disabled) g('endTurnBtn').fire('click', {}); else await tick();
     } else if (sc === 'rewardScreen') {
-      const rc = g('rewardCards')._html, hm = /data-hero="([^"]+)"/.exec(rc), rm = /data-relic="([^"]+)"/.exec(rc);
-      if (hm) g('rewardCards').fire('click', mkEvt('.reward-card', { hero: hm[1] }, []));
+      const rc = g('rewardCards')._html, hm = /data-hero="([^"]+)"/.exec(rc), rm = /data-relic="([^"]+)"/.exec(rc), wm = /data-weapon="([^"]+)"/.exec(rc);
+      if (wm) g('rewardCards').fire('click', mkEvt('.reward-card', { weapon: wm[1] }, []));
+      else if (hm) g('rewardCards').fire('click', mkEvt('.reward-card', { hero: hm[1] }, []));
       else if (rm) g('rewardCards').fire('click', mkEvt('.reward-card', { relic: rm[1] }, []));
       else g('rewardSkip').fire('click', {});
     } else if (sc === 'restScreen') g('restHeal').fire('click', {});
@@ -177,7 +179,7 @@ async function heroesRun(diff) {
       else g('eventChoices').fire('click', { target: { id: 'evGo', closest: () => null } });
     } else break;
   }
-  return { win: g('overTitle').textContent.indexOf('통일') !== -1, floor };
+  return { win: won || g('overTitle').textContent.indexOf('통일') !== -1, floor };
 }
 async function runHeroes() {
   const runs = Math.min(N, 50);
