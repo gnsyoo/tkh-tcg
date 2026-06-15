@@ -59,6 +59,39 @@
 .camp-btn.primary { background: linear-gradient(180deg, var(--gold), var(--gold-soft)); color: #3a2600; border-color: var(--gold); }
 .camp-btn:disabled { opacity: 0.4; }
 
+/* main-stage chips */
+.main-chips { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-bottom: 12px; }
+.main-chip {
+  width: 30px; height: 30px; border-radius: 8px; flex: 0 0 auto;
+  display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 13px;
+  background: rgba(255,255,255,0.06); color: var(--ink-dim); border: 1px solid rgba(255,255,255,0.1);
+}
+.main-chip.done { background: rgba(91,184,122,0.2); color: var(--green); border-color: rgba(91,184,122,0.4); }
+.main-chip.current { background: var(--gold); color: #3a2600; border-color: var(--gold); box-shadow: 0 0 10px rgba(240,195,60,0.4); }
+.main-chip.locked { opacity: 0.5; }
+.main-banner {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--panel); border: 1px solid rgba(240,195,60,0.4); border-radius: 12px; padding: 12px 14px;
+}
+.main-banner.boss { border-color: rgba(255,138,76,0.6); box-shadow: 0 0 0 1px rgba(255,138,76,0.3); }
+.main-banner .mb-no {
+  width: 36px; height: 36px; border-radius: 50%; flex: 0 0 auto;
+  background: var(--gold); color: #3a2600; font-weight: 900; font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+}
+.main-banner .mb-title { display: flex; flex-direction: column; line-height: 1.2; }
+.main-banner .mb-title b { font-size: 18px; }
+.main-banner .mb-title small { font-size: 11px; color: var(--ink-dim); }
+.sub-dots { display: flex; gap: 5px; justify-content: center; flex-wrap: wrap; margin: 12px 0; }
+.sub-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.15);
+}
+.sub-dot.done { background: var(--green); border-color: var(--green); }
+.sub-dot.current { background: var(--gold); border-color: var(--gold); box-shadow: 0 0 8px var(--gold); transform: scale(1.25); }
+.sub-dot.boss { border-radius: 3px; width: 14px; height: 14px; border-color: var(--foe); }
+.sub-dot.boss.current { background: var(--foe); box-shadow: 0 0 8px var(--foe); }
+
 /* party bar (mini portraits) */
 .party-bar { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 6px; }
 .mini-hero {

@@ -3,6 +3,7 @@
   var diff = TCG.getDifficulty();
   var DCFG = HW_DIFF[diff];
   var MAX_PARTY = 6;
+  var SUB_COUNT = 12; // 메인 스테이지 1개당 서브 스테이지 수 (마지막은 적장 보스전)
   var run = null;
 
   /* ---------- helpers ---------- */
@@ -27,8 +28,10 @@
   }
   function updateTop() {
     document.getElementById('goldPill').textContent = '💰 ' + run.gold;
-    var st = HW_STAGES[run.stage];
-    document.getElementById('floorPill').textContent = st ? ((run.stage + 1) + '/' + HW_STAGES.length + ' ' + st.name) : '천하통일';
+    var st = HW_STAGES[run.mainStage];
+    document.getElementById('floorPill').textContent = st
+      ? ((run.mainStage + 1) + '/' + HW_STAGES.length + ' ' + st.name + ' · ' + (run.subStage + 1) + '/' + SUB_COUNT)
+      : '천하통일';
     document.getElementById('diffPill').textContent = '난이도 ' + TCG.diffLabel(diff);
   }
 
@@ -37,9 +40,9 @@
     try {
       if (!run) return;
       localStorage.setItem('hw_save', JSON.stringify({
-        v: 1, diff: diff,
+        v: 2, diff: diff,
         party: run.party.map(function (h) { return { id: h.def.id, maxHp: h.maxHp, atk: h.atk, hp: h.hp, uid: h.uid }; }),
-        gold: run.gold, stage: run.stage,
+        gold: run.gold, mainStage: run.mainStage, subStage: run.subStage,
         relics: run.relics.map(function (r) { return r.id; })
       }));
     } catch (e) {}
@@ -61,9 +64,10 @@
         return { uid: h.uid || (h.id + '_' + Math.random().toString(36).slice(2, 7)), def: HW_BY_ID[h.id], maxHp: h.maxHp, atk: h.atk, hp: h.hp };
       }),
       gold: d.gold || 0,
-      stage: Math.min(Math.max(0, d.stage || 0), HW_STAGES.length - 1),
+      mainStage: Math.min(Math.max(0, d.mainStage || 0), HW_STAGES.length - 1),
+      subStage: Math.min(Math.max(0, d.subStage || 0), SUB_COUNT - 1),
       relics: (d.relics || []).map(function (id) { return relicById[id]; }).filter(Boolean),
-      stageRested: false, stageShopped: false, combat: null
+      stageShopped: false, combat: null
     };
     showMap();
   }
@@ -71,7 +75,7 @@
   /* ---------- run lifecycle ---------- */
   function newRun() {
     clearSave();
-    run = { party: HW_STARTERS.map(mkHero), gold: DCFG.startGold, stage: 0, relics: [], stageRested: false, stageShopped: false, combat: null };
+    run = { party: HW_STARTERS.map(mkHero), gold: DCFG.startGold, mainStage: 0, subStage: 0, relics: [], stageShopped: false, combat: null };
     showMap();
   }
 
@@ -94,24 +98,30 @@
     saveRun();
   }
   function renderCampaign() {
-    var html = '';
-    for (var i = 0; i < HW_STAGES.length; i++) {
-      var st = HW_STAGES[i];
-      var done = i < run.stage, cur = i === run.stage;
-      var cls = 'camp-stage' + (done ? ' done' : (cur ? ' current' : ' locked'));
-      html += '<div class="' + cls + '">' +
-        '<div class="cs-head"><span class="cs-no">' + (i + 1) + '</span>' +
-        '<div class="cs-title"><b>' + st.name + '</b><small>' + st.year + '</small></div>' +
-        '<span class="cs-flag">' + (done ? '✔ 평정' : (cur ? '진행 중' : '🔒')) + '</span></div>';
-      if (cur) {
-        html += '<p class="cs-desc">' + st.desc + '</p>' +
-          '<div class="cs-actions">' +
-          '<button class="camp-btn primary" data-act="battle">⚔️ 출진</button>' +
-          '<button class="camp-btn" data-act="shop"' + (run.stageShopped ? ' disabled' : '') + '>🏪 저잣거리' + (run.stageShopped ? ' ✓' : '') + '</button>' +
-          '</div>';
-      }
-      html += '</div>';
+    var m = run.mainStage, s = run.subStage, st = HW_STAGES[m];
+    var isBoss = s === SUB_COUNT - 1;
+    // 메인 전역 칩 (해금/진행/평정)
+    var chips = HW_STAGES.map(function (x, i) {
+      var cl = i < m ? 'done' : (i === m ? 'current' : 'locked');
+      return '<div class="main-chip ' + cl + '">' + (i < m ? '✔' : (i === m ? (i + 1) : '🔒')) + '</div>';
+    }).join('');
+    // 서브 진행 점
+    var dots = '';
+    for (var i = 0; i < SUB_COUNT; i++) {
+      var dc = i < s ? ' done' : (i === s ? ' current' : '');
+      dots += '<span class="sub-dot' + dc + (i === SUB_COUNT - 1 ? ' boss' : '') + '"></span>';
     }
+    var battleLabel = isBoss ? ('👑 적장 ' + HW_COMMANDERS[st.boss].name + ' 토벌') : ('⚔️ 출진 (' + (s + 1) + '/' + SUB_COUNT + ')');
+    var html =
+      '<div class="main-chips">' + chips + '</div>' +
+      '<div class="main-banner' + (isBoss ? ' boss' : '') + '"><span class="mb-no">' + (m + 1) + '</span>' +
+        '<div class="mb-title"><b>' + st.name + '</b><small>' + st.year + ' · 서브 ' + (s + 1) + '/' + SUB_COUNT + (isBoss ? ' · 적장전' : '') + '</small></div></div>' +
+      '<p class="cs-desc">' + st.desc + '</p>' +
+      '<div class="sub-dots">' + dots + '</div>' +
+      '<div class="cs-actions">' +
+        '<button class="camp-btn primary" data-act="battle">' + battleLabel + '</button>' +
+        '<button class="camp-btn" data-act="shop"' + (run.stageShopped ? ' disabled' : '') + '>🏪 저잣거리' + (run.stageShopped ? ' ✓' : '') + '</button>' +
+      '</div>';
     document.getElementById('mapTrack').innerHTML = html;
     document.getElementById('mapParty').innerHTML = run.party.map(miniHero).join('');
   }
@@ -121,13 +131,6 @@
     var act = btn.dataset.act;
     TCG.sfx('tap');
     if (act === 'battle') return startStageCombat();
-    if (act === 'rest') {
-      run.party.forEach(function (h) { h.hp = Math.min(h.maxHp, h.hp + Math.round(h.maxHp * 0.4)); });
-      run.stageRested = true;
-      TCG.toast('정비 — 파티가 HP를 회복했습니다');
-      showMap();
-      return;
-    }
     if (act === 'shop') { run.stageShopped = true; showShop(); }
   });
   document.getElementById('mapParty').addEventListener('click', onMiniClick);
@@ -138,43 +141,61 @@
     if (h) showHeroModal(h);
   }
 
+  // 서브 스테이지 클리어 → 다음 서브, 마지막(보스)이면 메인 평정 → 다음 메인 해금
   function advanceStage() {
-    run.stage++;
-    run.stageRested = false;
-    run.stageShopped = false;
-    if (run.stage >= HW_STAGES.length) { victory(); return; }
+    run.subStage++;
+    if (run.subStage >= SUB_COUNT) {
+      var cleared = HW_STAGES[run.mainStage];
+      run.subStage = 0;
+      run.mainStage++;
+      run.stageShopped = false;
+      if (run.mainStage >= HW_STAGES.length) { victory(); return; }
+      TCG.toast('「' + cleared.name + '」 평정! 「' + HW_STAGES[run.mainStage].name + '」 해금');
+    }
     showMap();
   }
 
   /* ---------- COMBAT ---------- */
-  function genStageEnemies(stage) {
-    var st = HW_STAGES[stage];
-    // commander base HP already ramps per stage; keep extra scaling mild
-    var hpM = DCFG.eHp * (1 + stage * 0.03);
-    var atkM = DCFG.eAtk * (1 + stage * 0.03);
-    function inst(d, isBoss) {
+  function genSubEnemies(main, sub) {
+    var st = HW_STAGES[main];
+    var isBoss = sub === SUB_COUNT - 1;
+    var prog = main * SUB_COUNT + sub; // 0..(8*12-1) 전체 진행도
+    var hpM = DCFG.eHp * (1 + prog * 0.008);
+    var atkM = DCFG.eAtk * (1 + prog * 0.0040);
+    function inst(d, boss) {
       var hp = Math.round(d.hp * hpM);
       return { def: d, name: d.name, emoji: d.emoji, maxHp: hp, hp: hp,
-        atk: Math.max(1, Math.round(d.atk * atkM)), aoe: !!d.aoe, boss: !!isBoss, block: 0, intent: null };
+        atk: Math.max(1, Math.round(d.atk * atkM)), aoe: !!d.aoe, boss: !!boss, block: 0, intent: null };
     }
     var out = [];
-    for (var i = 0; i < st.adds; i++) {
+    if (isBoss) {
       out.push(inst(TCG.pick(HW_ENEMIES.basic)));
+      out.push(inst(TCG.pick(HW_ENEMIES.basic)));
+      out.push(inst(HW_COMMANDERS[st.boss], true)); // 적장
+    } else {
+      var n = 1 + Math.floor(sub / 4); // 1~3
+      for (var i = 0; i < n; i++) {
+        var useElite = (main >= 3 || sub >= 6) && i === 0; // 후반 서브에 부장(정예) 1명
+        out.push(inst(TCG.pick(useElite ? HW_ENEMIES.elite : HW_ENEMIES.basic)));
+      }
     }
-    out.push(inst(HW_COMMANDERS[st.boss], true)); // 적장은 마지막
     return out;
   }
 
   function startStageCombat() {
-    var st = HW_STAGES[run.stage];
-    var enemies = genStageEnemies(run.stage);
+    var st = HW_STAGES[run.mainStage], s = run.subStage;
+    var isBoss = s === SUB_COUNT - 1;
+    var enemies = genSubEnemies(run.mainStage, s);
     run.party.forEach(function (h) { h.hp = h.maxHp; h.block = 0; h.tempAtk = relicSum('startAtk'); h.acted = false; });
-    run.combat = { stage: run.stage, enemies: enemies, round: 0, energy: 0, sel: null, targeting: false, pending: null, log: [] };
+    run.combat = { main: run.mainStage, sub: s, enemies: enemies, round: 0, energy: 0, sel: null, targeting: false, pending: null, log: [] };
     show('combatScreen');
-    fxBanner('⚔ ' + st.name, 'boss', 1500);
-    shake('big');
-    logMsg(st.name + ' (' + st.year + ') 개전!');
-    logMsg('적장 ' + enemies[enemies.length - 1].name + ' 출진!');
+    if (isBoss) {
+      fxBanner('👑 적장 ' + HW_COMMANDERS[st.boss].name, 'boss', 1500); shake('big');
+      logMsg(st.name + ' — 적장 ' + HW_COMMANDERS[st.boss].name + ' 토벌전!');
+    } else {
+      fxBanner('⚔ ' + st.name + ' ' + (s + 1) + '/' + SUB_COUNT, 'round', 1000);
+      logMsg(st.name + ' 서브 ' + (s + 1) + ' 개전!');
+    }
     beginRound();
   }
 
@@ -531,14 +552,16 @@
     });
     var wh = relicSum('winHeal');
     if (wh) run.party.forEach(function (h) { h.hp = Math.min(h.maxHp, h.hp + wh); });
-    // gold + reward by stage
-    var st = HW_STAGES[c.stage];
-    var gold = Math.round((22 + c.stage * 7) * DCFG.gold);
+    // gold + reward cadence
+    var isBoss = c.sub === SUB_COUNT - 1;
+    var prog = c.main * SUB_COUNT + c.sub;
+    var gold = Math.round((6 + prog * 1.5) * DCFG.gold);
     run.gold += gold;
     updateTop();
-    if (st.reward === 'final') { victory(); return; }
-    if (st.reward === 'relic') showReward('relic', gold);
-    else showReward('hero', gold);
+    if (isBoss && c.main === HW_STAGES.length - 1) { victory(); return; } // 최종 적장 격파
+    if (isBoss) { showReward('relic', gold); return; }      // 메인 적장 처치 → 유물
+    if ((c.sub + 1) % 4 === 0) { showReward('hero', gold); return; } // 4서브마다 장수 영입
+    advanceStage();                                         // 일반 서브 → 바로 다음
   }
 
   /* ---------- REWARD ---------- */
@@ -702,9 +725,9 @@
   function gameOver() {
     clearSave();
     TCG.sfx('lose');
-    var fst = HW_STAGES[Math.min(run.stage, HW_STAGES.length - 1)];
+    var fst = HW_STAGES[Math.min(run.mainStage, HW_STAGES.length - 1)];
     document.getElementById('overTitle').textContent = '💀 패전';
-    document.getElementById('overText').textContent = '「' + (fst ? fst.name : '') + '」에서 패배했습니다. 다시 도전하세요!';
+    document.getElementById('overText').textContent = '「' + (fst ? fst.name : '') + '」 서브 ' + (run.subStage + 1) + '/' + SUB_COUNT + ' 에서 패배했습니다. 다시 도전하세요!';
     document.getElementById('overModal').hidden = false;
   }
   function victory() {
@@ -760,9 +783,9 @@
     newRun();
   });
   if (saved) {
-    var sst = HW_STAGES[Math.min(saved.stage || 0, HW_STAGES.length - 1)];
+    var sst = HW_STAGES[Math.min(saved.mainStage || 0, HW_STAGES.length - 1)];
     document.getElementById('startText').textContent =
-      '진행 중인 전역이 있습니다 (' + (saved.stage + 1) + '. ' + (sst ? sst.name : '') + ' · 장수 ' + saved.party.length + '명). 이어서 하시겠어요?';
+      '진행 중인 전역이 있습니다 (' + ((saved.mainStage || 0) + 1) + '. ' + (sst ? sst.name : '') + ' 서브 ' + ((saved.subStage || 0) + 1) + '/' + SUB_COUNT + ' · 장수 ' + saved.party.length + '명). 이어서 하시겠어요?';
     document.getElementById('startModal').hidden = false;
   } else {
     newRun();

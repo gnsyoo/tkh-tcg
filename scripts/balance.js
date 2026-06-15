@@ -122,7 +122,7 @@ async function heroesRun(diff) {
   const screens = ['mapScreen', 'combatScreen', 'rewardScreen', 'restScreen', 'shopScreen', 'eventScreen'];
   const cur = () => screens.find(x => g(x).hidden === false);
   let floor = 0;
-  for (let i = 0; i < 6000; i++) {
+  for (let i = 0; i < 40000; i++) {
     await tick();
     if (g('overModal').hidden === false) break;
     const sc = cur();
@@ -174,7 +174,7 @@ async function heroesRun(diff) {
   return { win: g('overTitle').textContent.indexOf('통일') !== -1, floor };
 }
 async function runHeroes() {
-  const runs = Math.min(N, 300);
+  const runs = Math.min(N, 50);
   console.log(`\n================= Heroes Wanted (${runs} runs/난이도, 스킬 사용 자동플레이) =================`);
   for (const d of ['easy', 'normal', 'hard']) {
     let wins = 0, floors = 0;
