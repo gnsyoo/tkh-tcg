@@ -57,7 +57,7 @@ const out = `<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0d0b1a">
-<title>삼국지 TCG 목업</title>
+<title>삼국지 카드 게임</title>
 <style>${common}\n${read('css/home.css')}
 .game-frame { position: fixed; inset: 0; z-index: 500; background: var(--bg-0); display: none; }
 .game-frame.show { display: block; }
