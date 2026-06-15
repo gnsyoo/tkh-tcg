@@ -129,11 +129,31 @@ var HW_RELICS = [
   { id:'chalice',name:'군량미',     emoji:'🍚', desc:'전투 승리 후 전원 HP 6 회복', effect:{ winHeal:6 } }
 ];
 
+/* 주공(나) 기본 스탯 */
+var HW_LORD = { hp: 200, mp: 50 };
+
+/* 무기 (장수당 1개 장착) — 삼국지 아이템
+ * effect: atk(+공격), doubleStrike(기본공격 2회), poison(공격 시 독 부여),
+ *         lordHp/lordMp(주공 최대 HP/MP 증가) */
+var HW_WEAPONS = [
+  { id:'spear18',  name:'장팔사모',   emoji:'🔱', desc:'장착 장수 공격력 +3',        effect:{ atk:3 } },
+  { id:'qinglong', name:'청룡언월도', emoji:'🗡️', desc:'장착 장수 공격력 +4',        effect:{ atk:4 } },
+  { id:'fangtian', name:'방천화극',   emoji:'⚔️', desc:'장착 장수 공격력 +5',        effect:{ atk:5 } },
+  { id:'qixing',   name:'칠성검',     emoji:'🌟', desc:'기본 공격이 2회 연속',        effect:{ doubleStrike:true } },
+  { id:'mengde',   name:'맹덕신서',   emoji:'📕', desc:'공격 시 적에게 독 +2',        effect:{ poison:2 } },
+  { id:'taiping',  name:'태평요술서', emoji:'☯️', desc:'공격 시 적에게 독 +3',        effect:{ poison:3 } },
+  { id:'yuxi',     name:'전국옥새',   emoji:'🟨', desc:'주공 최대 HP +60',           effect:{ lordHp:60 } },
+  { id:'sunzi',    name:'손자병법',   emoji:'📜', desc:'주공 최대 MP +20',           effect:{ lordMp:20 } },
+  { id:'guanyu',   name:'한수정후인', emoji:'🟥', desc:'주공 최대 HP +30, MP +10',   effect:{ lordHp:30, lordMp:10 } }
+];
+var HW_WEAPON_BY_ID = {};
+HW_WEAPONS.forEach(function (w) { HW_WEAPON_BY_ID[w.id] = w; });
+
 /* Difficulty tuning */
 var HW_DIFF = {
-  easy:   { eHp:0.90, eAtk:0.85, gold:1.4, smart:false, startGold:70 },
-  normal: { eHp:1.02, eAtk:0.96, gold:1.0, smart:false, startGold:50 },
-  hard:   { eHp:1.18, eAtk:1.08, gold:0.9, smart:true, startGold:40 }
+  easy:   { eHp:1.02, eAtk:1.14, gold:1.4, smart:false, startGold:70 },
+  normal: { eHp:1.12, eAtk:1.22, gold:1.0, smart:false, startGold:50 },
+  hard:   { eHp:1.24, eAtk:1.30, gold:0.9, smart:true, startGold:40 }
 };
 
 /* 적장(스테이지 보스) — 스테이지 진행에 따라 난이도 가산 */

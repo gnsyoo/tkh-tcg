@@ -138,6 +138,10 @@
   position: absolute; top: 2px; right: 4px; font-size: 11px; font-weight: 800; color: #9fd2ff;
   background: rgba(0,0,0,0.4); border-radius: 6px; padding: 0 4px;
 }
+.unit .u-poison {
+  position: absolute; top: 2px; left: 4px; font-size: 11px; font-weight: 800; color: #9be36b;
+  background: rgba(0,0,0,0.4); border-radius: 6px; padding: 0 4px;
+}
 .unit .u-intent {
   position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
   font-size: 11px; font-weight: 800; background: rgba(0,0,0,0.7);
@@ -300,6 +304,56 @@
 
 .combat-foot { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
 .combat-foot .hint { flex: 1; font-size: 12px; color: var(--ink-dim); }
+
+/* ---- 주공(나) 상태 바 ---- */
+.lord-bar { margin: 6px 0 2px; }
+.lord {
+  display: flex; align-items: center; gap: 10px;
+  background: linear-gradient(165deg, #2e2752, #1c1740);
+  border: 1px solid rgba(240,195,60,0.4); border-radius: 13px; padding: 8px 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+}
+.lord .lord-art { width: 54px; height: 54px; flex: 0 0 auto; border-radius: 12px; }
+.lord .lord-art .p-emoji { font-size: 34px; }
+.lord-info { flex: 1; min-width: 0; }
+.lord-name { font-size: 13px; font-weight: 800; margin-bottom: 4px; }
+.lord-block {
+  font-size: 11px; font-weight: 800; color: #9fd2ff;
+  background: rgba(0,0,0,0.4); border-radius: 6px; padding: 0 5px; margin-left: 4px;
+}
+.lbar {
+  position: relative; height: 16px; border-radius: 999px; overflow: hidden;
+  background: rgba(0,0,0,0.4); margin: 3px 0;
+}
+.lbar i { position: absolute; inset: 0; right: auto; display: block; transition: width 0.3s; }
+.lbar.hp i { background: linear-gradient(90deg, #e8536b, #ff8a8a); }
+.lbar.mp i { background: linear-gradient(90deg, #4a8bff, #7ec0ff); }
+.lbar span {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 800; text-shadow: 0 1px 2px rgba(0,0,0,0.9);
+}
+
+/* ---- 무기 장착 UI (장수 상세) ---- */
+.combat-card .cc-wpn {
+  position: absolute; bottom: 4px; right: 4px; font-size: 13px;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.8));
+}
+.wpn-box { background: rgba(0,0,0,0.25); border-radius: 10px; padding: 10px; text-align: left; margin-top: 10px; }
+.wpn-title { font-size: 12px; font-weight: 800; color: var(--gold); margin-bottom: 6px; }
+.wpn-cur { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.wpn-cur span { flex: 1; }
+.wpn-cur.none { color: var(--ink-dim); font-size: 12px; }
+.wpn-act { padding: 4px 10px; font-size: 11px; }
+.wpn-list { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.wpn-opt {
+  display: flex; flex-direction: column; align-items: flex-start;
+  background: linear-gradient(165deg, #3a2a1f, #261a12);
+  border: 1px solid rgba(240,195,60,0.35); border-radius: 9px; padding: 7px 9px;
+  font-size: 12px; font-weight: 700; color: var(--ink); cursor: pointer; text-align: left;
+}
+.wpn-opt:hover { border-color: var(--gold); }
+.wpn-opt small { font-weight: 500; color: var(--ink-dim); font-size: 10px; margin-top: 2px; }
+.wpn-empty { color: var(--ink-dim); font-size: 11px; margin-top: 6px; }
 
 /* ---- combat board: 왼쪽 뽑을 더미 / 가운데 3장 / 오른쪽 사용 더미 ---- */
 .combat-board {
