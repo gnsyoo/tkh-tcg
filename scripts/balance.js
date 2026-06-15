@@ -157,11 +157,12 @@ async function heroesRun(diff) {
         const skillOk = /data-act="skill"(?![^>]*disabled)/.test(g('actionBar')._html);
         g('actionBar').fire('click', mkEvt('.act-btn', { act: skillOk ? 'skill' : 'attack' }, [])); continue;
       }
-      // 3) select a playable hand card
-      const cm = /<div class="combat-card([^"]*)" data-uid="([^"]+)"/g; let cmx, uid = null;
-      while ((cmx = cm.exec(g('combatHand')._html))) { if (cmx[1].indexOf('unplayable') === -1) { uid = cmx[2]; break; } }
-      if (uid) { g('combatHand').fire('click', mkEvt('.combat-card', { uid: uid }, [])); continue; }
-      // 4) nothing playable → end turn
+      // 3) select a center card (leave 1 for defense if 3 are present)
+      const cards = [];
+      const cm = /<div class="combat-card([^"]*)" data-uid="([^"]+)"/g; let cmx;
+      while ((cmx = cm.exec(g('centerCards')._html))) { if (cmx[1].indexOf('unplayable') === -1) cards.push(cmx[2]); }
+      if (cards.length > 1) { g('centerCards').fire('click', mkEvt('.combat-card', { uid: cards[0] }, [])); continue; }
+      // 4) keep the last card for defense → end turn
       if (!g('endTurnBtn').disabled) g('endTurnBtn').fire('click', {}); else await tick();
     } else if (sc === 'rewardScreen') {
       const rc = g('rewardCards')._html, hm = /data-hero="([^"]+)"/.exec(rc), rm = /data-relic="([^"]+)"/.exec(rc);
