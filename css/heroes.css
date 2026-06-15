@@ -301,6 +301,39 @@
 .combat-foot { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
 .combat-foot .hint { flex: 1; font-size: 12px; color: var(--ink-dim); }
 
+/* ---- combat hand (장수 카드 손패) ---- */
+.combat-hand {
+  display: flex; gap: 8px; padding: 8px 4px 10px; margin-top: 6px;
+  overflow-x: auto; min-height: 110px; scroll-snap-type: x proximity;
+}
+.combat-hand::-webkit-scrollbar { height: 6px; }
+.combat-hand::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+.combat-card {
+  flex: 0 0 82px; scroll-snap-align: center; position: relative;
+  border-radius: 11px; padding: 6px 5px;
+  background: linear-gradient(165deg, #3a2a1f, #261a12);
+  border: 1px solid rgba(240,195,60,0.3); text-align: center; cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.12s, border-color 0.12s;
+}
+.combat-card:hover { transform: translateY(-4px); }
+.combat-card.selected {
+  border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold), 0 6px 16px rgba(240,195,60,0.4);
+  transform: translateY(-8px);
+}
+.combat-card.unplayable { opacity: 0.45; filter: grayscale(0.4); }
+.combat-card .cc-art { width: 100%; height: 46px; }
+.combat-card .cc-art .p-emoji { font-size: 30px; }
+.combat-card .cc-name { font-size: 11px; font-weight: 800; margin-top: 3px; }
+.combat-card .cc-atk {
+  position: absolute; top: 4px; left: 5px; font-size: 11px; font-weight: 800; color: #ffce6b;
+  background: rgba(0,0,0,0.4); border-radius: 5px; padding: 0 4px;
+}
+.combat-card .cc-skill { font-size: 9px; color: var(--gold); line-height: 1.2; margin-top: 2px; min-height: 22px; }
+.unit.inhand::after {
+  content: '🎴'; position: absolute; bottom: 2px; left: 4px; font-size: 10px; opacity: 0.85;
+}
+.act-btn.mull { border-color: rgba(91,184,122,0.5); }
+
 /* ---- Reward / cards ---- */
 .reward-cards { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
 .reward-card {

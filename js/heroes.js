@@ -160,8 +160,8 @@
     var st = HW_STAGES[main];
     var isBoss = sub === SUB_COUNT - 1;
     var prog = main * SUB_COUNT + sub; // 0..(8*12-1) 전체 진행도
-    var hpM = DCFG.eHp * (1 + prog * 0.008);
-    var atkM = DCFG.eAtk * (1 + prog * 0.0040);
+    var hpM = DCFG.eHp * (1 + prog * 0.014);
+    var atkM = DCFG.eAtk * (1 + prog * 0.0075);
     function inst(d, boss) {
       var hp = Math.round(d.hp * hpM);
       return { def: d, name: d.name, emoji: d.emoji, maxHp: hp, hp: hp,
@@ -186,8 +186,13 @@
     var st = HW_STAGES[run.mainStage], s = run.subStage;
     var isBoss = s === SUB_COUNT - 1;
     var enemies = genSubEnemies(run.mainStage, s);
-    run.party.forEach(function (h) { h.hp = h.maxHp; h.block = 0; h.tempAtk = relicSum('startAtk'); h.acted = false; });
-    run.combat = { main: run.mainStage, sub: s, enemies: enemies, round: 0, energy: 0, sel: null, targeting: false, pending: null, log: [] };
+    run.party.forEach(function (h) { h.hp = h.maxHp; h.block = 0; h.tempAtk = relicSum('startAtk'); });
+    run.combat = {
+      main: run.mainStage, sub: s, enemies: enemies, round: 0,
+      draw: TCG.shuffle(living(run.party).map(function (h) { return h.uid; })), // 뽑을 카드 풀
+      used: [], hand: [], playsLeft: 0, mullsLeft: 0,                          // 사용한 카드 풀 / 손패
+      sel: null, targeting: false, pending: null, phase: 'player', log: []
+    };
     show('combatScreen');
     if (isBoss) {
       fxBanner('👑 적장 ' + HW_COMMANDERS[st.boss].name, 'boss', 1500); shake('big');
@@ -199,16 +204,45 @@
     beginRound();
   }
 
+  /* ---------- card piles (뽑을 풀 / 손패 / 사용한 풀) ---------- */
+  var HAND_SIZE = 5;
+  function heroByUid(uid) { return run.party.find(function (h) { return h.uid === uid; }); }
+  function aliveUid(uid) { var h = heroByUid(uid); return !!h && h.hp > 0; }
+  function cleanPiles() {
+    var c = run.combat;
+    c.hand = c.hand.filter(aliveUid); c.draw = c.draw.filter(aliveUid); c.used = c.used.filter(aliveUid);
+  }
+  function drawOne() {
+    var c = run.combat;
+    if (!c.draw.length) {
+      if (!c.used.length) return false;
+      c.draw = TCG.shuffle(c.used); c.used = [];   // 뽑을 풀이 비면 사용한 풀을 섞어 이동
+      logMsg('덱을 다시 섞었습니다');
+    }
+    while (c.draw.length && !aliveUid(c.draw[c.draw.length - 1])) c.draw.pop();
+    if (!c.draw.length) return false;
+    c.hand.push(c.draw.pop());
+    return true;
+  }
+  function refillHand() {
+    var c = run.combat;
+    cleanPiles();
+    var cap = Math.min(HAND_SIZE, living(run.party).length);
+    var guard = 0;
+    while (c.hand.length < cap && guard++ < 60) { if (!drawOne()) break; }
+  }
+
   function beginRound() {
     var c = run.combat;
     c.round++;
-    c.energy = 5 + relicSum('energy');
+    c.playsLeft = 3 + relicSum('energy'); // 턴당 카드 3장 (유물로 증가 가능)
+    c.mullsLeft = 2;                       // 턴당 교체 2회
     run.party.forEach(function (h) {
       if (h.hp <= 0) return;
       h.block = 0;
       if (c.round === 1) h.block += relicSum('startBlock');
-      h.acted = false;
     });
+    refillHand();
     rollIntents();
     c.sel = null; c.targeting = false; c.pending = null;
     renderCombat();
@@ -311,10 +345,9 @@
 
   function renderCombat() {
     var c = run.combat;
-    // energy
-    var orbs = '';
-    for (var i = 0; i < Math.max(3, c.energy); i++) orbs += '<span class="orb' + (i < c.energy ? ' on' : '') + '"></span>';
-    document.getElementById('energyBox').innerHTML = '⚡ 에너지 ' + orbs + ' <b>' + c.energy + '</b>';
+    // 카드 상태: 사용 가능 / 교체 / 덱 / 무덤
+    document.getElementById('energyBox').innerHTML =
+      '🎴 사용 <b>' + c.playsLeft + '</b> · ♻️ 교체 <b>' + c.mullsLeft + '</b> · 덱 ' + c.draw.length + ' · 무덤 ' + c.used.length;
 
     // enemies
     document.getElementById('enemyRow').innerHTML = c.enemies.map(function (e, idx) {
@@ -330,46 +363,61 @@
         hpBar({ hp: Math.max(0, e.hp), maxHp: e.maxHp }, true) + '</div>';
     }).join('');
 
-    // party
+    // party — 유닛은 적 공격 대상/아군 스킬 대상. 행동은 손패 카드로.
     document.getElementById('partyRow').innerHTML = run.party.map(function (h, idx) {
       var dead = h.hp <= 0;
-      var canSelect = !c.targeting && !dead && !h.acted && c.phase !== 'enemy';
+      var inHand = c.hand.indexOf(h.uid) !== -1;
       var isTgt = c.targeting && c.pending && c.pending.side === 'ally' && !dead;
-      var active = c.sel && c.sel.heroIdx === idx;
-      var ready = c.energy >= h.def.skill.cost;
-      var cls = 'unit' + (dead ? ' dead' : '') + (h.acted ? ' acted' : '') +
-        (canSelect ? ' selectable' : '') + (active ? ' active' : '') + (isTgt ? ' targetable ally' : '');
+      var cls = 'unit' + (dead ? ' dead' : '') + (isTgt ? ' targetable ally' : '') + (inHand ? ' inhand' : '');
       return '<div class="' + cls + '" data-side="party" data-idx="' + idx + '">' +
         '<div class="u-atk' + (h.tempAtk ? ' boosted' : '') + '">⚔' + (h.atk + (h.tempAtk || 0)) + '</div>' +
         (h.block > 0 ? '<div class="u-block">🛡' + h.block + '</div>' : '') +
         TCG.portrait(h.def.emoji, h.def.id) +
         '<div class="u-name">' + h.def.name + '</div>' +
         '<div class="u-hp-text">❤ ' + Math.max(0, h.hp) + '/' + h.maxHp + '</div>' +
-        hpBar({ hp: Math.max(0, h.hp), maxHp: h.maxHp }) +
-        (!dead && ready && !h.acted ? '<div class="skill-ready">✨</div>' : '') + '</div>';
+        hpBar({ hp: Math.max(0, h.hp), maxHp: h.maxHp }) + '</div>';
     }).join('');
 
+    renderHand();
     renderActionBar();
     document.getElementById('endTurnBtn').disabled = (c.phase === 'enemy');
     var hint = document.getElementById('combatHint');
     if (c.phase === 'enemy') hint.textContent = '적이 행동 중…';
-    else if (c.targeting) hint.textContent = '대상을 선택하세요 (취소하려면 다시 영웅 선택)';
-    else if (c.sel) hint.textContent = '행동을 선택하세요';
-    else hint.textContent = '영웅을 선택해 행동하세요';
+    else if (c.targeting) hint.textContent = '대상을 선택하세요';
+    else if (c.sel) hint.textContent = '행동을 선택하세요 (또는 ♻️ 교체)';
+    else hint.textContent = c.playsLeft > 0 ? '손패에서 장수 카드를 선택하세요' : '사용 가능 카드 소진 — 교체하거나 턴을 종료하세요';
+  }
+
+  function renderHand() {
+    var c = run.combat;
+    var canAct = c.phase !== 'enemy' && !c.targeting;
+    document.getElementById('combatHand').innerHTML = c.hand.map(function (uid) {
+      var h = heroByUid(uid); if (!h) return '';
+      var sk = h.def.skill;
+      var sel = c.sel && c.sel.uid === uid && !c.targeting;
+      var playable = canAct && c.playsLeft > 0;
+      var cls = 'combat-card' + (sel ? ' selected' : '') + (playable ? '' : ' unplayable');
+      return '<div class="' + cls + '" data-uid="' + uid + '">' +
+        TCG.portrait(h.def.emoji, h.def.id, 'cc-art') +
+        '<div class="cc-name">' + h.def.name + '</div>' +
+        '<div class="cc-atk">⚔' + (h.atk + (h.tempAtk || 0)) + '</div>' +
+        '<div class="cc-skill">' + sk.name + '</div></div>';
+    }).join('');
   }
 
   function renderActionBar() {
     var c = run.combat;
     var bar = document.getElementById('actionBar');
     if (!c.sel || c.targeting) { bar.hidden = true; return; }
-    var h = run.party[c.sel.heroIdx];
+    var h = heroByUid(c.sel.uid);
+    if (!h) { bar.hidden = true; return; }
     var sk = h.def.skill;
-    var canSkill = c.energy >= sk.cost && living(c.enemies).length >= 0;
+    var canPlay = c.playsLeft > 0;
     bar.hidden = false;
     bar.innerHTML =
-      '<button class="act-btn" data-act="attack">기본 공격<small>피해 ' + (h.atk + (h.tempAtk || 0)) + '</small></button>' +
-      '<button class="act-btn skill" data-act="skill"' + (canSkill ? '' : ' disabled') + '>' + sk.name +
-        '<small>⚡' + sk.cost + ' · ' + sk.desc + '</small></button>' +
+      '<button class="act-btn" data-act="attack"' + (canPlay ? '' : ' disabled') + '>기본 공격<small>피해 ' + (h.atk + (h.tempAtk || 0)) + '</small></button>' +
+      '<button class="act-btn skill" data-act="skill"' + (canPlay ? '' : ' disabled') + '>' + sk.name + '<small>' + sk.desc + '</small></button>' +
+      '<button class="act-btn mull" data-act="mulligan"' + (c.mullsLeft > 0 ? '' : ' disabled') + '>♻️ 교체<small>남은 ' + c.mullsLeft + '</small></button>' +
       '<button class="act-btn cancel" data-act="cancel">취소</button>';
   }
 
@@ -377,32 +425,48 @@
   document.getElementById('enemyRow').addEventListener('click', function (e) { onUnitClick(e); });
   document.getElementById('partyRow').addEventListener('click', function (e) { onUnitClick(e); });
   function onUnitClick(e) {
-    var c = run.combat; if (!c || c.phase === 'enemy') return;
+    var c = run.combat; if (!c || c.phase === 'enemy' || !c.targeting) return;
     var u = e.target.closest('.unit'); if (!u) return;
     var side = u.dataset.side, idx = parseInt(u.dataset.idx, 10);
-    if (c.targeting) {
-      if (c.pending.side === side && u.classList.contains('targetable')) executeOn(side, idx);
-      return;
-    }
-    if (side === 'party' && u.classList.contains('selectable')) {
-      c.sel = { heroIdx: idx }; renderCombat();
-    }
+    // pending.side is 'enemy' or 'ally'; party units render as data-side="party"
+    var matches = (c.pending.side === 'enemy' && side === 'enemy') ||
+                  (c.pending.side === 'ally' && side === 'party');
+    if (matches && u.classList.contains('targetable')) executeOn(side, idx);
   }
+  document.getElementById('combatHand').addEventListener('click', function (e) {
+    var c = run.combat; if (!c || c.phase === 'enemy' || c.targeting) return;
+    var card = e.target.closest('.combat-card'); if (!card) return;
+    var uid = card.dataset.uid;
+    c.sel = (c.sel && c.sel.uid === uid) ? null : { uid: uid };
+    renderCombat();
+  });
   document.getElementById('actionBar').addEventListener('click', function (e) {
-    var b = e.target.closest('.act-btn'); if (!b) return;
+    var b = e.target.closest('.act-btn'); if (!b || b.disabled) return;
     var c = run.combat; if (!c.sel) return;
     var act = b.dataset.act;
     if (act === 'cancel') { c.sel = null; c.targeting = false; c.pending = null; renderCombat(); return; }
-    var h = run.party[c.sel.heroIdx];
+    if (act === 'mulligan') { mulligan(c.sel.uid); return; }
+    var h = heroByUid(c.sel.uid); if (!h) return;
+    if (c.playsLeft <= 0) { TCG.toast('이번 턴 사용 가능한 카드를 모두 썼습니다'); return; }
     if (act === 'attack') { beginTarget('enemy', 'attack'); return; }
-    // skill
     var sk = h.def.skill;
-    if (c.energy < sk.cost) { TCG.toast('에너지가 부족합니다'); return; }
     if (sk.target === 'allEnemies') { doSkill(h, null); }
     else if (sk.target === 'lowestAlly') { doSkill(h, lowest(run.party)); }
     else if (sk.target === 'enemy') beginTarget('enemy', 'skill');
     else beginTarget('ally', 'skill'); // ally / self
   });
+  function mulligan(uid) {
+    var c = run.combat;
+    if (c.mullsLeft <= 0) { TCG.toast('이번 턴 교체를 모두 사용했습니다'); return; }
+    var i = c.hand.indexOf(uid); if (i === -1) return;
+    c.hand.splice(i, 1); c.used.push(uid);
+    drawOne();
+    c.mullsLeft--;
+    c.sel = null;
+    TCG.sfx('tap');
+    logMsg(heroByUid(uid) ? (heroByUid(uid).def.name + ' 교체') : '카드 교체');
+    renderCombat();
+  }
   function beginTarget(side, kind) {
     var c = run.combat;
     c.targeting = true; c.pending = { side: side, kind: kind };
@@ -410,7 +474,7 @@
   }
   function executeOn(side, idx) {
     var c = run.combat;
-    var h = run.party[c.sel.heroIdx];
+    var h = heroByUid(c.sel.uid); if (!h) return;
     if (c.pending.kind === 'attack') { doAttack(h, c.enemies[idx]); }
     else if (c.pending.kind === 'skill') {
       var target = side === 'enemy' ? c.enemies[idx] : run.party[idx];
@@ -446,11 +510,10 @@
     var ls = relicSum('lifesteal');
     if (ls) { h.hp = Math.min(h.maxHp, h.hp + ls); var pe = rectOf(partyEl(run.party.indexOf(h))); if (pe) fxFloat(pe.x, pe.y, '+' + ls, '#7ef0b5'); }
     logMsg(h.def.name + ' → ' + enemy.name + ' ' + dmg + ' 피해');
-    finishHeroAction(h);
+    finishPlay();
   }
   function doSkill(h, target) {
     var c = run.combat; var sk = h.def.skill;
-    c.energy -= sk.cost;
     TCG.sfx(sk.type === 'heal' ? 'heal' : 'skill');
     var pw = h.atk + (h.tempAtk || 0);
     var heroPos = rectOf(partyEl(run.party.indexOf(h)));
@@ -487,15 +550,19 @@
       if (target) { target.tempAtk = (target.tempAtk || 0) + sk.val; fxSupport(partyEl(run.party.indexOf(target)), '⚔+' + sk.val, '#ffd86b'); }
       logMsg(h.def.name + ' 「' + sk.name + '」 공격력 강화');
     }
-    finishHeroAction(h);
+    finishPlay();
   }
 
-  function finishHeroAction(h) {
+  function finishPlay() {
     var c = run.combat;
-    h.acted = true;
+    if (c.sel) {
+      var i = c.hand.indexOf(c.sel.uid);
+      if (i !== -1) { c.hand.splice(i, 1); c.used.push(c.sel.uid); } // 사용한 카드 풀로
+      c.playsLeft = Math.max(0, c.playsLeft - 1);
+    }
     c.sel = null; c.targeting = false; c.pending = null;
     renderCombat();
-    if (living(c.enemies).length === 0) { setTimeout(winCombat, 550); return; }
+    if (living(c.enemies).length === 0) { setTimeout(winCombat, 550); }
   }
 
   document.getElementById('endTurnBtn').addEventListener('click', function () {

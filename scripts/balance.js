@@ -135,14 +135,7 @@ async function heroesRun(diff) {
       }
       g('mapTrack').fire('click', mkEvt('.camp-btn', { act: 'battle' }, []));
     } else if (sc === 'combatScreen') {
-      const hre = /<div class="unit([^"]*)" data-side="party" data-idx="(\d+)"/g; let hm, hero = -1;
-      while ((hm = hre.exec(g('partyRow')._html))) { if (hm[1].indexOf('selectable') !== -1) { hero = parseInt(hm[2], 10); break; } }
-      if (hero === -1) { if (!g('endTurnBtn').disabled) g('endTurnBtn').fire('click', {}); else await tick(); continue; }
-      g('partyRow').fire('click', mkEvt('.unit', { side: 'party', idx: String(hero) }, ['selectable']));
-      const skillEnabled = /data-act="skill"(?![^>]*disabled)/.test(g('actionBar')._html);
-      g('actionBar').fire('click', mkEvt('.act-btn', { act: skillEnabled ? 'skill' : 'attack' }, []));
-      // if the action needs a target, the board now shows targetable units.
-      // Focus-fire: among targetable units pick the one with the LOWEST current HP.
+      // focus-fire: lowest-HP targetable unit on a side
       const findTgt = (html, side) => {
         const re = new RegExp('<div class="unit([^"]*)" data-side="' + side + '" data-idx="(\\d+)">([\\s\\S]*?)(?=<div class="unit|$)', 'g');
         let m, best = -1, bestHp = Infinity;
@@ -154,10 +147,22 @@ async function heroesRun(diff) {
         }
         return best;
       };
-      let e = findTgt(g('enemyRow')._html, 'enemy');
-      if (e !== -1) { g('enemyRow').fire('click', mkEvt('.unit', { side: 'enemy', idx: String(e) }, ['targetable'])); }
-      else { let a = findTgt(g('partyRow')._html, 'party'); if (a !== -1) g('partyRow').fire('click', mkEvt('.unit', { side: 'party', idx: String(a) }, ['targetable'])); }
-      // (no target highlighted = AoE/heal already executed)
+      // 1) resolve an in-progress target selection
+      let te = findTgt(g('enemyRow')._html, 'enemy');
+      if (te !== -1) { g('enemyRow').fire('click', mkEvt('.unit', { side: 'enemy', idx: String(te) }, ['targetable'])); continue; }
+      let ta = findTgt(g('partyRow')._html, 'party');
+      if (ta !== -1) { g('partyRow').fire('click', mkEvt('.unit', { side: 'party', idx: String(ta) }, ['targetable'])); continue; }
+      // 2) a card is selected → choose skill (preferred) or attack
+      if (!g('actionBar').hidden && /data-act="/.test(g('actionBar')._html)) {
+        const skillOk = /data-act="skill"(?![^>]*disabled)/.test(g('actionBar')._html);
+        g('actionBar').fire('click', mkEvt('.act-btn', { act: skillOk ? 'skill' : 'attack' }, [])); continue;
+      }
+      // 3) select a playable hand card
+      const cm = /<div class="combat-card([^"]*)" data-uid="([^"]+)"/g; let cmx, uid = null;
+      while ((cmx = cm.exec(g('combatHand')._html))) { if (cmx[1].indexOf('unplayable') === -1) { uid = cmx[2]; break; } }
+      if (uid) { g('combatHand').fire('click', mkEvt('.combat-card', { uid: uid }, [])); continue; }
+      // 4) nothing playable → end turn
+      if (!g('endTurnBtn').disabled) g('endTurnBtn').fire('click', {}); else await tick();
     } else if (sc === 'rewardScreen') {
       const rc = g('rewardCards')._html, hm = /data-hero="([^"]+)"/.exec(rc), rm = /data-relic="([^"]+)"/.exec(rc);
       if (hm) g('rewardCards').fire('click', mkEvt('.reward-card', { hero: hm[1] }, []));

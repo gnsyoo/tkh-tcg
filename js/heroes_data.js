@@ -122,7 +122,7 @@ var HW_ENEMIES = {
 
 /* 보물 (병법/군용품) */
 var HW_RELICS = [
-  { id:'banner', name:'대장군 깃발', emoji:'🚩', desc:'매 라운드 에너지 +1', effect:{ energy:1 } },
+  { id:'banner', name:'대장군 깃발', emoji:'🚩', desc:'매 턴 사용 카드 +1', effect:{ energy:1 } },
   { id:'fang',   name:'적토마',     emoji:'🐎', desc:'기본 공격 시 HP 2 회복',  effect:{ lifesteal:2 } },
   { id:'drum',   name:'전고(戰鼓)', emoji:'🥁', desc:'전투 시작 시 전원 공격력 +2', effect:{ startAtk:2 } },
   { id:'crest',  name:'방패 진형',  emoji:'🛡️', desc:'전투 시작 시 전원 방어막 5',  effect:{ startBlock:5 } },
@@ -131,9 +131,9 @@ var HW_RELICS = [
 
 /* Difficulty tuning */
 var HW_DIFF = {
-  easy:   { eHp:0.70, eAtk:0.68, gold:1.4, smart:false, startGold:70 },
-  normal: { eHp:0.84, eAtk:0.80, gold:1.0, smart:false, startGold:50 },
-  hard:   { eHp:0.96, eAtk:0.92, gold:0.9, smart:true, startGold:40 }
+  easy:   { eHp:0.90, eAtk:0.85, gold:1.4, smart:false, startGold:70 },
+  normal: { eHp:1.12, eAtk:1.05, gold:1.0, smart:false, startGold:50 },
+  hard:   { eHp:1.28, eAtk:1.18, gold:0.9, smart:true, startGold:40 }
 };
 
 /* 적장(스테이지 보스) — 스테이지 진행에 따라 난이도 가산 */
