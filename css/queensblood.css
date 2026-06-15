@@ -211,11 +211,46 @@
 .rules-list b { color: var(--ink); }
 
 .end-score {
-  display: flex; justify-content: center; gap: 24px;
+  display: flex; justify-content: center; align-items: center; gap: 14px;
   font-size: 30px; font-weight: 900; margin: 10px 0 6px;
 }
 .end-score .e-you { color: var(--you); }
 .end-score .e-foe { color: var(--foe); }
+.end-score .e-colon { color: var(--ink-dim); font-size: 22px; }
+
+/* 종료 정산(영웅모집 골드) 안내 — 정돈된 배지 */
+.end-gold {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  margin: 4px auto 10px; padding: 8px 14px; max-width: 320px;
+  border-radius: 10px; border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.22);
+}
+.end-gold .eg-label { font-size: 12px; font-weight: 800; color: var(--ink-dim); letter-spacing: .5px; }
+.end-gold .eg-val { font-size: 13px; color: var(--ink); }
+.end-gold .eg-val b { font-size: 16px; }
+.end-gold.gain { border-color: rgba(91,184,122,0.5); }
+.end-gold.gain .eg-val b { color: var(--green); }
+.end-gold.loss { border-color: rgba(232,83,107,0.5); }
+.end-gold.loss .eg-val b { color: var(--foe); }
+.end-gold.draw .eg-val { color: var(--ink-dim); }
+
+/* 판 크기 선택 */
+.board-size-sel {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  flex-wrap: wrap; margin: 4px 0 2px;
+}
+.board-size-sel .bss-label { font-size: 12px; font-weight: 800; color: var(--ink-dim); }
+.board-size-sel .bss-btn {
+  background: var(--panel); color: var(--ink);
+  border: 1px solid rgba(255,255,255,0.16); border-radius: 8px;
+  padding: 6px 14px; font-weight: 800; font-size: 13px; cursor: pointer;
+  transition: border-color 0.12s, box-shadow 0.12s, transform 0.08s;
+}
+.board-size-sel .bss-btn:hover { transform: translateY(-1px); }
+.board-size-sel .bss-btn.active {
+  border-color: var(--gold); color: var(--gold);
+  box-shadow: 0 0 0 1.5px var(--gold), 0 0 12px rgba(245,197,66,0.3);
+}
 
 /* Deck builder */
 .deck-modal { max-width: 720px; }

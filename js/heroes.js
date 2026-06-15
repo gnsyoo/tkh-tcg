@@ -166,7 +166,8 @@
         '<button class="camp-btn" data-act="shop"' + (run.stageShopped ? ' disabled' : '') + '>🏪 저잣거리' + (run.stageShopped ? ' ✓' : '') + '</button>' +
       '</div>';
     document.getElementById('mapTrack').innerHTML = html;
-    document.getElementById('mapParty').innerHTML = run.party.map(miniHero).join('');
+    document.getElementById('rosterCount').textContent = run.party.length;
+    document.getElementById('gearCount').textContent = (run.weapons || []).length;
   }
   document.getElementById('mapTrack').addEventListener('click', function (e) {
     var btn = e.target.closest('.camp-btn');
@@ -176,7 +177,56 @@
     if (act === 'battle') return startStageCombat();
     if (act === 'shop') { run.stageShopped = true; showShop(); }
   });
-  document.getElementById('mapParty').addEventListener('click', onMiniClick);
+
+  /* ---------- 수집한 장수 / 장비 보기 ---------- */
+  function openRoster() {
+    TCG.sfx('tap');
+    document.getElementById('rosterTitleCount').textContent = '(' + run.party.length + ' / ' + MAX_PARTY + ')';
+    document.getElementById('rosterGrid').innerHTML = run.party.map(miniHero).join('');
+    document.getElementById('rosterModal').hidden = false;
+  }
+  function refreshRosterIfOpen() {
+    if (!document.getElementById('rosterModal').hidden) {
+      document.getElementById('rosterGrid').innerHTML = run.party.map(miniHero).join('');
+    }
+  }
+  function openGear() {
+    TCG.sfx('tap');
+    var inv = run.weapons || [];
+    var html;
+    if (!inv.length) {
+      html = '<div class="gear-empty">보유한 장비가 없습니다.<br>출진 5·10회 보물상자나 저잣거리에서 무기를 얻으세요.</div>';
+    } else {
+      html = HW_WEAPONS.map(function (w) {
+        var owned = inv.filter(function (id) { return id === w.id; }).length;
+        if (!owned) return '';
+        var wearers = [];
+        run.party.forEach(function (h) {
+          heroWpnIds(h).forEach(function (id) { if (id === w.id) wearers.push(h.def.name); });
+        });
+        var free = owned - wearers.length;
+        var wearTxt = wearers.length
+          ? '<span class="gear-on">착용: ' + wearers.join(', ') + '</span>' + (free > 0 ? ' <span class="gear-free">· 미장착 ' + free + '</span>' : '')
+          : '<span class="gear-free">미장착</span>';
+        return '<div class="gear-row">' +
+          '<div class="gear-emoji">' + w.emoji + '</div>' +
+          '<div class="gear-info">' +
+            '<div class="gear-name">' + w.name + ' <span class="gear-own">×' + owned + '</span></div>' +
+            '<div class="gear-desc">' + w.desc + '</div>' +
+            '<div class="gear-wear">' + wearTxt + '</div>' +
+          '</div></div>';
+      }).join('');
+    }
+    document.getElementById('gearList').innerHTML = html;
+    document.getElementById('gearModal').hidden = false;
+  }
+  document.getElementById('rosterBtn').addEventListener('click', openRoster);
+  document.getElementById('gearBtn').addEventListener('click', openGear);
+  document.getElementById('rosterGrid').addEventListener('click', onMiniClick);
+  document.getElementById('rosterClose').addEventListener('click', function () { document.getElementById('rosterModal').hidden = true; });
+  document.getElementById('gearClose').addEventListener('click', function () { document.getElementById('gearModal').hidden = true; });
+  document.getElementById('rosterModal').addEventListener('click', function (e) { if (e.target.id === 'rosterModal') e.currentTarget.hidden = true; });
+  document.getElementById('gearModal').addEventListener('click', function (e) { if (e.target.id === 'gearModal') e.currentTarget.hidden = true; });
   document.getElementById('restParty').addEventListener('click', onMiniClick);
   function onMiniClick(e) {
     var m = e.target.closest('.mini-hero'); if (!m) return;
@@ -441,9 +491,9 @@
     document.getElementById('drawPile').innerHTML =
       drawStack + '<div class="pile-label">뽑을 카드 <b>' + c.draw.length + '</b></div>';
 
-    // 가운데: 공격/방어 덱 (3장)
+    // 가운데: 공격/방어 덱 (3장 이상이면 가로 스크롤)
     var canAct = c.phase !== 'enemy' && !c.targeting;
-    document.getElementById('centerCards').innerHTML = c.center.map(function (uid) {
+    var centerHtml = c.center.map(function (uid) {
       var h = heroByUid(uid); if (!h) return '';
       var sk = h.def.skill;
       var sel = c.sel && c.sel.uid === uid && !c.targeting;
@@ -458,7 +508,10 @@
         '<div class="cc-def">🛡' + defenseOf(h) + '</div>' +
         (wEmoji ? '<div class="cc-wpn" title="' + wName + '">' + wEmoji + '</div>' : '') +
         '<div class="cc-skill">' + sk.name + '</div></div>';
-    }).join('') || '<div class="center-empty">카드 없음</div>';
+    }).join('');
+    document.getElementById('centerCards').innerHTML = centerHtml
+      ? '<div class="center-inner">' + centerHtml + '</div>'
+      : '<div class="center-empty">카드 없음</div>';
 
     // 오른쪽: 사용한 카드 풀 (겹친 더미, 시작 시 빈 영역)
     var usedStack = '';
@@ -980,7 +1033,7 @@
       '<button class="btn primary" id="heroModalClose" style="margin-top:14px">닫기</button>';
     var modal = document.getElementById('heroModal');
     modal.hidden = false;
-    document.getElementById('heroModalClose').addEventListener('click', function () { modal.hidden = true; });
+    document.getElementById('heroModalClose').addEventListener('click', function () { modal.hidden = true; refreshRosterIfOpen(); });
     document.getElementById('heroModalBody').querySelectorAll('[data-wact]').forEach(function (b) {
       b.addEventListener('click', function () {
         TCG.sfx('tap');
@@ -995,7 +1048,7 @@
     });
   }
   document.getElementById('heroModal').addEventListener('click', function (e) {
-    if (e.target.id === 'heroModal') e.currentTarget.hidden = true;
+    if (e.target.id === 'heroModal') { e.currentTarget.hidden = true; refreshRosterIfOpen(); }
   });
 
   /* ---------- boot ---------- */

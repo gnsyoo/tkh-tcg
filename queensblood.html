@@ -73,8 +73,14 @@
 
   <div class="overlay" id="deckModal" hidden>
     <div class="modal deck-modal">
-      <h2 style="text-align:center;">🃏 덱 편집 <span id="deckCount" style="color:var(--gold);font-size:16px;">0/15</span></h2>
-      <p style="text-align:center;">카드 풀에서 15장을 골라 나만의 덱을 구성하세요. 카드를 탭하여 추가/제거합니다.</p>
+      <h2 style="text-align:center;">🃏 덱 구성 <span id="deckCount" style="color:var(--gold);font-size:16px;">0/15</span></h2>
+      <p style="text-align:center;">카드 풀에서 15장을 골라 덱을 만들고 판 크기를 정한 뒤 시작하세요. 카드를 탭하여 추가/제거합니다.</p>
+      <div class="board-size-sel" id="boardSizeSel">
+        <span class="bss-label">판 크기</span>
+        <button class="bss-btn" data-rows="3">3 × 5</button>
+        <button class="bss-btn" data-rows="4">4 × 5</button>
+        <button class="bss-btn" data-rows="5">5 × 5</button>
+      </div>
       <div class="deck-grid" id="deckGrid"></div>
       <div class="deck-actions">
         <button class="btn ghost" id="deckDefault">기본덱</button>
@@ -101,6 +107,7 @@
       <h2 id="endTitle">결과</h2>
       <p id="endText"></p>
       <div class="end-score" id="endScore"></div>
+      <div id="endGold"></div>
       <div style="display:flex;gap:10px;justify-content:center;margin-top:8px;">
         <button class="btn primary" id="againBtn">다시 하기</button>
         <a class="btn ghost" href="index.html">메뉴로</a>

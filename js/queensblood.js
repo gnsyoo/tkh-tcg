@@ -1,6 +1,11 @@
 /* ===== Queen's Blood — engine & UI ===== */
 (function () {
-  var ROWS = 3, COLS = 5;
+  var COLS = 5;
+  function getRows() {
+    var v = parseInt(lsGet('qb_rows') || '3', 10);
+    return (v === 3 || v === 4 || v === 5) ? v : 3;
+  }
+  var ROWS = getRows();
   var diff = TCG.getDifficulty();
 
   var state = null;
@@ -318,28 +323,33 @@
   function endGame() {
     state.over = true;
     var s = scoreOf(state.board);
-    var title, text, goldNote = '';
+    var title, text, goldHtml = '';
     if (s.you > s.foe) {
       title = '🏆 승리!';
       var gw = settleHeroesGold(s.you, true);
-      text = '패스 2회로 종료 · 배치한 카드 무력 총합에서 앞섰습니다.';
-      goldNote = '🏅 승리 포인트 ' + s.you + ' → 영웅모집 골드 +' + gw;
+      text = '배치한 카드 무력 총합에서 앞섰습니다.';
+      goldHtml = '<div class="end-gold gain">' +
+        '<span class="eg-label">🏅 승리 보상</span>' +
+        '<span class="eg-val">삼국지 영웅모집 골드 <b>+' + gw + '</b></span></div>';
       TCG.sfx('win');
     } else if (s.foe > s.you) {
       title = '😢 패배';
       var gl = settleHeroesGold(s.you, false);
-      text = '패스 2회로 종료 · 상대의 무력 총합이 더 높았습니다.';
-      goldNote = '💸 포인트 ' + s.you + ' → 영웅모집 골드 ' + gl;
+      text = '상대의 무력 총합이 더 높았습니다.';
+      goldHtml = '<div class="end-gold loss">' +
+        '<span class="eg-label">💸 패배 정산</span>' +
+        '<span class="eg-val">삼국지 영웅모집 골드 <b>' + gl + '</b></span></div>';
       TCG.sfx('lose');
     } else {
       title = '🤝 무승부';
-      text = '패스 2회로 종료 · 무력 총합이 같습니다. (골드 정산 없음)';
+      text = '무력 총합이 같습니다.';
+      goldHtml = '<div class="end-gold draw"><span class="eg-val">골드 정산 없음</span></div>';
     }
     document.getElementById('endTitle').textContent = title;
     document.getElementById('endText').textContent = text;
     document.getElementById('endScore').innerHTML =
-      '<span class="e-you">' + s.you + '</span><span style="color:var(--ink-dim)">:</span><span class="e-foe">' + s.foe + '</span>' +
-      (goldNote ? '<div class="gold-note">' + goldNote + '</div>' : '');
+      '<span class="e-you">' + s.you + '</span><span class="e-colon">:</span><span class="e-foe">' + s.foe + '</span>';
+    document.getElementById('endGold').innerHTML = goldHtml;
     document.getElementById('endModal').hidden = false;
     render();
   }
@@ -498,13 +508,19 @@
 
   /* ---------- deck builder ---------- */
   var builderDeck = null;
+  var builderRows = 3;
   function openDeckBuilder() {
     builderDeck = getPlayerDeck().slice();
+    builderRows = getRows();
     renderDeckBuilder();
     document.getElementById('deckModal').hidden = false;
   }
   function renderDeckBuilder() {
     document.getElementById('deckCount').textContent = builderDeck.length + '/' + DECK_SIZE;
+    var sizeSel = document.getElementById('boardSizeSel');
+    if (sizeSel) sizeSel.querySelectorAll('.bss-btn').forEach(function (b) {
+      b.classList.toggle('active', parseInt(b.dataset.rows, 10) === builderRows);
+    });
     document.getElementById('deckGrid').innerHTML = QB_CARDS.map(function (c) {
       var sel = builderDeck.indexOf(c.id) !== -1;
       var rp = ''; for (var k = 0; k < c.rank; k++) rp += '<span class="rp"></span>';
@@ -526,6 +542,13 @@
     TCG.sfx('tap');
     renderDeckBuilder();
   });
+  var sizeSelEl = document.getElementById('boardSizeSel');
+  if (sizeSelEl) sizeSelEl.addEventListener('click', function (e) {
+    var b = e.target.closest('.bss-btn'); if (!b) return;
+    builderRows = parseInt(b.dataset.rows, 10);
+    TCG.sfx('tap');
+    renderDeckBuilder();
+  });
   document.getElementById('deckDefault').addEventListener('click', function () {
     builderDeck = QB_DECK_PLAYER.slice(); renderDeckBuilder();
   });
@@ -536,6 +559,8 @@
   document.getElementById('deckStart').addEventListener('click', function () {
     if (builderDeck.length !== DECK_SIZE) { TCG.toast(DECK_SIZE + '장을 모두 채워주세요 (' + builderDeck.length + '/' + DECK_SIZE + ')'); return; }
     lsSet('qb_deck', JSON.stringify(builderDeck));
+    lsSet('qb_rows', String(builderRows));
+    ROWS = builderRows; // 선택한 판 크기 적용
     document.getElementById('deckModal').hidden = true;
     document.getElementById('endModal').hidden = true;
     newGame();
@@ -576,5 +601,6 @@
     });
   }
   document.getElementById('diffPill').textContent = '난이도 ' + TCG.diffLabel(diff);
-  newGame();
+  newGame();            // 배경 보드 준비
+  openDeckBuilder();    // 진입 시 덱 구성 화면부터 보여주고 시작
 })();

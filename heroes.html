@@ -25,7 +25,10 @@
       <h3 class="screen-title">🗺️ 진행 경로</h3>
       <p class="screen-sub">다음 목적지를 선택하세요</p>
       <div class="map-track" id="mapTrack"></div>
-      <div class="party-bar" id="mapParty"></div>
+      <div class="map-collect">
+        <button class="collect-btn" id="rosterBtn">👥 장수 <b id="rosterCount">0</b></button>
+        <button class="collect-btn" id="gearBtn">🗡️ 장비 <b id="gearCount">0</b></button>
+      </div>
     </section>
 
     <!-- Combat screen -->
@@ -111,6 +114,26 @@
   <!-- Hero detail tooltip -->
   <div class="overlay" id="heroModal" hidden>
     <div class="modal" id="heroModalBody" style="max-width:340px;"></div>
+  </div>
+
+  <!-- 수집한 장수 목록 -->
+  <div class="overlay" id="rosterModal" hidden>
+    <div class="modal" style="max-width:680px;">
+      <h2 style="text-align:center;">👥 수집한 장수 <span id="rosterTitleCount" style="color:var(--gold);font-size:15px;"></span></h2>
+      <p class="screen-sub">장수를 탭하면 상세 정보와 무기 장착을 할 수 있습니다</p>
+      <div class="party-bar roster-grid" id="rosterGrid"></div>
+      <div style="text-align:center;margin-top:12px;"><button class="btn primary" id="rosterClose">닫기</button></div>
+    </div>
+  </div>
+
+  <!-- 장비 보유 현황 -->
+  <div class="overlay" id="gearModal" hidden>
+    <div class="modal" style="max-width:560px;">
+      <h2 style="text-align:center;">🗡️ 장비 보유 현황</h2>
+      <p class="screen-sub">보유한 무기와 착용 중인 장수를 보여줍니다</p>
+      <div class="gear-list" id="gearList"></div>
+      <div style="text-align:center;margin-top:12px;"><button class="btn primary" id="gearClose">닫기</button></div>
+    </div>
   </div>
 
   <!-- Ending credits (천하통일) -->
