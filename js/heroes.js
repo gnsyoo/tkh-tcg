@@ -2,7 +2,7 @@
 (function () {
   var diff = TCG.getDifficulty();
   var DCFG = HW_DIFF[diff];
-  var MAX_PARTY = 6;
+  var MAX_PARTY = 30; // 파티(=카드 덱)에 모집해 넣을 수 있는 최대 장수 수
   var SUB_COUNT = 12; // 메인 스테이지 1개당 서브 스테이지 수 (마지막은 적장 보스전)
   var run = null;
 
