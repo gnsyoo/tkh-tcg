@@ -313,11 +313,10 @@
   function heroPath(d) {
     if (HW_STARTERS.indexOf(d.id) !== -1) return '🏳️ 시작 장수 (처음부터 보유)';
     if (d.exclusive === 'qb') return '🃏 히어로즈 블러드 3연승 보상';
-    if (d.exclusive === 'raid') {
-      var rb = null; HW_RAID.bosses.forEach(function (b) { if (b.reward === d.id) rb = b; });
-      return '👹 삼국 대장전 — ' + (rb ? HW_COMMANDERS[rb.key].name : '적장') + ' 격파 보상';
-    }
-    return '⚔️ 전투 보상 영입 · 🏪 저잣거리 구매';
+    var rb = null; HW_RAID.bosses.forEach(function (b) { if (b.reward === d.id) rb = b; });
+    var base = '⚔️ 전투 보상 영입 · 🏪 저잣거리 구매';
+    if (rb) base += ' · 👹 대장전 ' + HW_COMMANDERS[rb.key].name + ' 격파';
+    return base;
   }
   function weaponPath(w) {
     if (w.exclusive === 'collection') return '📕 장수 컬렉션 100% 완료 보상';
@@ -359,8 +358,11 @@
     var c = e.target.closest('.col-card'); if (!c) return;
     var d = HW_BY_ID[c.dataset.id]; if (!d) return;
     var got = collectedHeroes.indexOf(d.id) !== -1;
+    var slots = slotsForRarity(d.rarity);
     document.getElementById('heroColDetail').innerHTML =
       '<b>' + d.emoji + ' ' + d.name + '</b> <span class="rar-' + d.rarity + '">' + d.rarity + '</span> · ' + (got ? '<span class="cd-got">보유 중</span>' : '<span class="cd-no">미보유</span>') +
+      '<br><span class="cd-sub">' + d.cls + ' · ❤️ HP ' + d.hp + ' · ⚔️ 공격 ' + d.atk + ' · 🗡️ 무기 슬롯 ' + slots + '</span>' +
+      '<br><span class="cd-sub">✨ ' + d.skill.name + ' (MP ' + d.skill.cost + '): ' + d.skill.desc + '</span>' +
       '<br><span class="cd-path">획득 경로: ' + heroPath(d) + '</span>';
     TCG.sfx('tap');
   });
@@ -1251,6 +1253,17 @@
   document.getElementById('guideBtn').addEventListener('click', function () { TCG.sfx('tap'); document.getElementById('guideModal').hidden = false; });
   document.getElementById('guideClose').addEventListener('click', function () { document.getElementById('guideModal').hidden = true; });
   document.getElementById('guideModal').addEventListener('click', function (e) { if (e.target.id === 'guideModal') e.currentTarget.hidden = true; });
+  // 데이터 초기화: 영웅전·대장전 진행 + 컬렉션 + 모드 해금 전부 삭제 후 새로고침
+  function resetAllData() {
+    ['hw_save', 'hw_raid_cleared', 'hw_mode_unlocked', 'hw_collected_heroes', 'hw_collected_weapons', 'hw_grant_heroes', 'hw_bonus_gold']
+      .forEach(function (k) { try { localStorage.removeItem(k); } catch (e) {} });
+  }
+  document.getElementById('resetBtn').addEventListener('click', function () { TCG.sfx('tap'); document.getElementById('resetConfirm').hidden = false; });
+  document.getElementById('resetConfirmNo').addEventListener('click', function () { document.getElementById('resetConfirm').hidden = true; });
+  document.getElementById('resetConfirm').addEventListener('click', function (e) { if (e.target.id === 'resetConfirm') e.currentTarget.hidden = true; });
+  document.getElementById('resetConfirmYes').addEventListener('click', function () {
+    resetAllData(); TCG.toast('데이터를 초기화했습니다'); location.reload();
+  });
   var muteBtn = document.getElementById('muteBtn');
   if (muteBtn) {
     muteBtn.textContent = TCG.isMuted() ? '🔇 소리' : '🔊 소리';

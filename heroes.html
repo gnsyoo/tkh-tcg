@@ -23,6 +23,7 @@
         <button class="btn ghost" id="heroColBtn">📕 장수 컬렉션</button>
         <button class="btn ghost" id="weaponColBtn">🗡️ 장비 컬렉션</button>
         <button class="btn ghost" id="muteBtn">🔊 소리</button>
+        <button class="btn ghost" id="resetBtn">🗑️ 데이터 초기화</button>
         <a class="btn ghost" href="index.html">← 메뉴로</a>
       </div>
     </div>
@@ -116,6 +117,18 @@
       <div style="display:flex;gap:10px;justify-content:center;margin-top:8px;">
         <button class="btn primary" id="newRunConfirmYes">새로 시작</button>
         <button class="btn ghost" id="newRunConfirmNo">취소</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 데이터 초기화 확인 -->
+  <div class="overlay" id="resetConfirm" hidden style="z-index:130;">
+    <div class="modal">
+      <h2>🗑️ 데이터를 초기화할까요?</h2>
+      <p>삼국 영웅전·삼국 대장전의 모든 진행과 장수/장비 컬렉션, 모드 해금 기록이 <b>모두 삭제</b>됩니다. 되돌릴 수 없습니다.</p>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:8px;">
+        <button class="btn primary" id="resetConfirmYes">초기화</button>
+        <button class="btn ghost" id="resetConfirmNo">취소</button>
       </div>
     </div>
   </div>

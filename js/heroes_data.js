@@ -108,22 +108,13 @@ var HW_HEROES = [
     skill:{ name:'자오곡 기습', cost:2, type:'strike', val:9, target:'enemy', desc:'적 1명에게 공격력+9 피해' } },
   { id:'hejin',    name:'하진',   emoji:'🛡️', cls:'수호', rarity:'C', hp:40, atk:5,
     skill:{ name:'대장군 위엄', cost:1, type:'shield', val:10, target:'ally', desc:'주공 방어막 +10' } },
-  // ---- 대장전(레이드) 전용 장수 — 해당 보스 격파로만 획득 가능 (exclusive:'raid') ----
-  { id:'raid_huaxiong', name:'맹장 화웅', emoji:'🪓', cls:'전사', rarity:'SSR', hp:40, atk:13, exclusive:'raid', raidOf:'cmd_huaxiong',
+  // ---- 명장(대장전 보스 격파로도 획득 가능한 일반 장수) ----
+  // 기존 로스터에 없던 적장(화웅·원소·사마염)을 일반 장수로 추가. 대장전 보상이자 일반 영입 대상.
+  { id:'huaxiong', name:'화웅', emoji:'🪓', cls:'전사', rarity:'SSR', hp:40, atk:13,
     skill:{ name:'관문 수장', cost:2, type:'strike', val:14, target:'enemy', desc:'적 1명에게 공격력+14 피해' } },
-  { id:'raid_yuanshao', name:'하북패자 원소', emoji:'🎌', cls:'군주', rarity:'SSR', hp:44, atk:10, exclusive:'raid', raidOf:'cmd_yuanshao',
+  { id:'yuanshao', name:'원소', emoji:'🎌', cls:'군주', rarity:'SSR', hp:44, atk:10,
     skill:{ name:'사세삼공', cost:3, type:'buff', val:8, target:'ally', desc:'전군 공격력 +8 (전투 동안)' } },
-  { id:'raid_xiahoudun', name:'독안룡 하후돈', emoji:'⚔️', cls:'전사', rarity:'SSR', hp:46, atk:13, exclusive:'raid', raidOf:'cmd_xiahoudun',
-    skill:{ name:'담안투정', cost:2, type:'strike', val:13, target:'enemy', desc:'적 1명에게 공격력+13 피해' } },
-  { id:'raid_caocao', name:'위왕 조조', emoji:'👑', cls:'군주', rarity:'SSR', hp:44, atk:11, exclusive:'raid', raidOf:'cmd_caocao',
-    skill:{ name:'세설신어', cost:3, type:'buff', val:9, target:'ally', desc:'전군 공격력 +9 (전투 동안)' } },
-  { id:'raid_xiahouyuan', name:'신행 하후연', emoji:'🏹', cls:'궁수', rarity:'SSR', hp:38, atk:12, exclusive:'raid', raidOf:'cmd_xiahouyuan',
-    skill:{ name:'질풍연사', cost:2, type:'multi', val:4, target:'enemy', desc:'무작위 적을 4회 공격' } },
-  { id:'raid_luxun', name:'대도독 육손', emoji:'🔥', cls:'책략', rarity:'SSR', hp:36, atk:10, exclusive:'raid', raidOf:'cmd_luxun',
-    skill:{ name:'이릉 연환화', cost:3, type:'aoe', val:13, target:'allEnemies', desc:'모든 적에게 13 피해' } },
-  { id:'raid_simayi', name:'총사령관 사마의', emoji:'🪶', cls:'책략', rarity:'SSR', hp:42, atk:12, exclusive:'raid', raidOf:'cmd_simayi',
-    skill:{ name:'천하 공략', cost:3, type:'aoe', val:16, target:'allEnemies', desc:'모든 적에게 16 피해' } },
-  { id:'raid_simayan', name:'진 무제 사마염', emoji:'👑', cls:'군주', rarity:'SSR', hp:48, atk:13, exclusive:'raid', raidOf:'cmd_simayan',
+  { id:'simayan', name:'사마염', emoji:'👑', cls:'군주', rarity:'SSR', hp:48, atk:13,
     skill:{ name:'삼국 통일', cost:3, type:'aoe', val:18, target:'allEnemies', desc:'모든 적에게 18 피해' } }
 ];
 var HW_BY_ID = {};
@@ -261,13 +252,13 @@ var HW_RAID = {
   hpMult: 12,
   atkMult: 1.25,
   bosses: [
-    { key:'cmd_huaxiong',   reward:'raid_huaxiong',   title:'관문의 맹장' },
-    { key:'cmd_yuanshao',   reward:'raid_yuanshao',   title:'하북의 패자' },
-    { key:'cmd_xiahoudun',  reward:'raid_xiahoudun',  title:'위의 독안룡' },
-    { key:'cmd_caocao',     reward:'raid_caocao',     title:'난세의 간웅' },
-    { key:'cmd_xiahouyuan', reward:'raid_xiahouyuan', title:'질풍의 명궁' },
-    { key:'cmd_luxun',      reward:'raid_luxun',      title:'이릉의 대도독' },
-    { key:'cmd_simayi',     reward:'raid_simayi',     title:'위의 총사령관' },
-    { key:'cmd_simayan',    reward:'raid_simayan',    title:'진(晉)의 무제' }
+    { key:'cmd_huaxiong',   reward:'huaxiong',    title:'관문의 맹장' },
+    { key:'cmd_yuanshao',   reward:'yuanshao',    title:'하북의 패자' },
+    { key:'cmd_xiahoudun',  reward:'xiahoudun',   title:'위의 독안룡' },
+    { key:'cmd_caocao',     reward:'caocao',      title:'난세의 간웅' },
+    { key:'cmd_xiahouyuan', reward:'xiahouyuan',  title:'질풍의 명궁' },
+    { key:'cmd_luxun',      reward:'luxun',       title:'이릉의 대도독' },
+    { key:'cmd_simayi',     reward:'warlock',     title:'위의 총사령관' },
+    { key:'cmd_simayan',    reward:'simayan',     title:'진(晉)의 무제' }
   ]
 };
