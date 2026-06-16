@@ -112,6 +112,7 @@ a { color: inherit; text-decoration: none; }
   display: flex; flex-direction: column; gap: 8px;
   animation: fmDrop 0.16s ease;
 }
+.fm-panel[hidden] { display: none; } /* display:flex가 hidden 기본값을 덮어쓰는 문제 해결 */
 @keyframes fmDrop { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
 .fm-title { font-size: 15px; font-weight: 900; color: var(--gold); text-align: center; padding-bottom: 2px; }
 .fm-info { display: flex; flex-direction: column; gap: 6px; }
