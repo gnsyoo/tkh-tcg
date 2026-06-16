@@ -246,6 +246,7 @@
     draw(state.you, 5);
     draw(state.foe, 5);
     render();
+    scheduleFit(); // 보드 크기를 화면에 맞춤
     startTurn();
   }
 
@@ -418,6 +419,24 @@
     }
     boardEl.innerHTML = html;
   }
+
+  // 보드 너비를 가용 높이에 맞춰 줄여, 보드와 손패가 한 화면에 모두 보이게 한다
+  function fitBoard() {
+    var wrap = boardEl && boardEl.parentNode;
+    if (!wrap || !wrap.clientWidth || !wrap.clientHeight) return;
+    var availW = wrap.clientWidth, availH = wrap.clientHeight;
+    var w = availW;
+    boardEl.style.width = w + 'px';
+    for (var i = 0; i < 4; i++) {
+      var h = boardEl.offsetHeight;
+      if (!h || h <= availH) break;
+      w = Math.floor(w * (availH / h) * 0.992); // 높이에 맞춰 너비 축소(가로세로 비 유지)
+      if (w < 120) { w = 120; boardEl.style.width = w + 'px'; break; }
+      boardEl.style.width = w + 'px';
+    }
+  }
+  function scheduleFit() { if (typeof setTimeout === 'function') setTimeout(fitBoard, 0); }
+  if (typeof window !== 'undefined' && window.addEventListener) window.addEventListener('resize', fitBoard);
 
   function enhGlyph(def) {
     // 3x3 mini-grid, center = card; forward = right column

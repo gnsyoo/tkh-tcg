@@ -2,10 +2,13 @@
 .qb-main {
   max-width: 760px;
   margin: 0 auto;
-  padding: 10px 10px 20px;
+  padding: 10px 10px 14px;
   display: flex;
   flex-direction: column;
   gap: 8px;
+  min-height: 100vh;
+  min-height: 100dvh;   /* 보드+손패가 한 화면에 모두 보이도록 전체 높이 사용 */
+  box-sizing: border-box;
 }
 
 .player-strip {
@@ -54,14 +57,19 @@
 .score-total .foe-pts { color: var(--foe); font-size: 22px; }
 .score-total .vs { color: var(--ink-dim); font-size: 13px; }
 
-/* Board grid: 3 rows x 5 cols, with a score gutter on each side per row */
-.board-wrap { width: 100%; }
+/* Board grid: ROWS rows x 5 cols, score gutter each side. 너비는 JS(fitBoard)가 가용 높이에 맞춰 설정 */
+.board-wrap {
+  width: 100%; flex: 1 1 auto; min-height: 0;
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
 .board {
   display: grid;
-  grid-template-columns: 28px repeat(5, 1fr) 28px;
+  grid-template-columns: 24px repeat(5, 1fr) 24px;
   grid-auto-rows: 1fr;
   gap: 5px;
   width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
 }
 .lane-score {
   display: flex;
