@@ -6,8 +6,8 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  min-height: 100vh;
-  min-height: 100dvh;   /* 보드+손패가 한 화면에 모두 보이도록 전체 높이 사용 */
+  height: 100vh;
+  height: 100dvh;   /* 전체 높이를 고정해 보드 영역(flex:1)이 남는 공간만 차지 → 보드+손패가 한 화면에 */
   box-sizing: border-box;
 }
 

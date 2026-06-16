@@ -423,20 +423,36 @@
   // 보드 너비를 가용 높이에 맞춰 줄여, 보드와 손패가 한 화면에 모두 보이게 한다
   function fitBoard() {
     var wrap = boardEl && boardEl.parentNode;
-    if (!wrap || !wrap.clientWidth || !wrap.clientHeight) return;
-    var availW = wrap.clientWidth, availH = wrap.clientHeight;
+    if (!wrap || !wrap.clientWidth) return;
+    var availW = wrap.clientWidth;
+    var availH = wrap.clientHeight || 0;
+    // 윈도우(뷰포트) 기준으로 가용 높이를 한 번 더 산출 — 손패 공간을 확보하고 더 작은 값을 사용
+    if (typeof window !== 'undefined' && window.innerHeight && wrap.getBoundingClientRect) {
+      var top = wrap.getBoundingClientRect().top;
+      var hand = document.getElementById('hand');
+      var handH = (hand && hand.offsetHeight) ? hand.offsetHeight : 150;
+      var winAvail = window.innerHeight - top - handH - 14;
+      if (winAvail > 60 && (!availH || winAvail < availH)) availH = winAvail;
+    }
+    if (!availH || availH < 60) return;
     var w = availW;
     boardEl.style.width = w + 'px';
-    for (var i = 0; i < 4; i++) {
+    for (var i = 0; i < 5; i++) {
       var h = boardEl.offsetHeight;
       if (!h || h <= availH) break;
-      w = Math.floor(w * (availH / h) * 0.992); // 높이에 맞춰 너비 축소(가로세로 비 유지)
+      w = Math.floor(w * (availH / h) * 0.99); // 높이에 맞춰 너비 축소(가로세로 비 유지)
       if (w < 120) { w = 120; boardEl.style.width = w + 'px'; break; }
       boardEl.style.width = w + 'px';
     }
   }
-  function scheduleFit() { if (typeof setTimeout === 'function') setTimeout(fitBoard, 0); }
-  if (typeof window !== 'undefined' && window.addEventListener) window.addEventListener('resize', fitBoard);
+  function scheduleFit() {
+    if (typeof setTimeout !== 'function') return;
+    setTimeout(fitBoard, 0); setTimeout(fitBoard, 80); setTimeout(fitBoard, 240);
+  }
+  if (typeof window !== 'undefined' && window.addEventListener) {
+    window.addEventListener('resize', fitBoard);
+    window.addEventListener('orientationchange', function () { setTimeout(fitBoard, 120); });
+  }
 
   function enhGlyph(def) {
     // 3x3 mini-grid, center = card; forward = right column
