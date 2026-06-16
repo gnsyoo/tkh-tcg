@@ -3,7 +3,7 @@
 ## 파일 구조
 
 ```
-index.html              첫 페이지(게임/난이도 선택)
+index.html              첫 페이지(게임 선택; 난이도 선택은 제거 — 상 고정)
 heroes.html             삼국 영웅전
 queensblood.html        히어로즈 블러드
 css/
@@ -29,7 +29,7 @@ docs/                   이 문서들
 
 ## 공통 유틸 — `TCG` (`js/util.js`)
 
-- `getDifficulty()` / `diffLabel()` — URL `?diff=` 또는 `localStorage['tcg_difficulty']`.
+- `getDifficulty()` / `diffLabel()` — **기본값 `hard`(상 고정)**. 난이도 선택이 제거되어, 내부 테스트용 URL `?diff=` 오버라이드만 남아 있습니다(없으면 항상 `hard`).
 - `portrait(emoji, seed, extraClass)` — **절차적 초상화**(시드 기반 색/메달리온, 외부 이미지 없음).
 - `shuffle / pick / hue / delay / toast` — 공용 헬퍼.
 - `sfx(name)` / `isMuted()` / `toggleMute()` / `audioResume()` — WebAudio 효과음(음소거 `localStorage['tcg_muted']`).
@@ -40,15 +40,19 @@ docs/                   이 문서들
 run = {
   party: [ { uid, def, atk, weapons:[wid,...] }, ... ],  // 장수(=카드)
   gold, mainStage, subStage, relics:[], weapons:[wid,...],// weapons = 보유 무기 인벤토리
+  items:[cid,...],    // 소모성 아이템(HW_CONSUMABLES id 배열, 최대 5)
   sorties,            // 누적 출진 횟수(보물상자 5/10 트리거)
   lordHp,             // 주공 HP(모험 내내 유지)
   stageShopped, combat
 }
 run.combat = {
-  main, sub, enemies:[{def,name,emoji,hp,maxHp,atk,block,poison,charmed,intent},...],
+  main, sub, enemies:[{def,name,emoji,hp,maxHp,atk,block,poison,charmed,confused,intent,boss,mid,skill,midSkill,mp,maxMp},...],
   round,
   lord: { hp, maxHp, mp, maxMp, block },   // 주공(전투 인스턴스)
-  atkBuff,
+  atkBuff, tempAtk:{val,turns},            // tempAtk = 소모품 전투주(2턴 공격 버프)
+  cstat:{ uid:{stun,poison,cause}, ... },  // 내 카드(장수) 상태이상(중간보스가 부여)
+  sealed,                                  // 봉인된 카드 uid 1장(사신, 이번 전투 동안 덱 제외)
+  sealUsed, itemUsed,                      // 봉인은 전투당 1회 / 아이템은 턴당 1개
   draw:[uid...], center:[uid...], used:[uid...],
   sel, targeting, pending, phase, log
 }
@@ -62,13 +66,13 @@ run.combat = {
 
 각 게임 상단 바를 우측 상단 **플로팅 메뉴 버튼(`#fmToggle` → `#fmPanel`)**으로 통합했습니다.
 `TCG.initFloatMenu()`(util.js)가 토글/바깥 클릭 닫기/링크 클릭 닫기를 처리합니다.
-패널 안의 정보(골드·층·난이도 등)는 세로로 정렬되어 **줄바꿈 없이** 표시됩니다.
+패널 안의 정보(골드·층 등)는 세로로 정렬되어 **줄바꿈 없이** 표시됩니다. (난이도 pill은 제거됐습니다 — 난이도 상 고정.)
 
 ## 저장 포맷 (localStorage)
 
 | 키 | 내용 |
 |----|------|
-| `tcg_difficulty` | 선택 난이도 |
+| `tcg_difficulty` | (구) 선택 난이도 — 난이도 선택 제거로 사실상 **상 고정**(`getDifficulty()` 기본 `hard`). 내부 테스트용 `?diff=` 오버라이드만 사용. |
 | `tcg_muted` | 음소거 |
 | `hw_save` | 영웅전 진행 저장(**v3**) |
 | `hw_bonus_gold` | 히어로즈 블러드 → 영웅전 정산 골드(누적) |
@@ -79,7 +83,7 @@ run.combat = {
 | `hw_raid_cleared` | 대장전에서 격파한 레이드 보스 키 목록 |
 | `hw_mode_unlocked` | 영웅전 최고 해금 모드(normal/hard/extreme) |
 
-`hw_save`(v3) 필드: `party[{id,atk,uid,weapons[]}]`, `gold, mainStage, subStage, relics[], weapons[], sorties, lordHp, lordMp`.
+`hw_save`(v3) 필드: `party[{id,atk,uid,weapons[]}]`, `gold, mainStage, subStage, relics[], weapons[], items[]`(소모품 id 배열)`, sorties, lordHp, lordMp`.
 QB는 `qb_deck`(덱)·`qb_rows`(판 크기)도 저장.
 구버전 단일 무기(`weapon`) 저장은 로드시 배열로 자동 변환(SSR 슬롯 수로 잘림).
 
