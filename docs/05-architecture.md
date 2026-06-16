@@ -53,8 +53,15 @@ run.combat = {
 }
 ```
 
-핵심 헬퍼: `weaponSlots(h)`(SSR=2), `heroWpns/wpnVal/hasWpnFlag`, `effAtk`, `defenseOf`,
-`lordMaxHp/lordMaxMp`, `skillMp`, `ownedHeroIds`(중복 수집 방지), `freeWeaponIds`(미장착 무기), `applyBonusGold`.
+핵심 헬퍼: `weaponSlots(h)`(`slotsForRarity`: C=0·R=1·SR=2·SSR=3), `heroWpns/wpnVal/hasWpnFlag`,
+`critChance/rollCrit`(기본 1%+무기), `effAtk`, `defenseOf`, `lordMaxHp/lordMaxMp`, `skillMp`,
+`ownedHeroIds`(중복 수집 방지), `freeWeaponIds`(미장착 무기), `applyBonusGold`.
+
+## 공통: 플로팅 메뉴
+
+각 게임 상단 바를 우측 상단 **플로팅 메뉴 버튼(`#fmToggle` → `#fmPanel`)**으로 통합했습니다.
+`TCG.initFloatMenu()`(util.js)가 토글/바깥 클릭 닫기/링크 클릭 닫기를 처리합니다.
+패널 안의 정보(골드·층·난이도 등)는 세로로 정렬되어 **줄바꿈 없이** 표시됩니다.
 
 ## 저장 포맷 (localStorage)
 
@@ -66,7 +73,8 @@ run.combat = {
 | `hw_bonus_gold` | 히어로즈 블러드 → 영웅모집 정산 골드(누적) |
 | `qb_deck` | 히어로즈 블러드 사용자 덱(15장) |
 
-`hw_save`(v3) 필드: `party[{id,atk,uid,weapons[]}]`, `gold, mainStage, subStage, relics[], weapons[], sorties, lordHp`.
+`hw_save`(v3) 필드: `party[{id,atk,uid,weapons[]}]`, `gold, mainStage, subStage, relics[], weapons[], sorties, lordHp, lordMp`.
+QB는 `qb_deck`(덱)·`qb_rows`(판 크기)도 저장.
 구버전 단일 무기(`weapon`) 저장은 로드시 배열로 자동 변환(SSR 슬롯 수로 잘림).
 
 ## 전투 FX 레이어

@@ -9,14 +9,20 @@
 <link rel="stylesheet" href="css/heroes.css">
 </head>
 <body>
-  <div class="topbar">
-    <a class="backlink" href="index.html">← 메뉴</a>
-    <h2>삼국지 영웅모집</h2>
-    <span class="spacer"></span>
-    <span class="pill" id="goldPill">💰 0</span>
-    <span class="pill" id="floorPill">층 1</span>
-    <span class="pill" id="diffPill">난이도</span>
-    <button class="btn ghost" id="muteBtn" style="padding:6px 10px;font-size:14px;" title="소리">🔊</button>
+  <div class="float-menu" id="floatMenu">
+    <button class="fm-toggle" id="fmToggle" title="메뉴" aria-label="메뉴">☰</button>
+    <div class="fm-panel" id="fmPanel" hidden>
+      <div class="fm-title">삼국지 영웅모집</div>
+      <div class="fm-info">
+        <span class="pill" id="goldPill">💰 0</span>
+        <span class="pill" id="floorPill">층 1</span>
+        <span class="pill" id="diffPill">난이도</span>
+      </div>
+      <div class="fm-actions">
+        <button class="btn ghost" id="muteBtn">🔊 소리</button>
+        <a class="btn ghost" href="index.html">← 메뉴로</a>
+      </div>
+    </div>
   </div>
 
   <main class="hw-main" id="hwMain">

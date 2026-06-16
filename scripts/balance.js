@@ -153,10 +153,15 @@ async function heroesRun(diff) {
       if (te !== -1) { g('enemyRow').fire('click', mkEvt('.unit', { side: 'enemy', idx: String(te) }, ['targetable'])); continue; }
       let ta = findTgt(g('partyRow')._html, 'party');
       if (ta !== -1) { g('partyRow').fire('click', mkEvt('.unit', { side: 'party', idx: String(ta) }, ['targetable'])); continue; }
-      // 2) a card is selected → choose skill (preferred) or attack
+      // 2) a card is selected → use skill only when MP is comfortable (conserve), else basic attack
       if (!g('actionBar').hidden && /data-act="/.test(g('actionBar')._html)) {
         const skillOk = /data-act="skill"(?![^>]*disabled)/.test(g('actionBar')._html);
-        g('actionBar').fire('click', mkEvt('.act-btn', { act: skillOk ? 'skill' : 'attack' }, [])); continue;
+        const mpm = /💧 MP (\d+) \/ (\d+)/.exec(g('lordBar')._html);
+        const mpRatio = mpm ? (parseInt(mpm[1], 10) / Math.max(1, parseInt(mpm[2], 10))) : 1;
+        const enemyCount = (g('enemyRow')._html.match(/data-side="enemy"/g) || []).length;
+        // MP는 모험 내내 유지되므로 비축: 적이 여럿이거나 MP가 넉넉할 때만 스킬 사용
+        const useSkill = skillOk && (mpRatio >= 0.5 || (enemyCount >= 2 && mpRatio >= 0.3));
+        g('actionBar').fire('click', mkEvt('.act-btn', { act: useSkill ? 'skill' : 'attack' }, [])); continue;
       }
       // 3) select a center card (leave 1 for defense if 3 are present)
       const cards = [];

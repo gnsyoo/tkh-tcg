@@ -9,14 +9,20 @@
 <link rel="stylesheet" href="css/queensblood.css">
 </head>
 <body>
-  <div class="topbar">
-    <a class="backlink" href="index.html">← 메뉴</a>
-    <h2>히어로즈 블러드</h2>
-    <span class="spacer"></span>
-    <span class="pill" id="diffPill">난이도</span>
-    <button class="btn ghost" id="deckBtn" style="padding:6px 12px;font-size:12px;">🃏 덱</button>
-    <button class="btn ghost" id="muteBtn" style="padding:6px 10px;font-size:14px;" title="소리">🔊</button>
-    <button class="btn ghost" id="rulesBtn" style="padding:6px 12px;font-size:12px;">규칙</button>
+  <div class="float-menu" id="floatMenu">
+    <button class="fm-toggle" id="fmToggle" title="메뉴" aria-label="메뉴">☰</button>
+    <div class="fm-panel" id="fmPanel" hidden>
+      <div class="fm-title">히어로즈 블러드</div>
+      <div class="fm-info">
+        <span class="pill" id="diffPill">난이도</span>
+      </div>
+      <div class="fm-actions">
+        <button class="btn ghost" id="deckBtn">🃏 덱 구성</button>
+        <button class="btn ghost" id="rulesBtn">📜 규칙</button>
+        <button class="btn ghost" id="muteBtn">🔊 소리</button>
+        <a class="btn ghost" href="index.html">← 메뉴로</a>
+      </div>
+    </div>
   </div>
 
   <main class="qb-main">
@@ -74,7 +80,7 @@
   <div class="overlay" id="deckModal" hidden>
     <div class="modal deck-modal">
       <h2 style="text-align:center;">🃏 덱 구성 <span id="deckCount" style="color:var(--gold);font-size:16px;">0/15</span></h2>
-      <p style="text-align:center;">카드 풀에서 15장을 골라 덱을 만들고 판 크기를 정한 뒤 시작하세요. 카드를 탭하여 추가/제거합니다.</p>
+      <p style="text-align:center;">카드 풀에서 15장을 골라 덱을 만들고 판 크기를 정한 뒤 시작하세요. 카드를 탭하여 추가/제거합니다.<br><small style="color:var(--ink-dim);">카드 우하단 격자(<span style="color:var(--gold);">■</span>=카드 위치, <span style="color:var(--you);">■</span>=강화되는 영역)는 강화 패턴입니다.</small></p>
       <div class="board-size-sel" id="boardSizeSel">
         <span class="bss-label">판 크기</span>
         <button class="bss-btn" data-rows="3">3 × 5</button>

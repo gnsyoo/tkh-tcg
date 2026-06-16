@@ -19,6 +19,7 @@
   background: var(--panel);
   border: 1px solid rgba(255,255,255,0.08);
 }
+.player-strip.foe { padding-right: 50px; } /* 우측 상단 플로팅 메뉴 버튼 공간 확보 */
 .player-strip .who { font-size: 14px; }
 .player-strip.foe .who { color: var(--foe); }
 .player-strip.you .who { color: var(--you); }
@@ -288,6 +289,14 @@
 }
 .deck-card .rank-pips { display: flex; gap: 2px; }
 .deck-card .rank-pips .rp { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+/* 덱 카드의 영역(강화 패턴) 표시 */
+.deck-card .hc-enh {
+  position: absolute; bottom: 4px; right: 4px;
+  display: grid; grid-template-columns: repeat(3, 5px); grid-template-rows: repeat(3, 5px); gap: 1px;
+}
+.deck-card .hc-enh i { width: 5px; height: 5px; border-radius: 1px; background: rgba(255,255,255,0.16); }
+.deck-card .hc-enh i.c { background: var(--gold); }
+.deck-card .hc-enh i.e { background: var(--you); }
 .deck-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
 
 @media (max-width: 420px) {

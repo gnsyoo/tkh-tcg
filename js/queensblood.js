@@ -529,6 +529,7 @@
         TCG.portrait(c.emoji, c.id) +
         '<div class="dc-name">' + c.name + '</div>' +
         '<div class="dc-ab">' + (c.ab ? c.ab.txt : '') + '</div>' +
+        enhGlyph(c) +
         (sel ? '<div class="dc-check">✓</div>' : '') + '</div>';
     }).join('');
   }
@@ -592,11 +593,12 @@
   }
 
   /* ---------- boot ---------- */
+  TCG.initFloatMenu();
   var muteBtn = document.getElementById('muteBtn');
   if (muteBtn) {
-    muteBtn.textContent = TCG.isMuted() ? '🔇' : '🔊';
+    muteBtn.textContent = TCG.isMuted() ? '🔇 소리' : '🔊 소리';
     muteBtn.addEventListener('click', function () {
-      var m = TCG.toggleMute(); muteBtn.textContent = m ? '🔇' : '🔊';
+      var m = TCG.toggleMute(); muteBtn.textContent = m ? '🔇 소리' : '🔊 소리';
       TCG.audioResume(); if (!m) TCG.sfx('tap');
     });
   }

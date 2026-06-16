@@ -106,12 +106,39 @@ var TCG = (function () {
     document.addEventListener('keydown', _once);
   }
 
+  // 우측 상단 플로팅 메뉴: 버튼을 누르면 패널이 펼쳐지고, 바깥/링크 클릭 시 닫힘
+  function initFloatMenu() {
+    if (typeof document === 'undefined') return;
+    var toggle = document.getElementById('fmToggle');
+    var panel = document.getElementById('fmPanel');
+    if (!toggle || !panel) return;
+    function setOpen(open) {
+      panel.hidden = !open;
+      if (toggle.classList) toggle.classList.toggle('open', open);
+      toggle.textContent = open ? '✕' : '☰';
+    }
+    toggle.addEventListener('click', function (e) {
+      if (e.stopPropagation) e.stopPropagation();
+      setOpen(panel.hidden);
+    });
+    document.addEventListener('click', function (e) {
+      if (panel.hidden) return;
+      if (e.target && e.target.closest && e.target.closest('#floatMenu')) return;
+      setOpen(false);
+    });
+    panel.addEventListener('click', function (e) {
+      // 메뉴(링크) 항목을 누르면 닫음
+      if (e.target && e.target.closest && e.target.closest('a')) setOpen(false);
+    });
+  }
+
   return {
     getDifficulty: getDifficulty,
     diffLabel: diffLabel,
     rand: rand, pick: pick, shuffle: shuffle, clamp: clamp,
     hue: hue, portrait: portrait,
     toast: toast, floatText: floatText, delay: delay,
-    sfx: sfx, toggleMute: toggleMute, isMuted: isMuted, audioResume: audioResume
+    sfx: sfx, toggleMute: toggleMute, isMuted: isMuted, audioResume: audioResume,
+    initFloatMenu: initFloatMenu
   };
 })();
