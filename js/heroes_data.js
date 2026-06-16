@@ -53,7 +53,7 @@ var HW_HEROES = [
     skill:{ name:'간웅', cost:3, type:'buff', val:8, target:'ally', desc:'전군 공격력 +8 (전투 동안)' } },
   { id:'xiahoudun',name:'하후돈', emoji:'⚔️', cls:'전사', rarity:'SSR', hp:44, atk:11, exclusive:'raid', raidOf:'cmd_xiahoudun',
     skill:{ name:'발시담정', cost:2, type:'strike', val:11, target:'enemy', desc:'적 1명에게 공격력+11 피해' } },
-  { id:'xiahouyuan',name:'하후연',emoji:'🏹', cls:'궁수', rarity:'R', hp:26, atk:7, exclusive:'raid', raidOf:'cmd_xiahouyuan',
+  { id:'xiahouyuan',name:'하후연',emoji:'🏹', cls:'궁수', rarity:'R', hp:26, atk:7,
     skill:{ name:'질풍사격', cost:1, type:'multi', val:3, target:'enemy', desc:'무작위 적을 3회 공격' } },
   { id:'sunce',    name:'손책',   emoji:'🗡️', cls:'전사', rarity:'SR', hp:30, atk:9,
     skill:{ name:'소패왕', cost:2, type:'strike', val:12, target:'enemy', desc:'적 1명에게 공격력+12 피해' } },
@@ -119,7 +119,7 @@ var HW_HEROES = [
 var HW_BY_ID = {};
 HW_HEROES.forEach(function (h) { HW_BY_ID[h.id] = h; });
 
-var HW_STARTERS = ['glad', 'knight', 'priest', 'berserk']; // 전위 · 조인 · 순유 · 장비
+var HW_STARTERS = ['glad', 'xiahouyuan', 'mage', 'knight']; // 전위 · 하후연 · 순욱 · 조인
 
 /* 적 (삼국지 세력) */
 var HW_ENEMIES = {
@@ -222,14 +222,22 @@ var HW_MODE_ORDER = ['normal', 'hard', 'extreme'];
 
 /* 적장(스테이지 보스) — 스테이지 진행에 따라 난이도 가산 */
 var HW_COMMANDERS = {
-  cmd_huaxiong:  { name:'화웅',   emoji:'🪓', hp:30,  atk:7 },
-  cmd_yuanshao:  { name:'원소',   emoji:'🎌', hp:36,  atk:7 },
-  cmd_xiahoudun: { name:'하후돈', emoji:'⚔️', hp:42,  atk:8 },
-  cmd_caocao:    { name:'조조',   emoji:'👑', hp:52,  atk:9, aoe:true },
-  cmd_xiahouyuan:{ name:'하후연', emoji:'🏹', hp:58,  atk:9 },
-  cmd_luxun:     { name:'육손',   emoji:'🔥', hp:66,  atk:10, aoe:true },
-  cmd_simayi:    { name:'사마의', emoji:'🪶', hp:70,  atk:10, aoe:true },
-  cmd_simayan:   { name:'사마염', emoji:'👑', hp:78,  atk:10, aoe:true }
+  cmd_huaxiong:  { name:'화웅',   emoji:'🪓', hp:30,  atk:7,  hero:'huaxiong' },
+  cmd_yuanshao:  { name:'원소',   emoji:'🎌', hp:36,  atk:7,  hero:'yuanshao' },
+  cmd_xiahoudun: { name:'하후돈', emoji:'⚔️', hp:42,  atk:8,  hero:'xiahoudun' },
+  cmd_caocao:    { name:'조조',   emoji:'👑', hp:52,  atk:9, aoe:true, hero:'caocao' },
+  cmd_xiahouyuan:{ name:'하후연', emoji:'🏹', hp:58,  atk:9,  hero:'xiahouyuan' },
+  cmd_luxun:     { name:'육손',   emoji:'🔥', hp:66,  atk:10, aoe:true, hero:'luxun' },
+  cmd_simayi:    { name:'사마의', emoji:'🪶', hp:70,  atk:10, aoe:true, hero:'warlock' },
+  cmd_simayan:   { name:'사마염', emoji:'👑', hp:78,  atk:10, aoe:true, hero:'simayan' }
+};
+
+/* 보스(스테이지·레이드) — 난이도별 스킬 사용 확률·마나, 격파 시 영웅전 적립 골드.
+ * 보스는 매 공격 시 skillChance 확률로 대응 장수(`hero`)의 원래 스킬을 사용(MP 소모). */
+var HW_BOSS = {
+  easy:   { mp:20, skillChance:0.20, raidGold:50 },
+  normal: { mp:35, skillChance:0.35, raidGold:100 },
+  hard:   { mp:50, skillChance:0.50, raidGold:150 }
 };
 
 /* 전역(campaign) — 8개 역사 스테이지. 뒤로 갈수록 난이도 상승.

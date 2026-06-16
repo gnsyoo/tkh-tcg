@@ -30,6 +30,11 @@
     <section class="screen" id="selectScreen">
       <h3 class="screen-title">👹 대장전 (레이드)</h3>
       <p class="screen-sub">영웅전 덱으로 거대 보스에 도전 — 격파 시 전용 장수를 획득합니다</p>
+      <div class="map-collect">
+        <button class="collect-btn" id="rosterBtn">👥 장수 <b id="rosterCount">0</b></button>
+        <button class="collect-btn" id="gearBtn">🗡️ 장비</button>
+        <button class="collect-btn" id="codexBtn">📖 도감</button>
+      </div>
       <div class="raid-list" id="raidList"></div>
     </section>
 
@@ -54,6 +59,47 @@
       </div>
     </section>
   </main>
+
+  <!-- 공유 덱 장수 -->
+  <div class="overlay" id="rosterModal" hidden>
+    <div class="modal" style="max-width:700px;">
+      <h2 style="text-align:center;">👥 공유 덱 장수</h2>
+      <p class="screen-sub">삼국 영웅전과 공유하는 파티입니다</p>
+      <div class="col-grid" id="rosterGrid"></div>
+      <div style="text-align:center;margin-top:12px;"><button class="btn primary" id="rosterClose">닫기</button></div>
+    </div>
+  </div>
+
+  <!-- 장착 장비 -->
+  <div class="overlay" id="gearModal" hidden>
+    <div class="modal" style="max-width:560px;">
+      <h2 style="text-align:center;">🗡️ 장착 장비</h2>
+      <p class="screen-sub">덱 장수들이 장착한 무기입니다</p>
+      <div class="col-weapon-list" id="gearList"></div>
+      <div style="text-align:center;margin-top:12px;"><button class="btn primary" id="gearClose">닫기</button></div>
+    </div>
+  </div>
+
+  <!-- 도감(장수/장비 탭) -->
+  <div class="overlay" id="codexModal" hidden>
+    <div class="modal" style="max-width:700px;">
+      <div class="codex-tabs">
+        <button class="codex-tab active" id="codexTabHero" data-tab="hero">📕 장수 도감 <span id="heroColTitle" style="color:var(--gold);font-size:14px;"></span></button>
+        <button class="codex-tab" id="codexTabWeapon" data-tab="weapon">🗡️ 장비 도감 <span id="weaponColTitle" style="color:var(--gold);font-size:14px;"></span></button>
+      </div>
+      <div id="codexHeroPanel">
+        <p class="screen-sub">수집한 장수는 밝게, 아직 못 모은 장수는 어둡게 표시됩니다</p>
+        <div class="col-grid" id="heroColGrid"></div>
+        <div class="col-detail" id="heroColDetail"></div>
+      </div>
+      <div id="codexWeaponPanel" hidden>
+        <p class="screen-sub">수집한 장비는 밝게, 아직 못 모은 장비는 어둡게 표시됩니다</p>
+        <div class="col-weapon-list" id="weaponColList"></div>
+        <div class="col-detail" id="weaponColDetail"></div>
+      </div>
+      <div style="text-align:center;margin-top:12px;"><button class="btn primary" id="codexClose">닫기</button></div>
+    </div>
+  </div>
 
   <!-- Result -->
   <div class="overlay" id="overModal" hidden>

@@ -222,6 +222,7 @@
 .modal-portrait .p-emoji { font-size: 52px; }
 .unit .u-name { font-size: 11px; font-weight: 800; margin-top: 2px; }
 .unit .u-hp-text { font-size: 10px; color: var(--ink-dim); margin: 2px 0; }
+.unit .u-mp-text { font-size: 10px; color: #9fd2ff; margin: 0 0 2px; }
 .unit .u-atk { position: absolute; top: 4px; left: 5px; font-size: 11px; font-weight: 800; color: #ffce6b; }
 .unit .u-atk.boosted { color: #8effb0; }
 .unit .u-block {

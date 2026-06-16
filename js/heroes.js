@@ -212,6 +212,8 @@
     applyPendingGrants();
     checkCollectionReward();
     updateTop();
+    var mt = document.getElementById('mapTitle');
+    if (mt) { var md = HW_MODES[run.mode] || HW_MODES.normal; mt.textContent = '📜 연대기 · ' + md.emoji + ' ' + md.label; }
     renderCampaign();
     show('mapScreen');
     saveRun();
@@ -421,8 +423,13 @@
     function inst(d, boss) {
       var hp = Math.round(d.hp * hpM);
       var atk = Math.max(1, Math.round(d.atk * atkM * (boss ? md.bossAtkMult : 1))); // 모드: 적장 공격 배수
-      return { def: d, name: d.name, emoji: d.emoji, maxHp: hp, hp: hp,
+      var e = { def: d, name: d.name, emoji: d.emoji, maxHp: hp, hp: hp,
         atk: atk, aoe: !!d.aoe, boss: !!boss, crit: (boss ? md.bossCrit : BASE_CRIT), block: 0, intent: null };
+      if (boss && d.hero && HW_BY_ID[d.hero]) { // 적장은 대응 장수의 원래 스킬 + MP 보유
+        var bc = HW_BOSS[diff] || HW_BOSS.normal;
+        e.skill = HW_BY_ID[d.hero].skill; e.maxMp = bc.mp; e.mp = bc.mp; e.skillChance = bc.skillChance; e.atk0 = atk;
+      }
+      return e;
     }
     var out = [];
     if (isBoss) {
@@ -628,6 +635,7 @@
         TCG.portrait(e.emoji, e.name) +
         '<div class="u-name">' + e.name + '</div>' +
         '<div class="u-hp-text">❤ ' + Math.max(0, e.hp) + '/' + e.maxHp + '</div>' +
+        (e.maxMp ? '<div class="u-mp-text">💧 ' + Math.max(0, e.mp) + '/' + e.maxMp + '</div>' : '') +
         hpBar({ hp: Math.max(0, e.hp), maxHp: e.maxHp }, true) + '</div>';
     }).join('');
 
@@ -875,6 +883,41 @@
     enemyPhase();
   });
 
+  // 적장이 대응 장수의 원래 스킬을 사용(주공 대상). 사용 시 true.
+  function enemySkill(e) {
+    var c = run.combat, sk = e.skill;
+    e.mp = Math.max(0, e.mp - skillMp(sk));
+    fxBanner('👑 ' + e.name + ' 「' + sk.name + '」', 'boss', 950);
+    TCG.sfx(sk.type === 'heal' || sk.type === 'shield' ? 'heal' : 'skill');
+    var idx = c.enemies.indexOf(e), el = enemyEl(idx);
+    if (sk.type === 'strike') {
+      var crit = rollCrit(e.crit != null ? e.crit : BASE_CRIT);
+      var d = e.atk + Math.round(sk.val * 0.5); if (crit) d *= 2;
+      shake('big'); var ev = dmgLord(d, crit);
+      logMsg(ev ? (e.name + ' 「' + sk.name + '」 회피!') : (e.name + ' 「' + sk.name + '」 주공 ' + d + ' 피해' + (crit ? ' (치명타!)' : '')));
+    } else if (sk.type === 'aoe') {
+      var d2 = Math.round(sk.val * 0.6) + Math.round(e.atk * 0.3); shake('big'); var ev2 = dmgLord(d2, false);
+      logMsg(ev2 ? (e.name + ' 「' + sk.name + '」 회피!') : (e.name + ' 「' + sk.name + '」 주공 ' + d2 + ' 피해'));
+    } else if (sk.type === 'multi') {
+      var tot = 0; for (var i = 0; i < sk.val; i++) { if (c.lord.hp <= 0) break; var dd = Math.max(1, Math.round(e.atk * 0.5)); if (!dmgLord(dd, false)) tot += dd; }
+      shake('sm'); logMsg(e.name + ' 「' + sk.name + '」 ' + sk.val + '연타 ' + tot + ' 피해');
+    } else if (sk.type === 'heal') {
+      e.hp = Math.min(e.maxHp, e.hp + sk.val); fxSupport(el, '+' + sk.val, '#7ef0b5');
+      logMsg(e.name + ' 「' + sk.name + '」 ' + sk.val + ' 회복');
+    } else if (sk.type === 'shield') {
+      e.block += sk.val; fxSupport(el, '🛡+' + sk.val, '#9fd2ff', 'shield');
+      logMsg(e.name + ' 「' + sk.name + '」 방어막 +' + sk.val);
+    } else if (sk.type === 'buff') {
+      var cap = (e.atk0 || e.atk) + Math.round((e.atk0 || e.atk) * 0.6); // 공격 버프 누적 상한(기본의 +60%)
+      var gain = Math.min(sk.val, Math.max(0, cap - e.atk));
+      if (gain > 0) { e.atk += gain; fxSupport(el, '⚔+' + gain, '#ffd86b'); logMsg(e.name + ' 「' + sk.name + '」 공격력 +' + gain); }
+      else { var bd = Math.max(1, Math.round(e.atk * 0.7)); dmgLord(bd, false); logMsg(e.name + ' 「' + sk.name + '」 주공 ' + bd + ' 피해'); }
+    } else { // charm 등: 주공 교란(소량 피해)
+      var d3 = Math.max(1, Math.round(e.atk * 0.5)); dmgLord(d3, false);
+      logMsg(e.name + ' 「' + sk.name + '」 주공 교란 ' + d3 + ' 피해');
+    }
+    return true;
+  }
   function enemyPhase() {
     var c = run.combat;
     c.phase = 'enemy'; c.sel = null; c.targeting = false; c.pending = null;
@@ -909,16 +952,20 @@
         renderCombat();
         setTimeout(next, 360); return;
       }
-      var intent = e.intent;
-      var crit = rollCrit(e.crit != null ? e.crit : BASE_CRIT); // 적장은 모드별 치명타 확률
-      var dmg = crit ? intent.dmg * 2 : intent.dmg;
-      TCG.sfx('hit');
-      shake(crit || intent.type === 'aoe' ? 'big' : 'sm');
-      var evaded = dmgLord(dmg, crit);
-      logMsg(evaded ? (e.name + ' 공격 회피!') : (e.name + ' → 주공 ' + dmg + ' 피해' + (crit ? ' (치명타!)' : '')));
+      // 적장은 일정 확률로 대응 장수의 스킬을 사용(MP 충분할 때)
+      var usedSkill = (e.skill && e.mp >= skillMp(e.skill) && Math.random() < (e.skillChance || 0)) ? enemySkill(e) : false;
+      if (!usedSkill) {
+        var intent = e.intent;
+        var crit = rollCrit(e.crit != null ? e.crit : BASE_CRIT); // 적장은 모드별 치명타 확률
+        var dmg = crit ? intent.dmg * 2 : intent.dmg;
+        TCG.sfx('hit');
+        shake(crit || intent.type === 'aoe' ? 'big' : 'sm');
+        var evaded = dmgLord(dmg, crit);
+        logMsg(evaded ? (e.name + ' 공격 회피!') : (e.name + ' → 주공 ' + dmg + ' 피해' + (crit ? ' (치명타!)' : '')));
+      }
       renderCombat();
       if (c.lord.hp <= 0) { setTimeout(gameOver, 400); return; }
-      setTimeout(next, 480);
+      setTimeout(next, usedSkill ? 620 : 480);
     }
     next();
   }
