@@ -77,6 +77,7 @@ run.combat = {
 | `hw_collected_heroes` / `hw_collected_weapons` | 컬렉션(도감) — 영구 수집 기록 |
 | `hw_grant_heroes` | 다른 모드(QB 연승·대장전)에서 해금된 장수 대기열 → 영웅전이 영입 |
 | `hw_raid_cleared` | 대장전에서 격파한 레이드 보스 키 목록 |
+| `hw_mode_unlocked` | 영웅전 최고 해금 모드(normal/hard/extreme) |
 
 `hw_save`(v3) 필드: `party[{id,atk,uid,weapons[]}]`, `gold, mainStage, subStage, relics[], weapons[], sorties, lordHp, lordMp`.
 QB는 `qb_deck`(덱)·`qb_rows`(판 크기)도 저장.

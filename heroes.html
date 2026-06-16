@@ -99,12 +99,12 @@
   <!-- Continue / new run -->
   <div class="overlay" id="startModal" hidden>
     <div class="modal">
-      <h2>🗺️ 모험</h2>
-      <p id="startText">진행 중인 모험이 있습니다. 이어서 하시겠어요?</p>
-      <div style="display:flex;gap:10px;justify-content:center;">
-        <button class="btn primary" id="continueBtn">이어하기</button>
-        <button class="btn ghost" id="newRunBtn">새 모험</button>
-      </div>
+      <h2>🗺️ 삼국 영웅전</h2>
+      <p id="startText"></p>
+      <button class="btn primary" id="continueBtn" style="margin-bottom:10px;">이어하기</button>
+      <div class="mode-label">새 모험 — 모드 선택</div>
+      <div class="mode-sel" id="modeSel"></div>
+      <button class="btn ghost" id="newRunBtn" hidden>새 모험</button>
     </div>
   </div>
 
@@ -131,6 +131,7 @@
       <h2 style="text-align:center;">📕 장수 컬렉션 <span id="heroColTitle" style="color:var(--gold);font-size:15px;"></span></h2>
       <p class="screen-sub">수집한 장수는 밝게, 아직 못 모은 장수는 어둡게 표시됩니다</p>
       <div class="col-grid" id="heroColGrid"></div>
+      <div class="col-detail" id="heroColDetail"></div>
       <div style="text-align:center;margin-top:12px;"><button class="btn primary" id="heroColClose">닫기</button></div>
     </div>
   </div>
@@ -141,6 +142,7 @@
       <h2 style="text-align:center;">🗡️ 장비 컬렉션 <span id="weaponColTitle" style="color:var(--gold);font-size:15px;"></span></h2>
       <p class="screen-sub">수집한 장비는 밝게, 아직 못 모은 장비는 어둡게 표시됩니다</p>
       <div class="col-weapon-list" id="weaponColList"></div>
+      <div class="col-detail" id="weaponColDetail"></div>
       <div style="text-align:center;margin-top:12px;"><button class="btn primary" id="weaponColClose">닫기</button></div>
     </div>
   </div>
@@ -174,15 +176,24 @@
           <ul>
             <li><b>기본 공격</b> · 적에게 공격력만큼 피해. <b>치명타</b>(기본 1%)가 터지면 2배! 적도 치명타를 냅니다.</li>
             <li><b>스킬</b> · 강타·화공(광역)·연속·방어막·고무·<b>매혹</b>(적 1턴 행동 불가) 등. MP를 소모합니다.</li>
-            <li><b>회복 스킬</b> · HP를 회복하며 <b>MP도 함께 회복</b>(소모 없음)합니다.</li>
+            <li><b>회복 스킬</b> · 주공 HP를 회복합니다(MP 소모·회복 없음).</li>
           </ul>
         </section>
         <section class="guide-sec">
           <h3>🗡️ 무기 · 장수</h3>
           <ul>
             <li>장수 등급에 따라 무기 장착 수가 다릅니다 — <b>C 0 · R 1 · SR 2 · SSR 3</b>.</li>
-            <li>무기 효과: 공격력+, 2회 연속 공격, 독 부여, <b>치명타 확률+</b>, 주공 HP·MP 증가.</li>
+            <li>무기 효과: 공격력+, 2회 연속 공격, 독, <b>치명타 확률+</b>, <b>회피 확률+</b>(명마), 주공 HP·MP 증가.</li>
+            <li><b>회피</b>(적토마·적로·절영·조황비전)는 적의 공격을 일정 확률로 무효화합니다.</li>
             <li>장수는 <b>중복 수집 불가</b>. 지도의 <b>👥 장수 / 🗡️ 장비</b> 버튼에서 확인·장착하세요.</li>
+          </ul>
+        </section>
+        <section class="guide-sec">
+          <h3>🟢🟠🔴 모드 (노멀 → 하드 → 극악)</h3>
+          <ul>
+            <li><b>노멀</b>로 시작 → 천하통일하면 <b>하드</b> 해금 → 클리어하면 <b>극악</b> 해금.</li>
+            <li><b>하드</b>: 적 HP 2배 · 적장 공격 +50%. <b>극악</b>: 적 HP 3배 · 적장 공격 +100% · 적장 치명타 10%.</li>
+            <li>상위 모드일수록 골드 보상이 늘어납니다.</li>
           </ul>
         </section>
         <section class="guide-sec">

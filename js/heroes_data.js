@@ -166,7 +166,7 @@ var HW_ENEMIES = {
 /* 보물 (병법/군용품) */
 var HW_RELICS = [
   { id:'banner', name:'대장군 깃발', emoji:'🚩', desc:'가운데 카드 칸 +1', effect:{ energy:1 } },
-  { id:'fang',   name:'적토마',     emoji:'🐎', desc:'기본 공격 시 HP 2 회복',  effect:{ lifesteal:2 } },
+  { id:'fang',   name:'오추마',     emoji:'🐎', desc:'기본 공격 시 HP 2 회복',  effect:{ lifesteal:2 } },
   { id:'drum',   name:'전고(戰鼓)', emoji:'🥁', desc:'전투 시작 시 전원 공격력 +2', effect:{ startAtk:2 } },
   { id:'crest',  name:'방패 진형',  emoji:'🛡️', desc:'전투 시작 시 전원 방어막 5',  effect:{ startBlock:5 } },
   { id:'chalice',name:'군량미',     emoji:'🍚', desc:'전투 승리 후 전원 HP 6 회복', effect:{ winHeal:6 } }
@@ -177,7 +177,7 @@ var HW_LORD = { hp: 200, mp: 50 };
 
 /* 무기 (장착 수: C=0 · R=1 · SR=2 · SSR=3) — 삼국지 아이템
  * effect: atk(+공격), doubleStrike(기본공격 2회), poison(공격 시 독 부여),
- *         crit(치명타 확률 +, 0~1), lordHp/lordMp(주공 최대 HP/MP 증가) */
+ *         crit(치명타 확률 +, 0~1), evade(적 공격 회피 확률 +, 0~1), lordHp/lordMp(주공 최대 HP/MP) */
 var HW_WEAPONS = [
   { id:'spear18',  name:'장팔사모',   emoji:'🔱', desc:'장착 장수 공격력 +3',        effect:{ atk:3 } },
   { id:'qinglong', name:'청룡언월도', emoji:'🗡️', desc:'장착 장수 공격력 +4',        effect:{ atk:4 } },
@@ -185,36 +185,50 @@ var HW_WEAPONS = [
   { id:'qixing',   name:'칠성검',     emoji:'🌟', desc:'기본 공격이 2회 연속',        effect:{ doubleStrike:true } },
   { id:'mengde',   name:'맹덕신서',   emoji:'📕', desc:'공격 시 적에게 독 +2',        effect:{ poison:2 } },
   { id:'taiping',  name:'태평요술서', emoji:'☯️', desc:'공격 시 적에게 독 +3',        effect:{ poison:3 } },
-  { id:'qinggang', name:'청강검',     emoji:'🔪', desc:'치명타 확률 +5%',            effect:{ crit:0.05 } },
-  { id:'yitian',   name:'의천검',     emoji:'🗡️', desc:'치명타 확률 +7%',            effect:{ crit:0.07 } },
-  { id:'cixiong',  name:'자웅일대검', emoji:'⚔️', desc:'치명타 확률 +10%',           effect:{ crit:0.10 } },
+  { id:'qinggang', name:'청강검',     emoji:'🔪', desc:'치명타 확률 +10%',           effect:{ crit:0.10 } },
+  { id:'yitian',   name:'의천검',     emoji:'🗡️', desc:'치명타 확률 +12%',           effect:{ crit:0.12 } },
+  { id:'cixiong',  name:'자웅일대검', emoji:'⚔️', desc:'치명타 확률 +15% (장수 컬렉션 완료 보상)', effect:{ crit:0.15 }, exclusive:'collection' },
   { id:'yuxi',     name:'전국옥새',   emoji:'🟨', desc:'주공 최대 HP +60',           effect:{ lordHp:60 } },
   { id:'sunzi',    name:'손자병법',   emoji:'📜', desc:'주공 최대 MP +20',           effect:{ lordMp:20 } },
   { id:'guanyu',   name:'한수정후인', emoji:'🟥', desc:'주공 최대 HP +30, MP +10',   effect:{ lordHp:30, lordMp:10 } },
-  // ---- 추가 장비 (총 25종) ----
+  // ---- 추가 장비 ----
   { id:'gufeng',   name:'고정도',     emoji:'🔪', desc:'장착 장수 공격력 +6',        effect:{ atk:6 } },
   { id:'hanblood', name:'한혈보도',   emoji:'⚔️', desc:'장착 장수 공격력 +7',        effect:{ atk:7 } },
-  { id:'sanjian',  name:'삼첨양인도', emoji:'🔱', desc:'공격력 +4, 치명타 +4%',     effect:{ atk:4, crit:0.04 } },
+  { id:'sanjian',  name:'삼첨양인도', emoji:'🔱', desc:'공격력 +4, 치명타 +9%',     effect:{ atk:4, crit:0.09 } },
   { id:'huaji',    name:'화극(畵戟)', emoji:'🗡️', desc:'공격력 +3, 기본 공격 2회',  effect:{ atk:3, doubleStrike:true } },
-  { id:'qiangbow', name:'양유기 강궁',emoji:'🏹', desc:'기본 공격 2회 + 치명타 +3%', effect:{ doubleStrike:true, crit:0.03 } },
+  { id:'qiangbow', name:'양유기 강궁',emoji:'🏹', desc:'기본 공격 2회 + 치명타 +8%', effect:{ doubleStrike:true, crit:0.08 } },
   { id:'liannu',   name:'제갈연노',   emoji:'🎯', desc:'공격 시 적에게 독 +4',        effect:{ poison:4 } },
   { id:'qibao',    name:'칠보도',     emoji:'🗡️', desc:'공격력 +2, 독 +2',           effect:{ atk:2, poison:2 } },
   { id:'tiebian',  name:'철편(鐵鞭)', emoji:'🏏', desc:'공격력 +5, 주공 최대 HP +20', effect:{ atk:5, lordHp:20 } },
-  { id:'huanshou', name:'환수도',     emoji:'🗡️', desc:'공격력 +3, 치명타 +5%',     effect:{ atk:3, crit:0.05 } },
+  { id:'huanshou', name:'환수도',     emoji:'🗡️', desc:'공격력 +3, 치명타 +10%',    effect:{ atk:3, crit:0.10 } },
   { id:'baiyu',    name:'백우선',     emoji:'🪭', desc:'주공 최대 MP +30',           effect:{ lordMp:30 } },
   { id:'tongque',  name:'동작대 보패', emoji:'🏯', desc:'주공 최대 HP +50, MP +15',  effect:{ lordHp:50, lordMp:15 } },
-  { id:'liutao',   name:'육도삼략',   emoji:'📚', desc:'주공 최대 MP +25, 치명타 +3%', effect:{ lordMp:25, crit:0.03 } },
-  { id:'dunjia',   name:'둔갑천서',   emoji:'📗', desc:'주공 HP +40, MP +20, 치명타 +5%', effect:{ lordHp:40, lordMp:20, crit:0.05 } }
+  { id:'liutao',   name:'육도삼략',   emoji:'📚', desc:'주공 최대 MP +25, 치명타 +8%', effect:{ lordMp:25, crit:0.08 } },
+  { id:'dunjia',   name:'둔갑천서',   emoji:'📗', desc:'주공 HP +40, MP +20, 치명타 +10%', effect:{ lordHp:40, lordMp:20, crit:0.10 } },
+  // ---- 명마(회피) ----
+  { id:'chituma',  name:'적토마',     emoji:'🐎', desc:'적 공격 회피 확률 +10%',     effect:{ evade:0.10 } },
+  { id:'dilu',     name:'적로',       emoji:'🐎', desc:'적 공격 회피 확률 +7%',      effect:{ evade:0.07 } },
+  { id:'jueying',  name:'절영',       emoji:'🐴', desc:'적 공격 회피 확률 +7%',      effect:{ evade:0.07 } },
+  { id:'zhaohuang',name:'조황비전',   emoji:'🐎', desc:'적 공격 회피 확률 +7%',      effect:{ evade:0.07 } }
 ];
 var HW_WEAPON_BY_ID = {};
 HW_WEAPONS.forEach(function (w) { HW_WEAPON_BY_ID[w.id] = w; });
 
-/* Difficulty tuning */
+/* Difficulty tuning (상/중/하 — 기본 적 배수) */
 var HW_DIFF = {
   easy:   { eHp:0.97, eAtk:1.06, gold:1.4, smart:false, startGold:70 },
   normal: { eHp:1.05, eAtk:1.14, gold:1.0, smart:false, startGold:50 },
   hard:   { eHp:1.08, eAtk:1.19, gold:0.9, smart:true, startGold:40 }
 };
+
+/* 모드(노멀→하드→극악) — 천하통일로 차례로 해금. 위 상/중/하 배수에 곱해 적용.
+ * hpMult: 모든 적 HP 배수, bossAtkMult: 적장 공격 배수, bossCrit: 적장 치명타 확률, gold: 골드 배수 */
+var HW_MODES = {
+  normal:  { key:'normal',  label:'노멀', emoji:'🟢', hpMult:1, bossAtkMult:1,   bossCrit:0.01, gold:1.0, desc:'기본 난이도' },
+  hard:    { key:'hard',    label:'하드', emoji:'🟠', hpMult:2, bossAtkMult:1.5, bossCrit:0.01, gold:1.4, desc:'적 HP 2배 · 적장 공격 +50%' },
+  extreme: { key:'extreme', label:'극악', emoji:'🔴', hpMult:3, bossAtkMult:2,   bossCrit:0.10, gold:2.0, desc:'적 HP 3배 · 적장 공격 +100% · 적장 치명타 10%' }
+};
+var HW_MODE_ORDER = ['normal', 'hard', 'extreme'];
 
 /* 적장(스테이지 보스) — 스테이지 진행에 따라 난이도 가산 */
 var HW_COMMANDERS = {

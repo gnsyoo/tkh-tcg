@@ -623,3 +623,31 @@
 .raid-card.locked { opacity: 0.72; }
 .raid-card.locked .raid-art { filter: grayscale(1) brightness(0.5); }
 .raid-lock { margin-left: auto; font-size: 16px; color: var(--ink-dim); }
+
+/* 컬렉션 클릭 → 획득 경로 표시 */
+.col-card, .col-pick { cursor: pointer; }
+.col-detail {
+  margin-top: 10px; padding: 10px 12px; border-radius: 10px;
+  background: rgba(0,0,0,0.28); border: 1px solid rgba(255,255,255,0.12);
+  font-size: 13px; line-height: 1.65; text-align: left; min-height: 20px;
+}
+.col-detail .cd-got { color: var(--green); font-weight: 800; }
+.col-detail .cd-no { color: var(--ink-dim); font-weight: 700; }
+.col-detail .cd-path { color: var(--gold); font-weight: 700; }
+.col-detail .cd-sub { color: var(--ink-dim); }
+
+/* 모드 선택(노멀/하드/극악) */
+.mode-label { font-size: 12px; color: var(--ink-dim); margin: 6px 0 8px; }
+.mode-sel { display: flex; flex-direction: column; gap: 8px; }
+.mode-btn {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+  background: var(--panel); color: var(--ink); border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 12px; padding: 10px 14px; cursor: pointer; text-align: left;
+  transition: transform 0.08s, border-color 0.12s, box-shadow 0.12s;
+}
+.mode-btn:hover:not(:disabled) { transform: translateY(-1px); border-color: var(--gold); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.mode-btn b { font-size: 15px; }
+.mode-btn small { font-size: 11px; color: var(--ink-dim); }
+.mode-btn.locked, .mode-btn:disabled { opacity: 0.5; cursor: default; border-style: dashed; }
+.mode-btn.mode-hard { border-color: rgba(255,138,76,0.4); }
+.mode-btn.mode-extreme { border-color: rgba(232,83,107,0.45); }

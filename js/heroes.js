@@ -27,6 +27,7 @@
   function effAtk(h) { return h.atk + wpnVal(h, 'atk') + (run.combat ? (run.combat.atkBuff || 0) : 0); }
   function lordMaxHp() { return HW_LORD.hp + run.party.reduce(function (s, h) { return s + wpnVal(h, 'lordHp'); }, 0); }
   function lordMaxMp() { return HW_LORD.mp + run.party.reduce(function (s, h) { return s + wpnVal(h, 'lordMp'); }, 0); }
+  function lordEvade() { return Math.min(0.6, run.party.reduce(function (s, h) { return s + wpnVal(h, 'evade'); }, 0)); } // 회피(무기 합산, 최대 60%)
   function skillMp(sk) { return 2 + (sk.cost || 1); } // 스킬 MP 비용 3~5
   function ownedHeroIds() { return run.party.map(function (h) { return h.def.id; }); } // 중복 수집 방지
   // 보유 무기 중 아직 장착되지 않은 것들(중복 보유 허용)
@@ -52,10 +53,11 @@
   function updateTop() {
     document.getElementById('goldPill').textContent = '💰 ' + run.gold;
     var st = HW_STAGES[run.mainStage];
+    var md = HW_MODES[run.mode] || HW_MODES.normal;
     document.getElementById('floorPill').textContent = st
-      ? ((run.mainStage + 1) + '/' + HW_STAGES.length + ' ' + st.name + ' · ' + (run.subStage + 1) + '/' + SUB_COUNT)
+      ? (md.emoji + ' ' + (run.mainStage + 1) + '/' + HW_STAGES.length + ' ' + st.name + ' · ' + (run.subStage + 1) + '/' + SUB_COUNT)
       : '천하통일';
-    document.getElementById('diffPill').textContent = '난이도 ' + TCG.diffLabel(diff);
+    document.getElementById('diffPill').textContent = md.label + ' · 난이도 ' + TCG.diffLabel(diff);
   }
 
   /* ---------- collection (도감, 모험과 무관하게 영구 보존) ---------- */
@@ -89,7 +91,7 @@
         gold: run.gold, mainStage: run.mainStage, subStage: run.subStage,
         relics: run.relics.map(function (r) { return r.id; }),
         weapons: run.weapons.slice(), sorties: run.sorties || 0,
-        lordHp: run.lordHp, lordMp: run.lordMp
+        lordHp: run.lordHp, lordMp: run.lordMp, mode: run.mode || 'normal'
       }));
     } catch (e) {}
   }
@@ -122,13 +124,20 @@
     };
     run.lordHp = (typeof d.lordHp === 'number') ? Math.min(d.lordHp, lordMaxHp()) : lordMaxHp();
     run.lordMp = (typeof d.lordMp === 'number') ? Math.min(d.lordMp, lordMaxMp()) : lordMaxMp();
+    run.mode = HW_MODES[d.mode] ? d.mode : 'normal';
     showMap();
   }
 
+  /* ---------- 모드(노멀/하드/극악) 해금 ---------- */
+  function unlockedMode() { try { var m = localStorage.getItem('hw_mode_unlocked'); return HW_MODES[m] ? m : 'normal'; } catch (e) { return 'normal'; } }
+  function isModeUnlocked(key) { return HW_MODE_ORDER.indexOf(key) <= HW_MODE_ORDER.indexOf(unlockedMode()); }
+  function unlockMode(key) { try { if (HW_MODE_ORDER.indexOf(key) > HW_MODE_ORDER.indexOf(unlockedMode())) localStorage.setItem('hw_mode_unlocked', key); } catch (e) {} }
+
   /* ---------- run lifecycle ---------- */
-  function newRun() {
+  function newRun(mode) {
     clearSave();
     run = { party: HW_STARTERS.map(mkHero), gold: DCFG.startGold, mainStage: 0, subStage: 0, relics: [], weapons: [], sorties: 0, stageShopped: false, combat: null };
+    run.mode = (HW_MODES[mode] && isModeUnlocked(mode)) ? mode : 'normal';
     run.lordHp = lordMaxHp(); // 주공 HP는 모험 내내 유지(스테이지마다 일부 회복)
     run.lordMp = lordMaxMp(); // 주공 MP도 모험 내내 유지(전투 시작 시 10% 회복)
     showMap();
@@ -183,9 +192,25 @@
       localStorage.setItem('hw_collected_heroes', JSON.stringify(collectedHeroes));
     } catch (e) {}
   }
+  // 장수 컬렉션 100% 완료 → 자웅일대검 지급(다른 경로로는 획득 불가)
+  function checkCollectionReward() {
+    if (!run) return;
+    syncCollection();
+    var allHeroes = HW_HEROES.every(function (d) { return collectedHeroes.indexOf(d.id) !== -1; });
+    if (!allHeroes) return;
+    if (collectedWeapons.indexOf('cixiong') === -1) {
+      collectedWeapons.push('cixiong');
+      try { localStorage.setItem('hw_collected_weapons', JSON.stringify(collectedWeapons)); } catch (e) {}
+    }
+    if ((run.weapons || []).indexOf('cixiong') === -1) {
+      run.weapons.push('cixiong');
+      TCG.toast('🌟 장수 컬렉션 완료 보상 — 자웅일대검 획득!');
+    }
+  }
   function showMap() {
     applyBonusGold();
     applyPendingGrants();
+    checkCollectionReward();
     updateTop();
     renderCampaign();
     show('mapScreen');
@@ -284,19 +309,33 @@
   document.getElementById('rosterModal').addEventListener('click', function (e) { if (e.target.id === 'rosterModal') e.currentTarget.hidden = true; });
   document.getElementById('gearModal').addEventListener('click', function (e) { if (e.target.id === 'gearModal') e.currentTarget.hidden = true; });
 
-  /* ---------- 컬렉션(도감): 전체 카탈로그 + 수집 여부 ---------- */
+  /* ---------- 컬렉션(도감): 전체 카탈로그 + 수집 여부 + 획득 경로 ---------- */
+  function heroPath(d) {
+    if (HW_STARTERS.indexOf(d.id) !== -1) return '🏳️ 시작 장수 (처음부터 보유)';
+    if (d.exclusive === 'qb') return '🃏 히어로즈 블러드 3연승 보상';
+    if (d.exclusive === 'raid') {
+      var rb = null; HW_RAID.bosses.forEach(function (b) { if (b.reward === d.id) rb = b; });
+      return '👹 삼국 대장전 — ' + (rb ? HW_COMMANDERS[rb.key].name : '적장') + ' 격파 보상';
+    }
+    return '⚔️ 전투 보상 영입 · 🏪 저잣거리 구매';
+  }
+  function weaponPath(w) {
+    if (w.exclusive === 'collection') return '📕 장수 컬렉션 100% 완료 보상';
+    return '💎 보물상자(출진 5·10회) · 🏪 저잣거리';
+  }
   function openHeroCollection() {
     TCG.sfx('tap'); syncCollection();
     document.getElementById('heroColTitle').textContent = '(' + collectedHeroes.length + ' / ' + HW_HEROES.length + ')';
     document.getElementById('heroColGrid').innerHTML = HW_HEROES.map(function (d) {
       var got = collectedHeroes.indexOf(d.id) !== -1;
-      return '<div class="col-card' + (got ? '' : ' locked') + '">' +
+      return '<div class="col-card' + (got ? '' : ' locked') + '" data-id="' + d.id + '">' +
         TCG.portrait(d.emoji, d.id) +
         '<div class="col-name">' + d.name + '</div>' +
         '<div class="col-rar rar-' + d.rarity + '">' + d.rarity + ' · ' + d.cls + '</div>' +
         (got ? '' : '<div class="col-lock">🔒</div>') +
         '</div>';
     }).join('');
+    document.getElementById('heroColDetail').innerHTML = '👆 장수를 선택하면 <b>획득 경로</b>가 표시됩니다';
     document.getElementById('heroColModal').hidden = false;
   }
   function openWeaponCollection() {
@@ -304,17 +343,36 @@
     document.getElementById('weaponColTitle').textContent = '(' + collectedWeapons.length + ' / ' + HW_WEAPONS.length + ')';
     document.getElementById('weaponColList').innerHTML = HW_WEAPONS.map(function (w) {
       var got = collectedWeapons.indexOf(w.id) !== -1;
-      return '<div class="gear-row' + (got ? '' : ' locked') + '">' +
+      return '<div class="gear-row col-pick' + (got ? '' : ' locked') + '" data-id="' + w.id + '">' +
         '<div class="gear-emoji">' + w.emoji + '</div>' +
         '<div class="gear-info">' +
           '<div class="gear-name">' + w.name + (got ? '' : ' 🔒') + '</div>' +
           '<div class="gear-desc">' + w.desc + '</div>' +
         '</div></div>';
     }).join('');
+    document.getElementById('weaponColDetail').innerHTML = '👆 장비를 선택하면 <b>획득 경로</b>가 표시됩니다';
     document.getElementById('weaponColModal').hidden = false;
   }
   document.getElementById('heroColBtn').addEventListener('click', openHeroCollection);
   document.getElementById('weaponColBtn').addEventListener('click', openWeaponCollection);
+  document.getElementById('heroColGrid').addEventListener('click', function (e) {
+    var c = e.target.closest('.col-card'); if (!c) return;
+    var d = HW_BY_ID[c.dataset.id]; if (!d) return;
+    var got = collectedHeroes.indexOf(d.id) !== -1;
+    document.getElementById('heroColDetail').innerHTML =
+      '<b>' + d.emoji + ' ' + d.name + '</b> <span class="rar-' + d.rarity + '">' + d.rarity + '</span> · ' + (got ? '<span class="cd-got">보유 중</span>' : '<span class="cd-no">미보유</span>') +
+      '<br><span class="cd-path">획득 경로: ' + heroPath(d) + '</span>';
+    TCG.sfx('tap');
+  });
+  document.getElementById('weaponColList').addEventListener('click', function (e) {
+    var c = e.target.closest('.col-pick'); if (!c) return;
+    var w = HW_WEAPON_BY_ID[c.dataset.id]; if (!w) return;
+    var got = collectedWeapons.indexOf(w.id) !== -1;
+    document.getElementById('weaponColDetail').innerHTML =
+      '<b>' + w.emoji + ' ' + w.name + '</b> · ' + (got ? '<span class="cd-got">보유 중</span>' : '<span class="cd-no">미보유</span>') +
+      '<br><span class="cd-sub">' + w.desc + '</span><br><span class="cd-path">획득 경로: ' + weaponPath(w) + '</span>';
+    TCG.sfx('tap');
+  });
   document.getElementById('heroColClose').addEventListener('click', function () { document.getElementById('heroColModal').hidden = true; });
   document.getElementById('weaponColClose').addEventListener('click', function () { document.getElementById('weaponColModal').hidden = true; });
   document.getElementById('heroColModal').addEventListener('click', function (e) { if (e.target.id === 'heroColModal') e.currentTarget.hidden = true; });
@@ -346,12 +404,14 @@
     var st = HW_STAGES[main];
     var isBoss = sub === SUB_COUNT - 1;
     var prog = main * SUB_COUNT + sub; // 0..(8*12-1) 전체 진행도
-    var hpM = DCFG.eHp * (1 + prog * 0.020);
+    var md = HW_MODES[run.mode] || HW_MODES.normal; // 노멀/하드/극악
+    var hpM = DCFG.eHp * (1 + prog * 0.020) * md.hpMult;          // 모드: 모든 적 HP 배수
     var atkM = DCFG.eAtk * (1 + prog * 0.007);
     function inst(d, boss) {
       var hp = Math.round(d.hp * hpM);
+      var atk = Math.max(1, Math.round(d.atk * atkM * (boss ? md.bossAtkMult : 1))); // 모드: 적장 공격 배수
       return { def: d, name: d.name, emoji: d.emoji, maxHp: hp, hp: hp,
-        atk: Math.max(1, Math.round(d.atk * atkM)), aoe: !!d.aoe, boss: !!boss, block: 0, intent: null };
+        atk: atk, aoe: !!d.aoe, boss: !!boss, crit: (boss ? md.bossCrit : BASE_CRIT), block: 0, intent: null };
     }
     var out = [];
     if (isBoss) {
@@ -632,7 +692,7 @@
     var isHeal = sk.type === 'heal';
     var mp = skillMp(sk);
     var canSkill = isHeal || c.lord.mp >= mp; // 회복 스킬은 MP 제한 없음(오히려 회복)
-    var mpLabel = isHeal ? ('💧+' + Math.round(sk.val / 4) + ' 회복') : ('💧' + mp);
+    var mpLabel = isHeal ? '💧0 (무료)' : ('💧' + mp);
     var critPct = Math.round(critChance(h) * 100);
     bar.hidden = false;
     bar.innerHTML =
@@ -696,10 +756,12 @@
   // 적의 공격은 주공(나)을 노린다 — 블록으로 먼저 흡수 후 HP 감소
   function dmgLord(dmg, crit) {
     var c = run.combat, L = c.lord;
+    if (Math.random() < lordEvade()) { fxSupport(lordEl(), '회피!', '#8effb0'); return true; } // 회피
     var d = dmg, blocked = 0;
     if (L.block > 0) { var ab = Math.min(L.block, d); L.block -= ab; d -= ab; blocked = ab; }
     L.hp = Math.max(0, L.hp - d);
     fxHitHero(lordEl(), d, blocked, crit);
+    return false;
   }
   function enemyEl(idx) { return document.querySelector('#enemyRow .unit[data-idx="' + idx + '"]'); }
   function lordEl() { return document.querySelector('#lordBar .lord-art'); }
@@ -746,12 +808,10 @@
       }
       shake('sm'); logMsg(h.def.name + ' 「' + sk.name + '」 ' + sk.val + '회 공격');
     } else if (sk.type === 'heal') {
-      c.lord.hp = Math.min(c.lord.maxHp, c.lord.hp + sk.val);
-      var mpHeal = Math.round(sk.val / 4); // 회복 스킬은 HP 회복량의 1/4만큼 MP도 회복(소모 없음)
-      if (mpHeal) c.lord.mp = Math.min(c.lord.maxMp, c.lord.mp + mpHeal);
+      c.lord.hp = Math.min(c.lord.maxHp, c.lord.hp + sk.val); // HP만 회복(MP 회복 없음)
       if (h.def.id === 'oracle') c.lord.block += 5;
-      fxSupport(lordEl(), '+' + sk.val + (mpHeal ? ' 💧+' + mpHeal : ''), '#7ef0b5');
-      logMsg(h.def.name + ' 「' + sk.name + '」 주공 ' + sk.val + ' 회복' + (mpHeal ? ' · MP +' + mpHeal : ''));
+      fxSupport(lordEl(), '+' + sk.val, '#7ef0b5');
+      logMsg(h.def.name + ' 「' + sk.name + '」 주공 ' + sk.val + ' 회복');
     } else if (sk.type === 'shield') {
       c.lord.block += sk.val;
       fxSupport(lordEl(), '🛡+' + sk.val, '#9fd2ff', 'shield');
@@ -839,12 +899,12 @@
         setTimeout(next, 360); return;
       }
       var intent = e.intent;
-      var crit = rollCrit(BASE_CRIT); // 적도 1% 확률로 치명타(공격력 2배)
+      var crit = rollCrit(e.crit != null ? e.crit : BASE_CRIT); // 적장은 모드별 치명타 확률
       var dmg = crit ? intent.dmg * 2 : intent.dmg;
       TCG.sfx('hit');
       shake(crit || intent.type === 'aoe' ? 'big' : 'sm');
-      dmgLord(dmg, crit);
-      logMsg(e.name + ' → 주공 ' + dmg + ' 피해' + (crit ? ' (치명타!)' : ''));
+      var evaded = dmgLord(dmg, crit);
+      logMsg(evaded ? (e.name + ' 공격 회피!') : (e.name + ' → 주공 ' + dmg + ' 피해' + (crit ? ' (치명타!)' : '')));
       renderCombat();
       if (c.lord.hp <= 0) { setTimeout(gameOver, 400); return; }
       setTimeout(next, 480);
@@ -862,7 +922,7 @@
     // gold + reward cadence
     var isBoss = c.sub === SUB_COUNT - 1;
     var prog = c.main * SUB_COUNT + c.sub;
-    var gold = Math.round((6 + prog * 1.5) * DCFG.gold);
+    var gold = Math.round((6 + prog * 1.5) * DCFG.gold * ((HW_MODES[run.mode] || HW_MODES.normal).gold));
     run.gold += gold;
     run.sorties = (run.sorties || 0) + 1; // 누적 출진 횟수
     updateTop();
@@ -889,7 +949,7 @@
       box.innerHTML = hpool.map(function (d) { return heroRewardCard(d); }).join('');
     } else if (mode === 'weapon') {
       document.getElementById('rewardSub').textContent = '획득할 보물(무기/보패)을 선택하세요 — 장수 상세에서 장착할 수 있습니다';
-      var wpool = TCG.shuffle(HW_WEAPONS).slice(0, 3);
+      var wpool = TCG.shuffle(HW_WEAPONS.filter(function (w) { return !w.exclusive; })).slice(0, 3);
       box.innerHTML = wpool.map(function (w) {
         return '<div class="reward-card" data-weapon="' + w.id + '">' +
           '<div class="rc-emoji">' + w.emoji + '</div>' +
@@ -987,12 +1047,13 @@
   function showShop() {
     var have = ownedHeroIds();
     var heroPool = TCG.shuffle(HW_HEROES.filter(function (d) { return !d.exclusive && have.indexOf(d.id) === -1; })).slice(0, 2);
-    var wpnPick = TCG.pick(HW_WEAPONS);
+    var wpnPick = TCG.pick(HW_WEAPONS.filter(function (w) { return !w.exclusive; })); // 전용 장비 제외
     run.shop = [];
     if (heroPool[0]) run.shop.push({ kind: 'hero', def: heroPool[0], cost: 35, sold: false });
     if (heroPool[1]) run.shop.push({ kind: 'hero', def: heroPool[1], cost: 45, sold: false });
     run.shop.push(
       { kind: 'weapon', wid: wpnPick.id, cost: 40, sold: false },
+      { kind: 'dujiu', cost: 18, sold: false },   // 두강주: MP 20 회복
       { kind: 'upgrade', cost: 28, sold: false }
     );
     renderShop();
@@ -1003,6 +1064,7 @@
       var emoji, name, desc;
       if (it.kind === 'hero') { emoji = it.def.emoji; name = it.def.name; desc = it.def.cls + ' · ⚔' + it.def.atk + ' · 「' + it.def.skill.name + '」'; }
       else if (it.kind === 'weapon') { var w = HW_WEAPON_BY_ID[it.wid]; emoji = w.emoji; name = w.name; desc = w.desc; }
+      else if (it.kind === 'dujiu') { emoji = '🍶'; name = '두강주'; desc = '주공 MP 20 회복'; }
       else { emoji = '⚒️'; name = '무기 강화'; desc = '무작위 영웅 공격력 +3'; }
       var afford = run.gold >= it.cost && !it.sold;
       return '<div class="shop-item' + (it.sold ? ' sold' : '') + '">' +
@@ -1022,6 +1084,9 @@
       run.party.push(mkHero(it.def.id));
     } else if (it.kind === 'weapon') {
       run.weapons.push(it.wid); TCG.toast('보물 구입: ' + HW_WEAPON_BY_ID[it.wid].name);
+    } else if (it.kind === 'dujiu') {
+      if (typeof run.lordMp !== 'number') run.lordMp = lordMaxMp();
+      run.lordMp = Math.min(lordMaxMp(), run.lordMp + 20); TCG.toast('두강주 — 주공 MP 20 회복');
     } else {
       var h = TCG.pick(run.party); h.atk += 3; TCG.toast(h.def.name + ' 공격력 +3');
     }
@@ -1066,6 +1131,14 @@
   function showCredits() {
     clearSave();
     TCG.sfx('win');
+    // 현재 모드 클리어 → 다음 모드 해금
+    var curMode = HW_MODES[run.mode] || HW_MODES.normal;
+    var ci = HW_MODE_ORDER.indexOf(run.mode);
+    var nextMode = (ci >= 0 && ci < HW_MODE_ORDER.length - 1) ? HW_MODE_ORDER[ci + 1] : null;
+    var newlyUnlocked = nextMode && !isModeUnlocked(nextMode);
+    if (nextMode) unlockMode(nextMode);
+    var modeLine = '<div class="cr-h">— 모드 —</div><div class="cr-list">' + curMode.emoji + ' ' + curMode.label + ' 클리어' +
+      (newlyUnlocked ? '<br><span style="color:var(--gold)">🔓 ' + HW_MODES[nextMode].emoji + ' ' + HW_MODES[nextMode].label + ' 모드 해금!</span>' : '') + '</div>';
     var st = HW_STAGES.map(function (x) { return '⚔ ' + x.name + ' <span class="cr-year">' + x.year + '</span>'; }).join('<br>');
     var roster = run.party.map(function (h) {
       return h.def.emoji + ' <b>' + h.def.name + '</b> <span class="rar-' + h.def.rarity + '">' + h.def.rarity + '</span>';
@@ -1085,6 +1158,7 @@
       '<div class="cr-list">' + relics + '</div>' +
       '<div class="cr-h">— 난이도 —</div>' +
       '<div class="cr-list">' + TCG.diffLabel(diff) + '</div>' +
+      modeLine +
       '<div class="cr-block cr-story" style="margin-top:30px">제작 · 기획 · 밸런싱<br><b>삼국지 카드 게임 팀</b></div>' +
       '<div class="cr-block cr-sub">감사합니다 — 플레이해 주셔서 고맙습니다</div>' +
       '<div class="cr-block cr-big" style="margin:40px 0">— 完 —</div>';
@@ -1186,23 +1260,40 @@
     });
   }
   var saved = loadSave();
-  var continued = false;
+  function renderModeSel() {
+    var el = document.getElementById('modeSel'); if (!el) return;
+    el.innerHTML = HW_MODE_ORDER.map(function (k) {
+      var m = HW_MODES[k], un = isModeUnlocked(k);
+      return '<button class="mode-btn mode-' + k + (un ? '' : ' locked') + '" data-mode="' + k + '"' + (un ? '' : ' disabled') + '>' +
+        '<b>' + m.emoji + ' ' + m.label + '</b><small>' + (un ? m.desc : '🔒 이전 모드 천하통일 시 해금') + '</small></button>';
+    }).join('');
+  }
+  function startNew(mode) { document.getElementById('startModal').hidden = true; TCG.audioResume(); newRun(mode); }
+  document.getElementById('modeSel').addEventListener('click', function (e) {
+    var b = e.target.closest('.mode-btn'); if (!b || b.disabled) return;
+    TCG.sfx('tap'); startNew(b.dataset.mode);
+  });
   document.getElementById('continueBtn').addEventListener('click', function () {
     document.getElementById('startModal').hidden = true;
     TCG.audioResume();
-    if (saved) resumeRun(saved); else newRun();
+    if (saved) resumeRun(saved); else newRun('normal');
   });
-  document.getElementById('newRunBtn').addEventListener('click', function () {
-    document.getElementById('startModal').hidden = true;
-    TCG.audioResume();
-    newRun();
-  });
+  document.getElementById('newRunBtn').addEventListener('click', function () { startNew('normal'); }); // 호환
+  renderModeSel();
+  var multiMode = HW_MODE_ORDER.filter(isModeUnlocked).length > 1;
   if (saved) {
     var sst = HW_STAGES[Math.min(saved.mainStage || 0, HW_STAGES.length - 1)];
+    var smd = HW_MODES[saved.mode] || HW_MODES.normal;
+    document.getElementById('continueBtn').hidden = false;
     document.getElementById('startText').textContent =
-      '진행 중인 전역이 있습니다 (' + ((saved.mainStage || 0) + 1) + '. ' + (sst ? sst.name : '') + ' 서브 ' + ((saved.subStage || 0) + 1) + '/' + SUB_COUNT + ' · 장수 ' + saved.party.length + '명). 이어서 하시겠어요?';
+      '진행 중: ' + smd.emoji + smd.label + ' · ' + ((saved.mainStage || 0) + 1) + '. ' + (sst ? sst.name : '') + ' 서브 ' + ((saved.subStage || 0) + 1) + '/' + SUB_COUNT + ' · 장수 ' + saved.party.length + '명';
+    document.getElementById('startModal').hidden = false;
+  } else if (multiMode) {
+    // 저장은 없지만 상위 모드가 해금됨 → 모드 선택 화면
+    document.getElementById('continueBtn').hidden = true;
+    document.getElementById('startText').textContent = '도전할 모드를 선택하세요.';
     document.getElementById('startModal').hidden = false;
   } else {
-    newRun();
+    newRun('normal'); // 첫 플레이(노멀만 해금) → 바로 시작
   }
 })();
