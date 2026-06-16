@@ -170,6 +170,11 @@
       '<div class="cs-actions">' +
         '<button class="camp-btn primary" data-act="battle">' + battleLabel + '</button>' +
         '<button class="camp-btn" data-act="shop"' + (run.stageShopped ? ' disabled' : '') + '>🏪 저잣거리' + (run.stageShopped ? ' ✓' : '') + '</button>' +
+      '</div>' +
+      '<div class="map-lord-status">' +
+        '<span class="mls hp">❤ ' + (run.lordHp != null ? run.lordHp : lordMaxHp()) + ' / ' + lordMaxHp() + '</span>' +
+        '<span class="mls mp">💧 ' + (run.lordMp != null ? run.lordMp : lordMaxMp()) + ' / ' + lordMaxMp() + '</span>' +
+        '<span class="mls gold">💰 ' + run.gold + '</span>' +
       '</div>';
     document.getElementById('mapTrack').innerHTML = html;
     document.getElementById('rosterCount').textContent = run.party.length;
@@ -1088,6 +1093,9 @@
 
   /* ---------- boot ---------- */
   TCG.initFloatMenu();
+  document.getElementById('guideBtn').addEventListener('click', function () { TCG.sfx('tap'); document.getElementById('guideModal').hidden = false; });
+  document.getElementById('guideClose').addEventListener('click', function () { document.getElementById('guideModal').hidden = true; });
+  document.getElementById('guideModal').addEventListener('click', function (e) { if (e.target.id === 'guideModal') e.currentTarget.hidden = true; });
   var muteBtn = document.getElementById('muteBtn');
   if (muteBtn) {
     muteBtn.textContent = TCG.isMuted() ? '🔇 소리' : '🔊 소리';

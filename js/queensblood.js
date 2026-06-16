@@ -49,7 +49,8 @@
 
   function canPlace(b, def, owner, r, c) {
     var cell = b[r][c];
-    return cell.card === null && cell.owner === owner && cell.rank >= def.rank;
+    // 점령한 칸의 폰 레벨 이상의 등급(핍)을 가진 카드만 배치 가능 (예: 레벨2 칸 → 등급 2,3,4,5)
+    return cell.card === null && cell.owner === owner && cell.rank >= 1 && def.rank >= cell.rank;
   }
 
   function placeOnBoard(b, def, owner, r, c) {
