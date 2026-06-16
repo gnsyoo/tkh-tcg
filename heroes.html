@@ -20,8 +20,6 @@
       </div>
       <div class="fm-actions">
         <button class="btn ghost" id="guideBtn">📖 게임 가이드</button>
-        <button class="btn ghost" id="heroColBtn">📕 장수 컬렉션</button>
-        <button class="btn ghost" id="weaponColBtn">🗡️ 장비 컬렉션</button>
         <button class="btn ghost" id="muteBtn">🔊 소리</button>
         <button class="btn ghost" id="resetBtn">🗑️ 데이터 초기화</button>
         <a class="btn ghost" href="index.html">← 메뉴로</a>
@@ -38,6 +36,7 @@
       <div class="map-collect">
         <button class="collect-btn" id="rosterBtn">👥 장수 <b id="rosterCount">0</b></button>
         <button class="collect-btn" id="gearBtn">🗡️ 장비 <b id="gearCount">0</b></button>
+        <button class="collect-btn" id="codexBtn">📖 도감</button>
       </div>
     </section>
 
@@ -150,25 +149,24 @@
     <div class="modal" id="heroModalBody" style="max-width:340px;"></div>
   </div>
 
-  <!-- 장수 컬렉션(도감) -->
-  <div class="overlay" id="heroColModal" hidden>
+  <!-- 도감(장수/장비 탭) -->
+  <div class="overlay" id="codexModal" hidden>
     <div class="modal" style="max-width:700px;">
-      <h2 style="text-align:center;">📕 장수 컬렉션 <span id="heroColTitle" style="color:var(--gold);font-size:15px;"></span></h2>
-      <p class="screen-sub">수집한 장수는 밝게, 아직 못 모은 장수는 어둡게 표시됩니다</p>
-      <div class="col-grid" id="heroColGrid"></div>
-      <div class="col-detail" id="heroColDetail"></div>
-      <div style="text-align:center;margin-top:12px;"><button class="btn primary" id="heroColClose">닫기</button></div>
-    </div>
-  </div>
-
-  <!-- 장비 컬렉션(도감) -->
-  <div class="overlay" id="weaponColModal" hidden>
-    <div class="modal" style="max-width:560px;">
-      <h2 style="text-align:center;">🗡️ 장비 컬렉션 <span id="weaponColTitle" style="color:var(--gold);font-size:15px;"></span></h2>
-      <p class="screen-sub">수집한 장비는 밝게, 아직 못 모은 장비는 어둡게 표시됩니다</p>
-      <div class="col-weapon-list" id="weaponColList"></div>
-      <div class="col-detail" id="weaponColDetail"></div>
-      <div style="text-align:center;margin-top:12px;"><button class="btn primary" id="weaponColClose">닫기</button></div>
+      <div class="codex-tabs">
+        <button class="codex-tab active" id="codexTabHero" data-tab="hero">📕 장수 도감 <span id="heroColTitle" style="color:var(--gold);font-size:14px;"></span></button>
+        <button class="codex-tab" id="codexTabWeapon" data-tab="weapon">🗡️ 장비 도감 <span id="weaponColTitle" style="color:var(--gold);font-size:14px;"></span></button>
+      </div>
+      <div id="codexHeroPanel">
+        <p class="screen-sub">수집한 장수는 밝게, 아직 못 모은 장수는 어둡게 표시됩니다</p>
+        <div class="col-grid" id="heroColGrid"></div>
+        <div class="col-detail" id="heroColDetail"></div>
+      </div>
+      <div id="codexWeaponPanel" hidden>
+        <p class="screen-sub">수집한 장비는 밝게, 아직 못 모은 장비는 어둡게 표시됩니다</p>
+        <div class="col-weapon-list" id="weaponColList"></div>
+        <div class="col-detail" id="weaponColDetail"></div>
+      </div>
+      <div style="text-align:center;margin-top:12px;"><button class="btn primary" id="codexClose">닫기</button></div>
     </div>
   </div>
 

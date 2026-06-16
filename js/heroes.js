@@ -313,17 +313,17 @@
   function heroPath(d) {
     if (HW_STARTERS.indexOf(d.id) !== -1) return '🏳️ 시작 장수 (처음부터 보유)';
     if (d.exclusive === 'qb') return '🃏 히어로즈 블러드 3연승 보상';
-    var rb = null; HW_RAID.bosses.forEach(function (b) { if (b.reward === d.id) rb = b; });
-    var base = '⚔️ 전투 보상 영입 · 🏪 저잣거리 구매';
-    if (rb) base += ' · 👹 대장전 ' + HW_COMMANDERS[rb.key].name + ' 격파';
-    return base;
+    if (d.exclusive === 'raid') {
+      var rb = null; HW_RAID.bosses.forEach(function (b) { if (b.reward === d.id) rb = b; });
+      return '👹 삼국 대장전 — ' + (rb ? HW_COMMANDERS[rb.key].name : '적장') + ' 격파 보상 (대장전에서만 획득)';
+    }
+    return '⚔️ 전투 보상 영입 · 🏪 저잣거리 구매';
   }
   function weaponPath(w) {
     if (w.exclusive === 'collection') return '📕 장수 컬렉션 100% 완료 보상';
     return '💎 보물상자(출진 5·10회) · 🏪 저잣거리';
   }
-  function openHeroCollection() {
-    TCG.sfx('tap'); syncCollection();
+  function renderHeroCodex() {
     document.getElementById('heroColTitle').textContent = '(' + collectedHeroes.length + ' / ' + HW_HEROES.length + ')';
     document.getElementById('heroColGrid').innerHTML = HW_HEROES.map(function (d) {
       var got = collectedHeroes.indexOf(d.id) !== -1;
@@ -334,11 +334,9 @@
         (got ? '' : '<div class="col-lock">🔒</div>') +
         '</div>';
     }).join('');
-    document.getElementById('heroColDetail').innerHTML = '👆 장수를 선택하면 <b>획득 경로</b>가 표시됩니다';
-    document.getElementById('heroColModal').hidden = false;
+    document.getElementById('heroColDetail').innerHTML = '👆 장수를 선택하면 <b>능력치·획득 경로</b>가 표시됩니다';
   }
-  function openWeaponCollection() {
-    TCG.sfx('tap'); syncCollection();
+  function renderWeaponCodex() {
     document.getElementById('weaponColTitle').textContent = '(' + collectedWeapons.length + ' / ' + HW_WEAPONS.length + ')';
     document.getElementById('weaponColList').innerHTML = HW_WEAPONS.map(function (w) {
       var got = collectedWeapons.indexOf(w.id) !== -1;
@@ -350,10 +348,23 @@
         '</div></div>';
     }).join('');
     document.getElementById('weaponColDetail').innerHTML = '👆 장비를 선택하면 <b>획득 경로</b>가 표시됩니다';
-    document.getElementById('weaponColModal').hidden = false;
   }
-  document.getElementById('heroColBtn').addEventListener('click', openHeroCollection);
-  document.getElementById('weaponColBtn').addEventListener('click', openWeaponCollection);
+  function showCodexTab(tab) {
+    var hero = tab !== 'weapon';
+    document.getElementById('codexHeroPanel').hidden = !hero;
+    document.getElementById('codexWeaponPanel').hidden = hero;
+    document.getElementById('codexTabHero').classList.toggle('active', hero);
+    document.getElementById('codexTabWeapon').classList.toggle('active', !hero);
+  }
+  function openCodex(tab) {
+    TCG.sfx('tap'); syncCollection();
+    renderHeroCodex(); renderWeaponCodex();
+    showCodexTab(tab || 'hero');
+    document.getElementById('codexModal').hidden = false;
+  }
+  document.getElementById('codexBtn').addEventListener('click', function () { openCodex('hero'); });
+  document.getElementById('codexTabHero').addEventListener('click', function () { TCG.sfx('tap'); showCodexTab('hero'); });
+  document.getElementById('codexTabWeapon').addEventListener('click', function () { TCG.sfx('tap'); showCodexTab('weapon'); });
   document.getElementById('heroColGrid').addEventListener('click', function (e) {
     var c = e.target.closest('.col-card'); if (!c) return;
     var d = HW_BY_ID[c.dataset.id]; if (!d) return;
@@ -375,10 +386,8 @@
       '<br><span class="cd-sub">' + w.desc + '</span><br><span class="cd-path">획득 경로: ' + weaponPath(w) + '</span>';
     TCG.sfx('tap');
   });
-  document.getElementById('heroColClose').addEventListener('click', function () { document.getElementById('heroColModal').hidden = true; });
-  document.getElementById('weaponColClose').addEventListener('click', function () { document.getElementById('weaponColModal').hidden = true; });
-  document.getElementById('heroColModal').addEventListener('click', function (e) { if (e.target.id === 'heroColModal') e.currentTarget.hidden = true; });
-  document.getElementById('weaponColModal').addEventListener('click', function (e) { if (e.target.id === 'weaponColModal') e.currentTarget.hidden = true; });
+  document.getElementById('codexClose').addEventListener('click', function () { document.getElementById('codexModal').hidden = true; });
+  document.getElementById('codexModal').addEventListener('click', function (e) { if (e.target.id === 'codexModal') e.currentTarget.hidden = true; });
   document.getElementById('restParty').addEventListener('click', onMiniClick);
   function onMiniClick(e) {
     var m = e.target.closest('.mini-hero'); if (!m) return;

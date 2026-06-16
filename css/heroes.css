@@ -636,6 +636,16 @@
 .col-detail .cd-path { color: var(--gold); font-weight: 700; }
 .col-detail .cd-sub { color: var(--ink-dim); }
 
+/* 도감 탭 */
+.codex-tabs { display: flex; gap: 8px; margin-bottom: 10px; }
+.codex-tab {
+  flex: 1; padding: 10px 8px; border-radius: 10px; cursor: pointer;
+  background: rgba(0,0,0,0.28); border: 1px solid rgba(255,255,255,0.12);
+  color: var(--ink-dim); font-weight: 800; font-size: 14px; transition: all .15s;
+}
+.codex-tab:hover { border-color: var(--gold); }
+.codex-tab.active { color: var(--ink); border-color: var(--gold); background: rgba(212,175,55,0.16); }
+
 /* 모드 선택(노멀/하드/극악) */
 .mode-label { font-size: 12px; color: var(--ink-dim); margin: 6px 0 8px; }
 .mode-sel { display: flex; flex-direction: column; gap: 8px; }

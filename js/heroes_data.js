@@ -25,7 +25,7 @@ var HW_HEROES = [
     skill:{ name:'화살비', cost:2, type:'aoe', val:5, target:'allEnemies', desc:'모든 적에게 5 피해' } },
   { id:'monk',   name:'주창',   emoji:'🪓', cls:'전사', rarity:'C', hp:30, atk:7,
     skill:{ name:'난격', cost:1, type:'multi', val:2, target:'enemy', desc:'무작위 적을 2회 공격' } },
-  { id:'warlock',name:'사마의', emoji:'🪶', cls:'책략', rarity:'SSR', hp:38, atk:11,
+  { id:'warlock',name:'사마의', emoji:'🪶', cls:'책략', rarity:'SSR', hp:38, atk:11, exclusive:'raid', raidOf:'cmd_simayi',
     skill:{ name:'화계', cost:3, type:'aoe', val:14, target:'allEnemies', desc:'모든 적에게 14 피해 (총사령관)' } },
   { id:'samurai',name:'관우',   emoji:'🗡️', cls:'전사', rarity:'SSR', hp:40, atk:13,
     skill:{ name:'청룡언월도', cost:2, type:'strike', val:14, target:'enemy', desc:'적 1명에게 공격력+14 피해' } },
@@ -49,17 +49,17 @@ var HW_HEROES = [
   { id:'reaper',  name:'조운',   emoji:'🗡️', cls:'전사', rarity:'SSR', hp:34, atk:14,
     skill:{ name:'단기필마', cost:2, type:'strike', val:16, target:'enemy', desc:'적 1명에게 공격력+16 피해' } },
   // ---- 추가 장수 2차 ----
-  { id:'caocao',   name:'조조',   emoji:'👑', cls:'군주', rarity:'SSR', hp:40, atk:9,
+  { id:'caocao',   name:'조조',   emoji:'👑', cls:'군주', rarity:'SSR', hp:40, atk:9, exclusive:'raid', raidOf:'cmd_caocao',
     skill:{ name:'간웅', cost:3, type:'buff', val:8, target:'ally', desc:'전군 공격력 +8 (전투 동안)' } },
-  { id:'xiahoudun',name:'하후돈', emoji:'⚔️', cls:'전사', rarity:'SSR', hp:44, atk:11,
+  { id:'xiahoudun',name:'하후돈', emoji:'⚔️', cls:'전사', rarity:'SSR', hp:44, atk:11, exclusive:'raid', raidOf:'cmd_xiahoudun',
     skill:{ name:'발시담정', cost:2, type:'strike', val:11, target:'enemy', desc:'적 1명에게 공격력+11 피해' } },
-  { id:'xiahouyuan',name:'하후연',emoji:'🏹', cls:'궁수', rarity:'R', hp:26, atk:7,
+  { id:'xiahouyuan',name:'하후연',emoji:'🏹', cls:'궁수', rarity:'R', hp:26, atk:7, exclusive:'raid', raidOf:'cmd_xiahouyuan',
     skill:{ name:'질풍사격', cost:1, type:'multi', val:3, target:'enemy', desc:'무작위 적을 3회 공격' } },
   { id:'sunce',    name:'손책',   emoji:'🗡️', cls:'전사', rarity:'SR', hp:30, atk:9,
     skill:{ name:'소패왕', cost:2, type:'strike', val:12, target:'enemy', desc:'적 1명에게 공격력+12 피해' } },
   { id:'ganning',  name:'감녕',   emoji:'🏹', cls:'기습', rarity:'R', hp:26, atk:8,
     skill:{ name:'백기겁영', cost:2, type:'strike', val:9, target:'enemy', desc:'적 1명에게 공격력+9 피해' } },
-  { id:'luxun',    name:'육손',   emoji:'🔥', cls:'책략', rarity:'SR', hp:22, atk:6,
+  { id:'luxun',    name:'육손',   emoji:'🔥', cls:'책략', rarity:'SR', hp:22, atk:6, exclusive:'raid', raidOf:'cmd_luxun',
     skill:{ name:'이릉대화', cost:3, type:'aoe', val:9, target:'allEnemies', desc:'모든 적에게 9 피해' } },
   { id:'jiangwei', name:'강유',   emoji:'⚔️', cls:'전사', rarity:'R', hp:32, atk:8,
     skill:{ name:'기산북벌', cost:2, type:'strike', val:8, target:'enemy', desc:'적 1명에게 공격력+8 피해' } },
@@ -108,13 +108,12 @@ var HW_HEROES = [
     skill:{ name:'자오곡 기습', cost:2, type:'strike', val:9, target:'enemy', desc:'적 1명에게 공격력+9 피해' } },
   { id:'hejin',    name:'하진',   emoji:'🛡️', cls:'수호', rarity:'C', hp:40, atk:5,
     skill:{ name:'대장군 위엄', cost:1, type:'shield', val:10, target:'ally', desc:'주공 방어막 +10' } },
-  // ---- 명장(대장전 보스 격파로도 획득 가능한 일반 장수) ----
-  // 기존 로스터에 없던 적장(화웅·원소·사마염)을 일반 장수로 추가. 대장전 보상이자 일반 영입 대상.
-  { id:'huaxiong', name:'화웅', emoji:'🪓', cls:'전사', rarity:'SSR', hp:40, atk:13,
+  // ---- 명장(대장전 전용) — 기존 로스터에 없던 적장을 장수로 추가. 해당 보스 격파로만 획득 ----
+  { id:'huaxiong', name:'화웅', emoji:'🪓', cls:'전사', rarity:'SSR', hp:40, atk:13, exclusive:'raid', raidOf:'cmd_huaxiong',
     skill:{ name:'관문 수장', cost:2, type:'strike', val:14, target:'enemy', desc:'적 1명에게 공격력+14 피해' } },
-  { id:'yuanshao', name:'원소', emoji:'🎌', cls:'군주', rarity:'SSR', hp:44, atk:10,
+  { id:'yuanshao', name:'원소', emoji:'🎌', cls:'군주', rarity:'SSR', hp:44, atk:10, exclusive:'raid', raidOf:'cmd_yuanshao',
     skill:{ name:'사세삼공', cost:3, type:'buff', val:8, target:'ally', desc:'전군 공격력 +8 (전투 동안)' } },
-  { id:'simayan', name:'사마염', emoji:'👑', cls:'군주', rarity:'SSR', hp:48, atk:13,
+  { id:'simayan', name:'사마염', emoji:'👑', cls:'군주', rarity:'SSR', hp:48, atk:13, exclusive:'raid', raidOf:'cmd_simayan',
     skill:{ name:'삼국 통일', cost:3, type:'aoe', val:18, target:'allEnemies', desc:'모든 적에게 18 피해' } }
 ];
 var HW_BY_ID = {};
@@ -207,9 +206,9 @@ HW_WEAPONS.forEach(function (w) { HW_WEAPON_BY_ID[w.id] = w; });
 
 /* Difficulty tuning (상/중/하 — 기본 적 배수) */
 var HW_DIFF = {
-  easy:   { eHp:0.97, eAtk:1.06, gold:1.4, smart:false, startGold:70 },
-  normal: { eHp:1.05, eAtk:1.14, gold:1.0, smart:false, startGold:50 },
-  hard:   { eHp:1.08, eAtk:1.19, gold:0.9, smart:true, startGold:40 }
+  easy:   { eHp:0.95, eAtk:1.04, gold:1.4, smart:false, startGold:70 },
+  normal: { eHp:1.02, eAtk:1.10, gold:1.0, smart:false, startGold:50 },
+  hard:   { eHp:1.05, eAtk:1.14, gold:0.9, smart:true, startGold:40 }
 };
 
 /* 모드(노멀→하드→극악) — 천하통일로 차례로 해금. 위 상/중/하 배수에 곱해 적용.
