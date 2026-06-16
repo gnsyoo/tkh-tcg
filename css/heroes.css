@@ -104,6 +104,9 @@
 .collect-btn:hover { transform: translateY(-2px); border-color: var(--gold); box-shadow: 0 4px 14px rgba(0,0,0,0.35); }
 .collect-btn b { color: var(--gold); margin-left: 4px; }
 
+/* 장수 상세(무기 장착) 모달은 장수/장비 목록 모달 위에 표시 */
+#heroModal { z-index: 120; }
+
 /* 수집한 장수 모달 그리드(스크롤) */
 .roster-grid { max-height: 56vh; overflow-y: auto; padding: 4px; }
 
