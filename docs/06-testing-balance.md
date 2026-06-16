@@ -7,7 +7,7 @@ AI 자가대국으로 **밸런스**를 측정합니다.
 
 - 작은 DOM 스텁을 만들고 `vm`으로 각 엔진 소스를 실행한 뒤,
   `innerHTML`을 정규식으로 읽어 합성 클릭 이벤트로 두 게임을 자동 진행합니다.
-- 두 게임이 **예외 없이 끝까지** 도달하는지 확인(영웅모집은 천하통일 `#creditsModal` 또는 패배 `#overModal`).
+- 두 게임이 **예외 없이 끝까지** 도달하는지 확인(영웅전은 천하통일 `#creditsModal` 또는 패배 `#overModal`).
 
 ```bash
 node /tmp/harness.js
@@ -24,7 +24,7 @@ node /tmp/harness.js
 ## 2. 밸런싱 시뮬레이터 — `scripts/balance.js`
 
 - **히어로즈 블러드**: 노출된 순수 함수(`window.__QB__`)로 AI vs AI 자가대국(수천 판) — 선공 이점·덱 승률.
-- **영웅모집**: 스킬/무기/방어를 사용하는 자동 플레이 봇으로 난이도별 **클리어율·평균 도달층** 측정.
+- **영웅전**: 스킬/무기/방어를 사용하는 자동 플레이 봇으로 난이도별 **클리어율·평균 도달층** 측정.
 
 ```bash
 node scripts/balance.js
@@ -43,7 +43,7 @@ node scripts/balance.js
 
 ## 3. 기능 테스트 — `/tmp/feat-test.js`
 
-- 히어로즈 블러드 덱 빌더, 영웅모집 저장/이어하기 등에 대한 단정(assertion) 16건.
+- 히어로즈 블러드 덱 빌더, 영웅전 저장/이어하기 등에 대한 단정(assertion) 16건.
 
 ```bash
 node /tmp/feat-test.js   # → "16 passed, 0 failed"

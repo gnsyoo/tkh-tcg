@@ -313,7 +313,7 @@
     document.getElementById('confirmEndModal').hidden = false;
   }
 
-  // 결과를 삼국지 영웅모집 골드로 정산: 승리 시 +포인트, 패배 시 -포인트
+  // 결과를 삼국 영웅전 골드로 정산: 승리 시 +포인트, 패배 시 -포인트
   function settleHeroesGold(points, win) {
     var delta = win ? points : -points;
     try {
@@ -322,6 +322,30 @@
     } catch (e) {}
     return delta;
   }
+  // 3연승 시 제갈량(영웅전 전용 해금) 획득. win=true 연승 누적, 아니면 0으로 초기화.
+  // 반환: 이번에 제갈량을 획득했으면 true
+  function updateWinStreak(win) {
+    try {
+      var n = parseInt(localStorage.getItem('qb_winstreak') || '0', 10) || 0;
+      n = win ? n + 1 : 0;
+      var collected = JSON.parse(localStorage.getItem('hw_collected_heroes') || '[]');
+      var has = Array.isArray(collected) && collected.indexOf('oracle') !== -1;
+      if (win && n >= 3 && !has) {
+        var grants = JSON.parse(localStorage.getItem('hw_grant_heroes') || '[]');
+        if (!Array.isArray(grants)) grants = [];
+        if (grants.indexOf('oracle') === -1) grants.push('oracle');
+        localStorage.setItem('hw_grant_heroes', JSON.stringify(grants));
+        if (Array.isArray(collected) && collected.indexOf('oracle') === -1) {
+          collected.push('oracle'); localStorage.setItem('hw_collected_heroes', JSON.stringify(collected));
+        }
+        localStorage.setItem('qb_winstreak', '0'); // 보상 후 초기화
+        return true;
+      }
+      localStorage.setItem('qb_winstreak', String(n));
+    } catch (e) {}
+    return false;
+  }
+  function curStreak() { try { return parseInt(localStorage.getItem('qb_winstreak') || '0', 10) || 0; } catch (e) { return 0; } }
   function endGame() {
     state.over = true;
     var s = scoreOf(state.board);
@@ -329,21 +353,31 @@
     if (s.you > s.foe) {
       title = '🏆 승리!';
       var gw = settleHeroesGold(s.you, true);
-      text = '배치한 카드 무력 총합에서 앞섰습니다.';
+      var gotOracle = updateWinStreak(true);
+      var streak = gotOracle ? 3 : curStreak();
+      text = '배치한 카드 무력 총합에서 앞섰습니다. (연승 ' + streak + ')';
       goldHtml = '<div class="end-gold gain">' +
         '<span class="eg-label">🏅 승리 보상</span>' +
-        '<span class="eg-val">삼국지 영웅모집 골드 <b>+' + gw + '</b></span></div>';
+        '<span class="eg-val">삼국 영웅전 골드 <b>+' + gw + '</b></span></div>';
+      if (gotOracle) {
+        goldHtml += '<div class="end-gold gain"><span class="eg-label">🌟 3연승 달성</span>' +
+          '<span class="eg-val"><b>제갈량</b> 획득! 삼국 영웅전에서 합류합니다</span></div>';
+      } else if (streak < 3) {
+        goldHtml += '<div class="streak-note">🔥 3연승 시 <b>제갈량</b> 획득 (' + streak + '/3)</div>';
+      }
       TCG.sfx('win');
     } else if (s.foe > s.you) {
       title = '😢 패배';
       var gl = settleHeroesGold(s.you, false);
-      text = '상대의 무력 총합이 더 높았습니다.';
+      updateWinStreak(false);
+      text = '상대의 무력 총합이 더 높았습니다. (연승 초기화)';
       goldHtml = '<div class="end-gold loss">' +
         '<span class="eg-label">💸 패배 정산</span>' +
-        '<span class="eg-val">삼국지 영웅모집 골드 <b>' + gl + '</b></span></div>';
+        '<span class="eg-val">삼국 영웅전 골드 <b>' + gl + '</b></span></div>';
       TCG.sfx('lose');
     } else {
       title = '🤝 무승부';
+      updateWinStreak(false);
       text = '무력 총합이 같습니다.';
       goldHtml = '<div class="end-gold draw"><span class="eg-val">골드 정산 없음</span></div>';
     }

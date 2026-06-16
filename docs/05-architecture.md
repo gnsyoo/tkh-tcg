@@ -4,19 +4,21 @@
 
 ```
 index.html              첫 페이지(게임/난이도 선택)
-heroes.html             삼국지 영웅모집
+heroes.html             삼국 영웅전
 queensblood.html        히어로즈 블러드
 css/
   common.css            공통 스타일/변수
   home.css              첫 페이지
-  heroes.css            영웅모집(전투/지도/주공바/무기UI/매혹/엔딩 크레딧 등)
+  heroes.css            영웅전(전투/지도/주공바/무기UI/매혹/엔딩 크레딧 등)
   queensblood.css       히어로즈 블러드(보드/핸드/정산)
 js/
   util.js               공통 헬퍼(TCG 네임스페이스)
   heroes_data.js        장수 50 · 무기 · 유물 · 적 · 적장 · 전역 · 난이도
-  heroes.js             영웅모집 엔진·UI (단일 IIFE)
+  heroes.js             영웅전 엔진·UI (단일 IIFE)
   qb_data.js            히어로즈 블러드 카드 44 · 덱
   queensblood.js        히어로즈 블러드 엔진·UI (단일 IIFE)
+  daejang.js            삼국 대장전(레이드) 엔진·UI — 영웅전 덱(hw_save) 공유
+heroes.html / queensblood.html / daejang.html
 dist/
   play.html             단일 파일 번들(아래 빌드 참고)
 scripts/
@@ -33,7 +35,7 @@ docs/                   이 문서들
 - `shuffle / pick / hue / delay / toast` — 공용 헬퍼.
 - `sfx(name)` / `isMuted()` / `toggleMute()` / `audioResume()` — WebAudio 효과음(음소거 `localStorage['tcg_muted']`).
 
-## 영웅모집 런타임 상태 (`run`)
+## 영웅전 런타임 상태 (`run`)
 
 ```js
 run = {
@@ -69,10 +71,13 @@ run.combat = {
 |----|------|
 | `tcg_difficulty` | 선택 난이도 |
 | `tcg_muted` | 음소거 |
-| `hw_save` | 영웅모집 진행 저장(**v3**) |
-| `hw_bonus_gold` | 히어로즈 블러드 → 영웅모집 정산 골드(누적) |
+| `hw_save` | 영웅전 진행 저장(**v3**) |
+| `hw_bonus_gold` | 히어로즈 블러드 → 영웅전 정산 골드(누적) |
 | `qb_deck` / `qb_rows` | 히어로즈 블러드 사용자 덱(15장) / 판 크기(3·4) |
+| `qb_winstreak` | 히어로즈 블러드 연승(3연승 시 제갈량 획득) |
 | `hw_collected_heroes` / `hw_collected_weapons` | 컬렉션(도감) — 영구 수집 기록 |
+| `hw_grant_heroes` | 다른 모드(QB 연승·대장전)에서 해금된 장수 대기열 → 영웅전이 영입 |
+| `hw_raid_cleared` | 대장전에서 격파한 레이드 보스 키 목록 |
 
 `hw_save`(v3) 필드: `party[{id,atk,uid,weapons[]}]`, `gold, mainStage, subStage, relics[], weapons[], sorties, lordHp, lordMp`.
 QB는 `qb_deck`(덱)·`qb_rows`(판 크기)도 저장.

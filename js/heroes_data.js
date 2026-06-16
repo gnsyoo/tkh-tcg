@@ -1,4 +1,4 @@
-/* ===== 삼국지 영웅모집 — data =====
+/* ===== 삼국 영웅전 — data =====
  * (이름/이모지/테마만 삼국지로. 스탯·스킬·id·밸런스는 추후 장수별로 세팅 예정.)
  * skill.target: 'enemy' | 'allEnemies' | 'lowestAlly' | 'ally' | 'self'
  * skill.type:   'strike'(+val dmg single) | 'aoe'(val to all) | 'multi'(hits N, each = atk)
@@ -29,7 +29,7 @@ var HW_HEROES = [
     skill:{ name:'화계', cost:3, type:'aoe', val:14, target:'allEnemies', desc:'모든 적에게 14 피해 (총사령관)' } },
   { id:'samurai',name:'관우',   emoji:'🗡️', cls:'전사', rarity:'SSR', hp:40, atk:13,
     skill:{ name:'청룡언월도', cost:2, type:'strike', val:14, target:'enemy', desc:'적 1명에게 공격력+14 피해' } },
-  { id:'oracle', name:'제갈량', emoji:'🪶', cls:'책사', rarity:'SSR', hp:34, atk:8,
+  { id:'oracle', name:'제갈량', emoji:'🪶', cls:'책사', rarity:'SSR', hp:34, atk:8, exclusive:'qb',
     skill:{ name:'팔진도', cost:3, type:'heal', val:16, target:'lowestAlly', desc:'주공 16 회복 + 방어막' } },
   // ---- 추가 장수 ----
   { id:'cavalier',name:'마초',   emoji:'🐎', cls:'기마', rarity:'R', hp:34, atk:8,
@@ -107,7 +107,24 @@ var HW_HEROES = [
   { id:'weiyan',   name:'위연',   emoji:'🪓', cls:'전사', rarity:'R', hp:34, atk:9,
     skill:{ name:'자오곡 기습', cost:2, type:'strike', val:9, target:'enemy', desc:'적 1명에게 공격력+9 피해' } },
   { id:'hejin',    name:'하진',   emoji:'🛡️', cls:'수호', rarity:'C', hp:40, atk:5,
-    skill:{ name:'대장군 위엄', cost:1, type:'shield', val:10, target:'ally', desc:'주공 방어막 +10' } }
+    skill:{ name:'대장군 위엄', cost:1, type:'shield', val:10, target:'ally', desc:'주공 방어막 +10' } },
+  // ---- 대장전(레이드) 전용 장수 — 해당 보스 격파로만 획득 가능 (exclusive:'raid') ----
+  { id:'raid_huaxiong', name:'맹장 화웅', emoji:'🪓', cls:'전사', rarity:'SSR', hp:40, atk:13, exclusive:'raid', raidOf:'cmd_huaxiong',
+    skill:{ name:'관문 수장', cost:2, type:'strike', val:14, target:'enemy', desc:'적 1명에게 공격력+14 피해' } },
+  { id:'raid_yuanshao', name:'하북패자 원소', emoji:'🎌', cls:'군주', rarity:'SSR', hp:44, atk:10, exclusive:'raid', raidOf:'cmd_yuanshao',
+    skill:{ name:'사세삼공', cost:3, type:'buff', val:8, target:'ally', desc:'전군 공격력 +8 (전투 동안)' } },
+  { id:'raid_xiahoudun', name:'독안룡 하후돈', emoji:'⚔️', cls:'전사', rarity:'SSR', hp:46, atk:13, exclusive:'raid', raidOf:'cmd_xiahoudun',
+    skill:{ name:'담안투정', cost:2, type:'strike', val:13, target:'enemy', desc:'적 1명에게 공격력+13 피해' } },
+  { id:'raid_caocao', name:'위왕 조조', emoji:'👑', cls:'군주', rarity:'SSR', hp:44, atk:11, exclusive:'raid', raidOf:'cmd_caocao',
+    skill:{ name:'세설신어', cost:3, type:'buff', val:9, target:'ally', desc:'전군 공격력 +9 (전투 동안)' } },
+  { id:'raid_xiahouyuan', name:'신행 하후연', emoji:'🏹', cls:'궁수', rarity:'SSR', hp:38, atk:12, exclusive:'raid', raidOf:'cmd_xiahouyuan',
+    skill:{ name:'질풍연사', cost:2, type:'multi', val:4, target:'enemy', desc:'무작위 적을 4회 공격' } },
+  { id:'raid_luxun', name:'대도독 육손', emoji:'🔥', cls:'책략', rarity:'SSR', hp:36, atk:10, exclusive:'raid', raidOf:'cmd_luxun',
+    skill:{ name:'이릉 연환화', cost:3, type:'aoe', val:13, target:'allEnemies', desc:'모든 적에게 13 피해' } },
+  { id:'raid_simayi', name:'총사령관 사마의', emoji:'🪶', cls:'책략', rarity:'SSR', hp:42, atk:12, exclusive:'raid', raidOf:'cmd_simayi',
+    skill:{ name:'천하 공략', cost:3, type:'aoe', val:16, target:'allEnemies', desc:'모든 적에게 16 피해' } },
+  { id:'raid_simayan', name:'진 무제 사마염', emoji:'👑', cls:'군주', rarity:'SSR', hp:48, atk:13, exclusive:'raid', raidOf:'cmd_simayan',
+    skill:{ name:'삼국 통일', cost:3, type:'aoe', val:18, target:'allEnemies', desc:'모든 적에게 18 피해' } }
 ];
 var HW_BY_ID = {};
 HW_HEROES.forEach(function (h) { HW_BY_ID[h.id] = h; });
@@ -173,7 +190,21 @@ var HW_WEAPONS = [
   { id:'cixiong',  name:'자웅일대검', emoji:'⚔️', desc:'치명타 확률 +10%',           effect:{ crit:0.10 } },
   { id:'yuxi',     name:'전국옥새',   emoji:'🟨', desc:'주공 최대 HP +60',           effect:{ lordHp:60 } },
   { id:'sunzi',    name:'손자병법',   emoji:'📜', desc:'주공 최대 MP +20',           effect:{ lordMp:20 } },
-  { id:'guanyu',   name:'한수정후인', emoji:'🟥', desc:'주공 최대 HP +30, MP +10',   effect:{ lordHp:30, lordMp:10 } }
+  { id:'guanyu',   name:'한수정후인', emoji:'🟥', desc:'주공 최대 HP +30, MP +10',   effect:{ lordHp:30, lordMp:10 } },
+  // ---- 추가 장비 (총 25종) ----
+  { id:'gufeng',   name:'고정도',     emoji:'🔪', desc:'장착 장수 공격력 +6',        effect:{ atk:6 } },
+  { id:'hanblood', name:'한혈보도',   emoji:'⚔️', desc:'장착 장수 공격력 +7',        effect:{ atk:7 } },
+  { id:'sanjian',  name:'삼첨양인도', emoji:'🔱', desc:'공격력 +4, 치명타 +4%',     effect:{ atk:4, crit:0.04 } },
+  { id:'huaji',    name:'화극(畵戟)', emoji:'🗡️', desc:'공격력 +3, 기본 공격 2회',  effect:{ atk:3, doubleStrike:true } },
+  { id:'qiangbow', name:'양유기 강궁',emoji:'🏹', desc:'기본 공격 2회 + 치명타 +3%', effect:{ doubleStrike:true, crit:0.03 } },
+  { id:'liannu',   name:'제갈연노',   emoji:'🎯', desc:'공격 시 적에게 독 +4',        effect:{ poison:4 } },
+  { id:'qibao',    name:'칠보도',     emoji:'🗡️', desc:'공격력 +2, 독 +2',           effect:{ atk:2, poison:2 } },
+  { id:'tiebian',  name:'철편(鐵鞭)', emoji:'🏏', desc:'공격력 +5, 주공 최대 HP +20', effect:{ atk:5, lordHp:20 } },
+  { id:'huanshou', name:'환수도',     emoji:'🗡️', desc:'공격력 +3, 치명타 +5%',     effect:{ atk:3, crit:0.05 } },
+  { id:'baiyu',    name:'백우선',     emoji:'🪭', desc:'주공 최대 MP +30',           effect:{ lordMp:30 } },
+  { id:'tongque',  name:'동작대 보패', emoji:'🏯', desc:'주공 최대 HP +50, MP +15',  effect:{ lordHp:50, lordMp:15 } },
+  { id:'liutao',   name:'육도삼략',   emoji:'📚', desc:'주공 최대 MP +25, 치명타 +3%', effect:{ lordMp:25, crit:0.03 } },
+  { id:'dunjia',   name:'둔갑천서',   emoji:'📗', desc:'주공 HP +40, MP +20, 치명타 +5%', effect:{ lordHp:40, lordMp:20, crit:0.05 } }
 ];
 var HW_WEAPON_BY_ID = {};
 HW_WEAPONS.forEach(function (w) { HW_WEAPON_BY_ID[w.id] = w; });
@@ -182,7 +213,7 @@ HW_WEAPONS.forEach(function (w) { HW_WEAPON_BY_ID[w.id] = w; });
 var HW_DIFF = {
   easy:   { eHp:0.97, eAtk:1.06, gold:1.4, smart:false, startGold:70 },
   normal: { eHp:1.05, eAtk:1.14, gold:1.0, smart:false, startGold:50 },
-  hard:   { eHp:1.09, eAtk:1.22, gold:0.9, smart:true, startGold:40 }
+  hard:   { eHp:1.08, eAtk:1.19, gold:0.9, smart:true, startGold:40 }
 };
 
 /* 적장(스테이지 보스) — 스테이지 진행에 따라 난이도 가산 */
@@ -209,3 +240,20 @@ var HW_STAGES = [
   { name:'제갈량의 북벌', year:'228~234년', desc:'촉의 제갈량이 위를 향해 거듭 북벌에 나섬', boss:'cmd_simayi',   adds:3, reward:'relic' },
   { name:'위·촉·오 멸망', year:'263~280년', desc:'사마염이 진(晉)을 세워 천하를 통일', boss:'cmd_simayan',  adds:2, reward:'final' }
 ];
+
+/* 삼국 대장전(레이드) — 영웅전 스테이지 보스가 거대 HP로 등장. 격파 시 전용 장수 획득.
+ * hpMult: 적장 기본 HP 대비 배수, atkMult: 공격 배수, deck: 영웅전 파티 공유 */
+var HW_RAID = {
+  hpMult: 12,
+  atkMult: 1.25,
+  bosses: [
+    { key:'cmd_huaxiong',   reward:'raid_huaxiong',   title:'관문의 맹장' },
+    { key:'cmd_yuanshao',   reward:'raid_yuanshao',   title:'하북의 패자' },
+    { key:'cmd_xiahoudun',  reward:'raid_xiahoudun',  title:'위의 독안룡' },
+    { key:'cmd_caocao',     reward:'raid_caocao',     title:'난세의 간웅' },
+    { key:'cmd_xiahouyuan', reward:'raid_xiahouyuan', title:'질풍의 명궁' },
+    { key:'cmd_luxun',      reward:'raid_luxun',      title:'이릉의 대도독' },
+    { key:'cmd_simayi',     reward:'raid_simayi',     title:'위의 총사령관' },
+    { key:'cmd_simayan',    reward:'raid_simayan',    title:'진(晉)의 무제' }
+  ]
+};

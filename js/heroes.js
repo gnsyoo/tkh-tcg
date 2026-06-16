@@ -160,8 +160,32 @@
       }
     } catch (e) {}
   }
+  // 다른 모드(히어로즈 블러드 3연승=제갈량, 대장전 보스 격파=전용 장수)에서 해금된 장수를 영입
+  function applyPendingGrants() {
+    try {
+      var raw = localStorage.getItem('hw_grant_heroes');
+      var list = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(list) || !list.length) return;
+      var remaining = [];
+      list.forEach(function (id) {
+        if (!HW_BY_ID[id]) return;
+        if (collectedHeroes.indexOf(id) === -1) collectedHeroes.push(id);
+        if (run.party.some(function (h) { return h.def.id === id; })) return; // 이미 파티에 있음
+        if (run.party.length < MAX_PARTY) {
+          run.party.push(mkHero(id));
+          TCG.toast('특별 영입: ' + HW_BY_ID[id].name + ' 합류!');
+        } else {
+          remaining.push(id);
+          TCG.toast(HW_BY_ID[id].name + ' 영입 대기 (파티가 가득 찼습니다)');
+        }
+      });
+      localStorage.setItem('hw_grant_heroes', JSON.stringify(remaining));
+      localStorage.setItem('hw_collected_heroes', JSON.stringify(collectedHeroes));
+    } catch (e) {}
+  }
   function showMap() {
     applyBonusGold();
+    applyPendingGrants();
     updateTop();
     renderCampaign();
     show('mapScreen');
@@ -859,7 +883,7 @@
     if (mode === 'hero') {
       // 이미 보유한 장수는 중복으로 제시하지 않음
       var have = ownedHeroIds();
-      var hpool = TCG.shuffle(HW_HEROES.filter(function (d) { return have.indexOf(d.id) === -1; })).slice(0, 3);
+      var hpool = TCG.shuffle(HW_HEROES.filter(function (d) { return !d.exclusive && have.indexOf(d.id) === -1; })).slice(0, 3);
       if (!hpool.length) { showReward('weapon', gold); return; } // 모두 보유 → 보물로 대체
       document.getElementById('rewardSub').textContent = '영입할 영웅 카드를 선택하세요 (중복 없음)';
       box.innerHTML = hpool.map(function (d) { return heroRewardCard(d); }).join('');
@@ -962,7 +986,7 @@
   /* ---------- SHOP ---------- */
   function showShop() {
     var have = ownedHeroIds();
-    var heroPool = TCG.shuffle(HW_HEROES.filter(function (d) { return have.indexOf(d.id) === -1; })).slice(0, 2);
+    var heroPool = TCG.shuffle(HW_HEROES.filter(function (d) { return !d.exclusive && have.indexOf(d.id) === -1; })).slice(0, 2);
     var wpnPick = TCG.pick(HW_WEAPONS);
     run.shop = [];
     if (heroPool[0]) run.shop.push({ kind: 'hero', def: heroPool[0], cost: 35, sold: false });
@@ -1051,7 +1075,7 @@
     var roll = document.getElementById('creditsRoll');
     roll.innerHTML =
       '<div class="cr-block cr-big">👑 천하통일</div>' +
-      '<div class="cr-block cr-sub">— 삼국지 영웅모집 —</div>' +
+      '<div class="cr-block cr-sub">— 삼국 영웅전 —</div>' +
       '<div class="cr-block cr-story">8개의 역사 전역을 모두 평정하고<br>주공께서 마침내 <b>천하를 통일</b>하셨습니다.<br><br>위·촉·오를 아우른 영웅들이<br>주공의 이름 아래 환호합니다.</div>' +
       '<div class="cr-h">— 평정한 전역 —</div>' +
       '<div class="cr-list">' + st + '</div>' +

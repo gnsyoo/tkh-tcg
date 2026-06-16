@@ -590,3 +590,31 @@
   display: flex; gap: 10px; justify-content: center; padding: 14px;
   background: rgba(0,0,0,0.35); width: 100%; max-width: 560px; box-sizing: border-box;
 }
+
+/* ===== 삼국 대장전(레이드) 선택 화면 ===== */
+.raid-list { display: flex; flex-direction: column; gap: 12px; }
+.raid-card {
+  background: var(--panel); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 8px;
+}
+.raid-card.done { border-color: rgba(91,184,122,0.45); }
+.raid-boss { display: flex; align-items: center; gap: 12px; position: relative; }
+.raid-boss .raid-art { width: 52px; height: 52px; flex: 0 0 auto; border-radius: 12px; }
+.raid-boss .raid-art .p-emoji { font-size: 32px; }
+.raid-bossinfo { display: flex; flex-direction: column; line-height: 1.25; }
+.raid-bossinfo b { font-size: 16px; }
+.raid-bossinfo small { font-size: 11px; color: var(--ink-dim); }
+.raid-clear { margin-left: auto; font-size: 12px; font-weight: 800; color: var(--green); white-space: nowrap; }
+.raid-reward { font-size: 12px; color: var(--ink); background: rgba(0,0,0,0.22); border-radius: 8px; padding: 6px 10px; }
+.raid-reward b { color: var(--gold); }
+.raid-reward.locked { color: var(--ink-dim); }
+.raid-reward .raid-owned { color: var(--green); font-weight: 800; margin-left: 4px; }
+.raid-go { align-self: stretch; }
+.raid-result-rew { margin: 8px 0; font-size: 14px; line-height: 1.6; }
+.raid-result-rew b { color: var(--gold); }
+.raid-result-rew.owned { color: var(--ink-dim); }
+/* 레이드 보스는 크게 표시 */
+.unit.raid-boss-unit { width: clamp(150px, 60vw, 230px); }
+.unit.raid-boss-unit .portrait { height: 88px; }
+.unit.raid-boss-unit .portrait .p-emoji { font-size: 64px; }
+.unit.raid-boss-unit .u-name { font-size: 14px; }

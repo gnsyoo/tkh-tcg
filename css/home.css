@@ -84,6 +84,7 @@
 }
 .game-card.heroes::before { background: radial-gradient(circle at 50% 0%, #e0483f, transparent 70%); }
 .game-card.queens::before { background: radial-gradient(circle at 50% 0%, #f0c33c, transparent 70%); }
+.game-card.raid::before { background: radial-gradient(circle at 50% 0%, #9b5de5, transparent 70%); }
 .game-card > * { position: relative; z-index: 1; }
 .game-card:hover {
   transform: translateY(-4px);
