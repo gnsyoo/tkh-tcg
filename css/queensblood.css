@@ -60,7 +60,7 @@
 /* Board grid: ROWS rows x 5 cols, score gutter each side. 너비는 JS(fitBoard)가 가용 높이에 맞춰 설정 */
 .board-wrap {
   width: 100%; flex: 1 1 auto; min-height: 0;
-  display: flex; align-items: center; justify-content: center; overflow: hidden;
+  display: flex; align-items: safe center; justify-content: safe center; overflow: auto;
 }
 .board {
   display: grid;
@@ -153,6 +153,18 @@
 .turn-ind { font-weight: 800; font-size: 14px; color: var(--gold); }
 .turn-ind.foe-turn { color: var(--foe); }
 .spacer { flex: 1; }
+
+/* 보드 확대/축소 */
+.zoom-ctrl { display: inline-flex; gap: 4px; align-items: center; margin-right: 6px; }
+.zoom-ctrl button {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: var(--panel); color: var(--ink);
+  border: 1px solid rgba(255,255,255,0.18);
+  font-size: 16px; font-weight: 900; line-height: 1; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.zoom-ctrl button:hover { border-color: var(--gold); color: var(--gold); }
+.zoom-ctrl button:active { transform: translateY(1px); }
 
 /* Hand */
 .hand {

@@ -420,7 +420,19 @@
     boardEl.innerHTML = html;
   }
 
-  // 보드 너비를 가용 높이에 맞춰 줄여, 보드와 손패가 한 화면에 모두 보이게 한다
+  // 자동 맞춤 너비(줌 1.0 기준) + 사용자 확대/축소 배율
+  var fittedW = 0;
+  var userZoom = parseFloat(lsGet('qb_zoom'));
+  if (!(userZoom > 0)) userZoom = 1;
+  userZoom = Math.max(0.3, Math.min(1.6, userZoom));
+
+  function applyZoom() {
+    if (!boardEl) return;
+    var base = fittedW;
+    if (!base) { var wrap = boardEl.parentNode; base = (wrap && wrap.clientWidth) ? wrap.clientWidth : 360; }
+    boardEl.style.width = Math.round(base * userZoom) + 'px';
+  }
+  // 보드 너비를 가용 높이에 맞춰 줄여(줌 1.0 기준 fittedW), 이후 사용자 배율 적용
   function fitBoard() {
     var wrap = boardEl && boardEl.parentNode;
     if (!wrap || !wrap.clientWidth) return;
@@ -434,21 +446,34 @@
       var winAvail = window.innerHeight - top - handH - 14;
       if (winAvail > 60 && (!availH || winAvail < availH)) availH = winAvail;
     }
-    if (!availH || availH < 60) return;
+    if (!availH || availH < 60) { fittedW = availW; applyZoom(); return; }
     var w = availW;
     boardEl.style.width = w + 'px';
     for (var i = 0; i < 5; i++) {
       var h = boardEl.offsetHeight;
       if (!h || h <= availH) break;
       w = Math.floor(w * (availH / h) * 0.99); // 높이에 맞춰 너비 축소(가로세로 비 유지)
-      if (w < 120) { w = 120; boardEl.style.width = w + 'px'; break; }
+      if (w < 120) { w = 120; break; }
       boardEl.style.width = w + 'px';
     }
+    fittedW = w;
+    applyZoom();
+  }
+  function setZoom(z) {
+    userZoom = Math.max(0.3, Math.min(1.6, Math.round(z * 100) / 100));
+    lsSet('qb_zoom', String(userZoom));
+    applyZoom();
   }
   function scheduleFit() {
     if (typeof setTimeout !== 'function') return;
     setTimeout(fitBoard, 0); setTimeout(fitBoard, 80); setTimeout(fitBoard, 240);
   }
+  (function wireZoom() {
+    var zi = document.getElementById('zoomIn'), zo = document.getElementById('zoomOut'), zf = document.getElementById('zoomFit');
+    if (zi) zi.addEventListener('click', function () { TCG.sfx('tap'); setZoom(userZoom + 0.1); });
+    if (zo) zo.addEventListener('click', function () { TCG.sfx('tap'); setZoom(userZoom - 0.1); });
+    if (zf) zf.addEventListener('click', function () { TCG.sfx('tap'); userZoom = 1; lsSet('qb_zoom', '1'); fitBoard(); });
+  })();
   if (typeof window !== 'undefined' && window.addEventListener) {
     window.addEventListener('resize', fitBoard);
     window.addEventListener('orientationchange', function () { setTimeout(fitBoard, 120); });
