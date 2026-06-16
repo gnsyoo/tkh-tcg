@@ -618,3 +618,8 @@
 .unit.raid-boss-unit .portrait { height: 88px; }
 .unit.raid-boss-unit .portrait .p-emoji { font-size: 64px; }
 .unit.raid-boss-unit .u-name { font-size: 14px; }
+
+/* 대장전 순차 잠금 */
+.raid-card.locked { opacity: 0.72; }
+.raid-card.locked .raid-art { filter: grayscale(1) brightness(0.5); }
+.raid-lock { margin-left: auto; font-size: 16px; color: var(--ink-dim); }

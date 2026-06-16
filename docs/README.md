@@ -9,7 +9,7 @@
 | [02-heroes-game.md](02-heroes-game.md) | **삼국 영웅전** — 주공/MP/무기/매혹/스테이지/보상/엔딩 등 전체 규칙 |
 | [08-daejang-raid.md](08-daejang-raid.md) | **삼국 대장전** — 레이드 보스전(영웅전 덱 공유)·전용 장수 |
 | [03-queensblood-game.md](03-queensblood-game.md) | **히어로즈 블러드** — 보드/폰/정산/패스/골드 연동/덱빌더/AI |
-| [04-data-reference.md](04-data-reference.md) | 데이터 레퍼런스 — 장수 50종, 무기, 유물, 적, 적장, 전역, 난이도 표 |
+| [04-data-reference.md](04-data-reference.md) | 데이터 레퍼런스 — 장수 58종, 무기 25, 유물, 적, 적장, 전역, 난이도 표 |
 | [05-architecture.md](05-architecture.md) | 코드 구조 · 저장 포맷 · 공용 유틸 · FX · 번들 · 배포 |
 | [06-testing-balance.md](06-testing-balance.md) | 헤드리스 검증 하니스 · 밸런싱 시뮬레이터 · 기능 테스트 |
 | [07-changelog.md](07-changelog.md) | 구현 변경 이력(주요 마일스톤) |

@@ -68,23 +68,32 @@
       var rew = HW_BY_ID[b.reward];
       var done = isCleared(b.key);
       var got = collected(b.reward);
+      // 순차 진행: 첫 보스이거나 이전 보스를 격파해야 도전 가능
+      var unlocked = (i === 0) || isCleared(HW_RAID.bosses[i - 1].key);
       var hp = Math.round(cmd.hp * HW_RAID.hpMult);
-      return '<div class="raid-card' + (done ? ' done' : '') + '" data-i="' + i + '">' +
+      var badge = done ? '<span class="raid-clear">✔ 격파</span>' : (unlocked ? '' : '<span class="raid-lock">🔒</span>');
+      var btn = unlocked
+        ? '<button class="camp-btn primary raid-go" data-i="' + i + '">⚔️ ' + (done ? '재도전' : '도전') + '</button>'
+        : '<button class="camp-btn raid-go" data-i="' + i + '" disabled>🔒 이전 보스 격파 필요</button>';
+      return '<div class="raid-card' + (done ? ' done' : '') + (unlocked ? '' : ' locked') + '" data-i="' + i + '">' +
         '<div class="raid-boss">' + TCG.portrait(cmd.emoji, b.key, 'raid-art') +
-          '<div class="raid-bossinfo"><b>' + cmd.name + '</b><small>' + b.title + ' · ❤ ' + hp + (cmd.aoe ? ' · 광역' : '') + '</small></div>' +
-          (done ? '<span class="raid-clear">✔ 격파</span>' : '') +
+          '<div class="raid-bossinfo"><b>' + (unlocked ? cmd.name : '???') + '</b><small>' + b.title + ' · ❤ ' + hp + (cmd.aoe ? ' · 광역' : '') + '</small></div>' +
+          badge +
         '</div>' +
-        '<div class="raid-reward' + (got ? '' : ' locked') + '">🎁 보상 장수: <b>' + rew.name + '</b> <span class="rar-' + rew.rarity + '">' + rew.rarity + '</span>' + (got ? ' <span class="raid-owned">보유</span>' : '') + '</div>' +
-        '<button class="camp-btn primary raid-go" data-i="' + i + '">⚔️ ' + (done ? '재도전' : '도전') + '</button>' +
+        '<div class="raid-reward' + (got ? '' : ' locked') + '">🎁 보상 장수: <b>' + (unlocked ? rew.name : '???') + '</b> <span class="rar-' + rew.rarity + '">' + rew.rarity + '</span>' + (got ? ' <span class="raid-owned">보유</span>' : '') + '</div>' +
+        btn +
         '</div>';
     }).join('');
     document.getElementById('raidList').innerHTML = html;
     show('selectScreen');
   }
+  function raidUnlocked(i) { return (i === 0) || isCleared(HW_RAID.bosses[i - 1].key); }
   document.getElementById('raidList').addEventListener('click', function (e) {
-    var btn = e.target.closest('.raid-go'); if (!btn) return;
+    var btn = e.target.closest('.raid-go'); if (!btn || btn.disabled) return;
+    var i = parseInt(btn.dataset.i, 10);
+    if (!raidUnlocked(i)) { TCG.toast('이전 보스를 먼저 격파하세요'); return; }
     TCG.sfx('tap');
-    startRaid(parseInt(btn.dataset.i, 10));
+    startRaid(i);
   });
 
   /* ---------- combat ---------- */
