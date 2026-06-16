@@ -112,17 +112,22 @@ var TCG = (function () {
     var toggle = document.getElementById('fmToggle');
     var panel = document.getElementById('fmPanel');
     if (!toggle || !panel) return;
-    function setOpen(open) {
-      panel.hidden = !open;
+    var open = false;
+    if (panel.removeAttribute) panel.removeAttribute('hidden'); // hidden 속성 대신 클래스로만 제어
+    function setOpen(v) {
+      open = !!v;
+      if (panel.classList) panel.classList.toggle('fm-open', open);
       if (toggle.classList) toggle.classList.toggle('open', open);
       toggle.textContent = open ? '✕' : '☰';
     }
+    setOpen(false);
     toggle.addEventListener('click', function (e) {
       if (e.stopPropagation) e.stopPropagation();
-      setOpen(panel.hidden);
+      if (e.preventDefault) e.preventDefault();
+      setOpen(!open);
     });
     document.addEventListener('click', function (e) {
-      if (panel.hidden) return;
+      if (!open) return;
       if (e.target && e.target.closest && e.target.closest('#floatMenu')) return;
       setOpen(false);
     });
