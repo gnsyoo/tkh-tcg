@@ -3,7 +3,7 @@
   var diff = TCG.getDifficulty();
   var DCFG = HW_DIFF[diff];
   var MAX_PARTY = 30; // 파티(=카드 덱)에 모집해 넣을 수 있는 최대 장수 수
-  var SUB_COUNT = 12; // 메인 스테이지 1개당 서브 스테이지 수 (마지막은 적장 보스전)
+  var SUB_COUNT = 11; // 메인 스테이지 1개당 출전 수 (11번째=적장 보스, 5·10번째=중간보스)
   var run = null;
 
   /* ---------- helpers ---------- */
@@ -24,7 +24,7 @@
   function heroWpns(h) { return heroWpnIds(h).map(function (id) { return HW_WEAPON_BY_ID[id]; }).filter(Boolean); }
   function wpnVal(h, key) { return heroWpns(h).reduce(function (s, w) { return s + (w.effect[key] || 0); }, 0); }
   function hasWpnFlag(h, key) { return heroWpns(h).some(function (w) { return !!w.effect[key]; }); }
-  function effAtk(h) { return h.atk + wpnVal(h, 'atk') + (run.combat ? (run.combat.atkBuff || 0) : 0); }
+  function effAtk(h) { return h.atk + wpnVal(h, 'atk') + (run.combat ? (run.combat.atkBuff || 0) + ((run.combat.tempAtk && run.combat.tempAtk.turns > 0) ? run.combat.tempAtk.val : 0) : 0); }
   function lordMaxHp() { return HW_LORD.hp + run.party.reduce(function (s, h) { return s + wpnVal(h, 'lordHp'); }, 0); }
   function lordMaxMp() { return HW_LORD.mp + run.party.reduce(function (s, h) { return s + wpnVal(h, 'lordMp'); }, 0); }
   function lordEvade() { return Math.min(0.6, run.party.reduce(function (s, h) { return s + wpnVal(h, 'evade'); }, 0)); } // 회피(무기 합산, 최대 60%)
@@ -57,7 +57,7 @@
     document.getElementById('floorPill').textContent = st
       ? (md.emoji + ' ' + (run.mainStage + 1) + '/' + HW_STAGES.length + ' ' + st.name + ' · ' + (run.subStage + 1) + '/' + SUB_COUNT)
       : '천하통일';
-    document.getElementById('diffPill').textContent = md.label + ' · 난이도 ' + TCG.diffLabel(diff);
+    var dp = document.getElementById('diffPill'); if (dp) dp.textContent = md.emoji + ' ' + md.label;
   }
 
   /* ---------- collection (도감, 모험과 무관하게 영구 보존) ---------- */
@@ -90,7 +90,7 @@
         party: run.party.map(function (h) { return { id: h.def.id, atk: h.atk, uid: h.uid, weapons: heroWpnIds(h).slice() }; }),
         gold: run.gold, mainStage: run.mainStage, subStage: run.subStage,
         relics: run.relics.map(function (r) { return r.id; }),
-        weapons: run.weapons.slice(), sorties: run.sorties || 0,
+        weapons: run.weapons.slice(), items: (run.items || []).slice(), sorties: run.sorties || 0,
         lordHp: run.lordHp, lordMp: run.lordMp, mode: run.mode || 'normal'
       }));
     } catch (e) {}
@@ -119,6 +119,7 @@
       subStage: Math.min(Math.max(0, d.subStage || 0), SUB_COUNT - 1),
       relics: (d.relics || []).map(function (id) { return relicById[id]; }).filter(Boolean),
       weapons: (d.weapons || []).filter(function (id) { return HW_WEAPON_BY_ID[id]; }),
+      items: (d.items || []).filter(function (id) { return HW_CONS_BY_ID[id]; }).slice(0, HW_ITEM_MAX),
       sorties: d.sorties || 0,
       stageShopped: false, combat: null
     };
@@ -136,7 +137,7 @@
   /* ---------- run lifecycle ---------- */
   function newRun(mode) {
     clearSave();
-    run = { party: HW_STARTERS.map(mkHero), gold: DCFG.startGold, mainStage: 0, subStage: 0, relics: [], weapons: [], sorties: 0, stageShopped: false, combat: null };
+    run = { party: HW_STARTERS.map(mkHero), gold: DCFG.startGold, mainStage: 0, subStage: 0, relics: [], weapons: [], items: [], sorties: 0, stageShopped: false, combat: null };
     run.mode = (HW_MODES[mode] && isModeUnlocked(mode)) ? mode : 'normal';
     run.lordHp = lordMaxHp(); // 주공 HP는 모험 내내 유지(스테이지마다 일부 회복)
     run.lordMp = lordMaxMp(); // 주공 MP도 모험 내내 유지(전투 시작 시 10% 회복)
@@ -230,7 +231,8 @@
     var dots = '';
     for (var i = 0; i < SUB_COUNT; i++) {
       var dc = i < s ? ' done' : (i === s ? ' current' : '');
-      dots += '<span class="sub-dot' + dc + (i === SUB_COUNT - 1 ? ' boss' : '') + '"></span>';
+      var isMidDot = (i === 4 || i === 9);
+      dots += '<span class="sub-dot' + dc + (i === SUB_COUNT - 1 ? ' boss' : (isMidDot ? ' mid' : '')) + '">' + (isMidDot ? '⚜' : (i === SUB_COUNT - 1 ? '👑' : '')) + '</span>';
     }
     var battleLabel = isBoss ? ('👑 적장 ' + HW_COMMANDERS[st.boss].name + ' 토벌') : ('⚔️ 출진 (' + (s + 1) + '/' + SUB_COUNT + ')');
     var html =
@@ -420,14 +422,20 @@
     var md = HW_MODES[run.mode] || HW_MODES.normal; // 노멀/하드/극악
     var hpM = DCFG.eHp * (1 + prog * 0.020) * md.hpMult;          // 모드: 모든 적 HP 배수
     var atkM = DCFG.eAtk * (1 + prog * 0.007);
-    function inst(d, boss) {
-      var hp = Math.round(d.hp * hpM);
-      var atk = Math.max(1, Math.round(d.atk * atkM * (boss ? md.bossAtkMult : 1))); // 모드: 적장 공격 배수
-      var e = { def: d, name: d.name, emoji: d.emoji, maxHp: hp, hp: hp,
-        atk: atk, aoe: !!d.aoe, boss: !!boss, crit: (boss ? md.bossCrit : BASE_CRIT), block: 0, intent: null };
+    var isMid = (sub === 4 || sub === 9); // 5·10번째 출전 = 중간보스
+    function inst(d, boss, mid) {
+      var hpx = mid ? HW_MID.hpMult : 1, atkx = mid ? HW_MID.atkMult : 1;
+      var hp = Math.round(d.hp * hpM * hpx);
+      var atk = Math.max(1, Math.round(d.atk * atkM * (boss ? md.bossAtkMult : 1) * atkx)); // 모드: 적장 공격 배수
+      var e = { def: d, name: (mid ? '⚜ ' + d.name : d.name), emoji: d.emoji, maxHp: hp, hp: hp,
+        atk: atk, aoe: !!d.aoe, boss: !!boss, mid: !!mid, crit: (boss ? md.bossCrit : BASE_CRIT), block: 0, intent: null };
       if (boss && d.hero && HW_BY_ID[d.hero]) { // 적장은 대응 장수의 원래 스킬 + MP 보유
         var bc = HW_BOSS[diff] || HW_BOSS.normal;
         e.skill = HW_BY_ID[d.hero].skill; e.maxMp = bc.mp; e.mp = bc.mp; e.skillChance = bc.skillChance; e.atk0 = atk;
+      }
+      if (mid) { // 중간보스: MP(스테이지별 20~50) + 아군 카드 상태이상 스킬 1종
+        e.midSkill = HW_MID_SKILLS[(main * 2 + (sub === 9 ? 1 : 0)) % HW_MID_SKILLS.length];
+        e.maxMp = Math.min(50, 20 + main * 4); e.mp = e.maxMp; e.skillChance = HW_MID.skillChance;
       }
       return e;
     }
@@ -436,6 +444,9 @@
       out.push(inst(TCG.pick(HW_ENEMIES.basic)));
       out.push(inst(TCG.pick(HW_ENEMIES.basic)));
       out.push(inst(HW_COMMANDERS[st.boss], true)); // 적장
+    } else if (isMid) {
+      out.push(inst(TCG.pick(HW_ENEMIES.basic)));
+      out.push(inst(TCG.pick(HW_ENEMIES.elite), false, true)); // 중간보스
     } else {
       var n = 1 + Math.floor(sub / 4); // 1~3
       for (var i = 0; i < n; i++) {
@@ -461,7 +472,8 @@
       atkBuff: relicSum('startAtk'),
       draw: TCG.shuffle(run.party.map(function (h) { return h.uid; })), // 뽑을 카드 풀(왼쪽) = 보유 장수 전체
       center: [], used: [],                                              // 가운데 3장 / 사용한 풀(오른쪽)
-      sel: null, targeting: false, pending: null, phase: 'player', log: []
+      sel: null, targeting: false, pending: null, phase: 'player', log: [],
+      cstat: {}, sealed: null, sealUsed: false, itemUsed: false, tempAtk: null // 아군 카드 상태이상 / 소모품
     };
     show('combatScreen');
     if (isBoss) {
@@ -477,7 +489,9 @@
   /* ---------- card piles: 뽑을 풀(draw) / 가운데(center,3장) / 사용한 풀(used) ---------- */
   function centerSize() { return 3 + relicSum('energy'); } // 가운데 카드 수 (유물로 증가 가능)
   function heroByUid(uid) { return run.party.find(function (h) { return h.uid === uid; }); }
-  function aliveUid(uid) { return !!heroByUid(uid); } // 장수는 전투 중 죽지 않음(주공만 HP)
+  function aliveUid(uid) { return !!heroByUid(uid) && !(run.combat && run.combat.sealed === uid); } // 봉인(사신)된 카드는 덱에서 제외
+  function cstat(uid) { var c = run.combat; if (!c.cstat) c.cstat = {}; if (!c.cstat[uid]) c.cstat[uid] = { stun: 0, poison: 0, cause: '' }; return c.cstat[uid]; }
+  function cardStunned(uid) { var c = run.combat; return !!(c.cstat && c.cstat[uid] && c.cstat[uid].stun > 0); }
   function cleanPiles() {
     var c = run.combat;
     c.center = c.center.filter(aliveUid); c.draw = c.draw.filter(aliveUid); c.used = c.used.filter(aliveUid);
@@ -506,6 +520,17 @@
     var c = run.combat;
     c.round++;
     if (c.round > 1) c.lord.block = 0; // 라운드 시작 시 주공 블록 초기화(1R은 startBlock 유지)
+    c.itemUsed = false; // 소모성 아이템은 턴당 1개
+    if (c.tempAtk && c.tempAtk.turns > 0) { c.tempAtk.turns--; }
+    // 중독된 아군 카드 → 주공이 턴마다 지속 피해(턴마다 1씩 약화, 해독초로 즉시 해제)
+    if (c.cstat) {
+      var pTot = 0; Object.keys(c.cstat).forEach(function (uid) { if (c.cstat[uid].poison > 0 && heroByUid(uid)) pTot += c.cstat[uid].poison; });
+      if (pTot > 0 && c.round > 1) {
+        c.lord.hp = Math.max(0, c.lord.hp - pTot); fxHitHero(lordEl(), pTot, 0, false); logMsg('중독 — 주공 ' + pTot + ' 피해');
+        Object.keys(c.cstat).forEach(function (uid) { if (c.cstat[uid].poison > 0) c.cstat[uid].poison--; });
+        if (c.lord.hp <= 0) { setTimeout(gameOver, 400); return; }
+      }
+    }
     refillCenter();
     rollIntents();
     c.sel = null; c.targeting = false; c.pending = null;
@@ -583,17 +608,28 @@
   function shake(level) {
     var sc = document.getElementById('combatScreen');
     if (!sc || !sc.classList) return;
-    var cls = level === 'big' ? 'shake-big' : 'shake-sm';
+    var cls = level === 'huge' ? 'shake-huge' : (level === 'big' ? 'shake-big' : 'shake-sm');
     sc.classList.add(cls);
-    setTimeout(function () { sc.classList.remove(cls); }, level === 'big' ? 420 : 240);
+    setTimeout(function () { sc.classList.remove(cls); }, level === 'huge' ? 560 : (level === 'big' ? 420 : 240));
+  }
+  function fxFlash(color) {
+    var layer = fxLayerEl(); if (!layer || typeof document.createElement !== 'function') return;
+    var d = document.createElement('div'); if (!d) return;
+    d.className = 'fx-flash'; if (d.style) d.style.background = color || 'rgba(255,211,77,0.28)';
+    layer.appendChild(d); setTimeout(function () { if (d.remove) d.remove(); }, 300);
+  }
+  function fxCritBoom(x, y) { // 치명타 강조 연출
+    fxRing(x, y, '#ffd34d'); fxRing(x, y, '#fff2b0'); fxBurst(x, y, '#ffd34d');
+    fxParticles(x, y, 18, '#ffe89a'); fxFlash('rgba(255,211,77,0.32)'); shake('huge');
   }
   // impact effect on an enemy at element `el`; physical=slash, else colored burst
   function fxHitEnemy(el, dmg, kind) {
     var p = rectOf(el); if (!p) return;
     if (kind === 'crit') {
-      fxSlash(p.x, p.y); fxBurst(p.x, p.y, '#ffd34d'); fxParticles(p.x, p.y, 11, '#ffe89a');
-      fxFloat(p.x, p.y - 16, '치명타!', '#ffd34d', true);
+      fxSlash(p.x, p.y); fxCritBoom(p.x, p.y);
+      fxFloat(p.x, p.y - 24, '💥 치명타!', '#ffd34d', true);
       fxFloat(p.x, p.y, '-' + dmg, '#ffd34d', true);
+      fxBanner('💥 치명타!', 'crit', 650);
     } else if (kind === 'aoe') { fxBurst(p.x, p.y, '#ff8a4c'); fxParticles(p.x, p.y, 8, '#ffcaa0'); fxFloat(p.x, p.y, '-' + dmg, '#ff9a9a', false); }
     else { fxSlash(p.x, p.y); fxBurst(p.x, p.y, '#ffffff'); fxParticles(p.x, p.y, 7, '#ffc6c6'); fxFloat(p.x, p.y, '-' + dmg, '#ff9a9a', true); }
   }
@@ -602,8 +638,8 @@
     if (blocked) fxFloat(p.x, p.y - 14, '🛡' + blocked, '#9fd2ff');
     if (dmg > 0) {
       fxSlash(p.x, p.y); fxBurst(p.x, p.y, crit ? '#ffd34d' : '#ff6b6b');
-      fxParticles(p.x, p.y, crit ? 10 : 6, crit ? '#ffe89a' : '#ffb0b0');
-      if (crit) fxFloat(p.x, p.y - 16, '치명타!', '#ffd34d', true);
+      if (crit) { fxCritBoom(p.x, p.y); fxFloat(p.x, p.y - 24, '💥 치명타!', '#ffd34d', true); fxBanner('💥 치명타!', 'crit', 650); }
+      else fxParticles(p.x, p.y, 6, '#ffb0b0');
       fxFloat(p.x, p.y, '-' + dmg, crit ? '#ffd34d' : '#ff9a9a', true);
     }
   }
@@ -626,8 +662,10 @@
       var dead = e.hp <= 0;
       var tgt = c.targeting && c.pending && c.pending.side === 'enemy' && !dead;
       var charmed = e.charmed > 0;
-      var intentTxt = charmed ? '💤 매혹' : (e.intent ? (e.intent.type === 'aoe' ? '💥' + e.intent.dmg : '⚔️' + e.intent.dmg) : '');
-      return '<div class="unit enemy' + (dead ? ' dead' : '') + (tgt ? ' targetable' : '') + (charmed ? ' charmed' : '') + '" data-side="enemy" data-idx="' + idx + '">' +
+      var confd = e.confused > 0;
+      var intentTxt = charmed ? '💤 매혹' : (confd ? '💤 혼란' : (e.intent ? (e.intent.type === 'aoe' ? '💥' + e.intent.dmg : '⚔️' + e.intent.dmg) : ''));
+      return '<div class="unit enemy' + (dead ? ' dead' : '') + (tgt ? ' targetable' : '') + ((charmed || confd) ? ' charmed' : '') + (e.boss ? ' is-boss' : '') + (e.mid ? ' is-mid' : '') + '" data-side="enemy" data-idx="' + idx + '">' +
+        (e.mid ? '<div class="u-tag mid">중간보스</div>' : (e.boss ? '<div class="u-tag boss">적장</div>' : '')) +
         (dead ? '' : '<div class="u-intent">' + intentTxt + '</div>') +
         (e.block > 0 ? '<div class="u-block">🛡' + e.block + '</div>' : '') +
         (charmed ? '<div class="u-charm">💗' + e.charmed + '</div>' : '') +
@@ -654,6 +692,7 @@
 
     renderPiles();
     renderActionBar();
+    renderItemBar();
     document.getElementById('endTurnBtn').disabled = (c.phase === 'enemy');
     var hint = document.getElementById('combatHint');
     if (c.phase === 'enemy') hint.textContent = '적이 행동 중…';
@@ -677,12 +716,16 @@
     var centerHtml = c.center.map(function (uid) {
       var h = heroByUid(uid); if (!h) return '';
       var sk = h.def.skill;
+      var st = c.cstat && c.cstat[uid];
+      var stunned = st && st.stun > 0, pois = st && st.poison > 0;
       var sel = c.sel && c.sel.uid === uid && !c.targeting;
-      var cls = 'combat-card' + (sel ? ' selected' : '') + (canAct ? '' : ' unplayable');
+      var cls = 'combat-card' + (sel ? ' selected' : '') + ((canAct && !stunned) ? '' : ' unplayable') + (stunned ? ' stunned' : '');
       var ws = heroWpns(h);
       var wEmoji = ws.map(function (w) { return w.emoji; }).join('');
       var wName = ws.map(function (w) { return w.name; }).join(', ');
-      return '<div class="' + cls + '" data-uid="' + uid + '">' +
+      var badge = (stunned ? '<div class="cc-stun">' + (st.cause === '매혹' ? '💗' : '💫') + '</div>' : '') +
+        (pois ? '<div class="cc-pois">☠' + st.poison + '</div>' : '');
+      return '<div class="' + cls + '" data-uid="' + uid + '">' + badge +
         TCG.portrait(h.def.emoji, h.def.id, 'cc-art') +
         '<div class="cc-name">' + h.def.name + '</div>' +
         '<div class="cc-atk">⚔' + effAtk(h) + '</div>' +
@@ -701,6 +744,37 @@
       usedStack + '<div class="pile-label">사용한 카드 <b>' + c.used.length + '</b></div>';
   }
 
+  function renderItemBar() {
+    var bar = document.getElementById('itemBar'); if (!bar) return;
+    var c = run.combat, items = run.items || [];
+    var used = c && (c.itemUsed || c.phase === 'enemy' || c.targeting);
+    var slots = '';
+    for (var i = 0; i < HW_ITEM_MAX; i++) {
+      var id = items[i], it = id ? HW_CONS_BY_ID[id] : null;
+      if (it) slots += '<button class="item-slot' + (used ? ' used' : '') + '" data-i="' + i + '" title="' + it.name + ' · ' + it.desc + '"><span class="is-emoji">' + it.emoji + '</span></button>';
+      else slots += '<span class="item-slot empty">＋</span>';
+    }
+    bar.innerHTML = slots;
+  }
+  function applyItem(it) {
+    var c = run.combat, L = c.lord;
+    if (it.kind === 'hp') { if (L.hp >= L.maxHp) { TCG.toast('HP가 가득 찼습니다'); return false; } L.hp = Math.min(L.maxHp, L.hp + it.val); fxSupport(lordEl(), '+' + it.val, '#7ef0b5'); logMsg('🧪 회복약 — 주공 HP +' + it.val); }
+    else if (it.kind === 'mp') { if (L.mp >= L.maxMp) { TCG.toast('MP가 가득 찼습니다'); return false; } L.mp = Math.min(L.maxMp, L.mp + it.val); fxSupport(lordEl(), '💧+' + it.val, '#9fd2ff'); logMsg('💧 마력약 — 주공 MP +' + it.val); }
+    else if (it.kind === 'cure_poison') { var n = 0; if (c.cstat) Object.keys(c.cstat).forEach(function (u) { if (c.cstat[u].poison > 0) { c.cstat[u].poison = 0; n++; } }); if (!n) { TCG.toast('중독된 카드가 없습니다'); return false; } logMsg('🌿 해독초 — 중독 ' + n + '장 해제'); }
+    else if (it.kind === 'cure_confuse') { var m = 0; if (c.cstat) Object.keys(c.cstat).forEach(function (u) { if (c.cstat[u].stun > 0) { c.cstat[u].stun = 0; c.cstat[u].cause = ''; m++; } }); if (!m) { TCG.toast('혼란·매혹된 카드가 없습니다'); return false; } logMsg('🔔 안신향 — 혼란/매혹 ' + m + '장 해제'); }
+    else if (it.kind === 'atk') { c.tempAtk = { val: it.val, turns: it.turns }; fxSupport(lordEl(), '⚔+' + it.val, '#ffd86b'); logMsg('🍷 전투주 — ' + it.turns + '턴간 전군 공격력 +' + it.val); }
+    else if (it.kind === 'shield') { L.block += it.val; fxSupport(lordEl(), '🛡+' + it.val, '#9fd2ff', 'shield'); logMsg('🛡️ 철벽부 — 주공 방어막 +' + it.val); }
+    else return false;
+    return true;
+  }
+  document.getElementById('itemBar').addEventListener('click', function (e) {
+    var b = e.target.closest('.item-slot'); if (!b || !b.dataset.i) return;
+    var c = run.combat; if (!c || c.phase === 'enemy' || c.targeting) return;
+    if (c.itemUsed) { TCG.toast('이번 턴에는 이미 아이템을 사용했습니다'); return; }
+    var idx = parseInt(b.dataset.i, 10), it = HW_CONS_BY_ID[run.items[idx]]; if (!it) return;
+    if (!applyItem(it)) return;
+    run.items.splice(idx, 1); c.itemUsed = true; TCG.sfx('heal'); saveRun(); renderCombat();
+  });
   function renderActionBar() {
     var c = run.combat;
     var bar = document.getElementById('actionBar');
@@ -733,6 +807,7 @@
     var c = run.combat; if (!c || c.phase === 'enemy' || c.targeting) return;
     var card = e.target.closest('.combat-card'); if (!card) return;
     var uid = card.dataset.uid;
+    if (cardStunned(uid)) { var cs = c.cstat[uid]; TCG.toast('이 카드는 ' + (cs.cause || '혼란') + ' 상태 — 이번 턴 행동 불능'); return; }
     c.sel = (c.sel && c.sel.uid === uid) ? null : { uid: uid };
     renderCombat();
   });
@@ -746,7 +821,7 @@
     // skill (회복 스킬은 MP 소모 없음, 그 외는 MP 소모)
     var sk = h.def.skill;
     if (sk.type !== 'heal' && c.lord.mp < skillMp(sk)) { TCG.toast('MP가 부족합니다'); return; }
-    if (sk.type === 'strike' || sk.type === 'charm') beginTarget('enemy', 'skill'); // 단일 적 대상
+    if (sk.type === 'strike' || sk.type === 'charm' || sk.type === 'confuse') beginTarget('enemy', 'skill'); // 단일 적 대상
     else doSkill(h, null); // aoe(전체)·multi(무작위)·heal/shield/buff(주공) 자동 처리
   });
   function beginTarget(side, kind) {
@@ -812,6 +887,9 @@
     // 회복 스킬은 MP를 소모하지 않고 오히려 회복시킨다(아래 heal 분기). 그 외 스킬만 MP 소모.
     if (sk.type !== 'heal') c.lord.mp = Math.max(0, c.lord.mp - skillMp(sk));
     TCG.sfx(sk.type === 'heal' ? 'heal' : 'skill');
+    fxBanner('✨ ' + h.def.name + ' 「' + sk.name + '」', 'skill-cast', 1000); // 스킬 발동 강조
+    fxFlash('rgba(150,200,255,0.16)');
+    var hp0 = rectOf(lordEl()); if (hp0) fxRing(hp0.x, hp0.y, '#9fd2ff');
     var pw = effAtk(h);
     if (sk.type === 'strike') {
       dmgEnemy(target, pw + sk.val, enemyEl(c.enemies.indexOf(target))); shake('big');
@@ -848,6 +926,15 @@
         if (cel && cel.classList) cel.classList.add('charmed');
         logMsg(h.def.name + ' 「' + sk.name + '」 ' + target.name + ' ' + sk.val + '턴 매혹');
       }
+    } else if (sk.type === 'confuse') {
+      // 적을 혼란 — 다음 자기 턴 행동 불가
+      if (target && target.hp > 0) {
+        target.confused = (target.confused || 0) + sk.val;
+        var cel2 = enemyEl(c.enemies.indexOf(target));
+        fxSupport(cel2, '💫 혼란', '#c9a8ff');
+        if (cel2 && cel2.classList) cel2.classList.add('charmed');
+        logMsg(h.def.name + ' 「' + sk.name + '」 ' + target.name + ' ' + sk.val + '턴 혼란');
+      }
     }
     finishPlay();
   }
@@ -869,11 +956,13 @@
     var defended = 0, total = 0;
     c.center.slice().forEach(function (uid) {
       var h = heroByUid(uid);
-      if (h) { total += defenseOf(h); defended++; }
+      if (h && !cardStunned(uid)) { total += defenseOf(h); defended++; } // 혼란·매혹 카드는 방어 불가
       c.used.push(uid);
     });
     c.center = [];
     c.sel = null;
+    // 아군 카드 상태이상 시간 감소(혼란·매혹은 이번 턴 지나면 회복)
+    if (c.cstat) Object.keys(c.cstat).forEach(function (uid) { if (c.cstat[uid].stun > 0) { c.cstat[uid].stun--; if (c.cstat[uid].stun <= 0) c.cstat[uid].cause = ''; } });
     if (total) {
       c.lord.block += total;
       fxSupport(lordEl(), '🛡+' + total, '#9fd2ff', 'shield');
@@ -882,6 +971,38 @@
     }
     enemyPhase();
   });
+
+  // 중간보스가 아군 카드(장수)에 상태이상을 부여. 사용 시 true.
+  function enemyMidSkill(e) {
+    var c = run.combat, ms = e.midSkill;
+    function pickUid(excludeStunned) {
+      var pool = c.center.filter(function (u) { return aliveUid(u) && (!excludeStunned || !cardStunned(u)); });
+      if (!pool.length) pool = run.party.map(function (h) { return h.uid; }).filter(function (u) { return aliveUid(u) && (!excludeStunned || !cardStunned(u)); });
+      return pool.length ? TCG.pick(pool) : null;
+    }
+    if (ms.type === 'p_seal' && c.sealUsed) return false; // 봉인은 전투당 1회 — 이미 썼으면 일반 공격
+    e.mp = Math.max(0, e.mp - 3);
+    fxBanner('👹 ' + e.name + ' 「' + ms.name + '」', 'boss', 950);
+    TCG.sfx('skill');
+    if (ms.type === 'p_seal') {
+      var su = pickUid(false); if (!su) { return false; }
+      var sh = heroByUid(su);
+      c.sealed = su; c.sealUsed = true;
+      c.center = c.center.filter(function (u) { return u !== su; });
+      c.draw = c.draw.filter(function (u) { return u !== su; });
+      c.used = c.used.filter(function (u) { return u !== su; });
+      shake('big');
+      logMsg(e.name + ' 「' + ms.name + '」 — ' + (sh ? sh.def.name : '카드') + ' 이번 전투 봉인!');
+    } else {
+      var u = pickUid(ms.type !== 'p_poison'); if (!u) { return false; }
+      var st = cstat(u), hh = heroByUid(u);
+      if (ms.type === 'p_charm') { st.stun = Math.max(st.stun, 1); st.cause = '매혹'; logMsg(e.name + ' 「' + ms.name + '」 — ' + (hh ? hh.def.name : '카드') + ' 매혹(다음 턴 행동 불능)'); }
+      else if (ms.type === 'p_confuse') { st.stun = Math.max(st.stun, 1); st.cause = '혼란'; logMsg(e.name + ' 「' + ms.name + '」 — ' + (hh ? hh.def.name : '카드') + ' 혼란(다음 턴 행동 불능)'); }
+      else if (ms.type === 'p_poison') { st.poison += (ms.val || 4); logMsg(e.name + ' 「' + ms.name + '」 — ' + (hh ? hh.def.name : '카드') + ' 중독 +' + (ms.val || 4)); }
+      shake('sm');
+    }
+    return true;
+  }
 
   // 적장이 대응 장수의 원래 스킬을 사용(주공 대상). 사용 시 true.
   function enemySkill(e) {
@@ -945,15 +1066,18 @@
       }
       var e = foes[step++];
       if (e.hp <= 0) { next(); return; }
-      if (e.charmed > 0) { // 매혹된 적은 이번 턴 쉰다
-        e.charmed--;
-        fxSupport(enemyEl(c.enemies.indexOf(e)), '💤 매혹', '#ff9ad0');
-        logMsg(e.name + ' 매혹되어 행동 불가');
+      if (e.charmed > 0 || e.confused > 0) { // 매혹·혼란된 적은 이번 턴 쉰다
+        var was = e.charmed > 0 ? '매혹' : '혼란';
+        if (e.charmed > 0) e.charmed--; else e.confused--;
+        fxSupport(enemyEl(c.enemies.indexOf(e)), '💤 ' + was, '#ff9ad0');
+        logMsg(e.name + ' ' + was + '되어 행동 불가');
         renderCombat();
         setTimeout(next, 360); return;
       }
-      // 적장은 일정 확률로 대응 장수의 스킬을 사용(MP 충분할 때)
-      var usedSkill = (e.skill && e.mp >= skillMp(e.skill) && Math.random() < (e.skillChance || 0)) ? enemySkill(e) : false;
+      // 적장/중간보스는 일정 확률로 스킬 사용(MP 충분할 때) — 중간보스는 아군 카드에 상태이상
+      var usedSkill = false;
+      if (e.midSkill && e.mp >= 3 && Math.random() < (e.skillChance || 0)) usedSkill = enemyMidSkill(e);
+      else if (e.skill && e.mp >= skillMp(e.skill) && Math.random() < (e.skillChance || 0)) usedSkill = enemySkill(e);
       if (!usedSkill) {
         var intent = e.intent;
         var crit = rollCrit(e.crit != null ? e.crit : BASE_CRIT); // 적장은 모드별 치명타 확률
@@ -979,8 +1103,9 @@
     run.lordMp = Math.min(c.lord.maxMp, c.lord.mp); // MP는 전투에서 남은 대로 유지
     // gold + reward cadence
     var isBoss = c.sub === SUB_COUNT - 1;
+    var isMid = (c.sub === 4 || c.sub === 9);
     var prog = c.main * SUB_COUNT + c.sub;
-    var gold = Math.round((6 + prog * 1.5) * DCFG.gold * ((HW_MODES[run.mode] || HW_MODES.normal).gold));
+    var gold = Math.round((6 + prog * 1.5) * DCFG.gold * ((HW_MODES[run.mode] || HW_MODES.normal).gold) * (isMid ? 1.5 : 1));
     run.gold += gold;
     run.sorties = (run.sorties || 0) + 1; // 누적 출진 횟수
     updateTop();
@@ -989,6 +1114,7 @@
     if (run.sorties === 5 || run.sorties === 10) { showReward('weapon', gold); return; }
     if (isBoss && c.main === HW_STAGES.length - 1) { victory(); return; } // 최종 적장 격파
     if (isBoss) { showReward('relic', gold); return; }      // 메인 적장 처치 → 유물
+    if (isMid) { showReward('hero', gold); return; }        // 중간보스 격파 → 장수 영입
     if ((c.sub + 1) % 4 === 0) { showReward('hero', gold); return; } // 4서브마다 장수 영입
     advanceStage();                                         // 일반 서브 → 바로 다음
   }
@@ -1111,6 +1237,8 @@
     if (heroPool[1]) run.shop.push({ kind: 'hero', def: heroPool[1], cost: 45, sold: false });
     run.shop.push(
       { kind: 'weapon', wid: wpnPick.id, cost: 40, sold: false },
+      { kind: 'item', cid: TCG.pick(HW_CONSUMABLES).id, cost: 22, sold: false }, // 소모성 아이템(랜덤)
+      { kind: 'item', cid: TCG.pick(HW_CONSUMABLES).id, cost: 22, sold: false },
       { kind: 'dujiu', cost: 18, sold: false },   // 두강주: MP 20 회복
       { kind: 'upgrade', cost: 28, sold: false }
     );
@@ -1122,6 +1250,7 @@
       var emoji, name, desc;
       if (it.kind === 'hero') { emoji = it.def.emoji; name = it.def.name; desc = it.def.cls + ' · ⚔' + it.def.atk + ' · 「' + it.def.skill.name + '」'; }
       else if (it.kind === 'weapon') { var w = HW_WEAPON_BY_ID[it.wid]; emoji = w.emoji; name = w.name; desc = w.desc; }
+      else if (it.kind === 'item') { var ci = HW_CONS_BY_ID[it.cid]; emoji = ci.emoji; name = ci.name + ' (소모품)'; desc = ci.desc; }
       else if (it.kind === 'dujiu') { emoji = '🍶'; name = '두강주'; desc = '주공 MP 20 회복'; }
       else { emoji = '⚒️'; name = '무기 강화'; desc = '무작위 영웅 공격력 +3'; }
       var afford = run.gold >= it.cost && !it.sold;
@@ -1142,6 +1271,10 @@
       run.party.push(mkHero(it.def.id));
     } else if (it.kind === 'weapon') {
       run.weapons.push(it.wid); TCG.toast('보물 구입: ' + HW_WEAPON_BY_ID[it.wid].name);
+    } else if (it.kind === 'item') {
+      if (!run.items) run.items = [];
+      if (run.items.length >= HW_ITEM_MAX) { TCG.toast('소모품이 가득 찼습니다 (최대 ' + HW_ITEM_MAX + '개)'); return; }
+      run.items.push(it.cid); TCG.toast('소모품 구입: ' + HW_CONS_BY_ID[it.cid].name);
     } else if (it.kind === 'dujiu') {
       if (typeof run.lordMp !== 'number') run.lordMp = lordMaxMp();
       run.lordMp = Math.min(lordMaxMp(), run.lordMp + 20); TCG.toast('두강주 — 주공 MP 20 회복');

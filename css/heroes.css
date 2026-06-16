@@ -373,6 +373,48 @@
   35% { transform: translate(7px,-4px) rotate(0.4deg); } 55% { transform: translate(-5px,3px); }
   75% { transform: translate(5px,-2px); } 90% { transform: translate(-2px,1px); }
 }
+#combatScreen.shake-huge { animation: shakeHuge 0.56s cubic-bezier(.36,.07,.19,.97); }
+@keyframes shakeHuge {
+  0%,100% { transform: translate(0,0) scale(1); }
+  10% { transform: translate(-12px,7px) rotate(-1deg) scale(1.015); }
+  30% { transform: translate(13px,-8px) rotate(1deg) scale(1.02); }
+  50% { transform: translate(-10px,6px) rotate(-0.7deg); }
+  70% { transform: translate(9px,-5px) scale(1.01); } 88% { transform: translate(-4px,2px); }
+}
+/* 치명타/스킬 화면 플래시 */
+.fx-flash { position: absolute; inset: 0; pointer-events: none; z-index: 5; animation: fxFlash 0.3s ease; }
+@keyframes fxFlash { 0% { opacity: 0; } 30% { opacity: 1; } 100% { opacity: 0; } }
+.fx-banner.crit { color: #ffd34d; font-size: clamp(28px, 9vw, 52px); text-shadow: 0 0 26px #ffae00, 0 2px 12px #000; animation: critPop 0.65s ease; }
+@keyframes critPop { 0% { transform: scale(0.4) rotate(-8deg); opacity: 0; } 35% { transform: scale(1.25) rotate(3deg); opacity: 1; } 100% { transform: scale(1) rotate(0); opacity: 0; } }
+.fx-banner.skill-cast { color: #aed3ff; font-size: clamp(18px, 5.5vw, 30px); text-shadow: 0 0 18px #5aa6ff, 0 2px 10px #000; }
+
+/* 중간보스 진행 점 강조 */
+.sub-dot { display: inline-flex; align-items: center; justify-content: center; font-size: 9px; line-height: 1; color: transparent; }
+.sub-dot.mid { width: 15px; height: 15px; border-radius: 4px; border-color: #c79bff; color: #c79bff; box-shadow: 0 0 6px rgba(199,155,255,0.6); }
+.sub-dot.mid.current { background: rgba(160,110,230,0.55); box-shadow: 0 0 10px #c79bff; }
+.sub-dot.mid.done { background: rgba(160,110,230,0.35); }
+.sub-dot.boss { color: #ff8a4c; font-size: 10px; }
+
+/* 적 유닛 태그(적장/중간보스) */
+.unit .u-tag { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); font-size: 9px; font-weight: 800; padding: 1px 6px; border-radius: 8px; white-space: nowrap; z-index: 3; }
+.unit .u-tag.boss { background: #ff8a4c; color: #2a1402; }
+.unit .u-tag.mid { background: #b07be0; color: #1a0a2a; }
+.unit.is-boss { border-color: rgba(255,138,76,0.6); }
+.unit.is-mid { border-color: rgba(176,123,224,0.6); box-shadow: 0 0 12px rgba(176,123,224,0.3); }
+
+/* 아군 카드 상태이상 */
+.combat-card { position: relative; }
+.combat-card.stunned { filter: grayscale(0.55) brightness(0.8); border-color: rgba(199,155,255,0.6); }
+.combat-card .cc-stun { position: absolute; top: 2px; right: 3px; font-size: 14px; z-index: 2; text-shadow: 0 0 6px #000; }
+.combat-card .cc-pois { position: absolute; top: 2px; left: 3px; font-size: 10px; font-weight: 800; color: #b6f06a; z-index: 2; text-shadow: 0 0 5px #000; }
+
+/* 소모성 아이템 바 */
+.item-bar { display: flex; gap: 6px; justify-content: center; margin: 6px 0 2px; }
+.item-slot { width: 40px; height: 40px; border-radius: 9px; border: 1px solid rgba(255,255,255,0.16); background: rgba(0,0,0,0.3); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: transform .12s, border-color .12s; padding: 0; }
+.item-slot:hover:not(.used):not(.empty) { transform: translateY(-3px); border-color: var(--gold); }
+.item-slot .is-emoji { font-size: 20px; }
+.item-slot.empty { color: rgba(255,255,255,0.18); font-size: 18px; cursor: default; }
+.item-slot.used { opacity: 0.45; cursor: not-allowed; }
 
 .combat-mid { display: flex; align-items: center; gap: 12px; margin: 12px 0; }
 .energy { font-weight: 800; font-size: 15px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }

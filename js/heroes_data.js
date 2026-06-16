@@ -14,7 +14,7 @@ var HW_HEROES = [
   { id:'archer', name:'황충',   emoji:'🏹', cls:'궁수', rarity:'C', hp:24, atk:6,
     skill:{ name:'연속사격', cost:2, type:'multi', val:3, target:'enemy', desc:'무작위 적을 3회 공격' } },
   { id:'priest', name:'순유',   emoji:'📜', cls:'책사', rarity:'R', hp:26, atk:4,
-    skill:{ name:'치료술', cost:2, type:'heal', val:15, target:'lowestAlly', desc:'가장 약한 아군 15 회복' } },
+    skill:{ name:'허허실실', cost:2, type:'confuse', val:1, target:'enemy', desc:'적 1명을 1턴 혼란(행동 불능)' } },
   { id:'rogue',  name:'마대',   emoji:'🐎', cls:'기습', rarity:'C', hp:22, atk:8,
     skill:{ name:'기습', cost:2, type:'strike', val:9, target:'enemy', desc:'적 1명에게 공격력+9 피해' } },
   { id:'berserk',name:'장비',   emoji:'🍶', cls:'전사', rarity:'R', hp:34, atk:9,
@@ -39,7 +39,7 @@ var HW_HEROES = [
   { id:'shaman',  name:'방통',   emoji:'🔥', cls:'책략', rarity:'R', hp:24, atk:6,
     skill:{ name:'연환계', cost:3, type:'aoe', val:6, target:'allEnemies', desc:'모든 적에게 6 피해' } },
   { id:'frost',   name:'주유',   emoji:'🔥', cls:'책략', rarity:'SR', hp:22, atk:6,
-    skill:{ name:'적벽대화', cost:3, type:'aoe', val:7, target:'allEnemies', desc:'모든 적에게 7 피해' } },
+    skill:{ name:'반간계', cost:2, type:'confuse', val:1, target:'enemy', desc:'적 1명을 1턴 혼란(행동 불능)' } },
   { id:'bulwark', name:'허저',   emoji:'🛡️', cls:'수호', rarity:'R', hp:46, atk:4,
     skill:{ name:'호위', cost:2, type:'shield', val:15, target:'ally', desc:'아군 1명에게 방어막 15' } },
   { id:'bard',    name:'서서',   emoji:'📜', cls:'책사', rarity:'R', hp:26, atk:5,
@@ -85,7 +85,7 @@ var HW_HEROES = [
     skill:{ name:'항우의 용맹', cost:1, type:'strike', val:6, target:'enemy', desc:'적 1명에게 공격력+6 피해' } },
   // ---- 추가 장수 3차 ----
   { id:'jiaxu',    name:'가후',   emoji:'📜', cls:'책략', rarity:'SR', hp:24, atk:6,
-    skill:{ name:'독사의 계', cost:3, type:'aoe', val:9, target:'allEnemies', desc:'모든 적에게 9 피해' } },
+    skill:{ name:'교란계', cost:2, type:'confuse', val:1, target:'enemy', desc:'적 1명을 1턴 혼란(행동 불능)' } },
   { id:'xuhuang',  name:'서황',   emoji:'🪓', cls:'전사', rarity:'R', hp:36, atk:8,
     skill:{ name:'장구지계', cost:2, type:'strike', val:9, target:'enemy', desc:'적 1명에게 공격력+9 피해' } },
   { id:'diaochan', name:'초선',   emoji:'💃', cls:'무희', rarity:'SR', hp:20, atk:4,
@@ -204,12 +204,33 @@ var HW_WEAPONS = [
 var HW_WEAPON_BY_ID = {};
 HW_WEAPONS.forEach(function (w) { HW_WEAPON_BY_ID[w.id] = w; });
 
-/* Difficulty tuning (상/중/하 — 기본 적 배수) */
+/* Difficulty tuning (기본 상/하드 고정 — 선택 화면 없음, 전반 상향) */
 var HW_DIFF = {
-  easy:   { eHp:0.95, eAtk:1.04, gold:1.4, smart:false, startGold:70 },
-  normal: { eHp:1.02, eAtk:1.10, gold:1.0, smart:false, startGold:50 },
-  hard:   { eHp:1.05, eAtk:1.14, gold:0.9, smart:true, startGold:40 }
+  easy:   { eHp:1.00, eAtk:1.09, gold:1.4, smart:false, startGold:70 },
+  normal: { eHp:1.07, eAtk:1.15, gold:1.0, smart:false, startGold:50 },
+  hard:   { eHp:1.10, eAtk:1.18, gold:0.9, smart:true, startGold:40 }
 };
+
+/* 소모성 아이템 — 전투 중 턴당 1개 사용, 최대 5칸 소지. 저잣거리에서 랜덤 구매 */
+var HW_CONSUMABLES = [
+  { id:'potion_hp',  emoji:'🧪', name:'회복약',   kind:'hp',           val:45, desc:'주공 HP 45 회복' },
+  { id:'potion_mp',  emoji:'💧', name:'마력약',   kind:'mp',           val:20, desc:'주공 MP 20 회복' },
+  { id:'antidote',   emoji:'🌿', name:'해독초',   kind:'cure_poison',          desc:'아군 카드 중독 모두 해제' },
+  { id:'incense',    emoji:'🔔', name:'안신향',   kind:'cure_confuse',         desc:'아군 카드 혼란·매혹 해제' },
+  { id:'warwine',    emoji:'🍷', name:'전투주',   kind:'atk', val:5, turns:2,  desc:'2턴간 전군 공격력 +5' },
+  { id:'ironcharm',  emoji:'🛡️', name:'철벽부',   kind:'shield', val:8,        desc:'주공 방어막 +8' }
+];
+var HW_CONS_BY_ID = {}; HW_CONSUMABLES.forEach(function (c) { HW_CONS_BY_ID[c.id] = c; });
+var HW_ITEM_MAX = 5; // 소모성 아이템 소지 최대 칸
+
+/* 중간보스(각 메인 5·10 출전) — 강화 적 + 아군 카드에 상태이상. mp는 스테이지에 따라 20~50 */
+var HW_MID = { hpMult:2.3, atkMult:1.3, skillChance:0.45 };
+var HW_MID_SKILLS = [ // 아군 카드(장수)를 노리는 상태이상
+  { name:'미혹의 진', type:'p_charm',   desc:'아군 카드 1장 1턴 매혹(행동 불능)' },
+  { name:'환혼술',     type:'p_confuse', desc:'아군 카드 1장 1턴 혼란(행동 불능)' },
+  { name:'독무 살포',   type:'p_poison', val:4, desc:'아군 카드 1장 중독(턴마다 주공 피해)' },
+  { name:'사신 강림',   type:'p_seal',    desc:'아군 카드 1장 이번 전투 봉인(전투당 1회)' }
+];
 
 /* 모드(노멀→하드→극악) — 천하통일로 차례로 해금. 위 상/중/하 배수에 곱해 적용.
  * hpMult: 모든 적 HP 배수, bossAtkMult: 적장 공격 배수, bossCrit: 적장 치명타 확률, gold: 골드 배수 */

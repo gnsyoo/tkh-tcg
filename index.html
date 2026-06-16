@@ -14,15 +14,6 @@
       <h1 class="home-title">⚔️ 삼국지 <span>카드 게임</span></h1>
     </header>
 
-    <section class="diff-section">
-      <h2 class="section-label">난이도 선택</h2>
-      <div class="diff-picker" id="diffPicker">
-        <button class="diff-btn" data-diff="easy">하 <small>Easy</small></button>
-        <button class="diff-btn active" data-diff="normal">중 <small>Normal</small></button>
-        <button class="diff-btn" data-diff="hard">상 <small>Hard</small></button>
-      </div>
-    </section>
-
     <section class="games-grid">
       <a class="game-card heroes" id="cardHeroes" href="heroes.html">
         <div class="game-art">⚔️🐎🏯</div>
@@ -51,27 +42,8 @@
   </div>
 
   <script>
-    (function () {
-      var diff = localStorage.getItem('tcg_difficulty') || 'normal';
-      function applyDiff(d) {
-        diff = d;
-        localStorage.setItem('tcg_difficulty', d);
-        document.querySelectorAll('.diff-btn').forEach(function (b) {
-          b.classList.toggle('active', b.dataset.diff === d);
-        });
-        updateLinks();
-      }
-      function updateLinks() {
-        document.getElementById('cardHeroes').setAttribute('href', 'heroes.html?diff=' + diff);
-        document.getElementById('cardQueens').setAttribute('href', 'queensblood.html?diff=' + diff);
-        document.getElementById('cardRaid').setAttribute('href', 'daejang.html?diff=' + diff);
-      }
-      document.getElementById('diffPicker').addEventListener('click', function (e) {
-        var btn = e.target.closest('.diff-btn');
-        if (btn) applyDiff(btn.dataset.diff);
-      });
-      applyDiff(diff);
-    })();
+    // 난이도 선택 제거 — 기본 상(hard) 고정
+    try { localStorage.setItem('tcg_difficulty', 'hard'); } catch (e) {}
   </script>
 </body>
 </html>

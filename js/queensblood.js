@@ -697,7 +697,7 @@
       TCG.audioResume(); if (!m) TCG.sfx('tap');
     });
   }
-  document.getElementById('diffPill').textContent = '난이도 ' + TCG.diffLabel(diff);
+  var diffPillEl = document.getElementById('diffPill'); if (diffPillEl) diffPillEl.textContent = '난이도 ' + TCG.diffLabel(diff);
   newGame();            // 배경 보드 준비
   openDeckBuilder();    // 진입 시 덱 구성 화면부터 보여주고 시작
 })();

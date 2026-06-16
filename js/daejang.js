@@ -62,7 +62,7 @@
 
   function renderSelect() {
     document.getElementById('deckPill').textContent = '덱 ' + party.length;
-    document.getElementById('diffPill').textContent = '난이도 ' + TCG.diffLabel(diff);
+    var dp = document.getElementById('diffPill'); if (dp) dp.textContent = '난이도 ' + TCG.diffLabel(diff);
     var html = HW_RAID.bosses.map(function (b, i) {
       var cmd = HW_COMMANDERS[b.key];
       var rew = HW_BY_ID[b.reward];

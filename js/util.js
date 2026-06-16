@@ -1,10 +1,11 @@
 /* ===== Shared helpers used by both mockups ===== */
 var TCG = (function () {
   function getDifficulty() {
+    // 난이도 선택 제거 — 기본 '상(hard)' 고정. (URL ?diff= 는 테스트용 오버라이드로만 유지)
     var params = new URLSearchParams(location.search);
-    var d = params.get('diff') || localStorage.getItem('tcg_difficulty') || 'normal';
-    if (['easy', 'normal', 'hard'].indexOf(d) === -1) d = 'normal';
-    localStorage.setItem('tcg_difficulty', d);
+    var d = params.get('diff');
+    if (['easy', 'normal', 'hard'].indexOf(d) === -1) d = 'hard';
+    try { localStorage.setItem('tcg_difficulty', d); } catch (e) {}
     return d;
   }
   function diffLabel(d) {
