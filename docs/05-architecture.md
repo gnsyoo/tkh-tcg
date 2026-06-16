@@ -71,7 +71,8 @@ run.combat = {
 | `tcg_muted` | 음소거 |
 | `hw_save` | 영웅모집 진행 저장(**v3**) |
 | `hw_bonus_gold` | 히어로즈 블러드 → 영웅모집 정산 골드(누적) |
-| `qb_deck` | 히어로즈 블러드 사용자 덱(15장) |
+| `qb_deck` / `qb_rows` | 히어로즈 블러드 사용자 덱(15장) / 판 크기(3·4) |
+| `hw_collected_heroes` / `hw_collected_weapons` | 컬렉션(도감) — 영구 수집 기록 |
 
 `hw_save`(v3) 필드: `party[{id,atk,uid,weapons[]}]`, `gold, mainStage, subStage, relics[], weapons[], sorties, lordHp, lordMp`.
 QB는 `qb_deck`(덱)·`qb_rows`(판 크기)도 저장.

@@ -3,7 +3,7 @@
   var COLS = 5;
   function getRows() {
     var v = parseInt(lsGet('qb_rows') || '3', 10);
-    return (v === 3 || v === 4 || v === 5) ? v : 3;
+    return (v === 3 || v === 4) ? v : 3; // 5×5 제거
   }
   var ROWS = getRows();
   var diff = TCG.getDifficulty();

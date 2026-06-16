@@ -20,6 +20,8 @@
       </div>
       <div class="fm-actions">
         <button class="btn ghost" id="guideBtn">📖 게임 가이드</button>
+        <button class="btn ghost" id="heroColBtn">📕 장수 컬렉션</button>
+        <button class="btn ghost" id="weaponColBtn">🗡️ 장비 컬렉션</button>
         <button class="btn ghost" id="muteBtn">🔊 소리</button>
         <a class="btn ghost" href="index.html">← 메뉴로</a>
       </div>
@@ -121,6 +123,26 @@
   <!-- Hero detail tooltip -->
   <div class="overlay" id="heroModal" hidden>
     <div class="modal" id="heroModalBody" style="max-width:340px;"></div>
+  </div>
+
+  <!-- 장수 컬렉션(도감) -->
+  <div class="overlay" id="heroColModal" hidden>
+    <div class="modal" style="max-width:700px;">
+      <h2 style="text-align:center;">📕 장수 컬렉션 <span id="heroColTitle" style="color:var(--gold);font-size:15px;"></span></h2>
+      <p class="screen-sub">수집한 장수는 밝게, 아직 못 모은 장수는 어둡게 표시됩니다</p>
+      <div class="col-grid" id="heroColGrid"></div>
+      <div style="text-align:center;margin-top:12px;"><button class="btn primary" id="heroColClose">닫기</button></div>
+    </div>
+  </div>
+
+  <!-- 장비 컬렉션(도감) -->
+  <div class="overlay" id="weaponColModal" hidden>
+    <div class="modal" style="max-width:560px;">
+      <h2 style="text-align:center;">🗡️ 장비 컬렉션 <span id="weaponColTitle" style="color:var(--gold);font-size:15px;"></span></h2>
+      <p class="screen-sub">수집한 장비는 밝게, 아직 못 모은 장비는 어둡게 표시됩니다</p>
+      <div class="col-weapon-list" id="weaponColList"></div>
+      <div style="text-align:center;margin-top:12px;"><button class="btn primary" id="weaponColClose">닫기</button></div>
+    </div>
   </div>
 
   <!-- 게임 가이드 -->

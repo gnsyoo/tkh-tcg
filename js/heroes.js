@@ -58,10 +58,31 @@
     document.getElementById('diffPill').textContent = '난이도 ' + TCG.diffLabel(diff);
   }
 
+  /* ---------- collection (도감, 모험과 무관하게 영구 보존) ---------- */
+  function loadCollected(key) {
+    try { var a = JSON.parse(localStorage.getItem(key) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; }
+  }
+  var collectedHeroes = loadCollected('hw_collected_heroes');
+  var collectedWeapons = loadCollected('hw_collected_weapons');
+  function syncCollection() {
+    var changed = false;
+    if (run) {
+      run.party.forEach(function (h) { if (collectedHeroes.indexOf(h.def.id) === -1) { collectedHeroes.push(h.def.id); changed = true; } });
+      (run.weapons || []).forEach(function (id) { if (collectedWeapons.indexOf(id) === -1) { collectedWeapons.push(id); changed = true; } });
+    }
+    if (changed) {
+      try {
+        localStorage.setItem('hw_collected_heroes', JSON.stringify(collectedHeroes));
+        localStorage.setItem('hw_collected_weapons', JSON.stringify(collectedWeapons));
+      } catch (e) {}
+    }
+  }
+
   /* ---------- save / continue ---------- */
   function saveRun() {
     try {
       if (!run) return;
+      syncCollection();
       localStorage.setItem('hw_save', JSON.stringify({
         v: 3, diff: diff,
         party: run.party.map(function (h) { return { id: h.def.id, atk: h.atk, uid: h.uid, weapons: heroWpnIds(h).slice() }; }),
@@ -238,6 +259,42 @@
   document.getElementById('gearClose').addEventListener('click', function () { document.getElementById('gearModal').hidden = true; });
   document.getElementById('rosterModal').addEventListener('click', function (e) { if (e.target.id === 'rosterModal') e.currentTarget.hidden = true; });
   document.getElementById('gearModal').addEventListener('click', function (e) { if (e.target.id === 'gearModal') e.currentTarget.hidden = true; });
+
+  /* ---------- 컬렉션(도감): 전체 카탈로그 + 수집 여부 ---------- */
+  function openHeroCollection() {
+    TCG.sfx('tap'); syncCollection();
+    document.getElementById('heroColTitle').textContent = '(' + collectedHeroes.length + ' / ' + HW_HEROES.length + ')';
+    document.getElementById('heroColGrid').innerHTML = HW_HEROES.map(function (d) {
+      var got = collectedHeroes.indexOf(d.id) !== -1;
+      return '<div class="col-card' + (got ? '' : ' locked') + '">' +
+        TCG.portrait(d.emoji, d.id) +
+        '<div class="col-name">' + d.name + '</div>' +
+        '<div class="col-rar rar-' + d.rarity + '">' + d.rarity + ' · ' + d.cls + '</div>' +
+        (got ? '' : '<div class="col-lock">🔒</div>') +
+        '</div>';
+    }).join('');
+    document.getElementById('heroColModal').hidden = false;
+  }
+  function openWeaponCollection() {
+    TCG.sfx('tap'); syncCollection();
+    document.getElementById('weaponColTitle').textContent = '(' + collectedWeapons.length + ' / ' + HW_WEAPONS.length + ')';
+    document.getElementById('weaponColList').innerHTML = HW_WEAPONS.map(function (w) {
+      var got = collectedWeapons.indexOf(w.id) !== -1;
+      return '<div class="gear-row' + (got ? '' : ' locked') + '">' +
+        '<div class="gear-emoji">' + w.emoji + '</div>' +
+        '<div class="gear-info">' +
+          '<div class="gear-name">' + w.name + (got ? '' : ' 🔒') + '</div>' +
+          '<div class="gear-desc">' + w.desc + '</div>' +
+        '</div></div>';
+    }).join('');
+    document.getElementById('weaponColModal').hidden = false;
+  }
+  document.getElementById('heroColBtn').addEventListener('click', openHeroCollection);
+  document.getElementById('weaponColBtn').addEventListener('click', openWeaponCollection);
+  document.getElementById('heroColClose').addEventListener('click', function () { document.getElementById('heroColModal').hidden = true; });
+  document.getElementById('weaponColClose').addEventListener('click', function () { document.getElementById('weaponColModal').hidden = true; });
+  document.getElementById('heroColModal').addEventListener('click', function (e) { if (e.target.id === 'heroColModal') e.currentTarget.hidden = true; });
+  document.getElementById('weaponColModal').addEventListener('click', function (e) { if (e.target.id === 'weaponColModal') e.currentTarget.hidden = true; });
   document.getElementById('restParty').addEventListener('click', onMiniClick);
   function onMiniClick(e) {
     var m = e.target.closest('.mini-hero'); if (!m) return;
