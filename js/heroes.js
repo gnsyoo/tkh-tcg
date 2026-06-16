@@ -1269,9 +1269,29 @@
     }).join('');
   }
   function startNew(mode) { document.getElementById('startModal').hidden = true; TCG.audioResume(); newRun(mode); }
+  var pendingMode = null;
+  function requestNew(mode) {
+    if (saved) { // 저장된 진행이 있으면 새 모험 전 확인
+      pendingMode = mode;
+      var smd = HW_MODES[saved.mode] || HW_MODES.normal;
+      document.getElementById('newRunConfirmText').textContent =
+        '진행 중인 모험(' + smd.emoji + smd.label + ' · ' + ((saved.mainStage || 0) + 1) + '스테이지)이 있습니다. 새로 시작하면 기존 진행이 삭제됩니다.';
+      document.getElementById('newRunConfirm').hidden = false;
+    } else { startNew(mode); }
+  }
   document.getElementById('modeSel').addEventListener('click', function (e) {
     var b = e.target.closest('.mode-btn'); if (!b || b.disabled) return;
-    TCG.sfx('tap'); startNew(b.dataset.mode);
+    TCG.sfx('tap'); requestNew(b.dataset.mode);
+  });
+  document.getElementById('newRunConfirmYes').addEventListener('click', function () {
+    document.getElementById('newRunConfirm').hidden = true;
+    startNew(pendingMode || 'normal');
+  });
+  document.getElementById('newRunConfirmNo').addEventListener('click', function () {
+    document.getElementById('newRunConfirm').hidden = true; // 취소 → 시작 모달 유지
+  });
+  document.getElementById('newRunConfirm').addEventListener('click', function (e) {
+    if (e.target.id === 'newRunConfirm') e.currentTarget.hidden = true;
   });
   document.getElementById('continueBtn').addEventListener('click', function () {
     document.getElementById('startModal').hidden = true;

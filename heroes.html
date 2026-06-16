@@ -108,6 +108,18 @@
     </div>
   </div>
 
+  <!-- 새 모험 확인(저장 데이터 삭제 경고) -->
+  <div class="overlay" id="newRunConfirm" hidden style="z-index:130;">
+    <div class="modal">
+      <h2>⚠️ 새 모험을 시작할까요?</h2>
+      <p id="newRunConfirmText">진행 중인 모험이 있습니다. 새로 시작하면 기존 진행이 삭제됩니다.</p>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:8px;">
+        <button class="btn primary" id="newRunConfirmYes">새로 시작</button>
+        <button class="btn ghost" id="newRunConfirmNo">취소</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Game over / victory -->
   <div class="overlay" id="overModal" hidden>
     <div class="modal">
