@@ -543,13 +543,15 @@
     var h = heroByUid(c.sel.uid);
     if (!h) { bar.hidden = true; return; }
     var sk = h.def.skill;
+    var isHeal = sk.type === 'heal';
     var mp = skillMp(sk);
-    var canSkill = c.lord.mp >= mp;
+    var canSkill = isHeal || c.lord.mp >= mp; // 회복 스킬은 MP 제한 없음(오히려 회복)
+    var mpLabel = isHeal ? ('💧+' + Math.round(sk.val / 4) + ' 회복') : ('💧' + mp);
     var critPct = Math.round(critChance(h) * 100);
     bar.hidden = false;
     bar.innerHTML =
       '<button class="act-btn" data-act="attack">기본 공격<small>피해 ' + effAtk(h) + (hasWpnFlag(h, 'doubleStrike') ? ' ×2' : '') + (wpnVal(h, 'poison') ? ' ☠' + wpnVal(h, 'poison') : '') + (critPct > 1 ? ' 💥' + critPct + '%' : '') + '</small></button>' +
-      '<button class="act-btn skill" data-act="skill"' + (canSkill ? '' : ' disabled') + '>' + sk.name + '<small>💧' + mp + ' · ' + sk.desc + '</small></button>' +
+      '<button class="act-btn skill" data-act="skill"' + (canSkill ? '' : ' disabled') + '>' + sk.name + '<small>' + mpLabel + ' · ' + sk.desc + '</small></button>' +
       '<button class="act-btn cancel" data-act="cancel">취소</button>';
   }
 
@@ -576,9 +578,9 @@
     if (act === 'cancel') { c.sel = null; c.targeting = false; c.pending = null; renderCombat(); return; }
     var h = heroByUid(c.sel.uid); if (!h) return;
     if (act === 'attack') { beginTarget('enemy', 'attack'); return; }
-    // skill (MP 소모)
+    // skill (회복 스킬은 MP 소모 없음, 그 외는 MP 소모)
     var sk = h.def.skill;
-    if (c.lord.mp < skillMp(sk)) { TCG.toast('MP가 부족합니다'); return; }
+    if (sk.type !== 'heal' && c.lord.mp < skillMp(sk)) { TCG.toast('MP가 부족합니다'); return; }
     if (sk.type === 'strike' || sk.type === 'charm') beginTarget('enemy', 'skill'); // 단일 적 대상
     else doSkill(h, null); // aoe(전체)·multi(무작위)·heal/shield/buff(주공) 자동 처리
   });
@@ -640,7 +642,8 @@
   }
   function doSkill(h, target) {
     var c = run.combat; var sk = h.def.skill;
-    c.lord.mp = Math.max(0, c.lord.mp - skillMp(sk));
+    // 회복 스킬은 MP를 소모하지 않고 오히려 회복시킨다(아래 heal 분기). 그 외 스킬만 MP 소모.
+    if (sk.type !== 'heal') c.lord.mp = Math.max(0, c.lord.mp - skillMp(sk));
     TCG.sfx(sk.type === 'heal' ? 'heal' : 'skill');
     var pw = effAtk(h);
     if (sk.type === 'strike') {
@@ -658,7 +661,7 @@
       shake('sm'); logMsg(h.def.name + ' 「' + sk.name + '」 ' + sk.val + '회 공격');
     } else if (sk.type === 'heal') {
       c.lord.hp = Math.min(c.lord.maxHp, c.lord.hp + sk.val);
-      var mpHeal = Math.floor(sk.val / 4); // 회복 스킬은 HP 회복량의 1/4만큼 MP도 회복
+      var mpHeal = Math.round(sk.val / 4); // 회복 스킬은 HP 회복량의 1/4만큼 MP도 회복(소모 없음)
       if (mpHeal) c.lord.mp = Math.min(c.lord.maxMp, c.lord.mp + mpHeal);
       if (h.def.id === 'oracle') c.lord.block += 5;
       fxSupport(lordEl(), '+' + sk.val + (mpHeal ? ' 💧+' + mpHeal : ''), '#7ef0b5');
