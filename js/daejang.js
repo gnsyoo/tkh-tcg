@@ -173,9 +173,9 @@
   function renderCombat() {
     var c = combat, b = c.boss;
     document.getElementById('energyBox').innerHTML = '🎴 가운데 카드: 사용하면 <b>공격</b> · 턴 종료 시 남기면 <b>방어</b>';
-    var dead = b.hp <= 0, charmed = b.charmed > 0;
+    var dead = b.hp <= 0, charmed = b.charmed > 0 || b.confused > 0;
     var tgt = c.targeting && !dead;
-    var intentTxt = charmed ? '💤 매혹' : (b.intent ? (b.intent.type === 'aoe' ? '💥' + b.intent.dmg : '⚔️' + b.intent.dmg) : '');
+    var intentTxt = (b.confused > 0) ? '💤 혼란' : (b.charmed > 0) ? '💤 매혹' : (b.intent ? (b.intent.type === 'aoe' ? '💥' + b.intent.dmg : '⚔️' + b.intent.dmg) : '');
     var pct = Math.max(0, Math.round(b.hp / b.maxHp * 100));
     document.getElementById('enemyRow').innerHTML =
       '<div class="unit enemy raid-boss-unit' + (dead ? ' dead' : '') + (tgt ? ' targetable' : '') + (charmed ? ' charmed' : '') + '" data-side="enemy" data-idx="0">' +
@@ -199,7 +199,7 @@
         '</div></div>';
     renderPiles();
     renderActionBar();
-    document.getElementById('endTurnBtn').disabled = (c.phase === 'enemy');
+    document.getElementById('endTurnBtn').disabled = (c.phase === 'enemy' || c.busy);
     var hint = document.getElementById('combatHint');
     hint.textContent = c.phase === 'enemy' ? '보스가 행동 중…' : (c.targeting ? '보스를 선택하세요' : (c.sel ? '행동을 선택하세요' : '가운데 카드로 공격하거나, 턴 종료 시 남은 카드로 방어합니다'));
   }
@@ -207,7 +207,7 @@
     var c = combat;
     var ds = ''; for (var i = 0; i < Math.min(c.draw.length, 5); i++) ds += '<div class="pile-card" style="--i:' + i + '"></div>';
     document.getElementById('drawPile').innerHTML = ds + '<div class="pile-label">뽑을 카드 <b>' + c.draw.length + '</b></div>';
-    var canAct = c.phase !== 'enemy' && !c.targeting;
+    var canAct = c.phase !== 'enemy' && !c.targeting && !c.busy;
     var cardsHtml = c.center.map(function (uid) {
       var h = heroByUid(uid); if (!h) return ''; var sk = h.def.skill;
       var sel = c.sel && c.sel.uid === uid && !c.targeting;
@@ -238,18 +238,18 @@
 
   /* ---------- input ---------- */
   document.getElementById('enemyRow').addEventListener('click', function (e) {
-    var c = combat; if (!c || c.phase === 'enemy' || !c.targeting) return;
+    var c = combat; if (!c || c.phase === 'enemy' || !c.targeting || c.busy) return;
     var u = e.target.closest('.unit'); if (!u || !u.classList.contains('targetable')) return;
     executeOn();
   });
   document.getElementById('centerCards').addEventListener('click', function (e) {
-    var c = combat; if (!c || c.phase === 'enemy' || c.targeting) return;
+    var c = combat; if (!c || c.phase === 'enemy' || c.targeting || c.busy) return;
     var card = e.target.closest('.combat-card'); if (!card) return;
     var uid = card.dataset.uid; c.sel = (c.sel && c.sel.uid === uid) ? null : { uid: uid }; renderCombat();
   });
   document.getElementById('actionBar').addEventListener('click', function (e) {
     var b = e.target.closest('.act-btn'); if (!b || b.disabled) return;
-    var c = combat; if (!c.sel) return;
+    var c = combat; if (!c.sel || c.busy) return;
     var act = b.dataset.act;
     if (act === 'cancel') { c.sel = null; c.targeting = false; renderCombat(); return; }
     var h = heroByUid(c.sel.uid); if (!h) return;
@@ -272,13 +272,25 @@
   }
   function doAttack(h) {
     var c = combat, b = c.boss, dmg = effAtk(h), hits = hasWpnFlag(h, 'doubleStrike') ? 2 : 1;
-    TCG.sfx('attack');
-    var total = 0, anyCrit = false;
-    for (var k = 0; k < hits; k++) { if (b.hp <= 0) break; var crit = rollCrit(critChance(h)); var hd = crit ? dmg * 2 : dmg; if (crit) anyCrit = true; dmgBoss(hd, crit); total += hd; }
-    var pv = wpnVal(h, 'poison'); if (pv && b.hp > 0) { b.poison = (b.poison || 0) + pv; logMsg(b.name + '에 독 +' + pv); }
-    shake(anyCrit ? 'big' : 'sm');
-    logMsg(h.def.name + ' → ' + b.name + ' ' + total + ' 피해' + (anyCrit ? ' (치명타!)' : ''));
-    finishPlay();
+    c.busy = true; // 다회 공격은 타격마다 끊어서 연출
+    var total = 0, anyCrit = false, k = 0;
+    function step() {
+      if (k >= hits || b.hp <= 0) { return done(); }
+      k++;
+      TCG.sfx('attack');
+      var crit = rollCrit(critChance(h)); var hd = crit ? dmg * 2 : dmg;
+      if (crit) anyCrit = true;
+      dmgBoss(hd, crit); shake(crit ? 'big' : 'sm'); total += hd;
+      renderCombat();
+      setTimeout(step, hits > 1 ? 240 : 120);
+    }
+    function done() {
+      var pv = wpnVal(h, 'poison'); if (pv && b.hp > 0) { b.poison = (b.poison || 0) + pv; logMsg(b.name + '에 독 +' + pv); }
+      logMsg(h.def.name + ' → ' + b.name + ' ' + total + ' 피해' + (anyCrit ? ' (치명타!)' : ''));
+      c.busy = false;
+      finishPlay();
+    }
+    step();
   }
   function doSkill(h) {
     var c = combat, b = c.boss, sk = h.def.skill;
@@ -287,7 +299,15 @@
     var pw = effAtk(h);
     if (sk.type === 'strike') { dmgBoss(pw + sk.val); shake('big'); logMsg(h.def.name + ' 「' + sk.name + '」 ' + (pw + sk.val) + ' 피해'); }
     else if (sk.type === 'aoe') { if (b.hp > 0) dmgBoss(sk.val); shake('big'); logMsg(h.def.name + ' 「' + sk.name + '」 ' + sk.val + ' 피해'); }
-    else if (sk.type === 'multi') { for (var i = 0; i < sk.val; i++) { if (b.hp <= 0) break; dmgBoss(pw); } shake('sm'); logMsg(h.def.name + ' 「' + sk.name + '」 ' + sk.val + '회 공격'); }
+    else if (sk.type === 'multi') {
+      c.busy = true; var mi = 0; // 무작위 다회 공격은 타격마다 끊어서 연출
+      (function mhit() {
+        if (mi >= sk.val || b.hp <= 0) { logMsg(h.def.name + ' 「' + sk.name + '」 ' + sk.val + '회 공격'); c.busy = false; finishPlay(); return; }
+        mi++; TCG.sfx('attack'); dmgBoss(pw); shake('sm'); renderCombat(); setTimeout(mhit, 210);
+      })();
+      return; // 비동기 처리 — 아래 공통 finishPlay 건너뜀
+    }
+    else if (sk.type === 'confuse') { if (b.hp > 0) { b.confused = (b.confused || 0) + sk.val; fxSupport(bossEl(), '💫 혼란', '#c9a8ff'); logMsg(h.def.name + ' 「' + sk.name + '」 ' + b.name + ' ' + sk.val + '턴 혼란'); } }
     else if (sk.type === 'heal') { c.lord.hp = Math.min(c.lord.maxHp, c.lord.hp + sk.val); var mh = Math.round(sk.val / 4); if (mh) c.lord.mp = Math.min(c.lord.maxMp, c.lord.mp + mh); if (h.def.id === 'oracle') c.lord.block += 5; fxSupport(lordEl(), '+' + sk.val + (mh ? ' 💧+' + mh : ''), '#7ef0b5'); logMsg(h.def.name + ' 「' + sk.name + '」 주공 ' + sk.val + ' 회복' + (mh ? ' · MP +' + mh : '')); }
     else if (sk.type === 'shield') { c.lord.block += sk.val; fxSupport(lordEl(), '🛡+' + sk.val, '#9fd2ff'); logMsg(h.def.name + ' 「' + sk.name + '」 주공 방어막 +' + sk.val); }
     else if (sk.type === 'buff') { c.atkBuff = (c.atkBuff || 0) + sk.val; fxSupport(lordEl(), '⚔+' + sk.val, '#ffd86b'); logMsg(h.def.name + ' 「' + sk.name + '」 전군 공격력 +' + sk.val); }
@@ -303,7 +323,7 @@
   }
 
   document.getElementById('endTurnBtn').addEventListener('click', function () {
-    var c = combat; if (!c || c.phase === 'enemy' || c.targeting || c.over) return;
+    var c = combat; if (!c || c.phase === 'enemy' || c.targeting || c.over || c.busy) return;
     var total = 0, n = 0;
     c.center.slice().forEach(function (uid) { var h = heroByUid(uid); if (h) { total += defenseOf(h); n++; } c.used.push(uid); });
     c.center = []; c.sel = null;
@@ -338,7 +358,7 @@
     if (b.poison > 0) { b.hp = Math.max(0, b.hp - b.poison); fxHitBoss(b.poison, false); logMsg(b.name + ' 독 피해 ' + b.poison); }
     renderCombat();
     if (b.hp <= 0) { setTimeout(winRaid, 550); return; }
-    if (b.charmed > 0) { b.charmed--; fxSupport(bossEl(), '💤 매혹', '#ff9ad0'); logMsg(b.name + ' 매혹되어 행동 불가'); renderCombat(); setTimeout(function () { c.phase = 'player'; beginRound(); }, 700); return; }
+    if (b.charmed > 0 || b.confused > 0) { var was = b.charmed > 0 ? '매혹' : '혼란'; if (b.charmed > 0) b.charmed--; else b.confused--; fxSupport(bossEl(), '💤 ' + was, '#ff9ad0'); logMsg(b.name + ' ' + was + '되어 행동 불가'); renderCombat(); setTimeout(function () { c.phase = 'player'; beginRound(); }, 700); return; }
     fxBanner('보스의 턴', 'foe-turn', 800);
     setTimeout(function () {
       var usedSkill = (b.skill && b.mp >= skillMp(b.skill) && Math.random() < (b.skillChance || 0)) ? bossSkill(b) : false;

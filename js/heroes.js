@@ -693,7 +693,7 @@
     renderPiles();
     renderActionBar();
     renderItemBar();
-    document.getElementById('endTurnBtn').disabled = (c.phase === 'enemy');
+    document.getElementById('endTurnBtn').disabled = (c.phase === 'enemy' || c.busy);
     var hint = document.getElementById('combatHint');
     if (c.phase === 'enemy') hint.textContent = '적이 행동 중…';
     else if (c.targeting) hint.textContent = '대상을 선택하세요';
@@ -712,7 +712,7 @@
       drawStack + '<div class="pile-label">뽑을 카드 <b>' + c.draw.length + '</b></div>';
 
     // 가운데: 공격/방어 덱 (3장 이상이면 가로 스크롤)
-    var canAct = c.phase !== 'enemy' && !c.targeting;
+    var canAct = c.phase !== 'enemy' && !c.targeting && !c.busy;
     var centerHtml = c.center.map(function (uid) {
       var h = heroByUid(uid); if (!h) return '';
       var sk = h.def.skill;
@@ -769,7 +769,7 @@
   }
   document.getElementById('itemBar').addEventListener('click', function (e) {
     var b = e.target.closest('.item-slot'); if (!b || !b.dataset.i) return;
-    var c = run.combat; if (!c || c.phase === 'enemy' || c.targeting) return;
+    var c = run.combat; if (!c || c.phase === 'enemy' || c.targeting || c.busy) return;
     if (c.itemUsed) { TCG.toast('이번 턴에는 이미 아이템을 사용했습니다'); return; }
     var idx = parseInt(b.dataset.i, 10), it = HW_CONS_BY_ID[run.items[idx]]; if (!it) return;
     if (!applyItem(it)) return;
@@ -797,14 +797,14 @@
   // input — 적장만 대상 선택(아군 스킬은 주공에게 자동 적용)
   document.getElementById('enemyRow').addEventListener('click', function (e) { onUnitClick(e); });
   function onUnitClick(e) {
-    var c = run.combat; if (!c || c.phase === 'enemy' || !c.targeting) return;
+    var c = run.combat; if (!c || c.phase === 'enemy' || !c.targeting || c.busy) return;
     var u = e.target.closest('.unit'); if (!u) return;
     if (c.pending.side === 'enemy' && u.dataset.side === 'enemy' && u.classList.contains('targetable')) {
       executeOn('enemy', parseInt(u.dataset.idx, 10));
     }
   }
   document.getElementById('centerCards').addEventListener('click', function (e) {
-    var c = run.combat; if (!c || c.phase === 'enemy' || c.targeting) return;
+    var c = run.combat; if (!c || c.phase === 'enemy' || c.targeting || c.busy) return;
     var card = e.target.closest('.combat-card'); if (!card) return;
     var uid = card.dataset.uid;
     if (cardStunned(uid)) { var cs = c.cstat[uid]; TCG.toast('이 카드는 ' + (cs.cause || '혼란') + ' 상태 — 이번 턴 행동 불능'); return; }
@@ -813,7 +813,7 @@
   });
   document.getElementById('actionBar').addEventListener('click', function (e) {
     var b = e.target.closest('.act-btn'); if (!b || b.disabled) return;
-    var c = run.combat; if (!c.sel) return;
+    var c = run.combat; if (!c.sel || c.busy) return;
     var act = b.dataset.act;
     if (act === 'cancel') { c.sel = null; c.targeting = false; c.pending = null; renderCombat(); return; }
     var h = heroByUid(c.sel.uid); if (!h) return;
@@ -864,23 +864,31 @@
     var c = run.combat;
     var dmg = effAtk(h);
     var hits = hasWpnFlag(h, 'doubleStrike') ? 2 : 1;
-    TCG.sfx('attack');
-    var total = 0, anyCrit = false;
-    for (var k = 0; k < hits; k++) {
-      if (enemy.hp <= 0) break;
+    c.busy = true; // 다회 공격은 타격마다 끊어서 연출
+    var total = 0, anyCrit = false, k = 0;
+    function step() {
+      if (k >= hits || enemy.hp <= 0) { return done(); }
+      k++;
+      TCG.sfx('attack');
       var crit = rollCrit(critChance(h)); // 치명타: 공격력 2배
       var hitDmg = crit ? dmg * 2 : dmg;
       if (crit) anyCrit = true;
       dmgEnemy(enemy, hitDmg, enemyEl(c.enemies.indexOf(enemy)), crit ? 'crit' : null);
+      if (!crit) shake('sm');
       total += hitDmg;
+      renderCombat();
+      setTimeout(step, hits > 1 ? 240 : 120);
     }
-    var pv = wpnVal(h, 'poison');
-    if (pv && enemy.hp > 0) { enemy.poison = (enemy.poison || 0) + pv; logMsg(enemy.name + '에 독 +' + pv); }
-    if (anyCrit) { TCG.sfx('hit'); shake('big'); } else shake('sm');
-    var ls = relicSum('lifesteal');
-    if (ls) { c.lord.hp = Math.min(c.lord.maxHp, c.lord.hp + ls); fxSupport(lordEl(), '+' + ls, '#7ef0b5'); }
-    logMsg(h.def.name + ' → ' + enemy.name + ' ' + total + ' 피해' + (anyCrit ? ' (치명타!)' : ''));
-    finishPlay();
+    function done() {
+      var pv = wpnVal(h, 'poison');
+      if (pv && enemy.hp > 0) { enemy.poison = (enemy.poison || 0) + pv; logMsg(enemy.name + '에 독 +' + pv); }
+      var ls = relicSum('lifesteal');
+      if (ls) { c.lord.hp = Math.min(c.lord.maxHp, c.lord.hp + ls); fxSupport(lordEl(), '+' + ls, '#7ef0b5'); }
+      logMsg(h.def.name + ' → ' + enemy.name + ' ' + total + ' 피해' + (anyCrit ? ' (치명타!)' : ''));
+      c.busy = false;
+      finishPlay();
+    }
+    step();
   }
   function doSkill(h, target) {
     var c = run.combat; var sk = h.def.skill;
@@ -898,12 +906,18 @@
       living(c.enemies).forEach(function (e) { dmgEnemy(e, sk.val, enemyEl(c.enemies.indexOf(e)), 'aoe'); }); shake('big');
       logMsg(h.def.name + ' 「' + sk.name + '」 전체 ' + sk.val + ' 피해');
     } else if (sk.type === 'multi') {
-      for (var i = 0; i < sk.val; i++) {
-        var alive = living(c.enemies); if (!alive.length) break;
+      c.busy = true; var mi = 0; // 무작위 다회 공격은 타격마다 끊어서 연출
+      (function mhit() {
+        var alive = living(c.enemies);
+        if (mi >= sk.val || !alive.length) { logMsg(h.def.name + ' 「' + sk.name + '」 ' + sk.val + '회 공격'); c.busy = false; finishPlay(); return; }
+        mi++;
         var e2 = TCG.pick(alive);
+        TCG.sfx('attack');
         dmgEnemy(e2, pw, enemyEl(c.enemies.indexOf(e2)));
-      }
-      shake('sm'); logMsg(h.def.name + ' 「' + sk.name + '」 ' + sk.val + '회 공격');
+        shake('sm'); renderCombat();
+        setTimeout(mhit, 210);
+      })();
+      return; // 비동기 처리 — 아래 공통 finishPlay 건너뜀
     } else if (sk.type === 'heal') {
       c.lord.hp = Math.min(c.lord.maxHp, c.lord.hp + sk.val); // HP만 회복(MP 회복 없음)
       if (h.def.id === 'oracle') c.lord.block += 5;
@@ -952,7 +966,7 @@
 
   // 턴 종료: 가운데 남은 카드는 방어(주공 블록)로 전환되고 사용한 풀로 이동 → 적의 턴
   document.getElementById('endTurnBtn').addEventListener('click', function () {
-    var c = run.combat; if (!c || c.phase === 'enemy' || c.targeting) return;
+    var c = run.combat; if (!c || c.phase === 'enemy' || c.targeting || c.busy) return;
     var defended = 0, total = 0;
     c.center.slice().forEach(function (uid) {
       var h = heroByUid(uid);
