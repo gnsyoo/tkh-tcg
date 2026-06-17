@@ -224,7 +224,7 @@ var HW_CONS_BY_ID = {}; HW_CONSUMABLES.forEach(function (c) { HW_CONS_BY_ID[c.id
 var HW_ITEM_MAX = 5; // 소모성 아이템 소지 최대 칸
 
 /* 중간보스(각 메인 5·10 출전) — 강화 적 + 아군 카드에 상태이상. mp는 스테이지에 따라 20~50 */
-var HW_MID = { hpMult:2.3, atkMult:1.3, skillChance:0.45 };
+var HW_MID = { hpMult:2.3, atkMult:1.3, skillChance:0.32 };
 var HW_MID_SKILLS = [ // 아군 카드(장수)를 노리는 상태이상
   { name:'미혹의 진', type:'p_charm',   desc:'아군 카드 1장 1턴 매혹(행동 불능)' },
   { name:'환혼술',     type:'p_confuse', desc:'아군 카드 1장 1턴 혼란(행동 불능)' },
@@ -256,9 +256,9 @@ var HW_COMMANDERS = {
 /* 보스(스테이지·레이드) — 난이도별 스킬 사용 확률·마나, 격파 시 영웅전 적립 골드.
  * 보스는 매 공격 시 skillChance 확률로 대응 장수(`hero`)의 원래 스킬을 사용(MP 소모). */
 var HW_BOSS = {
-  easy:   { mp:20, skillChance:0.20, raidGold:50 },
-  normal: { mp:35, skillChance:0.35, raidGold:100 },
-  hard:   { mp:50, skillChance:0.50, raidGold:150 }
+  easy:   { mp:20, skillChance:0.14, raidGold:50 },
+  normal: { mp:35, skillChance:0.25, raidGold:100 },
+  hard:   { mp:50, skillChance:0.35, raidGold:150 }
 };
 
 /* 전역(campaign) — 8개 역사 스테이지. 뒤로 갈수록 난이도 상승.

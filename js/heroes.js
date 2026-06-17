@@ -964,11 +964,12 @@
   // 턴 종료: 가운데 남은 카드는 사용한 풀로 버려진다(방어 기능 제거) → 적의 턴
   document.getElementById('endTurnBtn').addEventListener('click', function () {
     var c = run.combat; if (!c || c.phase === 'enemy' || c.targeting || c.busy) return;
-    c.center.slice().forEach(function (uid) { c.used.push(uid); });
+    var deployed = c.center.slice(); // 이번 턴에 출진(가운데)한 카드들
+    deployed.forEach(function (uid) { c.used.push(uid); });
     c.center = [];
     c.sel = null;
-    // 아군 카드 상태이상 시간 감소(혼란·매혹은 이번 턴 지나면 회복)
-    if (c.cstat) Object.keys(c.cstat).forEach(function (uid) { if (c.cstat[uid].stun > 0) { c.cstat[uid].stun--; if (c.cstat[uid].stun <= 0) c.cstat[uid].cause = ''; } });
+    // 행동 불가(혼란·매혹)는 '출진한' 카드만 1회 소모 — 턴 무관, 덱에 묻혀 있으면 계속 유지
+    if (c.cstat) deployed.forEach(function (uid) { if (c.cstat[uid] && c.cstat[uid].stun > 0) { c.cstat[uid].stun--; if (c.cstat[uid].stun <= 0) c.cstat[uid].cause = ''; } });
     enemyPhase();
   });
 
