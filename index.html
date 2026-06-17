@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0d0b1a">
 <title>삼국지 카드 게임</title>
-<link rel="stylesheet" href="css/common.css?v=20260616a">
-<link rel="stylesheet" href="css/home.css?v=20260616a">
+<link rel="stylesheet" href="css/common.css?v=20260617a">
+<link rel="stylesheet" href="css/home.css?v=20260617a">
 </head>
 <body class="home-body">
   <div class="home-wrap">
@@ -39,11 +39,51 @@
         <span class="play-pill">토벌 ▶</span>
       </a>
     </section>
+
+    <footer class="home-version">
+      <span class="ver-badge" id="verBadge">v1.0 · 2026.06.17</span>
+      <button class="btn ghost ver-btn" id="changelogBtn">📜 변경 내역</button>
+    </footer>
+  </div>
+
+  <!-- 변경 내역 팝업 -->
+  <div class="overlay" id="changelogModal" hidden>
+    <div class="modal" style="max-width:560px;text-align:left;">
+      <h2 style="text-align:center;">📜 변경 내역 <span style="color:var(--gold);font-size:14px;">v1.0</span></h2>
+      <div class="changelog-list">
+        <h4>v1.0 · 2026.06.17</h4>
+        <ul>
+          <li>다회 공격 <b>스킬</b>은 타격당 기본 공격력의 <b>1/N</b>(2회=½·3회=⅓…)로 조정. 단, <b>장비의 2회 연속</b>은 기본 공격 그대로.</li>
+          <li>삼국 영웅전 <b>저잣거리 상시 입장</b> 가능.</li>
+          <li>삼국 영웅전 <b>카드 방어</b>("턴 종료 시 남기면 방어") 기능 제거 · <b>전투 내역 창 확대</b>(가로 꽉·높이 ↑).</li>
+          <li>대장전 <b>레이드 보스는 혼란·매혹(행동 불가) 면역</b>.</li>
+          <li><b>2회·다회 공격 연출</b>을 타격마다 끊어서 표시.</li>
+          <li><b>소모성 아이템</b>(전투 중 턴당 1개·최대 5칸·저잣거리 랜덤): HP/MP 회복·중독/혼란 해제·공격 버프·방어막.</li>
+          <li><b>중간보스</b>(각 전역 5·10 출전): 내 카드에 <b>혼란/매혹/중독/봉인</b> 상태이상 + MP 보유. 격파 시 장수 영입.</li>
+          <li>각 전역 <b>11회 출진</b>(11번째 적장). <b>난이도 선택 제거 → 상(Hard) 고정</b>.</li>
+          <li>적장·레이드 보스가 <b>장수 스킬을 확률로 시전</b>하고 <b>MP</b>를 가짐.</li>
+        </ul>
+        <h4>이전 업데이트</h4>
+        <ul>
+          <li><b>삼국 대장전(레이드)</b> 추가 — 영웅전 덱 공유, 보스 격파 시 그 적장을 전용 장수로 영입 + 골드 적립.</li>
+          <li><b>도감</b>(장수/장비 탭, 맵 하단 📖 버튼) · <b>데이터 초기화</b> 메뉴.</li>
+          <li>장비 <b>29종</b>(명마=회피 포함) · 치명타/연출 강화 · <b>제갈량</b>은 히어로즈 블러드 3연승 보상.</li>
+          <li>두 게임 <b>골드 연동</b>(히어로즈 블러드 정산 → 영웅전 골드).</li>
+        </ul>
+      </div>
+      <div style="text-align:center;margin-top:14px;"><button class="btn primary" id="changelogClose">닫기</button></div>
+    </div>
   </div>
 
   <script>
     // 난이도 선택 제거 — 기본 상(hard) 고정
     try { localStorage.setItem('tcg_difficulty', 'hard'); } catch (e) {}
+    (function () {
+      var modal = document.getElementById('changelogModal');
+      document.getElementById('changelogBtn').addEventListener('click', function () { modal.hidden = false; });
+      document.getElementById('changelogClose').addEventListener('click', function () { modal.hidden = true; });
+      modal.addEventListener('click', function (e) { if (e.target === modal) modal.hidden = true; });
+    })();
   </script>
 </body>
 </html>

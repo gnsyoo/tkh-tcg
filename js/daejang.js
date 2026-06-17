@@ -303,10 +303,12 @@
     if (sk.type === 'strike') { dmgBoss(pw + sk.val); shake('big'); logMsg(h.def.name + ' 「' + sk.name + '」 ' + (pw + sk.val) + ' 피해'); }
     else if (sk.type === 'aoe') { if (b.hp > 0) dmgBoss(sk.val); shake('big'); logMsg(h.def.name + ' 「' + sk.name + '」 ' + sk.val + ' 피해'); }
     else if (sk.type === 'multi') {
-      c.busy = true; var mi = 0; // 무작위 다회 공격은 타격마다 끊어서 연출
+      // 다회 공격 스킬은 타격당 기본 공격력의 1/N(반올림)
+      var perHit = Math.max(1, Math.round(pw / sk.val));
+      c.busy = true; var mi = 0; // 타격마다 끊어서 연출
       (function mhit() {
-        if (mi >= sk.val || b.hp <= 0) { logMsg(h.def.name + ' 「' + sk.name + '」 ' + sk.val + '회 공격'); c.busy = false; finishPlay(); return; }
-        mi++; TCG.sfx('attack'); dmgBoss(pw); shake('sm'); renderCombat(); setTimeout(mhit, 210);
+        if (mi >= sk.val || b.hp <= 0) { logMsg(h.def.name + ' 「' + sk.name + '」 ' + sk.val + '회 공격(타격당 ' + perHit + ')'); c.busy = false; finishPlay(); return; }
+        mi++; TCG.sfx('attack'); dmgBoss(perHit); shake('sm'); renderCombat(); setTimeout(mhit, 210);
       })();
       return; // 비동기 처리 — 아래 공통 finishPlay 건너뜀
     }

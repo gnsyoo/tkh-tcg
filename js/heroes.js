@@ -243,7 +243,7 @@
       '<div class="sub-dots">' + dots + '</div>' +
       '<div class="cs-actions">' +
         '<button class="camp-btn primary" data-act="battle">' + battleLabel + '</button>' +
-        '<button class="camp-btn" data-act="shop"' + (run.stageShopped ? ' disabled' : '') + '>🏪 저잣거리' + (run.stageShopped ? ' ✓' : '') + '</button>' +
+        '<button class="camp-btn" data-act="shop">🏪 저잣거리</button>' +
       '</div>' +
       '<div class="map-lord-status">' +
         '<span class="mls hp">❤ ' + (run.lordHp != null ? run.lordHp : lordMaxHp()) + ' / ' + lordMaxHp() + '</span>' +
@@ -260,7 +260,7 @@
     var act = btn.dataset.act;
     TCG.sfx('tap');
     if (act === 'battle') return startStageCombat();
-    if (act === 'shop') { run.stageShopped = true; showShop(); }
+    if (act === 'shop') { showShop(); } // 저잣거리는 항상 입장 가능
   });
 
   /* ---------- 수집한 장수 / 장비 보기 ---------- */
@@ -901,14 +901,16 @@
       living(c.enemies).forEach(function (e) { dmgEnemy(e, sk.val, enemyEl(c.enemies.indexOf(e)), 'aoe'); }); shake('big');
       logMsg(h.def.name + ' 「' + sk.name + '」 전체 ' + sk.val + ' 피해');
     } else if (sk.type === 'multi') {
-      c.busy = true; var mi = 0; // 무작위 다회 공격은 타격마다 끊어서 연출
+      // 다회 공격 스킬은 타격당 기본 공격력의 1/N(반올림) — N=타격 수
+      var perHit = Math.max(1, Math.round(pw / sk.val));
+      c.busy = true; var mi = 0; // 타격마다 끊어서 연출
       (function mhit() {
         var alive = living(c.enemies);
-        if (mi >= sk.val || !alive.length) { logMsg(h.def.name + ' 「' + sk.name + '」 ' + sk.val + '회 공격'); c.busy = false; finishPlay(); return; }
+        if (mi >= sk.val || !alive.length) { logMsg(h.def.name + ' 「' + sk.name + '」 ' + sk.val + '회 공격(타격당 ' + perHit + ')'); c.busy = false; finishPlay(); return; }
         mi++;
         var e2 = TCG.pick(alive);
         TCG.sfx('attack');
-        dmgEnemy(e2, pw, enemyEl(c.enemies.indexOf(e2)));
+        dmgEnemy(e2, perHit, enemyEl(c.enemies.indexOf(e2)));
         shake('sm'); renderCombat();
         setTimeout(mhit, 210);
       })();
