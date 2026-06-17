@@ -299,8 +299,9 @@
     var h = heroByUid(c.sel.uid); if (!h) { bar.hidden = true; return; }
     var sk = raidSkill(h), isHeal = sk.type === 'heal', mp = skillMp(sk);
     var immune = (sk.type === 'charm' || sk.type === 'confuse'); // 레이드 보스는 행동 불가(혼란·매혹) 면역
-    var canSkill = !immune && (isHeal || c.lord.mp >= mp);
-    var mpLabel = immune ? '🛡 면역' : (isHeal ? ('💧+' + Math.round(sk.val / 4) + ' 회복') : ('💧' + mp));
+    var buffDone = sk.type === 'buff' && c.buffApplied && c.buffApplied[h.uid]; // 버프는 전투당 1회(중첩 불가)
+    var canSkill = !immune && !buffDone && (isHeal || c.lord.mp >= mp);
+    var mpLabel = buffDone ? '✓ 적용됨' : (immune ? '🛡 면역' : (isHeal ? ('💧+' + Math.round(sk.val / 4) + ' 회복') : ('💧' + mp)));
     var skDesc = immune ? '레이드 보스는 혼란·매혹에 면역' : sk.desc;
     var critPct = Math.round(critChance(h) * 100);
     bar.hidden = false;
@@ -331,6 +332,7 @@
     if (act === 'attack') { c.targeting = true; c.pendKind = 'attack'; renderCombat(); return; }
     var sk = raidSkill(h);
     if (sk.type === 'charm' || sk.type === 'confuse') { TCG.toast('레이드 보스는 혼란·매혹(행동 불가)에 면역입니다'); return; }
+    if (sk.type === 'buff' && c.buffApplied && c.buffApplied[h.uid]) { TCG.toast('「' + sk.name + '」 버프는 전투당 1회만 적용됩니다 (중첩 불가)'); return; }
     if (sk.type !== 'heal' && c.lord.mp < skillMp(sk)) { TCG.toast('MP가 부족합니다'); return; }
     if (sk.type === 'strike') { c.targeting = true; c.pendKind = 'skill'; renderCombat(); }
     else doSkill(h, true);
@@ -387,7 +389,11 @@
     else if (sk.type === 'confuse' || sk.type === 'charm') { fxSupport(bossEl(), '🛡 면역', '#cfd8e3'); logMsg(b.name + ' — ' + (sk.type === 'charm' ? '매혹' : '혼란') + ' 면역!'); } // 레이드 보스는 행동 불가 면역
     else if (sk.type === 'heal') { c.lord.hp = Math.min(c.lord.maxHp, c.lord.hp + sk.val); var mh = Math.round(sk.val / 4); if (mh) c.lord.mp = Math.min(c.lord.maxMp, c.lord.mp + mh); if (h.def.id === 'oracle') c.lord.block += 5; fxSupport(lordEl(), '+' + sk.val + (mh ? ' 💧+' + mh : ''), '#7ef0b5'); logMsg(h.def.name + ' 「' + sk.name + '」 주공 ' + sk.val + ' 회복' + (mh ? ' · MP +' + mh : '')); }
     else if (sk.type === 'shield') { c.lord.block += sk.val; fxSupport(lordEl(), '🛡+' + sk.val, '#9fd2ff'); logMsg(h.def.name + ' 「' + sk.name + '」 주공 방어막 +' + sk.val); }
-    else if (sk.type === 'buff') { c.atkBuff = (c.atkBuff || 0) + sk.val; fxSupport(lordEl(), '⚔+' + sk.val, '#ffd86b'); logMsg(h.def.name + ' 「' + sk.name + '」 전군 공격력 +' + sk.val); }
+    else if (sk.type === 'buff') { // 버프는 전투당 1회만(중첩 방지)
+      if (!c.buffApplied) c.buffApplied = {};
+      if (!c.buffApplied[h.uid]) { c.buffApplied[h.uid] = true; c.atkBuff = (c.atkBuff || 0) + sk.val; fxSupport(lordEl(), '⚔+' + sk.val, '#ffd86b'); logMsg(h.def.name + ' 「' + sk.name + '」 전군 공격력 +' + sk.val + ' (전투 동안)'); }
+      else { logMsg(h.def.name + ' 「' + sk.name + '」 — 이미 적용됨(중첩 불가)'); }
+    }
     finishPlay();
   }
   function finishPlay() {

@@ -853,9 +853,10 @@
     if (!h) { bar.hidden = true; return; }
     var sk = h.def.skill;
     var isHeal = sk.type === 'heal';
+    var buffDone = sk.type === 'buff' && c.buffApplied && c.buffApplied[h.uid]; // 버프는 전투당 1회(중첩 불가)
     var mp = skillMp(sk);
-    var canSkill = isHeal || c.lord.mp >= mp; // 회복 스킬은 MP 제한 없음(오히려 회복)
-    var mpLabel = isHeal ? '💧0 (무료)' : ('💧' + mp);
+    var canSkill = !buffDone && (isHeal || c.lord.mp >= mp); // 회복 스킬은 MP 제한 없음(오히려 회복)
+    var mpLabel = buffDone ? '✓ 적용됨' : (isHeal ? '💧0 (무료)' : ('💧' + mp));
     var critPct = Math.round(critChance(h) * 100);
     bar.hidden = false;
     bar.innerHTML =
@@ -890,6 +891,7 @@
     if (act === 'attack') { beginTarget('enemy', 'attack'); return; }
     // skill (회복 스킬은 MP 소모 없음, 그 외는 MP 소모)
     var sk = h.def.skill;
+    if (sk.type === 'buff' && c.buffApplied && c.buffApplied[h.uid]) { TCG.toast('「' + sk.name + '」 버프는 전투당 1회만 적용됩니다 (중첩 불가)'); return; }
     if (sk.type !== 'heal' && c.lord.mp < skillMp(sk)) { TCG.toast('MP가 부족합니다'); return; }
     if (sk.type === 'strike' || sk.type === 'charm' || sk.type === 'confuse') beginTarget('enemy', 'skill'); // 단일 적 대상
     else doSkill(h, null); // aoe(전체)·multi(무작위)·heal/shield/buff(주공) 자동 처리
@@ -1004,9 +1006,16 @@
       fxSupport(lordEl(), '🛡+' + sk.val, '#9fd2ff', 'shield');
       logMsg(h.def.name + ' 「' + sk.name + '」 주공 방어막 +' + sk.val);
     } else if (sk.type === 'buff') {
-      c.atkBuff = (c.atkBuff || 0) + sk.val;
-      fxSupport(lordEl(), '⚔+' + sk.val, '#ffd86b');
-      logMsg(h.def.name + ' 「' + sk.name + '」 전군 공격력 +' + sk.val);
+      // 버프는 전투당 1회만 적용(중첩 방지) — 같은 장수를 매 턴 다시 써도 공격력이 계속 오르지 않음
+      if (!c.buffApplied) c.buffApplied = {};
+      if (!c.buffApplied[h.uid]) {
+        c.buffApplied[h.uid] = true;
+        c.atkBuff = (c.atkBuff || 0) + sk.val;
+        fxSupport(lordEl(), '⚔+' + sk.val, '#ffd86b');
+        logMsg(h.def.name + ' 「' + sk.name + '」 전군 공격력 +' + sk.val + ' (전투 동안)');
+      } else {
+        logMsg(h.def.name + ' 「' + sk.name + '」 — 이미 적용됨(중첩 불가)');
+      }
     } else if (sk.type === 'charm') {
       // 적을 매혹 — 행동 불가. 중첩 방지: 마지막 1개만 적용(혼란과도 배타)
       if (target && target.hp > 0) {
