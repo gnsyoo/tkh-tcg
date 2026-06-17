@@ -442,9 +442,10 @@
       var rb = null; HW_RAID.bosses.forEach(function (b) { if (b.reward === d.id) rb = b; });
       return '👹 삼국 대장전 — ' + (rb ? HW_COMMANDERS[rb.key].name : '적장') + ' 격파 보상 (대장전에서만 획득)';
     }
+    if (d.exclusive === 'special') return '🐎 화웅(첫 적장)을 주공 풀 HP로 격파 또는 노멀 모드 천하통일';
     return '⚔️ 전투 보상 영입 · 🏪 저잣거리 구매';
   }
-  function weaponPath(w) { return w.exclusive === 'collection' ? '📕 장수 도감 100% 완료 보상' : '💎 보물상자(출진 5·10회) · 🏪 저잣거리'; }
+  function weaponPath(w) { return w.exclusive === 'collection' ? '📕 장수 컬렉션 100% 완료 보상' : '💎 보물상자(출진 5·10회) · 🏪 저잣거리'; }
   function renderRosterGrid() {
     var inDeck = {}; deck.forEach(function (u) { inDeck[u] = true; });
     var rt = document.getElementById('rosterTitleCount'); if (rt) rt.textContent = '· 출진 덱 ' + deck.length + ' / ' + MAX_DECK + ' (최소 ' + deckMin() + ')';
