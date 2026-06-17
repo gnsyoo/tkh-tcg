@@ -47,7 +47,7 @@ var TCG = (function () {
     '화타': { hair: 'white', beard: 'long', brow: 'calm', top: 'cap' },
     '사마염': { top: 'crown', beard: 'full' }, '원소': { top: 'crown', beard: 'full' },
     '동탁': { skin: 'dark', beard: 'full', brow: 'fierce' },
-    '초선': { female: true }, '소교': { female: true }, '대교': { female: true },
+    '초선': { female: true, ornate: true }, '소교': { female: true }, '대교': { female: true },
     '순욱': { top: 'cap' }, '순유': { top: 'cap' }, '서서': { top: 'cap' }, '정욱': { top: 'cap' },
     '방통': { top: 'cap', brow: 'fierce' }, '가후': { top: 'cap', beard: 'goatee', brow: 'fierce' },
     '주유': { top: 'cap', beard: 'none', brow: 'calm' }, '육손': { top: 'cap', beard: 'none', brow: 'calm' },
@@ -111,6 +111,16 @@ var TCG = (function () {
     else P.push('<path d="M19 23 Q19 14 32 13 Q45 14 45 23 Q44 17 32 16 Q20 17 19 23 Z" fill="' + hair + '"/>');
     if (beard !== 'none') P.push('<path d="M25.5 33 Q28 35 32 34.6 Q36 35 38.5 33 Q34 34 32 34 Q30 34 25.5 33 Z" fill="' + hair + '"/>');
     if (T.eyepatch) { P.push('<path d="M14 21 L48 30" stroke="#1d1d22" stroke-width="2.4"/>'); P.push('<ellipse cx="26" cy="26" rx="4.2" ry="3.2" fill="#1d1d22"/>'); }
+    if (female && T.ornate) { // 초선 — 화려한 머리 장식·꽃·귀걸이·이마 화전·늘어뜨린 술
+      P.push('<path d="M16 14 L15 27" stroke="#d4af37" stroke-width="1"/><circle cx="15" cy="28" r="1.3" fill="#d4324a"/>');
+      P.push('<path d="M48 14 L49 27" stroke="#d4af37" stroke-width="1"/><circle cx="49" cy="28" r="1.3" fill="#d4324a"/>');
+      P.push('<ellipse cx="32" cy="6.5" rx="5.6" ry="4.2" fill="#160f0a"/>');
+      P.push('<path d="M26.5 7 Q24 2 27 0.6 Q28.5 4 29.5 6.5 Z" fill="#f0c33c"/><path d="M37.5 7 Q40 2 37 0.6 Q35.5 4 34.5 6.5 Z" fill="#f0c33c"/>');
+      P.push('<circle cx="32" cy="3.6" r="2.1" fill="#d4324a"/><circle cx="27.5" cy="6.2" r="1.2" fill="#f0c33c"/><circle cx="36.5" cy="6.2" r="1.2" fill="#f0c33c"/>');
+      P.push('<g fill="#ec6a93"><circle cx="42" cy="11.5" r="1.6"/><circle cx="44.4" cy="11.5" r="1.6"/><circle cx="43.2" cy="9.6" r="1.6"/><circle cx="43.2" cy="13.4" r="1.6"/></g><circle cx="43.2" cy="11.5" r="1.1" fill="#f0c33c"/>');
+      P.push('<circle cx="32" cy="18.6" r="1.3" fill="#d4324a"/>');
+      P.push('<circle cx="19.3" cy="31.8" r="1.4" fill="#f0c33c"/><circle cx="44.7" cy="31.8" r="1.4" fill="#f0c33c"/>');
+    }
     return '<svg class="p-face" viewBox="0 0 64 64" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">' + P.join('') + '</svg>';
   }
   // 인물화 대상: 장수/카드(ASCII id). 주공('lord')·적장('cmd_*')·적(한글 이름)은 이모지 유지

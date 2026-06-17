@@ -597,6 +597,10 @@
 .shop-item .si-desc { font-size: 10px; color: var(--ink-dim); min-height: 28px; line-height: 1.3; }
 .shop-item .si-buy { margin-top: 6px; width: 100%; }
 .shop-item.sold { opacity: 0.4; }
+.shop-item.shop-hero { cursor: pointer; }
+.shop-item.shop-hero:hover { border-color: var(--gold); box-shadow: 0 6px 18px rgba(0,0,0,0.4); }
+.shop-item.shop-hero .rc-portrait { width: 86px; height: 60px; margin: 0 auto 4px; }
+.shop-item.shop-hero .rc-portrait .p-emoji { font-size: 40px; }
 
 @media (max-width: 420px) {
   .unit { width: clamp(74px, 28vw, 92px); padding: 7px 4px 6px; }

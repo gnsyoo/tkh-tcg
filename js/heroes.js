@@ -1272,22 +1272,47 @@
   }
   function renderShop() {
     document.getElementById('shopItems').innerHTML = run.shop.map(function (it, i) {
+      var afford = run.gold >= it.cost && !it.sold;
+      var buyBtn = '<button class="btn primary si-buy" data-i="' + i + '"' + (afford ? '' : ' disabled') + '>' + (it.sold ? '구매완료' : '💰 ' + it.cost) + '</button>';
+      if (it.kind === 'hero') { // 장수는 카드 형태(탭하면 정보)
+        var d = it.def;
+        return '<div class="shop-item shop-hero' + (it.sold ? ' sold' : '') + '" data-info="' + i + '" title="탭하면 상세 정보">' +
+          TCG.portrait(d.emoji, d.id, 'rc-portrait', d.name) +
+          '<div class="si-name">' + d.name + ' <span class="rar-' + d.rarity + '" style="font-size:11px">' + d.rarity + '</span></div>' +
+          '<div class="si-desc">' + d.cls + ' · ❤' + d.hp + ' ⚔' + d.atk + '<br>「' + d.skill.name + '」 ⓘ</div>' +
+          buyBtn + '</div>';
+      }
       var emoji, name, desc;
-      if (it.kind === 'hero') { emoji = it.def.emoji; name = it.def.name; desc = it.def.cls + ' · ⚔' + it.def.atk + ' · 「' + it.def.skill.name + '」'; }
-      else if (it.kind === 'weapon') { var w = HW_WEAPON_BY_ID[it.wid]; emoji = w.emoji; name = w.name; desc = w.desc; }
+      if (it.kind === 'weapon') { var w = HW_WEAPON_BY_ID[it.wid]; emoji = w.emoji; name = w.name; desc = w.desc; }
       else if (it.kind === 'item') { var ci = HW_CONS_BY_ID[it.cid]; emoji = ci.emoji; name = ci.name + ' (소모품)'; desc = ci.desc; }
       else if (it.kind === 'dujiu') { emoji = '🍶'; name = '두강주'; desc = '주공 MP 20 회복'; }
       else { emoji = '⚒️'; name = '무기 강화'; desc = '무작위 영웅 공격력 +3'; }
-      var afford = run.gold >= it.cost && !it.sold;
       return '<div class="shop-item' + (it.sold ? ' sold' : '') + '">' +
         '<div class="si-emoji">' + emoji + '</div>' +
         '<div class="si-name">' + name + '</div>' +
-        '<div class="si-desc">' + desc + '</div>' +
-        '<button class="btn primary si-buy" data-i="' + i + '"' + (afford ? '' : ' disabled') + '>' +
-        (it.sold ? '구매완료' : '💰 ' + it.cost) + '</button></div>';
+        '<div class="si-desc">' + desc + '</div>' + buyBtn + '</div>';
     }).join('');
   }
+  // 저잣거리 장수 카드 — 탭하면 상세 정보(읽기 전용)
+  function showHeroInfo(d) {
+    TCG.sfx('tap');
+    var slots = slotsForRarity(d.rarity);
+    document.getElementById('heroModalBody').innerHTML =
+      TCG.portrait(d.emoji, d.id, 'modal-portrait', d.name) +
+      '<h2>' + d.name + ' <span class="rar-' + d.rarity + '" style="font-size:14px">' + d.rarity + '</span></h2>' +
+      '<p>' + d.cls + ' · ❤ ' + d.hp + ' · ⚔ ' + d.atk + ' · 🗡️ 무기 슬롯 ' + slots + '개</p>' +
+      '<div style="background:rgba(0,0,0,.25);border-radius:10px;padding:10px;text-align:left;font-size:13px">' +
+      '<b style="color:var(--gold)">「' + d.skill.name + '」</b> 💧' + skillMp(d.skill) + '<br>' +
+      '<span style="color:var(--ink-dim)">' + d.skill.desc + '</span></div>' +
+      '<p style="font-size:12px;color:var(--ink-dim);margin-top:10px">획득 경로: ' + heroPath(d) + '</p>' +
+      '<button class="btn primary" id="heroModalClose" style="margin-top:14px">닫기</button>';
+    var modal = document.getElementById('heroModal');
+    modal.hidden = false;
+    document.getElementById('heroModalClose').addEventListener('click', function () { modal.hidden = true; });
+  }
   document.getElementById('shopItems').addEventListener('click', function (e) {
+    var info = e.target.closest('.shop-hero');
+    if (info && !e.target.closest('.si-buy')) { var hi = run.shop[parseInt(info.dataset.info, 10)]; if (hi && hi.def) showHeroInfo(hi.def); return; }
     var b = e.target.closest('.si-buy'); if (!b || b.disabled) return;
     var it = run.shop[parseInt(b.dataset.i, 10)];
     if (it.sold || run.gold < it.cost) return;
