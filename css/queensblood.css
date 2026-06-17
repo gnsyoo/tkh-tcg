@@ -326,3 +326,20 @@
   .hand-card { flex-basis: 94px; }
   .deck-grid { grid-template-columns: repeat(auto-fill, minmax(74px, 1fr)); }
 }
+
+/* 보드 카드 정보 팝업 */
+#cardModalBody { text-align: left; }
+.ci-head { display: flex; gap: 12px; align-items: center; }
+.ci-head .ci-art { width: 64px; height: 64px; flex: 0 0 64px; }
+.ci-head .ci-art .p-emoji { font-size: 38px; }
+.ci-meta { flex: 1; min-width: 0; }
+.ci-name { font-size: 17px; font-weight: 800; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ci-owner { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+.ci-owner.you { color: var(--you); background: rgba(90,166,255,0.14); }
+.ci-owner.foe { color: var(--foe); background: rgba(232,83,107,0.14); }
+.ci-rank { font-size: 12px; color: var(--ink-dim); margin-top: 4px; display: flex; align-items: center; gap: 6px; }
+.ci-pw { font-size: 14px; font-weight: 700; margin-top: 4px; }
+.ci-pw .ci-up { color: var(--you); } .ci-pw .ci-down { color: var(--foe); }
+.ci-ab { margin-top: 12px; padding: 9px 12px; border-radius: 8px; background: rgba(0,0,0,0.28); font-size: 13px; line-height: 1.5; }
+.ci-enh-wrap { margin-top: 12px; display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--ink-dim); }
+.ci-enh-wrap small { color: var(--ink-dim); opacity: 0.8; }

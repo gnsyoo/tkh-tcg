@@ -49,8 +49,8 @@
 
   function canPlace(b, def, owner, r, c) {
     var cell = b[r][c];
-    // 점령한 칸의 폰 레벨 이상의 등급(핍)을 가진 카드만 배치 가능 (예: 레벨2 칸 → 등급 2,3,4,5)
-    return cell.card === null && cell.owner === owner && cell.rank >= 1 && def.rank >= cell.rank;
+    // 점령한 칸의 폰 레벨 이하의 등급(핍)을 가진 카드만 배치 가능 (예: 레벨4 칸 → 등급 1·2·3·4)
+    return cell.card === null && cell.owner === owner && cell.rank >= 1 && def.rank <= cell.rank;
   }
 
   function placeOnBoard(b, def, owner, r, c) {
@@ -571,13 +571,37 @@
   });
 
   boardEl.addEventListener('click', function (e) {
-    if (state.over || state.busy || state.awaitingEnd || state.turn !== 'you') return;
-    var tile = e.target.closest('.tile');
-    if (!tile || !tile.classList.contains('placeable')) return;
-    if (state.selected < 0) return;
+    var tile = e.target.closest('.tile'); if (!tile) return;
     var r = parseInt(tile.dataset.r, 10), c = parseInt(tile.dataset.c, 10);
+    var cell = state.board[r] && state.board[r][c];
+    // 배치된 카드를 클릭 → 카드 정보 팝업(아군·적군 모두, 언제든)
+    if (cell && cell.card) { showCardInfo(cell.card.def, cell.card.owner, effGrid(state.board)[r][c]); return; }
+    // 빈 칸 배치(내 차례 + 선택된 핸드 카드)
+    if (state.over || state.busy || state.awaitingEnd || state.turn !== 'you') return;
+    if (!tile.classList.contains('placeable')) return;
+    if (state.selected < 0) return;
     placeCard('you', state.selected, r, c);
   });
+  function showCardInfo(def, owner, effPower) {
+    TCG.sfx('tap');
+    var rp = ''; for (var k = 0; k < def.rank; k++) rp += '<span class="rp"></span>';
+    var ownerLabel = owner === 'you'
+      ? '<span class="ci-owner you">🧑 내 카드</span>'
+      : '<span class="ci-owner foe">🤖 상대 카드</span>';
+    var pwTxt = '무력 ' + def.power + ((effPower != null && effPower !== def.power) ? ' → <b class="' + (effPower > def.power ? 'ci-up' : 'ci-down') + '">' + effPower + '</b> (효과 적용)' : '');
+    document.getElementById('cardModalBody').innerHTML =
+      '<div class="ci-head">' + TCG.portrait(def.emoji, def.id, 'ci-art') +
+        '<div class="ci-meta">' +
+          '<div class="ci-name">' + def.name + ' ' + ownerLabel + '</div>' +
+          '<div class="ci-rank">등급 <span class="rank-pips">' + rp + '</span> · 레벨 ' + def.rank + ' 이상 칸에 배치</div>' +
+          '<div class="ci-pw">⚔ ' + pwTxt + '</div>' +
+        '</div></div>' +
+      '<div class="ci-ab">' + (def.ab ? '✨ ' + def.ab.txt : '지속 효과 없음') + '</div>' +
+      '<div class="ci-enh-wrap">강화 패턴 ' + enhGlyph(def) + '<small>카드를 놓으면 표시된 칸에 폰 +1</small></div>';
+    document.getElementById('cardModal').hidden = false;
+  }
+  document.getElementById('cardModalClose').addEventListener('click', function () { document.getElementById('cardModal').hidden = true; });
+  document.getElementById('cardModal').addEventListener('click', function (e) { if (e.target.id === 'cardModal') e.currentTarget.hidden = true; });
 
   document.getElementById('passBtn').addEventListener('click', function () {
     if (state.over || state.busy || state.awaitingEnd || state.turn !== 'you') return;
