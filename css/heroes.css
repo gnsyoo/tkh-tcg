@@ -193,6 +193,20 @@
   background: rgba(0,0,0,0.45); border-radius: 5px; padding: 0 3px; z-index: 2;
 }
 .mini-hero .hpbar { margin-top: 4px; }
+/* ---- 출진 덱 편성 (영웅전 .mini-hero · 대장전 .col-card 공용) ---- */
+.deck-pick { opacity: 0.5; cursor: pointer; transition: opacity 0.12s, box-shadow 0.12s, border-color 0.12s; }
+.deck-pick.in-deck { opacity: 1; border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold), 0 0 10px rgba(245,197,66,0.35); }
+.deck-pick .deck-check {
+  position: absolute; top: 3px; right: 4px; width: 16px; height: 16px; line-height: 15px;
+  text-align: center; font-size: 11px; font-weight: 900; border-radius: 50%;
+  background: rgba(0,0,0,0.5); color: var(--ink-dim); z-index: 2;
+}
+.deck-pick.in-deck .deck-check { background: var(--gold); color: #2a1d00; }
+.mini-hero .mh-equip {
+  margin-top: 4px; width: 100%; font-size: 9px; padding: 2px 0; border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.18); background: rgba(0,0,0,0.28); color: var(--ink-dim); cursor: pointer;
+}
+.mini-hero .mh-equip:hover { color: var(--ink); border-color: var(--gold); }
 
 /* ---- Combat ---- */
 .enemy-row, .party-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; min-height: 120px; align-items: flex-start; }

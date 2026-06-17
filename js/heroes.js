@@ -2,7 +2,8 @@
 (function () {
   var diff = TCG.getDifficulty();
   var DCFG = HW_DIFF[diff];
-  var MAX_PARTY = 30; // 파티(=카드 덱)에 모집해 넣을 수 있는 최대 장수 수
+  var MAX_PARTY = HW_HEROES.length; // 수집은 장수 수만큼 가능(전 장수 수집 가능)
+  var MIN_DECK = 10, MAX_DECK = 30; // 출진 덱: 최소 10장 · 최대 30장
   var SUB_COUNT = 11; // 메인 스테이지 1개당 출전 수 (11번째=적장 보스, 5·10번째=중간보스)
   var run = null;
 
@@ -17,6 +18,19 @@
   // 무기 효과 헬퍼 (장착 수: C=0 · R=1 · SR=2 · SSR=3)
   function slotsForRarity(r) { return r === 'SSR' ? 3 : r === 'SR' ? 2 : r === 'R' ? 1 : 0; }
   function weaponSlots(h) { return h && h.def ? slotsForRarity(h.def.rarity) : 0; }
+  /* ---------- 출진 덱(run.deck = uid 목록) ---------- */
+  function deckMin() { return Math.min(MIN_DECK, run.party.length); } // 보유<10이면 보유 전부가 최소
+  function activeDeckUids() { // 선택 덱을 정규화: 유효 uid만 · 최대 30 · 부족하면 보유 순서로 자동 채움(최소치까지)
+    var order = run.party.map(function (h) { return h.uid; });
+    var own = {}; order.forEach(function (u) { own[u] = true; });
+    var seen = {}, deck = [];
+    (run.deck || []).forEach(function (u) { if (own[u] && !seen[u]) { seen[u] = true; deck.push(u); } });
+    if (deck.length > MAX_DECK) deck = deck.slice(0, MAX_DECK);
+    var need = deckMin();
+    for (var i = 0; i < order.length && deck.length < need; i++) if (!seen[order[i]]) { seen[order[i]] = true; deck.push(order[i]); }
+    return deck;
+  }
+  function syncDeck() { run.deck = activeDeckUids(); } // 정규화 결과를 run.deck에 반영(자동 채움 포함)
   var BASE_CRIT = 0.01; // 기본 치명타 확률 1%
   function critChance(h) { return BASE_CRIT + (h ? wpnVal(h, 'crit') : 0); }
   function rollCrit(chance) { return Math.random() < chance; }
@@ -88,6 +102,7 @@
       localStorage.setItem('hw_save', JSON.stringify({
         v: 3, diff: diff,
         party: run.party.map(function (h) { return { id: h.def.id, atk: h.atk, uid: h.uid, weapons: heroWpnIds(h).slice() }; }),
+        deck: (run.deck || []).slice(),
         gold: run.gold, mainStage: run.mainStage, subStage: run.subStage,
         relics: run.relics.map(function (r) { return r.id; }),
         weapons: run.weapons.slice(), items: (run.items || []).slice(), sorties: run.sorties || 0,
@@ -121,11 +136,13 @@
       weapons: (d.weapons || []).filter(function (id) { return HW_WEAPON_BY_ID[id]; }),
       items: (d.items || []).filter(function (id) { return HW_CONS_BY_ID[id]; }).slice(0, HW_ITEM_MAX),
       sorties: d.sorties || 0,
+      deck: Array.isArray(d.deck) ? d.deck.slice() : [],
       stageShopped: false, combat: null
     };
     run.lordHp = (typeof d.lordHp === 'number') ? Math.min(d.lordHp, lordMaxHp()) : lordMaxHp();
     run.lordMp = (typeof d.lordMp === 'number') ? Math.min(d.lordMp, lordMaxMp()) : lordMaxMp();
     run.mode = HW_MODES[d.mode] ? d.mode : 'normal';
+    syncDeck();
     showMap();
   }
 
@@ -137,10 +154,11 @@
   /* ---------- run lifecycle ---------- */
   function newRun(mode) {
     clearSave();
-    run = { party: HW_STARTERS.map(mkHero), gold: DCFG.startGold, mainStage: 0, subStage: 0, relics: [], weapons: [], items: [], sorties: 0, stageShopped: false, combat: null };
+    run = { party: HW_STARTERS.map(mkHero), deck: [], gold: DCFG.startGold, mainStage: 0, subStage: 0, relics: [], weapons: [], items: [], sorties: 0, stageShopped: false, combat: null };
     run.mode = (HW_MODES[mode] && isModeUnlocked(mode)) ? mode : 'normal';
     run.lordHp = lordMaxHp(); // 주공 HP는 모험 내내 유지(스테이지마다 일부 회복)
     run.lordMp = lordMaxMp(); // 주공 MP도 모험 내내 유지(전투 시작 시 10% 회복)
+    syncDeck();
     showMap();
   }
 
@@ -279,16 +297,44 @@
   });
 
   /* ---------- 수집한 장수 / 장비 보기 ---------- */
+  function renderRosterGrid() {
+    var deck = run.deck || [];
+    var inDeck = {}; deck.forEach(function (u) { inDeck[u] = true; });
+    document.getElementById('rosterTitleCount').textContent =
+      '· 출진 덱 ' + deck.length + ' / ' + MAX_DECK + ' (최소 ' + deckMin() + ') · 수집 ' + run.party.length + '/' + HW_HEROES.length;
+    document.getElementById('rosterGrid').innerHTML = run.party.map(function (h) {
+      var ws = heroWpns(h).map(function (w) { return w.emoji; }).join('');
+      var on = !!inDeck[h.uid];
+      return '<div class="mini-hero deck-pick' + (on ? ' in-deck' : '') + '" data-uid="' + h.uid + '">' +
+        '<span class="mh-rar rar-' + h.def.rarity + '">' + h.def.rarity + '</span>' +
+        '<span class="deck-check">' + (on ? '✓' : '+') + '</span>' +
+        TCG.portrait(h.def.emoji, h.def.id, '', h.def.name) +
+        '<div class="mh-name">' + h.def.name + '</div>' +
+        '<div class="mh-stats">⚔' + effAtk(h) + (ws ? ' <span class="mh-wpn">' + ws + '</span>' : '') + '</div>' +
+        '<button class="mh-equip" data-equip="' + h.uid + '">🗡 장비</button>' +
+        '</div>';
+    }).join('');
+  }
+  function toggleDeck(uid) {
+    if (!run.deck) run.deck = [];
+    var i = run.deck.indexOf(uid);
+    if (i >= 0) {
+      if (run.deck.length <= deckMin()) { TCG.toast('출진 덱은 최소 ' + deckMin() + '장이어야 합니다'); return; }
+      run.deck.splice(i, 1);
+    } else {
+      if (run.deck.length >= MAX_DECK) { TCG.toast('출진 덱은 최대 ' + MAX_DECK + '장입니다'); return; }
+      run.deck.push(uid);
+    }
+    TCG.sfx('tap'); saveRun(); renderRosterGrid();
+  }
   function openRoster() {
     TCG.sfx('tap');
-    document.getElementById('rosterTitleCount').textContent = '(' + run.party.length + ' / ' + MAX_PARTY + ')';
-    document.getElementById('rosterGrid').innerHTML = run.party.map(miniHero).join('');
+    syncDeck(); saveRun(); // 보유<10이면 자동 채움 등 정규화 후 표시
+    renderRosterGrid();
     document.getElementById('rosterModal').hidden = false;
   }
   function refreshRosterIfOpen() {
-    if (!document.getElementById('rosterModal').hidden) {
-      document.getElementById('rosterGrid').innerHTML = run.party.map(miniHero).join('');
-    }
+    if (!document.getElementById('rosterModal').hidden) renderRosterGrid();
   }
   function openGear() {
     TCG.sfx('tap');
@@ -322,7 +368,12 @@
   }
   document.getElementById('rosterBtn').addEventListener('click', openRoster);
   document.getElementById('gearBtn').addEventListener('click', openGear);
-  document.getElementById('rosterGrid').addEventListener('click', onMiniClick);
+  document.getElementById('rosterGrid').addEventListener('click', function (e) {
+    var eq = e.target.closest('[data-equip]');
+    if (eq) { var h = heroByUid(eq.dataset.equip); if (h) showHeroModal(h); return; } // 🗡 장비 버튼 → 상세/장착
+    var card = e.target.closest('.deck-pick'); if (!card) return;
+    toggleDeck(card.dataset.uid); // 카드 본문 탭 → 출진 덱에 넣고 빼기
+  });
   document.getElementById('rosterClose').addEventListener('click', function () { document.getElementById('rosterModal').hidden = true; });
   document.getElementById('gearClose').addEventListener('click', function () { document.getElementById('gearModal').hidden = true; });
   document.getElementById('rosterModal').addEventListener('click', function (e) { if (e.target.id === 'rosterModal') e.currentTarget.hidden = true; });
@@ -478,6 +529,7 @@
   function startStageCombat() {
     var st = HW_STAGES[run.mainStage], s = run.subStage;
     var isBoss = s === SUB_COUNT - 1;
+    var deckUids = activeDeckUids(); run.deck = deckUids; saveRun(); // 출진 덱 정규화(자동 채움) + 저장
     var enemies = genSubEnemies(run.mainStage, s);
     var mhp = lordMaxHp(), mmp = lordMaxMp();
     if (typeof run.lordHp !== 'number') run.lordHp = mhp;
@@ -488,7 +540,7 @@
       main: run.mainStage, sub: s, enemies: enemies, round: 0,
       lord: { hp: startHp, maxHp: mhp, mp: startMp, maxMp: mmp, block: relicSum('startBlock') }, // 주공(나)
       atkBuff: relicSum('startAtk'),
-      draw: TCG.shuffle(run.party.map(function (h) { return h.uid; })), // 뽑을 카드 풀(왼쪽) = 보유 장수 전체
+      draw: TCG.shuffle(deckUids.slice()), // 뽑을 카드 풀(왼쪽) = 출진 덱(선택한 10~30장)
       center: [], used: [],                                              // 가운데 3장 / 사용한 풀(오른쪽)
       sel: null, targeting: false, pending: null, phase: 'player', log: [],
       cstat: {}, sealed: null, sealUsed: false, itemUsed: false, tempAtk: null // 아군 카드 상태이상 / 소모품
@@ -529,7 +581,7 @@
   function refillCenter() {
     var c = run.combat;
     cleanPiles();
-    var cap = Math.min(centerSize(), run.party.length);
+    var cap = Math.min(centerSize(), c.draw.length + c.center.length + c.used.length);
     var guard = 0;
     while (c.center.length < cap && guard++ < 60) { if (!drawOne()) break; }
   }
@@ -1000,7 +1052,7 @@
     var c = run.combat, ms = e.midSkill;
     function pickUid(excludeStunned) {
       var pool = c.center.filter(function (u) { return aliveUid(u) && (!excludeStunned || !cardStunned(u)); });
-      if (!pool.length) pool = run.party.map(function (h) { return h.uid; }).filter(function (u) { return aliveUid(u) && (!excludeStunned || !cardStunned(u)); });
+      if (!pool.length) pool = c.draw.concat(c.center, c.used).filter(function (u) { return aliveUid(u) && (!excludeStunned || !cardStunned(u)); });
       return pool.length ? TCG.pick(pool) : null;
     }
     if (ms.type === 'p_seal' && c.sealUsed) return false; // 봉인은 전투당 1회 — 이미 썼으면 일반 공격

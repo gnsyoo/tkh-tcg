@@ -26,6 +26,26 @@
   }
   var party = loadParty();
 
+  /* ---------- 출진 덱(영웅전과 공유: hw_save.deck) ---------- */
+  var MIN_DECK = 10, MAX_DECK = 30;
+  function loadDeck() { try { var d = JSON.parse(lsGet('hw_save') || 'null'); if (d && Array.isArray(d.deck)) return d.deck.slice(); } catch (e) {} return []; }
+  var deck = loadDeck();
+  function deckMin() { return Math.min(MIN_DECK, party.length); }
+  function activeDeckUids() {
+    var order = party.map(function (h) { return h.uid; });
+    var own = {}; order.forEach(function (u) { own[u] = true; });
+    var seen = {}, out = [];
+    deck.forEach(function (u) { if (own[u] && !seen[u]) { seen[u] = true; out.push(u); } });
+    if (out.length > MAX_DECK) out = out.slice(0, MAX_DECK);
+    var need = deckMin();
+    for (var i = 0; i < order.length && out.length < need; i++) if (!seen[order[i]]) { seen[order[i]] = true; out.push(order[i]); }
+    return out;
+  }
+  function saveDeck() { // 정규화 후 공유 저장(hw_save가 있을 때만)
+    deck = activeDeckUids();
+    try { var raw = lsGet('hw_save'); if (!raw) return; var d = JSON.parse(raw); if (!d) return; d.deck = deck.slice(); lsSet('hw_save', JSON.stringify(d)); } catch (e) {}
+  }
+
   /* ---------- stat/weapon helpers (영웅전과 동일 규칙) ---------- */
   function heroWpnIds(h) { return (h && h.weapons) ? h.weapons : []; }
   function heroWpns(h) { return heroWpnIds(h).map(function (id) { return HW_WEAPON_BY_ID[id]; }).filter(Boolean); }
@@ -61,7 +81,7 @@
   }
 
   function renderSelect() {
-    document.getElementById('deckPill').textContent = '덱 ' + party.length;
+    document.getElementById('deckPill').textContent = '출진 덱 ' + activeDeckUids().length;
     var dp = document.getElementById('diffPill'); if (dp) dp.textContent = '난이도 ' + TCG.diffLabel(diff);
     var html = HW_RAID.bosses.map(function (b, i) {
       var cmd = HW_COMMANDERS[b.key];
@@ -109,7 +129,7 @@
       raidIdx: idx, boss: { def: cmd, name: cmd.name, emoji: cmd.emoji, maxHp: hp, hp: hp, atk: atk, atk0: atk, aoe: !!cmd.aoe, block: 0, poison: 0, charmed: 0, intent: null,
         skill: bossSkill, mp: bc.mp, maxMp: bc.mp, skillChance: bc.skillChance },
       round: 0, lord: { hp: mhp, maxHp: mhp, mp: mmp, maxMp: mmp, block: 0 }, atkBuff: 0,
-      draw: TCG.shuffle(party.map(function (h) { return h.uid; })), center: [], used: [],
+      draw: TCG.shuffle(activeDeckUids().slice()), center: [], used: [],
       sel: null, targeting: false, phase: 'player', log: [], over: false
     };
     show('combatScreen');
@@ -125,7 +145,7 @@
     if (!c.draw.length) return false;
     c.center.push(c.draw.pop()); return true;
   }
-  function refillCenter() { var c = combat, cap = Math.min(centerSize(), party.length), g = 0; while (c.center.length < cap && g++ < 40) { if (!drawOne()) break; } }
+  function refillCenter() { var c = combat, cap = Math.min(centerSize(), c.draw.length + c.center.length + c.used.length), g = 0; while (c.center.length < cap && g++ < 40) { if (!drawOne()) break; } }
   function beginRound() {
     var c = combat; c.round++;
     if (c.round > 1) c.lord.block = 0;
@@ -425,15 +445,35 @@
     return '⚔️ 전투 보상 영입 · 🏪 저잣거리 구매';
   }
   function weaponPath(w) { return w.exclusive === 'collection' ? '📕 장수 도감 100% 완료 보상' : '💎 보물상자(출진 5·10회) · 🏪 저잣거리'; }
-  function openRoster() {
-    TCG.sfx('tap');
+  function renderRosterGrid() {
+    var inDeck = {}; deck.forEach(function (u) { inDeck[u] = true; });
+    var rt = document.getElementById('rosterTitleCount'); if (rt) rt.textContent = '· 출진 덱 ' + deck.length + ' / ' + MAX_DECK + ' (최소 ' + deckMin() + ')';
     document.getElementById('rosterCount').textContent = party.length;
     document.getElementById('rosterGrid').innerHTML = party.map(function (h) {
       var ws = heroWpns(h).map(function (w) { return w.emoji; }).join('');
-      return '<div class="col-card">' + TCG.portrait(h.def.emoji, h.def.id, '', h.def.name) +
+      var on = !!inDeck[h.uid];
+      return '<div class="col-card deck-pick' + (on ? ' in-deck' : '') + '" data-uid="' + h.uid + '">' +
+        '<span class="deck-check">' + (on ? '✓' : '+') + '</span>' +
+        TCG.portrait(h.def.emoji, h.def.id, '', h.def.name) +
         '<div class="col-name">' + h.def.name + '</div>' +
         '<div class="col-rar rar-' + h.def.rarity + '">' + h.def.rarity + ' · ⚔' + effAtk(h) + (ws ? ' ' + ws : '') + '</div></div>';
     }).join('') || '<p class="screen-sub">장수가 없습니다</p>';
+  }
+  function toggleDeck(uid) {
+    var i = deck.indexOf(uid);
+    if (i >= 0) {
+      if (deck.length <= deckMin()) { TCG.toast('출진 덱은 최소 ' + deckMin() + '장이어야 합니다'); return; }
+      deck.splice(i, 1);
+    } else {
+      if (deck.length >= MAX_DECK) { TCG.toast('출진 덱은 최대 ' + MAX_DECK + '장입니다'); return; }
+      deck.push(uid);
+    }
+    TCG.sfx('tap'); saveDeck(); renderRosterGrid();
+  }
+  function openRoster() {
+    TCG.sfx('tap');
+    saveDeck(); // 보유<10이면 자동 채움 등 정규화 후 표시
+    renderRosterGrid();
     document.getElementById('rosterModal').hidden = false;
   }
   function openGear() {
@@ -478,6 +518,10 @@
   }
   function openCodex(tab) { TCG.sfx('tap'); renderHeroCodex(); renderWeaponCodex(); showCodexTab(tab || 'hero'); document.getElementById('codexModal').hidden = false; }
   document.getElementById('rosterBtn').addEventListener('click', openRoster);
+  document.getElementById('rosterGrid').addEventListener('click', function (e) {
+    var card = e.target.closest('.deck-pick'); if (!card) return;
+    toggleDeck(card.dataset.uid);
+  });
   document.getElementById('gearBtn').addEventListener('click', openGear);
   document.getElementById('codexBtn').addEventListener('click', function () { openCodex('hero'); });
   document.getElementById('codexTabHero').addEventListener('click', function () { TCG.sfx('tap'); showCodexTab('hero'); });

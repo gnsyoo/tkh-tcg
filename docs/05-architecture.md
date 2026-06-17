@@ -83,7 +83,7 @@ run.combat = {
 | `hw_raid_cleared` | 대장전에서 격파한 레이드 보스 키 목록 |
 | `hw_mode_unlocked` | 영웅전 최고 해금 모드(normal/hard/extreme) |
 
-`hw_save`(v3) 필드: `party[{id,atk,uid,weapons[]}]`, `gold, mainStage, subStage, relics[], weapons[], items[]`(소모품 id 배열)`, sorties, lordHp, lordMp`.
+`hw_save`(v3) 필드: `party[{id,atk,uid,weapons[]}]`, `deck[]`(출진 덱 uid 목록, 최소 10·최대 30 — 대장전과 공유), `gold, mainStage, subStage, relics[], weapons[], items[]`(소모품 id 배열)`, sorties, lordHp, lordMp`.
 QB는 `qb_deck`(덱)·`qb_rows`(판 크기)도 저장.
 구버전 단일 무기(`weapon`) 저장은 로드시 배열로 자동 변환(SSR 슬롯 수로 잘림).
 
