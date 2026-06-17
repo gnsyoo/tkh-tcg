@@ -154,7 +154,12 @@
   /* ---------- run lifecycle ---------- */
   function newRun(mode) {
     clearSave();
-    run = { party: HW_STARTERS.map(mkHero), deck: [], gold: DCFG.startGold, mainStage: 0, subStage: 0, relics: [], weapons: [], items: [], sorties: 0, stageShopped: false, combat: null };
+    // 시작 장수 + 지정 경로(전투 보상·저잣거리 외 = 전용)로만 얻는 장수 중 이미 도감에 열린 장수는 시작 시 합류
+    var startIds = HW_STARTERS.slice();
+    HW_HEROES.forEach(function (d) {
+      if (d.exclusive && collectedHeroes.indexOf(d.id) !== -1 && startIds.indexOf(d.id) === -1) startIds.push(d.id);
+    });
+    run = { party: startIds.map(mkHero), deck: [], gold: DCFG.startGold, mainStage: 0, subStage: 0, relics: [], weapons: [], items: [], sorties: 0, stageShopped: false, combat: null };
     run.mode = (HW_MODES[mode] && isModeUnlocked(mode)) ? mode : 'normal';
     run.lordHp = lordMaxHp(); // 주공 HP는 모험 내내 유지(스테이지마다 일부 회복)
     run.lordMp = lordMaxMp(); // 주공 MP도 모험 내내 유지(전투 시작 시 10% 회복)
