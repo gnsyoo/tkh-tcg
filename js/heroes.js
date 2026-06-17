@@ -421,7 +421,7 @@
     var prog = main * SUB_COUNT + sub; // 0..(8*12-1) 전체 진행도
     var md = HW_MODES[run.mode] || HW_MODES.normal; // 노멀/하드/극악
     var hpM = DCFG.eHp * (1 + prog * 0.020) * md.hpMult;          // 모드: 모든 적 HP 배수
-    var atkM = DCFG.eAtk * (1 + prog * 0.007);
+    var atkM = DCFG.eAtk * (1 + prog * 0.005);
     var isMid = (sub === 4 || sub === 9); // 5·10번째 출전 = 중간보스
     function inst(d, boss, mid) {
       var hpx = mid ? HW_MID.hpMult : 1, atkx = mid ? HW_MID.atkMult : 1;
@@ -653,10 +653,6 @@
 
   function renderCombat() {
     var c = run.combat;
-    // 안내: 가운데 카드를 쓰면 공격, 턴 종료 시 남은 카드는 방어
-    document.getElementById('energyBox').innerHTML =
-      '🎴 가운데 카드: 사용하면 <b>공격</b> · 턴 종료 시 남기면 <b>방어</b>';
-
     // enemies (적장은 주공을 공격)
     document.getElementById('enemyRow').innerHTML = c.enemies.map(function (e, idx) {
       var dead = e.hp <= 0;
@@ -698,7 +694,7 @@
     if (c.phase === 'enemy') hint.textContent = '적이 행동 중…';
     else if (c.targeting) hint.textContent = '대상을 선택하세요';
     else if (c.sel) hint.textContent = '공격 행동을 선택하세요';
-    else hint.textContent = '가운데 카드로 공격하거나, 턴 종료 시 남은 카드로 방어합니다';
+    else hint.textContent = '가운데 카드를 선택해 공격하거나, 턴을 종료하세요';
   }
 
   function defenseOf(h) { return 3 + Math.floor(effAtk(h) / 3); }
@@ -729,7 +725,6 @@
         TCG.portrait(h.def.emoji, h.def.id, 'cc-art') +
         '<div class="cc-name">' + h.def.name + '</div>' +
         '<div class="cc-atk">⚔' + effAtk(h) + '</div>' +
-        '<div class="cc-def">🛡' + defenseOf(h) + '</div>' +
         (wEmoji ? '<div class="cc-wpn" title="' + wName + '">' + wEmoji + '</div>' : '') +
         '<div class="cc-skill">' + sk.name + '</div></div>';
     }).join('');
@@ -964,25 +959,14 @@
     if (living(c.enemies).length === 0) { setTimeout(winCombat, 550); }
   }
 
-  // 턴 종료: 가운데 남은 카드는 방어(주공 블록)로 전환되고 사용한 풀로 이동 → 적의 턴
+  // 턴 종료: 가운데 남은 카드는 사용한 풀로 버려진다(방어 기능 제거) → 적의 턴
   document.getElementById('endTurnBtn').addEventListener('click', function () {
     var c = run.combat; if (!c || c.phase === 'enemy' || c.targeting || c.busy) return;
-    var defended = 0, total = 0;
-    c.center.slice().forEach(function (uid) {
-      var h = heroByUid(uid);
-      if (h && !cardStunned(uid)) { total += defenseOf(h); defended++; } // 혼란·매혹 카드는 방어 불가
-      c.used.push(uid);
-    });
+    c.center.slice().forEach(function (uid) { c.used.push(uid); });
     c.center = [];
     c.sel = null;
     // 아군 카드 상태이상 시간 감소(혼란·매혹은 이번 턴 지나면 회복)
     if (c.cstat) Object.keys(c.cstat).forEach(function (uid) { if (c.cstat[uid].stun > 0) { c.cstat[uid].stun--; if (c.cstat[uid].stun <= 0) c.cstat[uid].cause = ''; } });
-    if (total) {
-      c.lord.block += total;
-      fxSupport(lordEl(), '🛡+' + total, '#9fd2ff', 'shield');
-      TCG.sfx('skill');
-      logMsg(defended + '명이 방어해 주공 블록 +' + total);
-    }
     enemyPhase();
   });
 
@@ -1112,7 +1096,7 @@
     var c = run.combat;
     TCG.sfx('win');
     // 주공 HP는 모험 내내 유지 — 승리 시 일부만 회복(로그라이크 소모전)
-    var heal = Math.round(c.lord.maxHp * 0.06) + relicSum('winHeal');
+    var heal = Math.round(c.lord.maxHp * 0.115) + relicSum('winHeal'); // 카드 방어 제거 보정(승리 회복↑)
     run.lordHp = Math.min(c.lord.maxHp, c.lord.hp + heal);
     run.lordMp = Math.min(c.lord.maxMp, c.lord.mp); // MP는 전투에서 남은 대로 유지
     // gold + reward cadence

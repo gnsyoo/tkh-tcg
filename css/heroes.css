@@ -416,14 +416,11 @@
 .item-slot.empty { color: rgba(255,255,255,0.18); font-size: 18px; cursor: default; }
 .item-slot.used { opacity: 0.45; cursor: not-allowed; }
 
-.combat-mid { display: flex; align-items: center; gap: 12px; margin: 12px 0; }
-.energy { font-weight: 800; font-size: 15px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.energy .orb { width: 16px; height: 16px; border-radius: 50%; background: rgba(255,255,255,0.12); display: inline-block; }
-.energy .orb.on { background: radial-gradient(circle at 35% 30%, #aef0ff, #4aa6ff); box-shadow: 0 0 8px #4aa6ff; }
+.combat-mid { display: block; margin: 12px 0; }
 .combat-log {
-  flex: 1; min-height: 36px; max-height: 56px; overflow-y: auto;
+  width: 100%; min-height: 120px; max-height: 168px; overflow-y: auto;
   font-size: 11px; color: var(--ink-dim); background: rgba(0,0,0,0.25);
-  border-radius: 8px; padding: 6px 10px; line-height: 1.5;
+  border-radius: 8px; padding: 8px 12px; line-height: 1.55;
 }
 
 .action-bar {

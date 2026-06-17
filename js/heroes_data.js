@@ -206,9 +206,9 @@ HW_WEAPONS.forEach(function (w) { HW_WEAPON_BY_ID[w.id] = w; });
 
 /* Difficulty tuning (기본 상/하드 고정 — 선택 화면 없음, 전반 상향) */
 var HW_DIFF = {
-  easy:   { eHp:1.00, eAtk:1.09, gold:1.4, smart:false, startGold:70 },
-  normal: { eHp:1.07, eAtk:1.15, gold:1.0, smart:false, startGold:50 },
-  hard:   { eHp:1.10, eAtk:1.18, gold:0.9, smart:true, startGold:40 }
+  easy:   { eHp:1.00, eAtk:0.84, gold:1.4, smart:false, startGold:70 },
+  normal: { eHp:1.07, eAtk:0.93, gold:1.0, smart:false, startGold:50 },
+  hard:   { eHp:1.10, eAtk:1.01, gold:0.9, smart:true, startGold:40 }
 };
 
 /* 소모성 아이템 — 전투 중 턴당 1개 사용, 최대 5칸 소지. 저잣거리에서 랜덤 구매 */

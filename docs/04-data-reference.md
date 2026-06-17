@@ -232,11 +232,11 @@
 
 | 난이도 | eHp | eAtk | gold | smart | startGold |
 |--------|-----|------|------|-------|-----------|
-| easy   | 1.00 | 1.09 | 1.4 | false | 70 |
-| normal | 1.07 | 1.15 | 1.0 | false | 50 |
-| hard   | 1.10 | 1.18 | 0.9 | true  | 40 |
+| easy   | 1.00 | 0.84 | 1.4 | false | 70 |
+| normal | 1.07 | 0.93 | 1.0 | false | 50 |
+| hard   | 1.10 | 1.01 | 0.9 | true  | 40 |
 
-진행도 보정: `hpM = eHp·(1 + prog·0.020)`, `atkM = eAtk·(1 + prog·0.007)` (`prog = main*11 + sub`).
+진행도 보정: `hpM = eHp·(1 + prog·0.020)`, `atkM = eAtk·(1 + prog·0.005)` (`prog = main*11 + sub`). eAtk는 카드 방어 제거 보정으로 하향.
 
 ## 모드 (`HW_MODES`) — 노멀→하드→극악
 
