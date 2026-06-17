@@ -605,7 +605,7 @@
 
 /* ---- Shop ---- */
 .shop-items { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 18px; }
-#shopScreen, #tavernScreen { position: relative; }
+#shopScreen, #tavernScreen { position: relative; padding-top: 30px; } /* 좌상단 떠나기 버튼과 제목/설명 겹침 방지 */
 .shop-leave { position: absolute; top: 0; left: 0; z-index: 5; }
 .shop-item {
   width: 150px; background: linear-gradient(170deg, #2c2658, #1e1942);

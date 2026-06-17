@@ -60,7 +60,7 @@
 
   /* ---------- screen switching ---------- */
   function show(id) {
-    ['mapScreen', 'combatScreen', 'rewardScreen', 'restScreen', 'shopScreen', 'eventScreen'].forEach(function (s) {
+    ['mapScreen', 'combatScreen', 'rewardScreen', 'restScreen', 'shopScreen', 'tavernScreen', 'eventScreen'].forEach(function (s) {
       document.getElementById(s).hidden = (s !== id);
     });
   }
