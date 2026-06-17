@@ -38,7 +38,7 @@
   function heroWpns(h) { return heroWpnIds(h).map(function (id) { return HW_WEAPON_BY_ID[id]; }).filter(Boolean); }
   function wpnVal(h, key) { return heroWpns(h).reduce(function (s, w) { return s + (w.effect[key] || 0); }, 0); }
   function hasWpnFlag(h, key) { return heroWpns(h).some(function (w) { return !!w.effect[key]; }); }
-  function effAtk(h) { return h.atk + wpnVal(h, 'atk') + (run.combat ? (run.combat.atkBuff || 0) + ((run.combat.tempAtk && run.combat.tempAtk.turns > 0) ? run.combat.tempAtk.val : 0) : 0); }
+  function effAtk(h) { var c = run.combat; return h.atk + wpnVal(h, 'atk') + (c ? (c.atkBuff || 0) + ((c.tempAtk && c.tempAtk.turns > 0) ? c.tempAtk.val : 0) + ((c.cardBuff && h.uid && c.cardBuff[h.uid]) ? c.cardBuff[h.uid] : 0) : 0); }
   function lordMaxHp() { return HW_LORD.hp + run.party.reduce(function (s, h) { return s + wpnVal(h, 'lordHp'); }, 0); }
   function lordMaxMp() { return HW_LORD.mp + run.party.reduce(function (s, h) { return s + wpnVal(h, 'lordMp'); }, 0); }
   function lordEvade() { return Math.min(0.6, run.party.reduce(function (s, h) { return s + wpnVal(h, 'evade'); }, 0)); } // 회피(무기 합산, 최대 60%)
@@ -594,8 +594,12 @@
   function beginRound() {
     var c = run.combat;
     c.round++;
-    if (c.round > 1) c.lord.block = 0; // 라운드 시작 시 주공 블록 초기화(1R은 startBlock 유지)
+    if (c.round > 1) {
+      c.lord.block = 0; // 라운드 시작 시 주공 블록 초기화(1R은 startBlock 유지)
+      c.lord.mp = Math.min(c.lord.maxMp, c.lord.mp + Math.max(2, Math.round(c.lord.maxMp * 0.035))); // 턴마다 MP 재생(스킬 MP 소모 보전)
+    }
     c.itemUsed = false; // 소모성 아이템은 턴당 1개
+    c.cardBuff = {}; // 아군 1명 공격 버프는 1턴만 유지
     if (c.tempAtk && c.tempAtk.turns > 0) { c.tempAtk.turns--; }
     // 중독된 아군 카드 → 주공이 턴마다 지속 피해(턴마다 1씩 약화, 해독초로 즉시 해제)
     if (c.cstat) {
@@ -852,11 +856,10 @@
     var h = heroByUid(c.sel.uid);
     if (!h) { bar.hidden = true; return; }
     var sk = h.def.skill;
-    var isHeal = sk.type === 'heal';
-    var buffDone = sk.type === 'buff' && c.buffApplied && c.buffApplied[h.uid]; // 버프는 전투당 1회(중첩 불가)
+    var buffDone = sk.type === 'buff' && sk.scope === 'army' && c.buffApplied && c.buffApplied[h.uid]; // 전군 버프는 전투당 1회
     var mp = skillMp(sk);
-    var canSkill = !buffDone && (isHeal || c.lord.mp >= mp); // 회복 스킬은 MP 제한 없음(오히려 회복)
-    var mpLabel = buffDone ? '✓ 적용됨' : (isHeal ? '💧0 (무료)' : ('💧' + mp));
+    var canSkill = !buffDone && c.lord.mp >= mp;
+    var mpLabel = buffDone ? '✓ 적용됨' : ('💧' + mp);
     var critPct = Math.round(critChance(h) * 100);
     bar.hidden = false;
     bar.innerHTML =
@@ -891,8 +894,8 @@
     if (act === 'attack') { beginTarget('enemy', 'attack'); return; }
     // skill (회복 스킬은 MP 소모 없음, 그 외는 MP 소모)
     var sk = h.def.skill;
-    if (sk.type === 'buff' && c.buffApplied && c.buffApplied[h.uid]) { TCG.toast('「' + sk.name + '」 버프는 전투당 1회만 적용됩니다 (중첩 불가)'); return; }
-    if (sk.type !== 'heal' && c.lord.mp < skillMp(sk)) { TCG.toast('MP가 부족합니다'); return; }
+    if (sk.type === 'buff' && sk.scope === 'army' && c.buffApplied && c.buffApplied[h.uid]) { TCG.toast('「' + sk.name + '」 버프는 전투당 1회만 적용됩니다 (중첩 불가)'); return; }
+    if (c.lord.mp < skillMp(sk)) { TCG.toast('MP가 부족합니다'); return; }
     if (sk.type === 'strike' || sk.type === 'charm' || sk.type === 'confuse') beginTarget('enemy', 'skill'); // 단일 적 대상
     else doSkill(h, null); // aoe(전체)·multi(무작위)·heal/shield/buff(주공) 자동 처리
   });
@@ -964,8 +967,7 @@
   }
   function doSkill(h, target) {
     var c = run.combat; var sk = h.def.skill;
-    // 회복 스킬은 MP를 소모하지 않고 오히려 회복시킨다(아래 heal 분기). 그 외 스킬만 MP 소모.
-    if (sk.type !== 'heal') c.lord.mp = Math.max(0, c.lord.mp - skillMp(sk));
+    c.lord.mp = Math.max(0, c.lord.mp - skillMp(sk)); // 모든 스킬은 MP 소모(회복 포함)
     TCG.sfx(sk.type === 'heal' ? 'heal' : 'skill');
     fxBanner('✨ ' + h.def.name + ' 「' + sk.name + '」', 'skill-cast', 1000); // 스킬 발동 강조
     fxFlash('rgba(150,200,255,0.16)');
@@ -1005,8 +1007,8 @@
       c.lord.block += sk.val;
       fxSupport(lordEl(), '🛡+' + sk.val, '#9fd2ff', 'shield');
       logMsg(h.def.name + ' 「' + sk.name + '」 주공 방어막 +' + sk.val);
-    } else if (sk.type === 'buff') {
-      // 버프는 전투당 1회만 적용(중첩 방지) — 같은 장수를 매 턴 다시 써도 공격력이 계속 오르지 않음
+    } else if (sk.type === 'buff' && sk.scope === 'army') {
+      // 전군 버프: 전투당 1회만 적용(중첩 방지) — 같은 장수를 매 턴 다시 써도 누적되지 않음
       if (!c.buffApplied) c.buffApplied = {};
       if (!c.buffApplied[h.uid]) {
         c.buffApplied[h.uid] = true;
@@ -1015,6 +1017,20 @@
         logMsg(h.def.name + ' 「' + sk.name + '」 전군 공격력 +' + sk.val + ' (전투 동안)');
       } else {
         logMsg(h.def.name + ' 「' + sk.name + '」 — 이미 적용됨(중첩 불가)');
+      }
+    } else if (sk.type === 'buff') {
+      // 아군 1명 버프: 현재 출진(가운데) 카드 중 1장(시전자 제외)에 1턴만 공격력 +val
+      if (!c.cardBuff) c.cardBuff = {};
+      var pool = c.center.filter(function (u) { return u !== h.uid && aliveUid(u) && !cardStunned(u); });
+      if (!pool.length) pool = c.center.filter(function (u) { return u !== h.uid && aliveUid(u); });
+      var tgtUid = pool.reduce(function (best, u) { return (best == null || effAtk(heroByUid(u)) > effAtk(heroByUid(best))) ? u : best; }, null);
+      if (tgtUid) {
+        c.cardBuff[tgtUid] = (c.cardBuff[tgtUid] || 0) + sk.val;
+        var th = heroByUid(tgtUid), tel = document.querySelector('.combat-card[data-uid="' + tgtUid + '"]');
+        if (tel) fxSupport(tel, '⚔+' + sk.val, '#ffd86b');
+        logMsg(h.def.name + ' 「' + sk.name + '」 ' + (th ? th.def.name : '') + ' 공격력 +' + sk.val + ' (1턴)');
+      } else {
+        logMsg(h.def.name + ' 「' + sk.name + '」 — 강화할 공격 카드가 없습니다');
       }
     } else if (sk.type === 'charm') {
       // 적을 매혹 — 행동 불가. 중첩 방지: 마지막 1개만 적용(혼란과도 배타)

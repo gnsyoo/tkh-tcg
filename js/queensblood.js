@@ -346,24 +346,30 @@
     return false;
   }
   function curStreak() { try { return parseInt(localStorage.getItem('qb_winstreak') || '0', 10) || 0; } catch (e) { return 0; } }
+  function hasOracle() { try { var c = JSON.parse(localStorage.getItem('hw_collected_heroes') || '[]'); return Array.isArray(c) && c.indexOf('oracle') !== -1; } catch (e) { return false; } }
   function endGame() {
     state.over = true;
     var s = scoreOf(state.board);
     var title, text, goldHtml = '';
     if (s.you > s.foe) {
       title = '🏆 승리!';
-      var gw = settleHeroesGold(s.you, true);
+      var streakNow = curStreak() + 1; // 이번 승리 포함 연승 수
+      var bonus = Math.round(s.you * streakNow * 0.05); // 연승 보너스 = 무력 총합 × 연승 수 × 5%
+      var gw = settleHeroesGold(s.you + bonus, true);
+      var owned = hasOracle();
       var gotOracle = updateWinStreak(true);
       var streak = gotOracle ? 3 : curStreak();
-      text = '배치한 카드 무력 총합에서 앞섰습니다. (연승 ' + streak + ')';
+      text = '배치한 카드 무력 총합에서 앞섰습니다. (연승 ' + streakNow + ')';
       goldHtml = '<div class="end-gold gain">' +
         '<span class="eg-label">🏅 승리 보상</span>' +
-        '<span class="eg-val">삼국 영웅전 골드 <b>+' + gw + '</b></span></div>';
-      if (gotOracle) {
-        goldHtml += '<div class="end-gold gain"><span class="eg-label">🌟 3연승 달성</span>' +
-          '<span class="eg-val"><b>제갈량</b> 획득! 삼국 영웅전에서 합류합니다</span></div>';
-      } else if (streak < 3) {
-        goldHtml += '<div class="streak-note">🔥 3연승 시 <b>제갈량</b> 획득 (' + streak + '/3)</div>';
+        '<span class="eg-val">삼국 영웅전 골드 <b>+' + gw + '</b>' + (bonus > 0 ? ' <small>(기본 ' + s.you + ' + 연승 ' + streakNow + '×5% +' + bonus + ')</small>' : '') + '</span></div>';
+      if (!owned) { // 제갈량을 이미 보유 중이면 3연승 관련 안내 미노출
+        if (gotOracle) {
+          goldHtml += '<div class="end-gold gain"><span class="eg-label">🌟 3연승 달성</span>' +
+            '<span class="eg-val"><b>제갈량</b> 획득! 삼국 영웅전에서 합류합니다</span></div>';
+        } else if (streak < 3) {
+          goldHtml += '<div class="streak-note">🔥 3연승 시 <b>제갈량</b> 획득 (' + streak + '/3)</div>';
+        }
       }
       TCG.sfx('win');
     } else if (s.foe > s.you) {
