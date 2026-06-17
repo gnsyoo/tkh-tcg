@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0d0b1a">
 <title>삼국지 카드 게임</title>
-<link rel="stylesheet" href="css/common.css?v=20260618a">
-<link rel="stylesheet" href="css/home.css?v=20260618a">
+<link rel="stylesheet" href="css/common.css?v=20260618b">
+<link rel="stylesheet" href="css/home.css?v=20260618b">
 </head>
 <body class="home-body">
   <div class="home-wrap">
@@ -44,6 +44,7 @@
       <span class="ver-badge" id="verBadge">v1.0 · 2026.06.17</span>
       <button class="btn ghost ver-btn" id="guideBtn">📖 게임 가이드</button>
       <button class="btn ghost ver-btn" id="changelogBtn">📜 변경 내역</button>
+      <button class="btn ghost ver-btn" id="creditsBtn">🎬 크레딧</button>
     </footer>
   </div>
 
@@ -100,6 +101,23 @@
     </div>
   </div>
 
+  <!-- 크레딧 팝업 -->
+  <div class="overlay" id="creditsModal" hidden>
+    <div class="modal" style="max-width:460px;text-align:center;">
+      <h2>🎬 크레딧</h2>
+      <p style="color:var(--ink-dim);font-size:13px;margin-top:-4px;">⚔️ 삼국지 카드 게임</p>
+      <div class="credits-list" style="text-align:left;margin:12px auto 0;max-width:360px;font-size:14px;line-height:1.9;">
+        <div><b style="color:var(--gold);">PD</b> · Tomo Ryu</div>
+        <div><b style="color:var(--gold);">Lead Programmer</b> · Claude Opus</div>
+        <div><b style="color:var(--gold);">Programmer</b> · Claude Opus / Sonnet · Tomo Ryu</div>
+        <div><b style="color:var(--gold);">Design</b> · Tomo Ryu · Gemini Flash · Google NotebookLM · Claude Opus</div>
+        <div><b style="color:var(--gold);">Art</b> · Claude Opus</div>
+        <div><b style="color:var(--gold);">Sound</b> · Claude Opus</div>
+      </div>
+      <div style="text-align:center;margin-top:16px;"><button class="btn primary" id="creditsClose">닫기</button></div>
+    </div>
+  </div>
+
   <script>
     // 난이도 선택 제거 — 기본 상(hard) 고정
     try { localStorage.setItem('tcg_difficulty', 'hard'); } catch (e) {}
@@ -112,6 +130,7 @@
       }
       wire('changelogBtn', 'changelogModal', 'changelogClose');
       wire('guideBtn', 'guideModal', 'guideClose');
+      wire('creditsBtn', 'creditsModal', 'creditsClose');
     })();
   </script>
 </body>
