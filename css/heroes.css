@@ -402,6 +402,19 @@
 .fx-banner.crit { color: #ffd34d; font-size: clamp(28px, 9vw, 52px); text-shadow: 0 0 26px #ffae00, 0 2px 12px #000; animation: critPop 0.65s ease; }
 @keyframes critPop { 0% { transform: scale(0.4) rotate(-8deg); opacity: 0; } 35% { transform: scale(1.25) rotate(3deg); opacity: 1; } 100% { transform: scale(1) rotate(0); opacity: 0; } }
 .fx-banner.skill-cast { color: #aed3ff; font-size: clamp(18px, 5.5vw, 30px); text-shadow: 0 0 18px #5aa6ff, 0 2px 10px #000; }
+/* 보스/중간보스 등장 대사 말풍선 (카드 아래) */
+.fx-quote {
+  transform: translate(-50%, 0); max-width: min(260px, 72vw); z-index: 12;
+  background: rgba(22,16,30,0.97); border: 1px solid #e8536b; color: #ffe9ee;
+  font-size: 12px; line-height: 1.45; font-weight: 600; text-align: center;
+  padding: 8px 11px; border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+  animation: quotePop 0.22s ease;
+}
+.fx-quote::before {
+  content: ''; position: absolute; top: -7px; left: 50%; transform: translateX(-50%);
+  border: 7px solid transparent; border-top: 0; border-bottom-color: #e8536b;
+}
+@keyframes quotePop { from { opacity: 0; transform: translate(-50%, -6px); } to { opacity: 1; transform: translate(-50%, 0); } }
 
 /* 중간보스 진행 점 강조 */
 .sub-dot { display: inline-flex; align-items: center; justify-content: center; font-size: 9px; line-height: 1; color: transparent; }

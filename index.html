@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0d0b1a">
 <title>삼국지 카드 게임</title>
-<link rel="stylesheet" href="css/common.css?v=20260617y">
-<link rel="stylesheet" href="css/home.css?v=20260617y">
+<link rel="stylesheet" href="css/common.css?v=20260617z">
+<link rel="stylesheet" href="css/home.css?v=20260617z">
 </head>
 <body class="home-body">
   <div class="home-wrap">
@@ -42,6 +42,7 @@
 
     <footer class="home-version">
       <span class="ver-badge" id="verBadge">v1.0 · 2026.06.17</span>
+      <button class="btn ghost ver-btn" id="guideBtn">📖 게임 가이드</button>
       <button class="btn ghost ver-btn" id="changelogBtn">📜 변경 내역</button>
     </footer>
   </div>
@@ -51,35 +52,51 @@
     <div class="modal" style="max-width:560px;text-align:left;">
       <h2 style="text-align:center;">📜 변경 내역 <span style="color:var(--gold);font-size:14px;">v1.0</span></h2>
       <div class="changelog-list">
-        <h4>v1.0 · 2026.06.17</h4>
+        <h4>📅 2026.06.17</h4>
         <ul>
-          <li><b>영웅전 개편</b> — <b>상점</b>(장수 외)·<b>주막</b>(장수 1~4장, 스테이지마다 갱신) 분리, 출진 옆 <b>진형</b>(덱 편성)·상단 <b>장수</b>(정보/장비). <b>고정 네임드 중간보스</b>(전역별 2명) + 첫 화면 보스 칸 탭 시 적 정보.</li>
-          <li><b>대장전 보스 강화</b> — 공격 상향·MP −20, <b>스킬 2종</b>(공격/방어 + 회복/행동불가), 보스 인물화 적용. 면역 스킬은 대장전에서 <b>혼란→계책·매혹→구휼</b>로 교체. <b>재도전 보상 골드 +50~+200</b>, 보스 카드 탭 시 <b>정보 팝업</b>. (전투 카드 공격력 표시 가림도 수정)</li>
-          <li><b>장수 수집 무제한</b>(전 장수 수집) · <b>출진 덱 편성</b> — 장수 버튼 팝업에서 카드를 골라 <b>최소 10·최대 30장</b> 덱 구성(영웅전·대장전 공유).</li>
-          <li><b>장수 카드 아이콘을 인물화(얼굴)</b>로 변경 — 인물별 특징 반영(관우 붉은 얼굴, 하후돈 안대, 여포 투구, 초선 여성 등).</li>
-          <li><b>여포(SSR)</b> 추가 — 첫 적장 <b>화웅을 주공 풀 HP로 격파</b> 또는 <b>노멀 모드 천하통일</b> 시 획득.</li>
-          <li><b>스킬 공격에도 치명타</b> 적용(강타·광역·다회). <b>매혹·혼란(행동 불가)은 중첩 안 됨</b>(마지막 1개만).</li>
-          <li>행동 불가는 <b>출진(가운데 등장) 시 1회</b> 적용(턴 무관, 덱에 있으면 유지). <b>적 스킬 사용 빈도 ↓</b>(약 30%).</li>
-          <li>히어로즈 블러드: 배치 규칙 <b>칸 레벨 이하 등급</b>으로 변경 · 보드 카드 <b>탭하면 정보 팝업</b>(상대 카드 포함).</li>
-          <li>다회 공격 <b>스킬</b>은 타격당 기본 공격력의 <b>1/N</b>(2회=½·3회=⅓…)로 조정. 단, <b>장비의 2회 연속</b>은 기본 공격 그대로.</li>
-          <li>삼국 영웅전 <b>저잣거리 상시 입장</b> 가능.</li>
-          <li>삼국 영웅전 <b>카드 방어</b>("턴 종료 시 남기면 방어") 기능 제거 · <b>전투 내역 창 확대</b>(가로 꽉·높이 ↑).</li>
-          <li>대장전 <b>레이드 보스는 혼란·매혹(행동 불가) 면역</b>.</li>
-          <li><b>2회·다회 공격 연출</b>을 타격마다 끊어서 표시.</li>
-          <li><b>소모성 아이템</b>(전투 중 턴당 1개·최대 5칸·저잣거리 랜덤): HP/MP 회복·중독/혼란 해제·공격 버프·방어막.</li>
-          <li><b>중간보스</b>(각 전역 5·10 출전): 내 카드에 <b>혼란/매혹/중독/봉인</b> 상태이상 + MP 보유. 격파 시 장수 영입.</li>
-          <li>각 전역 <b>11회 출진</b>(11번째 적장). <b>난이도 선택 제거 → 상(Hard) 고정</b>.</li>
-          <li>적장·레이드 보스가 <b>장수 스킬을 확률로 시전</b>하고 <b>MP</b>를 가짐.</li>
+          <li><b>삼국 영웅전 구조 개편</b> — 상점/주막 분리(상점=장수 외, 주막=장수 1~4장·스테이지마다 갱신), 출진 옆 <b>진형</b>(덱 편성)·상단 <b>장수</b>(정보·장비), <b>고정 네임드 중간보스</b>(전역별 2명)·첫 화면 적장/중간보스 정보 팝업, <b>보스 등장 대사</b>(메뉴에서 온오프).</li>
+          <li><b>전투 규칙 정비</b> — 모든 스킬 MP 소모 + 턴마다 MP 재생, 회복/방어막=주공·「아군 1명 공격+」=출진 카드 1장 1턴, 스킬에도 치명타, 행동 불가(매혹·혼란) 중첩 불가, 공격 버프 누적 버그 수정.</li>
+          <li><b>장수·장비 확장</b> — 장수 등급/스탯/스킬 재조정, <b>여포(SSR)</b>·대장전 전용 장수, 장비 옵션별 가격, 인물화(얼굴) 정리, <b>전 장수 수집</b> + 출진 덱(10~30장) 편성.</li>
+          <li><b>삼국 대장전 강화</b> — 보스 공격 상향·<b>스킬 2종</b>·인물화·재도전 보상 골드·보스 정보 팝업, 전투 <b>소모품</b> 사용, 영웅전과 스킬 규칙 통일.</li>
+          <li><b>히어로즈 블러드</b> — 덱 빌더 카드 <b>69종</b>(영웅전 전 장수)·레벨/점수 정렬, 배치 규칙(칸 레벨 이하)·보드 카드 정보 팝업, <b>연승 보너스 골드</b>.</li>
+          <li><b>UI / 편의</b> — 난이도 <b>상(Hard) 고정</b>, 소모성 아이템, 도감·데이터 초기화, 상점 떠나기 버튼 좌상단, 메뉴 대사 온오프.</li>
         </ul>
-        <h4>이전 업데이트</h4>
-        <ul>
-          <li><b>삼국 대장전(레이드)</b> 추가 — 영웅전 덱 공유, 보스 격파 시 그 적장을 전용 장수로 영입 + 골드 적립.</li>
-          <li><b>도감</b>(장수/장비 탭, 맵 하단 📖 버튼) · <b>데이터 초기화</b> 메뉴.</li>
-          <li>장비 <b>29종</b>(명마=회피 포함) · 치명타/연출 강화 · <b>제갈량</b>은 히어로즈 블러드 3연승 보상.</li>
-          <li>두 게임 <b>골드 연동</b>(히어로즈 블러드 정산 → 영웅전 골드).</li>
-        </ul>
+        <p style="font-size:12px;color:var(--ink-dim);margin:4px 2px 0;">※ 변경은 매 배포 시 <b>일 단위</b>로 묶어 요약합니다. 세부 항목은 저장소 <code>docs/07-changelog.md</code> 참고.</p>
       </div>
       <div style="text-align:center;margin-top:14px;"><button class="btn primary" id="changelogClose">닫기</button></div>
+    </div>
+  </div>
+
+  <!-- 게임 가이드 팝업 -->
+  <div class="overlay" id="guideModal" hidden>
+    <div class="modal" style="max-width:600px;text-align:left;">
+      <h2 style="text-align:center;">📖 게임 가이드</h2>
+      <p style="text-align:center;color:var(--ink-dim);font-size:13px;margin-top:-4px;">처음이어도 괜찮아요 — 핵심만 짧게 정리했습니다.</p>
+      <div class="changelog-list">
+        <h4>⚔️ 삼국 영웅전 — 로그라이크 카드 전투</h4>
+        <ul>
+          <li>당신은 <b>주공</b>입니다. <b>8개 역사 전역</b>을 차례로 평정해 <b>천하통일</b>이 목표.</li>
+          <li>전투는 가운데 <b>장수 카드</b>로 적을 공격하고, 턴 종료 시 남긴 카드는 <b>방어</b>가 됩니다. 스킬은 주공 <b>MP</b>를 씁니다.</li>
+          <li>적은 <b>주공 HP</b>를 노립니다 — 0이 되면 패배. HP·MP는 모험 내내 이어집니다.</li>
+          <li>지도에서 <b>🎴 진형</b>(출진 덱 10~30장) · <b>👥 장수</b>(정보·무기 장착) · <b>🏪 상점</b>(무기·소모품) · <b>🏮 주막</b>(장수 영입)으로 부대를 키우세요.</li>
+          <li>5·10 출진은 <b>중간보스</b>, 11출진은 <b>적장</b>. 지도의 ⚜·👑 칸을 탭하면 적 정보를 봅니다.</li>
+        </ul>
+        <h4>🀄 히어로즈 블러드 — 보드 카드 대전</h4>
+        <ul>
+          <li><b>덱 구성</b>에서 카드 15장과 판 크기(3×5·4×5)를 정합니다.</li>
+          <li>카드는 칸의 <b>폰 레벨 이하 등급</b>만 놓을 수 있고, 놓으면 강화 패턴대로 빈 칸에 폰을 부여해 영역을 넓힙니다(최대 3).</li>
+          <li><b>배치한 카드의 무력 총합</b>이 높은 쪽이 승리. <b>내가 패스 2번</b>이면 정산합니다.</li>
+          <li>결과는 영웅전 <b>골드</b>로 정산되고, <b>3연승</b> 시 제갈량을 얻습니다(연승 보너스 골드도).</li>
+        </ul>
+        <h4>👹 삼국 대장전 — 레이드 보스전</h4>
+        <ul>
+          <li>영웅전 <b>덱을 공유</b>해 거대 HP의 적장(레이드 보스)에 도전합니다.</li>
+          <li>보스는 <b>2종 스킬</b>과 MP를 가지며 혼란·매혹엔 <b>면역</b>(대장전에선 그 스킬이 다른 스킬로 교체).</li>
+          <li><b>격파하면 그 적장을 전용 장수로 영입</b> — 오직 대장전에서만 얻습니다. 재도전 시 골드 보상.</li>
+          <li>전투 중 영웅전과 <b>공유하는 소모품</b>을 쓸 수 있습니다.</li>
+        </ul>
+      </div>
+      <div style="text-align:center;margin-top:14px;"><button class="btn primary" id="guideClose">닫기</button></div>
     </div>
   </div>
 
@@ -87,10 +104,14 @@
     // 난이도 선택 제거 — 기본 상(hard) 고정
     try { localStorage.setItem('tcg_difficulty', 'hard'); } catch (e) {}
     (function () {
-      var modal = document.getElementById('changelogModal');
-      document.getElementById('changelogBtn').addEventListener('click', function () { modal.hidden = false; });
-      document.getElementById('changelogClose').addEventListener('click', function () { modal.hidden = true; });
-      modal.addEventListener('click', function (e) { if (e.target === modal) modal.hidden = true; });
+      function wire(btnId, modalId, closeId) {
+        var modal = document.getElementById(modalId);
+        document.getElementById(btnId).addEventListener('click', function () { modal.hidden = false; });
+        document.getElementById(closeId).addEventListener('click', function () { modal.hidden = true; });
+        modal.addEventListener('click', function (e) { if (e.target === modal) modal.hidden = true; });
+      }
+      wire('changelogBtn', 'changelogModal', 'changelogClose');
+      wire('guideBtn', 'guideModal', 'guideClose');
     })();
   </script>
 </body>

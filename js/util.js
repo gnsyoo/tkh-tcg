@@ -168,6 +168,10 @@ var TCG = (function () {
   /* ---------- sound (WebAudio, no asset files) ---------- */
   var audioCtx = null, muted = false;
   try { muted = localStorage.getItem('tcg_muted') === '1'; } catch (e) {}
+  var dialogueOn = true; // 보스 대사 — 기본 켜짐
+  try { dialogueOn = localStorage.getItem('tcg_dialogue') !== '0'; } catch (e) {}
+  function toggleDialogue() { dialogueOn = !dialogueOn; try { localStorage.setItem('tcg_dialogue', dialogueOn ? '1' : '0'); } catch (e) {} return dialogueOn; }
+  function isDialogueOn() { return dialogueOn; }
   function ensureCtx() {
     if (audioCtx) return audioCtx;
     var AC = (typeof window !== 'undefined') && (window.AudioContext || window.webkitAudioContext);
@@ -248,6 +252,7 @@ var TCG = (function () {
     hue: hue, portrait: portrait,
     toast: toast, floatText: floatText, delay: delay,
     sfx: sfx, toggleMute: toggleMute, isMuted: isMuted, audioResume: audioResume,
+    toggleDialogue: toggleDialogue, isDialogueOn: isDialogueOn,
     initFloatMenu: initFloatMenu
   };
 })();

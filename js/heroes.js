@@ -560,7 +560,7 @@
       var hp = Math.round(d.hp * hpM * hpx);
       var atk = Math.max(1, Math.round(d.atk * atkM * (boss ? md.bossAtkMult : 1) * atkx)); // 모드: 적장 공격 배수
       var e = { def: d, name: (mid ? '⚜ ' + d.name : d.name), emoji: d.emoji, maxHp: hp, hp: hp,
-        atk: atk, aoe: !!d.aoe, boss: !!boss, mid: !!mid, crit: (boss ? md.bossCrit : BASE_CRIT), block: 0, intent: null };
+        atk: atk, aoe: !!d.aoe, boss: !!boss, mid: !!mid, quote: d.quote || null, crit: (boss ? md.bossCrit : BASE_CRIT), block: 0, intent: null };
       if (boss && d.hero && HW_BY_ID[d.hero]) { // 적장은 대응 장수의 원래 스킬 + MP 보유
         var bc = HW_BOSS[diff] || HW_BOSS.normal;
         e.skill = HW_BY_ID[d.hero].skill; e.maxMp = bc.mp; e.mp = bc.mp; e.skillChance = bc.skillChance; e.atk0 = atk;
@@ -619,6 +619,11 @@
       logMsg(st.name + ' 서브 ' + (s + 1) + ' 개전!');
     }
     beginRound();
+    // 보스/중간보스 등장 대사 — 카드 아래 말풍선 2초
+    var lead = enemies[enemies.length - 1];
+    if (lead && lead.quote && (lead.boss || lead.mid)) {
+      setTimeout(function () { fxQuote(enemyEl(enemies.length - 1), lead.quote, 2000); }, isBoss ? 1100 : 700);
+    }
   }
 
   /* ---------- card piles: 뽑을 풀(draw) / 가운데(center,3장) / 사용한 풀(used) ---------- */
@@ -734,6 +739,12 @@
   function fxProj(x1, y1, x2, y2, glyph, color) {
     var d = spawn('fx-proj', x1, y1, glyph || '●', 360);
     if (d) { if (color) d.style.color = color; d.style.setProperty('--dx', (x2 - x1) + 'px'); d.style.setProperty('--dy', (y2 - y1) + 'px'); }
+  }
+  function fxQuote(unitEl, text, ms) { // 보스/중간보스 등장 대사(말풍선) — 카드 아래에 표시
+    if (!TCG.isDialogueOn() || !text) return;
+    var p = rectOf(unitEl); if (!p) return;
+    var d = spawn('fx-quote', p.x, p.y + p.h / 2 + 8, '', ms || 2000);
+    if (d) d.textContent = text;
   }
   function fxBanner(text, cls, ms) {
     var layer = fxLayerEl();
@@ -1692,6 +1703,13 @@
     muteBtn.addEventListener('click', function () {
       var m = TCG.toggleMute(); muteBtn.textContent = m ? '🔇 소리' : '🔊 소리';
       TCG.audioResume(); if (!m) TCG.sfx('tap');
+    });
+  }
+  var dlgBtn = document.getElementById('dialogueBtn');
+  if (dlgBtn) {
+    dlgBtn.textContent = TCG.isDialogueOn() ? '💬 대사 켜짐' : '💬 대사 꺼짐';
+    dlgBtn.addEventListener('click', function () {
+      var on = TCG.toggleDialogue(); dlgBtn.textContent = on ? '💬 대사 켜짐' : '💬 대사 꺼짐'; TCG.sfx('tap');
     });
   }
   var saved = loadSave();

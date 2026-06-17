@@ -253,14 +253,14 @@ var HW_MID_SKILLS = [ // 아군 카드(장수)를 노리는 상태이상
 /* 고정 네임드 중간보스 — 각 전역의 5·10 출전(전역별 2명, 스토리 진영에 맞는 장수).
  * 기본 hp/atk에 HW_MID 배수와 난이도가 곱해집니다. 일반 적 1명과 함께 등장(고정). */
 var HW_MID_BOSSES = [
-  [ { name:'이각',   emoji:'🪓', hp:30, atk:7 }, { name:'곽사',   emoji:'🗡️', hp:32, atk:7 } ],            // 반동탁 연합군(동탁 진영)
-  [ { name:'순우경', emoji:'🍶', hp:32, atk:7 }, { name:'고람',   emoji:'🛡️', hp:36, atk:7 } ],            // 관도대전(원소 진영)
-  [ { name:'조순',   emoji:'🐎', hp:34, atk:8 }, { name:'문빙',   emoji:'🏹', hp:36, atk:8 } ],            // 장판파(조조 추격군)
-  [ { name:'채모',   emoji:'⚓', hp:36, atk:7, aoe:true }, { name:'장윤', emoji:'🚢', hp:38, atk:8 } ],     // 적벽대전(조조 수군)
-  [ { name:'하후상', emoji:'⚔️', hp:38, atk:8 }, { name:'곽회',   emoji:'📜', hp:40, atk:8 } ],            // 정군산(하후연 진영)
-  [ { name:'한당',   emoji:'🏹', hp:40, atk:8 }, { name:'주태',   emoji:'🗡️', hp:42, atk:9 } ],            // 이릉대전(오 진영)
-  [ { name:'학소',   emoji:'🏯', hp:46, atk:8 }, { name:'왕쌍',   emoji:'🪓', hp:42, atk:9 } ],           // 제갈량 북벌(위 진영)
-  [ { name:'종회',   emoji:'📜', hp:46, atk:9, aoe:true }, { name:'제갈탄', emoji:'⚔️', hp:48, atk:9 } ] // 위·촉·오 멸망(진 진영)
+  [ { name:'이각',   emoji:'🪓', hp:30, atk:7, quote:'동탁 승상의 명을 받든다. 네놈들은 여기서 끝이다!' }, { name:'곽사',   emoji:'🗡️', hp:32, atk:7, quote:'장안은 우리 손안에 있다. 썩 물러가라!' } ],
+  [ { name:'순우경', emoji:'🍶', hp:32, atk:7, quote:'오소의 군량은 내가 지킨다… 한 톨도 내줄 수 없지!' }, { name:'고람',   emoji:'🛡️', hp:36, atk:7, quote:'원소 공의 방패가 여기 있다. 어디 뚫어보아라.' } ],
+  [ { name:'조순',   emoji:'🐎', hp:34, atk:8, quote:'유비를 쫓는다! 도망치는 자의 목을 가져가겠다.' }, { name:'문빙',   emoji:'🏹', hp:36, atk:8, quote:'강하의 수비엔 빈틈이 없다. 발길을 돌려라.' } ],
+  [ { name:'채모',   emoji:'⚓', hp:36, atk:7, aoe:true, quote:'수전이라면 우리 형주 수군을 당할 자가 없지!' }, { name:'장윤', emoji:'🚢', hp:38, atk:8, quote:'물 위에선 네놈들이 우리 밥이다.' } ],
+  [ { name:'하후상', emoji:'⚔️', hp:38, atk:8, quote:'정군산은 우리 위군의 땅. 한 발도 들이지 못한다!' }, { name:'곽회',   emoji:'📜', hp:40, atk:8, quote:'냉정하게, 너희 진형의 허점을 찌르겠다.' } ],
+  [ { name:'한당',   emoji:'🏹', hp:40, atk:8, quote:'강동의 노장이 아직 녹슬지 않았음을 보여주마!' }, { name:'주태',   emoji:'🗡️', hp:42, atk:9, quote:'이 몸의 상처가 곧 충심의 증표다. 덤벼라!' } ],
+  [ { name:'학소',   emoji:'🏯', hp:46, atk:8, quote:'진창성은 천 명으로도 못 뚫는다. 헛수고 말거라.' }, { name:'왕쌍',   emoji:'🪓', hp:42, atk:9, quote:'촉의 북벌, 바로 여기서 끝이다!' } ],
+  [ { name:'종회',   emoji:'📜', hp:46, atk:9, aoe:true, quote:'촉을 멸한 공이 누구의 것이더냐. 비켜서라.' }, { name:'제갈탄', emoji:'⚔️', hp:48, atk:9, quote:'회남의 의기, 끝까지 꺾이지 않는다!' } ]
 ];
 
 /* 모드(노멀→하드→극악) — 천하통일로 차례로 해금. 위 상/중/하 배수에 곱해 적용.
@@ -277,20 +277,28 @@ var HW_MODE_ORDER = ['normal', 'hard', 'extreme'];
  * skills: 대장전 전용 2종(① 공격 또는 방어 · ② 회복 또는 행동 불가). 영웅전 보스는 hero의 단일 스킬을 사용. */
 var HW_COMMANDERS = {
   cmd_huaxiong:  { name:'화웅',   emoji:'🪓', hp:30,  atk:7,  hero:'huaxiong',
+    quote:'내 앞을 가로막는 자, 모조리 목을 베리라! 이 관문은 한 발짝도 넘지 못한다.',
     skills:[ { name:'관문 수장', type:'strike', val:14, cost:2 }, { name:'맹장의 호통', type:'confuse', val:1, cost:2 } ] },
   cmd_yuanshao:  { name:'원소',   emoji:'🎌', hp:36,  atk:7,  hero:'yuanshao',
+    quote:'사세삼공의 명문, 하북의 주인이 바로 나다. 감히 누가 내게 칼을 겨누는가!',
     skills:[ { name:'사세삼공', type:'shield', val:20, cost:3 }, { name:'명문대가', type:'heal', val:30, cost:3 } ] },
   cmd_xiahoudun: { name:'하후돈', emoji:'⚔️', hp:42,  atk:8,  hero:'xiahoudun',
+    quote:'이 눈 하나쯤이야. 부모께 받은 몸, 나는 한 치도 물러서지 않는다!',
     skills:[ { name:'발시담정', type:'strike', val:13, cost:2 }, { name:'독안의 위압', type:'confuse', val:1, cost:2 } ] },
   cmd_caocao:    { name:'조조',   emoji:'👑', hp:52,  atk:9, aoe:true, hero:'caocao',
+    quote:'내가 천하를 저버릴지언정, 천하가 나를 저버리게 두지는 않는다. 자, 덤벼라!',
     skills:[ { name:'간웅', type:'aoe', val:16, cost:3 }, { name:'난세의 책략', type:'heal', val:34, cost:3 } ] },
   cmd_xiahouyuan:{ name:'하후연', emoji:'🏹', hp:58,  atk:9,  hero:'xiahouyuan',
+    quote:'질풍처럼 달려 단숨에 끝내주마. 내 화살을 피할 수 있겠느냐?',
     skills:[ { name:'질풍사격', type:'multi', val:3, cost:2 }, { name:'기습 봉쇄', type:'charm', val:1, cost:2 } ] },
   cmd_luxun:     { name:'육손',   emoji:'🔥', hp:66,  atk:10, aoe:true, hero:'luxun',
+    quote:'성급함은 패망의 지름길이지. 불길이 모든 것을 삼킬 때까지… 나는 기다렸다.',
     skills:[ { name:'이릉대화', type:'aoe', val:18, cost:3 }, { name:'연환 화계', type:'confuse', val:1, cost:2 } ] },
   cmd_simayi:    { name:'사마의', emoji:'🪶', hp:70,  atk:10, aoe:true, hero:'warlock',
+    quote:'참고 또 참아 마침내 때가 왔다. 이제 인내의 결실을 거두겠다.',
     skills:[ { name:'화계', type:'aoe', val:18, cost:3 }, { name:'대기만성', type:'heal', val:40, cost:3 } ] },
   cmd_simayan:   { name:'사마염', emoji:'👑', hp:78,  atk:10, aoe:true, hero:'simayan',
+    quote:'위·촉·오… 모든 난세가 여기서 끝난다. 천하는 하나, 진(晉)으로 통일되리라.',
     skills:[ { name:'삼국 통일', type:'aoe', val:20, cost:3 }, { name:'천하 제압', type:'confuse', val:2, cost:3 } ] }
 };
 
