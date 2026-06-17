@@ -403,7 +403,9 @@
     var got = collectedWeapons.indexOf(w.id) !== -1;
     document.getElementById('weaponColDetail').innerHTML =
       '<b>' + w.emoji + ' ' + w.name + '</b> · ' + (got ? '<span class="cd-got">보유 중</span>' : '<span class="cd-no">미보유</span>') +
-      '<br><span class="cd-sub">' + w.desc + '</span><br><span class="cd-path">획득 경로: ' + weaponPath(w) + '</span>';
+      '<br><span class="cd-sub">' + w.desc + '</span>' +
+      '<br><span class="cd-sub">💰 가치 ' + weaponCost(w) + ' 골드</span>' +
+      '<br><span class="cd-path">획득 경로: ' + weaponPath(w) + '</span>';
     TCG.sfx('tap');
   });
   document.getElementById('codexClose').addEventListener('click', function () { document.getElementById('codexModal').hidden = true; });
@@ -1261,7 +1263,7 @@
     if (heroPool[0]) run.shop.push({ kind: 'hero', def: heroPool[0], cost: 35, sold: false });
     if (heroPool[1]) run.shop.push({ kind: 'hero', def: heroPool[1], cost: 45, sold: false });
     run.shop.push(
-      { kind: 'weapon', wid: wpnPick.id, cost: 40, sold: false },
+      { kind: 'weapon', wid: wpnPick.id, cost: weaponCost(wpnPick), sold: false },
       { kind: 'item', cid: TCG.pick(HW_CONSUMABLES).id, cost: 22, sold: false }, // 소모성 아이템(랜덤)
       { kind: 'item', cid: TCG.pick(HW_CONSUMABLES).id, cost: 22, sold: false },
       { kind: 'dujiu', cost: 18, sold: false },   // 두강주: MP 20 회복

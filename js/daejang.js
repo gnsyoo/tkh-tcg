@@ -499,7 +499,9 @@
     var got = lsArr('hw_collected_weapons').indexOf(w.id) !== -1;
     document.getElementById('weaponColDetail').innerHTML =
       '<b>' + w.emoji + ' ' + w.name + '</b> · ' + (got ? '<span class="cd-got">보유 중</span>' : '<span class="cd-no">미보유</span>') +
-      '<br><span class="cd-sub">' + w.desc + '</span><br><span class="cd-path">획득 경로: ' + weaponPath(w) + '</span>';
+      '<br><span class="cd-sub">' + w.desc + '</span>' +
+      '<br><span class="cd-sub">💰 가치 ' + weaponCost(w) + ' 골드</span>' +
+      '<br><span class="cd-path">획득 경로: ' + weaponPath(w) + '</span>';
     TCG.sfx('tap');
   });
   [['rosterClose', 'rosterModal'], ['gearClose', 'gearModal'], ['codexClose', 'codexModal']].forEach(function (p) {
