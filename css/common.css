@@ -230,3 +230,8 @@ a { color: inherit; text-decoration: none; }
   position: relative; z-index: 1; line-height: 1;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.7));
 }
+/* 절차적 인물화(얼굴) */
+.portrait .p-face {
+  position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; display: block;
+}
+.portrait.face::before { opacity: 0.35; } /* 비단 텍스처를 얼굴 위에서는 옅게 */
