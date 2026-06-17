@@ -31,64 +31,98 @@ var TCG = (function () {
   }
   // ── 절차적 인물화(삼국지 조조전 풍 얼굴) — 외부 이미지 없이 시드 기반 SVG로 생성 ──
   function pf(seed, salt, mod) { return hue(String(seed) + '|' + salt) % mod; }
-  function faceSVG(seed) {
-    var s = String(seed || '');
+  // 인물별 특징(이름 기준) — 외형 오버라이드
+  var FACE_TRAITS = {
+    '관우': { skin: 'red', beard: 'long', brow: 'calm', top: 'helmet' },
+    '하후돈': { eyepatch: true, beard: 'full', brow: 'fierce', top: 'helmet' },
+    '장비': { skin: 'dark', hair: 'black', beard: 'full', brow: 'fierce', top: 'helmet' },
+    '여포': { top: 'helmet', plume: true, beard: 'goatee' },
+    '제갈량': { top: 'cap', beard: 'none', brow: 'calm' },
+    '사마의': { top: 'cap', beard: 'goatee', brow: 'fierce' },
+    '조운': { top: 'helmet', beard: 'none' },
+    '유비': { bigEars: true, beard: 'goatee', brow: 'calm', top: 'crown' },
+    '조조': { top: 'crown', beard: 'goatee', brow: 'fierce' },
+    '손권': { hair: 'red', beard: 'full', top: 'crown' },
+    '황충': { hair: 'white', beard: 'long', top: 'helmet' },
+    '화타': { hair: 'white', beard: 'long', brow: 'calm', top: 'cap' },
+    '사마염': { top: 'crown', beard: 'full' }, '원소': { top: 'crown', beard: 'full' },
+    '동탁': { skin: 'dark', beard: 'full', brow: 'fierce' },
+    '초선': { female: true }, '소교': { female: true }, '대교': { female: true },
+    '순욱': { top: 'cap' }, '순유': { top: 'cap' }, '서서': { top: 'cap' }, '정욱': { top: 'cap' },
+    '방통': { top: 'cap', brow: 'fierce' }, '가후': { top: 'cap', beard: 'goatee', brow: 'fierce' },
+    '주유': { top: 'cap', beard: 'none', brow: 'calm' }, '육손': { top: 'cap', beard: 'none', brow: 'calm' },
+    '마초': { top: 'helmet', beard: 'goatee' }, '장료': { top: 'helmet', beard: 'full' },
+    '방덕': { top: 'helmet', beard: 'full' }, '황개': { hair: 'gray', beard: 'full', top: 'helmet' },
+    '화웅': { beard: 'full', brow: 'fierce', top: 'helmet' }, '서황': { top: 'helmet', beard: 'full' },
+    '손책': { top: 'helmet', beard: 'none' }, '태사자': { top: 'helmet' }, '강유': { top: 'helmet' },
+    '하후연': { top: 'helmet', beard: 'goatee' }, '조비': { top: 'crown', beard: 'goatee' },
+    '감녕': { top: 'helmet' }, '전위': { top: 'helmet', beard: 'full', brow: 'fierce' },
+    '허저': { top: 'helmet', beard: 'full' }, '여몽': { top: 'helmet' }, '마대': { top: 'helmet' },
+    '장합': { top: 'helmet' }, '등애': { top: 'helmet', hair: 'gray' }, '공손찬': { top: 'helmet' },
+    '위연': { top: 'helmet', beard: 'goatee', brow: 'fierce' }, '악진': { top: 'helmet' }
+  };
+  function faceSVG(seed, name) {
+    var s = String(seed || ''), T = FACE_TRAITS[name] || {};
     var SKIN = ['#f2cba6', '#ecbd92', '#e0ad7e', '#cf9b6e', '#bb8456'];
     var SKSH = ['#d6a880', '#c99a72', '#bf8f63', '#ad7a52', '#9a6a42'];
-    var HAIR = ['#23190f', '#150e08', '#3a2614', '#4b3a26', '#717171', '#0e0e0e'];
+    var HAIR = ['#23190f', '#150e08', '#3a2614', '#4b3a26', '#0e0e0e'];
     var si = pf(s, 'skin', 5), skin = SKIN[si], sksh = SKSH[si];
-    var hair = HAIR[pf(s, 'hair', 6)];
+    if (T.skin === 'red') { skin = '#c75a48'; sksh = '#a23f30'; }
+    else if (T.skin === 'dark') { skin = '#8f6a45'; sksh = '#6d4f31'; }
+    else if (T.skin === 'pale') { skin = '#f6ddc4'; sksh = '#dab695'; }
+    var hair = HAIR[pf(s, 'hair', 5)];
+    if (T.hair === 'white') hair = '#e9e9e9';
+    else if (T.hair === 'gray') hair = '#a9a9a9';
+    else if (T.hair === 'red') hair = '#7d3a28';
+    else if (T.hair === 'black') hair = '#120c07';
     var bh = hue(s);
     var robe = 'hsl(' + bh + ',46%,40%)', robeD = 'hsl(' + bh + ',44%,28%)', collar = 'hsl(' + ((bh + 28) % 360) + ',55%,58%)';
-    var top = pf(s, 'top', 5), beard = pf(s, 'beard', 4), brow = pf(s, 'brow', 3), eye = pf(s, 'eye', 2);
+    var female = !!T.female;
+    var top = T.top || ['topknot', 'helmet', 'cap', 'sidehair', 'longhair'][pf(s, 'top', 5)];
+    var beard = female ? 'none' : (T.beard || ['none', 'mustache', 'goatee', 'full'][pf(s, 'beard', 4)]);
+    var brow = female ? 'thin' : ((T.brow === 'fierce') ? 'fierce' : (T.brow === 'calm') ? 'flat' : ['flat', 'fierce', 'raised'][pf(s, 'brow', 3)]);
     var P = [];
-    // 어깨·의복
     P.push('<path d="M2 64 Q7 46 21 44 L43 44 Q57 46 62 64 Z" fill="' + robe + '"/>');
     P.push('<path d="M21 44 L32 56 L43 44 L41 64 L23 64 Z" fill="' + robeD + '"/>');
     P.push('<path d="M23 44 L32 53 L41 44" fill="none" stroke="' + collar + '" stroke-width="2.6" stroke-linejoin="round"/>');
-    // 목
     P.push('<path d="M27 36 h10 v8 q-5 3 -10 0 Z" fill="' + sksh + '"/>');
-    // 뒤로 넘긴 장발
-    if (top === 4) P.push('<path d="M17 24 Q16 8 32 7 Q48 8 47 24 L47 42 Q44 30 44 23 Q44 15 32 14 Q20 15 20 23 Q20 30 17 42 Z" fill="' + hair + '"/>');
-    // 얼굴·귀
+    if (top === 'longhair' || female) P.push('<path d="M16 24 Q15 7 32 6 Q49 7 48 24 L48 44 Q45 31 45 23 Q45 14 32 13 Q19 14 19 23 Q19 31 16 44 Z" fill="' + hair + '"/>');
+    var er = T.bigEars ? 3.4 : 2.3, ery = T.bigEars ? 5 : 3.6;
     P.push('<ellipse cx="32" cy="25" rx="13" ry="15" fill="' + skin + '"/>');
-    P.push('<ellipse cx="19.5" cy="26" rx="2.3" ry="3.6" fill="' + skin + '"/><ellipse cx="44.5" cy="26" rx="2.3" ry="3.6" fill="' + skin + '"/>');
-    // 눈썹
-    if (brow === 1) P.push('<path d="M22 20 L29 22.5" stroke="' + hair + '" stroke-width="2" stroke-linecap="round"/><path d="M42 20 L35 22.5" stroke="' + hair + '" stroke-width="2" stroke-linecap="round"/>');
-    else if (brow === 2) P.push('<path d="M22.5 21 Q26 19.5 29 21" stroke="' + hair + '" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M35 21 Q38 19.5 41.5 21" stroke="' + hair + '" stroke-width="1.8" fill="none" stroke-linecap="round"/>');
+    P.push('<ellipse cx="19.5" cy="27" rx="' + er + '" ry="' + ery + '" fill="' + skin + '"/><ellipse cx="44.5" cy="27" rx="' + er + '" ry="' + ery + '" fill="' + skin + '"/>');
+    if (brow === 'fierce') P.push('<path d="M22 20 L29 22.7" stroke="' + hair + '" stroke-width="2.1" stroke-linecap="round"/><path d="M42 20 L35 22.7" stroke="' + hair + '" stroke-width="2.1" stroke-linecap="round"/>');
+    else if (brow === 'raised') P.push('<path d="M22.5 21 Q26 19.4 29 21" stroke="' + hair + '" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M35 21 Q38 19.4 41.5 21" stroke="' + hair + '" stroke-width="1.8" fill="none" stroke-linecap="round"/>');
+    else if (brow === 'thin') P.push('<path d="M23 21.6 Q26 20.6 29 21.7" stroke="' + hair + '" stroke-width="1.1" fill="none" stroke-linecap="round"/><path d="M35 21.7 Q38 20.6 41 21.6" stroke="' + hair + '" stroke-width="1.1" fill="none" stroke-linecap="round"/>');
     else P.push('<path d="M22.5 21.5 h6.5" stroke="' + hair + '" stroke-width="1.8" stroke-linecap="round"/><path d="M35 21.5 h6.5" stroke="' + hair + '" stroke-width="1.8" stroke-linecap="round"/>');
-    // 눈
-    var ey = eye === 1 ? 26.5 : 26;
-    P.push('<ellipse cx="26" cy="' + ey + '" rx="3.1" ry="2" fill="#fbf3ea"/><ellipse cx="38" cy="' + ey + '" rx="3.1" ry="2" fill="#fbf3ea"/>');
-    P.push('<circle cx="26.6" cy="' + ey + '" r="1.5" fill="#241a12"/><circle cx="37.4" cy="' + ey + '" r="1.5" fill="#241a12"/>');
-    if (eye === 1) P.push('<path d="M22.9 25 Q26 24 29.1 25" stroke="' + sksh + '" stroke-width="1.3" fill="none"/><path d="M34.9 25 Q38 24 41.1 25" stroke="' + sksh + '" stroke-width="1.3" fill="none"/>');
-    // 코·입
+    P.push('<ellipse cx="26" cy="26" rx="3.1" ry="2" fill="#fbf3ea"/><ellipse cx="38" cy="26" rx="3.1" ry="2" fill="#fbf3ea"/>');
+    P.push('<circle cx="26.6" cy="26" r="1.5" fill="#241a12"/><circle cx="37.4" cy="26" r="1.5" fill="#241a12"/>');
     P.push('<path d="M32 26 L30.4 31 Q32 32 33.6 31" fill="none" stroke="' + sksh + '" stroke-width="1.2" stroke-linecap="round"/>');
-    P.push('<path d="M28.5 34.5 Q32 36 35.5 34.5" fill="none" stroke="#a85847" stroke-width="1.4" stroke-linecap="round"/>');
-    // 턱수염
-    if (beard === 3) P.push('<path d="M20 29 Q20 46 32 48 Q44 46 44 29 Q41 39 32 39 Q23 39 20 29 Z" fill="' + hair + '"/>');
-    else if (beard === 2) P.push('<path d="M29 36 Q32 43 35 36 Q32 38.5 29 36 Z" fill="' + hair + '"/>');
-    // 머리·관·투구
-    if (top === 0) { P.push('<path d="M18 25 Q17 9 32 8 Q47 9 46 25 Q45 16 32 15 Q19 16 18 25 Z" fill="' + hair + '"/>'); P.push('<rect x="29.5" y="3.5" width="5" height="7" rx="2.2" fill="' + hair + '"/><ellipse cx="32" cy="4" rx="4" ry="3.4" fill="' + hair + '"/>'); }
-    else if (top === 1) { P.push('<path d="M17 26 Q16 7 32 6 Q48 7 47 26 Q41 13 32 13 Q23 13 17 26 Z" fill="#9aa3ad"/>'); P.push('<path d="M17 26 Q16 7 32 6 Q48 7 47 26" fill="none" stroke="#646c78" stroke-width="1.4"/>'); P.push('<path d="M30 6 Q32 1 34 6 Z" fill="#c0392b"/><ellipse cx="32" cy="3" rx="3" ry="2.6" fill="#c0392b"/>'); P.push('<rect x="22" y="12" width="20" height="2.4" rx="1.2" fill="#cdd3da"/>'); }
-    else if (top === 2) { P.push('<path d="M18 24 Q18 11 32 11 Q46 11 46 24 Q45 16 32 15 Q19 16 18 24 Z" fill="' + hair + '"/>'); P.push('<path d="M20 16 Q20 5 32 5 Q44 5 44 16 Q44 11 32 11 Q20 11 20 16 Z" fill="' + robeD + '"/>'); P.push('<rect x="29.5" y="2" width="5" height="5" rx="1.5" fill="' + robeD + '"/>'); }
-    else if (top === 3) { P.push('<path d="M17 27 Q16 18 22 16 Q19 24 20 28 Z" fill="' + hair + '"/><path d="M47 27 Q48 18 42 16 Q45 24 44 28 Z" fill="' + hair + '"/>'); P.push('<path d="M22 16 Q26 13 32 13 Q38 13 42 16 Q38 15 32 15 Q26 15 22 16 Z" fill="' + hair + '" opacity="0.85"/>'); }
-    else { P.push('<path d="M19 23 Q19 14 32 13 Q45 14 45 23 Q44 17 32 16 Q20 17 19 23 Z" fill="' + hair + '"/>'); }
-    // 콧수염(맨 위)
-    if (beard >= 1) P.push('<path d="M25.5 33 Q28 35 32 34.6 Q36 35 38.5 33 Q34 34 32 34 Q30 34 25.5 33 Z" fill="' + hair + '"/>');
+    if (female) { P.push('<ellipse cx="24" cy="31" rx="2.2" ry="1.3" fill="#ef8a8a" opacity="0.4"/><ellipse cx="40" cy="31" rx="2.2" ry="1.3" fill="#ef8a8a" opacity="0.4"/>'); P.push('<path d="M29.2 34.6 Q32 36.7 34.8 34.6 Q32 35.6 29.2 34.6 Z" fill="#c64b54"/>'); }
+    else P.push('<path d="M28.5 34.5 Q32 36 35.5 34.5" fill="none" stroke="#a85847" stroke-width="1.4" stroke-linecap="round"/>');
+    if (beard === 'full') P.push('<path d="M20 29 Q20 46 32 48 Q44 46 44 29 Q41 39 32 39 Q23 39 20 29 Z" fill="' + hair + '"/>');
+    else if (beard === 'long') P.push('<path d="M22 30 Q22 53 32 60 Q42 53 42 30 Q38 40 32 40 Q26 40 22 30 Z" fill="' + hair + '"/>');
+    else if (beard === 'goatee') P.push('<path d="M29 36 Q32 43 35 36 Q32 38.5 29 36 Z" fill="' + hair + '"/>');
+    if (female) { P.push('<path d="M18 24 Q18 9 32 8 Q46 9 46 24 Q45 15 32 14 Q19 15 18 24 Z" fill="' + hair + '"/>'); P.push('<ellipse cx="32" cy="7" rx="4.5" ry="3.6" fill="' + hair + '"/><circle cx="32" cy="6.5" r="1.4" fill="#f0c33c"/>'); }
+    else if (top === 'topknot') { P.push('<path d="M18 25 Q17 9 32 8 Q47 9 46 25 Q45 16 32 15 Q19 16 18 25 Z" fill="' + hair + '"/>'); P.push('<rect x="29.5" y="3.5" width="5" height="7" rx="2.2" fill="' + hair + '"/><ellipse cx="32" cy="4" rx="4" ry="3.4" fill="' + hair + '"/>'); }
+    else if (top === 'helmet') { P.push('<path d="M17 26 Q16 7 32 6 Q48 7 47 26 Q41 13 32 13 Q23 13 17 26 Z" fill="#9aa3ad"/>'); P.push('<path d="M17 26 Q16 7 32 6 Q48 7 47 26" fill="none" stroke="#646c78" stroke-width="1.4"/>'); P.push('<rect x="22" y="12" width="20" height="2.4" rx="1.2" fill="#cdd3da"/>'); var pc = T.plume ? '#c0392b' : '#8d8f96'; P.push('<path d="M30 6 Q32 0 34 6 Z" fill="' + pc + '"/><ellipse cx="32" cy="2.6" rx="3" ry="2.6" fill="' + pc + '"/>'); }
+    else if (top === 'cap') { P.push('<path d="M18 24 Q18 11 32 11 Q46 11 46 24 Q45 16 32 15 Q19 16 18 24 Z" fill="' + hair + '"/>'); P.push('<path d="M20 16 Q20 5 32 5 Q44 5 44 16 Q44 11 32 11 Q20 11 20 16 Z" fill="' + robeD + '"/>'); P.push('<rect x="29.5" y="2" width="5" height="5" rx="1.5" fill="' + robeD + '"/>'); }
+    else if (top === 'crown') { P.push('<path d="M18 25 Q17 11 32 10 Q47 11 46 25 Q45 17 32 16 Q19 17 18 25 Z" fill="' + hair + '"/>'); P.push('<rect x="20" y="7" width="24" height="4.5" rx="1" fill="#d4af37"/>'); P.push('<rect x="22" y="3" width="20" height="4.5" rx="1" fill="#2a2436"/>'); P.push('<circle cx="25" cy="9.2" r="1" fill="#fff2b0"/><circle cx="32" cy="9.2" r="1" fill="#fff2b0"/><circle cx="39" cy="9.2" r="1" fill="#fff2b0"/>'); }
+    else if (top === 'sidehair') { P.push('<path d="M17 27 Q16 18 22 16 Q19 24 20 28 Z" fill="' + hair + '"/><path d="M47 27 Q48 18 42 16 Q45 24 44 28 Z" fill="' + hair + '"/>'); P.push('<path d="M22 16 Q26 13 32 13 Q38 13 42 16 Q38 15 32 15 Q26 15 22 16 Z" fill="' + hair + '" opacity="0.85"/>'); }
+    else P.push('<path d="M19 23 Q19 14 32 13 Q45 14 45 23 Q44 17 32 16 Q20 17 19 23 Z" fill="' + hair + '"/>');
+    if (beard !== 'none') P.push('<path d="M25.5 33 Q28 35 32 34.6 Q36 35 38.5 33 Q34 34 32 34 Q30 34 25.5 33 Z" fill="' + hair + '"/>');
+    if (T.eyepatch) { P.push('<path d="M14 21 L48 30" stroke="#1d1d22" stroke-width="2.4"/>'); P.push('<ellipse cx="26" cy="26" rx="4.2" ry="3.2" fill="#1d1d22"/>'); }
     return '<svg class="p-face" viewBox="0 0 64 64" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">' + P.join('') + '</svg>';
   }
-  function portraitStyle() { try { return localStorage.getItem('tcg_portrait') === 'emoji' ? 'emoji' : 'face'; } catch (e) { return 'face'; } }
-  // 인물화 대상: 장수/카드(ASCII id). 주공('lord')·적장('cmd_*')·적(한글 이름)은 기존 이모지 유지
+  // 인물화 대상: 장수/카드(ASCII id). 주공('lord')·적장('cmd_*')·적(한글 이름)은 이모지 유지
   function isFaceSeed(seed) {
     var s = String(seed || '');
     if (!s || s === 'lord' || s.indexOf('cmd_') === 0) return false;
     return /^[\x00-\x7F]+$/.test(s);
   }
-  // portrait frame markup: 인물화(얼굴) 또는 이모지 메달리온
-  function portrait(emoji, seed, extraClass) {
-    if (portraitStyle() === 'face' && isFaceSeed(seed)) {
-      return '<div class="portrait face ' + (extraClass || '') + '" style="--h:' + hue(seed) + '">' + faceSVG(seed) + '</div>';
+  // portrait: 장수/카드는 절차적 인물화(얼굴), 그 외(적·주공)는 이모지 메달리온
+  function portrait(emoji, seed, extraClass, name) {
+    if (isFaceSeed(seed)) {
+      return '<div class="portrait face ' + (extraClass || '') + '" style="--h:' + hue(seed) + '">' + faceSVG(seed, name) + '</div>';
     }
     return '<div class="portrait ' + (extraClass || '') + '" style="--h:' + hue(seed) + '">' +
       '<span class="p-emoji">' + emoji + '</span></div>';
@@ -202,8 +236,6 @@ var TCG = (function () {
     diffLabel: diffLabel,
     rand: rand, pick: pick, shuffle: shuffle, clamp: clamp,
     hue: hue, portrait: portrait,
-    getPortrait: portraitStyle,
-    setPortrait: function (st) { try { localStorage.setItem('tcg_portrait', st === 'emoji' ? 'emoji' : 'face'); } catch (e) {} },
     toast: toast, floatText: floatText, delay: delay,
     sfx: sfx, toggleMute: toggleMute, isMuted: isMuted, audioResume: audioResume,
     initFloatMenu: initFloatMenu

@@ -213,7 +213,7 @@
       var sel = c.sel && c.sel.uid === uid && !c.targeting;
       var cls = 'combat-card' + (sel ? ' selected' : '') + (canAct ? '' : ' unplayable');
       var ws = heroWpns(h), wE = ws.map(function (w) { return w.emoji; }).join(''), wN = ws.map(function (w) { return w.name; }).join(', ');
-      return '<div class="' + cls + '" data-uid="' + uid + '">' + TCG.portrait(h.def.emoji, h.def.id, 'cc-art') +
+      return '<div class="' + cls + '" data-uid="' + uid + '">' + TCG.portrait(h.def.emoji, h.def.id, 'cc-art', h.def.name) +
         '<div class="cc-name">' + h.def.name + '</div><div class="cc-atk">⚔' + effAtk(h) + '</div><div class="cc-def">🛡' + defenseOf(h) + '</div>' +
         (wE ? '<div class="cc-wpn" title="' + wN + '">' + wE + '</div>' : '') + '<div class="cc-skill">' + sk.name + '</div></div>';
     }).join('');
@@ -430,7 +430,7 @@
     document.getElementById('rosterCount').textContent = party.length;
     document.getElementById('rosterGrid').innerHTML = party.map(function (h) {
       var ws = heroWpns(h).map(function (w) { return w.emoji; }).join('');
-      return '<div class="col-card">' + TCG.portrait(h.def.emoji, h.def.id) +
+      return '<div class="col-card">' + TCG.portrait(h.def.emoji, h.def.id, '', h.def.name) +
         '<div class="col-name">' + h.def.name + '</div>' +
         '<div class="col-rar rar-' + h.def.rarity + '">' + h.def.rarity + ' · ⚔' + effAtk(h) + (ws ? ' ' + ws : '') + '</div></div>';
     }).join('') || '<p class="screen-sub">장수가 없습니다</p>';
@@ -453,7 +453,7 @@
     document.getElementById('heroColTitle').textContent = '(' + col.length + ' / ' + HW_HEROES.length + ')';
     document.getElementById('heroColGrid').innerHTML = HW_HEROES.map(function (d) {
       var got = col.indexOf(d.id) !== -1;
-      return '<div class="col-card' + (got ? '' : ' locked') + '" data-id="' + d.id + '">' + TCG.portrait(d.emoji, d.id) +
+      return '<div class="col-card' + (got ? '' : ' locked') + '" data-id="' + d.id + '">' + TCG.portrait(d.emoji, d.id, '', d.name) +
         '<div class="col-name">' + d.name + '</div><div class="col-rar rar-' + d.rarity + '">' + d.rarity + ' · ' + d.cls + '</div>' +
         (got ? '' : '<div class="col-lock">🔒</div>') + '</div>';
     }).join('');

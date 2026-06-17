@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0d0b1a">
 <title>삼국지 카드 게임</title>
-<link rel="stylesheet" href="css/common.css?v=20260617e">
-<link rel="stylesheet" href="css/home.css?v=20260617e">
+<link rel="stylesheet" href="css/common.css?v=20260617f">
+<link rel="stylesheet" href="css/home.css?v=20260617f">
 </head>
 <body class="home-body">
   <div class="home-wrap">
@@ -42,7 +42,6 @@
 
     <footer class="home-version">
       <span class="ver-badge" id="verBadge">v1.0 · 2026.06.17</span>
-      <button class="btn ghost ver-btn" id="portraitToggle">🎨 인물화: 얼굴</button>
       <button class="btn ghost ver-btn" id="changelogBtn">📜 변경 내역</button>
     </footer>
   </div>
@@ -54,6 +53,7 @@
       <div class="changelog-list">
         <h4>v1.0 · 2026.06.17</h4>
         <ul>
+          <li><b>장수 카드 아이콘을 인물화(얼굴)</b>로 변경 — 인물별 특징 반영(관우 붉은 얼굴, 하후돈 안대, 여포 투구, 초선 여성 등).</li>
           <li><b>여포(SSR)</b> 추가 — 첫 적장 <b>화웅을 주공 풀 HP로 격파</b> 또는 <b>노멀 모드 천하통일</b> 시 획득.</li>
           <li><b>스킬 공격에도 치명타</b> 적용(강타·광역·다회). <b>매혹·혼란(행동 불가)은 중첩 안 됨</b>(마지막 1개만).</li>
           <li>행동 불가는 <b>출진(가운데 등장) 시 1회</b> 적용(턴 무관, 덱에 있으면 유지). <b>적 스킬 사용 빈도 ↓</b>(약 30%).</li>
@@ -88,12 +88,6 @@
       document.getElementById('changelogBtn').addEventListener('click', function () { modal.hidden = false; });
       document.getElementById('changelogClose').addEventListener('click', function () { modal.hidden = true; });
       modal.addEventListener('click', function (e) { if (e.target === modal) modal.hidden = true; });
-      // 인물화(장수 카드 얼굴) ↔ 이모지 토글 — 게임 진입 시 적용
-      var pBtn = document.getElementById('portraitToggle');
-      function cur() { try { return localStorage.getItem('tcg_portrait') === 'emoji' ? 'emoji' : 'face'; } catch (e) { return 'face'; } }
-      function label() { pBtn.textContent = cur() === 'emoji' ? '🎨 인물화: 이모지' : '🎨 인물화: 얼굴'; }
-      label();
-      pBtn.addEventListener('click', function () { try { localStorage.setItem('tcg_portrait', cur() === 'face' ? 'emoji' : 'face'); } catch (e) {} label(); });
     })();
   </script>
 </body>

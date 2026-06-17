@@ -153,7 +153,7 @@
     var ws = heroWpns(h).map(function (w) { return w.emoji; }).join('');
     return '<div class="mini-hero" data-uid="' + h.uid + '">' +
       '<span class="mh-rar rar-' + h.def.rarity + '">' + h.def.rarity + '</span>' +
-      TCG.portrait(h.def.emoji, h.def.id) +
+      TCG.portrait(h.def.emoji, h.def.id, '', h.def.name) +
       '<div class="mh-name">' + h.def.name + '</div>' +
       '<div class="mh-stats">⚔' + effAtk(h) + (ws ? ' <span class="mh-wpn">' + ws + '</span>' : '') + '</div></div>';
   }
@@ -348,7 +348,7 @@
     document.getElementById('heroColGrid').innerHTML = HW_HEROES.map(function (d) {
       var got = collectedHeroes.indexOf(d.id) !== -1;
       return '<div class="col-card' + (got ? '' : ' locked') + '" data-id="' + d.id + '">' +
-        TCG.portrait(d.emoji, d.id) +
+        TCG.portrait(d.emoji, d.id, '', d.name) +
         '<div class="col-name">' + d.name + '</div>' +
         '<div class="col-rar rar-' + d.rarity + '">' + d.rarity + ' · ' + d.cls + '</div>' +
         (got ? '' : '<div class="col-lock">🔒</div>') +
@@ -738,7 +738,7 @@
       var badge = (stunned ? '<div class="cc-stun">' + (st.cause === '매혹' ? '💗' : '💫') + '</div>' : '') +
         (pois ? '<div class="cc-pois">☠' + st.poison + '</div>' : '');
       return '<div class="' + cls + '" data-uid="' + uid + '">' + badge +
-        TCG.portrait(h.def.emoji, h.def.id, 'cc-art') +
+        TCG.portrait(h.def.emoji, h.def.id, 'cc-art', h.def.name) +
         '<div class="cc-name">' + h.def.name + '</div>' +
         '<div class="cc-atk">⚔' + effAtk(h) + '</div>' +
         (wEmoji ? '<div class="cc-wpn" title="' + wName + '">' + wEmoji + '</div>' : '') +
@@ -1182,7 +1182,7 @@
   }
   function heroRewardCard(d) {
     return '<div class="reward-card" data-hero="' + d.id + '">' +
-      TCG.portrait(d.emoji, d.id, 'rc-portrait') +
+      TCG.portrait(d.emoji, d.id, 'rc-portrait', d.name) +
       '<div class="rc-name">' + d.name + '</div>' +
       '<div class="rc-rarity rar-' + d.rarity + '">' + d.rarity + ' · ' + d.cls + '</div>' +
       '<div class="rc-stats">❤' + d.hp + ' ⚔' + d.atk + '</div>' +
@@ -1438,7 +1438,7 @@
     }
     wpnHtml += '</div>';
     document.getElementById('heroModalBody').innerHTML =
-      TCG.portrait(d.emoji, d.id, 'modal-portrait') +
+      TCG.portrait(d.emoji, d.id, 'modal-portrait', d.name) +
       '<h2>' + d.name + ' <span class="rar-' + d.rarity + '" style="font-size:14px">' + d.rarity + '</span></h2>' +
       '<p>' + d.cls + ' · ⚔ ' + effAtk(h) + (totalAtkBonus ? ' (무기 +' + totalAtkBonus + ')' : '') + '</p>' +
       '<div style="background:rgba(0,0,0,.25);border-radius:10px;padding:10px;text-align:left;font-size:13px">' +

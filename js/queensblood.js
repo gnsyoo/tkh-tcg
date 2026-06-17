@@ -445,7 +445,7 @@
           var base = cell.card.def.power;
           var pwCls = eff > base ? ' buffed' : (eff < base ? ' debuffed' : '');
           html += '<div class="tile-card ' + cell.card.owner + '">' +
-            TCG.portrait(cell.card.def.emoji, cell.card.def.id, 'tp') +
+            TCG.portrait(cell.card.def.emoji, cell.card.def.id, 'tp', cell.card.def.name) +
             '<span class="pw' + pwCls + '">' + eff + '</span></div>';
         }
         html += '</div>';
@@ -542,7 +542,7 @@
       for (var k = 0; k < def.rank; k++) rp += '<span class="rp"></span>';
       html += '<div class="' + cls + '" data-i="' + i + '">' +
         '<div class="hc-top"><div class="rank-pips">' + rp + '</div><span class="hc-power">' + def.power + '</span></div>' +
-        TCG.portrait(def.emoji, def.id) +
+        TCG.portrait(def.emoji, def.id, '', def.name) +
         '<div class="hc-name">' + def.name + '</div>' +
         '<div class="hc-ab">' + (def.ab ? def.ab.txt : '') + '</div>' +
         enhGlyph(def) +
@@ -590,7 +590,7 @@
       : '<span class="ci-owner foe">🤖 상대 카드</span>';
     var pwTxt = '무력 ' + def.power + ((effPower != null && effPower !== def.power) ? ' → <b class="' + (effPower > def.power ? 'ci-up' : 'ci-down') + '">' + effPower + '</b> (효과 적용)' : '');
     document.getElementById('cardModalBody').innerHTML =
-      '<div class="ci-head">' + TCG.portrait(def.emoji, def.id, 'ci-art') +
+      '<div class="ci-head">' + TCG.portrait(def.emoji, def.id, 'ci-art', def.name) +
         '<div class="ci-meta">' +
           '<div class="ci-name">' + def.name + ' ' + ownerLabel + '</div>' +
           '<div class="ci-rank">등급 <span class="rank-pips">' + rp + '</span> · 레벨 ' + def.rank + ' 이상 칸에 배치</div>' +
@@ -645,7 +645,7 @@
       var rp = ''; for (var k = 0; k < c.rank; k++) rp += '<span class="rp"></span>';
       return '<div class="deck-card' + (sel ? ' sel' : '') + '" data-id="' + c.id + '">' +
         '<div class="dc-top"><div class="rank-pips">' + rp + '</div><span class="hc-power">' + c.power + '</span></div>' +
-        TCG.portrait(c.emoji, c.id) +
+        TCG.portrait(c.emoji, c.id, '', c.name) +
         '<div class="dc-name">' + c.name + '</div>' +
         '<div class="dc-ab">' + (c.ab ? c.ab.txt : '') + '</div>' +
         enhGlyph(c) +
