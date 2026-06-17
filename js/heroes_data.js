@@ -114,7 +114,10 @@ var HW_HEROES = [
   { id:'yuanshao', name:'원소', emoji:'🎌', cls:'군주', rarity:'SSR', hp:44, atk:10, exclusive:'raid', raidOf:'cmd_yuanshao',
     skill:{ name:'사세삼공', cost:3, type:'buff', val:8, target:'ally', desc:'전군 공격력 +8 (전투 동안)' } },
   { id:'simayan', name:'사마염', emoji:'👑', cls:'군주', rarity:'SSR', hp:48, atk:13, exclusive:'raid', raidOf:'cmd_simayan',
-    skill:{ name:'삼국 통일', cost:3, type:'aoe', val:18, target:'allEnemies', desc:'모든 적에게 18 피해' } }
+    skill:{ name:'삼국 통일', cost:3, type:'aoe', val:18, target:'allEnemies', desc:'모든 적에게 18 피해' } },
+  // ---- 특수 획득 장수 ----
+  { id:'lubu', name:'여포', emoji:'🐎', cls:'전사', rarity:'SSR', hp:46, atk:15, exclusive:'special',
+    skill:{ name:'천하무쌍', cost:3, type:'strike', val:18, target:'enemy', desc:'적 1명에게 공격력+18 피해' } }
 ];
 var HW_BY_ID = {};
 HW_HEROES.forEach(function (h) { HW_BY_ID[h.id] = h; });

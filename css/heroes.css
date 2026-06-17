@@ -107,6 +107,7 @@
 
 /* 지도 화면의 장수/장비 버튼 */
 .map-collect { display: flex; gap: 10px; justify-content: center; margin-top: 14px; }
+#selectScreen .map-collect { margin-bottom: 20px; } /* 대장전 선택 화면: 버튼과 보스 목록 사이 간격 */
 .collect-btn {
   flex: 1; max-width: 200px;
   background: var(--panel); color: var(--ink);

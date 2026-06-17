@@ -300,16 +300,15 @@
     if (sk.type !== 'heal') c.lord.mp = Math.max(0, c.lord.mp - skillMp(sk));
     TCG.sfx(sk.type === 'heal' ? 'heal' : 'skill');
     var pw = effAtk(h);
-    if (sk.type === 'strike') { dmgBoss(pw + sk.val); shake('big'); logMsg(h.def.name + ' 「' + sk.name + '」 ' + (pw + sk.val) + ' 피해'); }
-    else if (sk.type === 'aoe') { if (b.hp > 0) dmgBoss(sk.val); shake('big'); logMsg(h.def.name + ' 「' + sk.name + '」 ' + sk.val + ' 피해'); }
+    if (sk.type === 'strike') { var sc = rollCrit(critChance(h)); var sd = (pw + sk.val) * (sc ? 2 : 1); dmgBoss(sd, sc); shake('big'); logMsg(h.def.name + ' 「' + sk.name + '」 ' + sd + ' 피해' + (sc ? ' (치명타!)' : '')); }
+    else if (sk.type === 'aoe') { var ac = rollCrit(critChance(h)); var av = sk.val * (ac ? 2 : 1); if (b.hp > 0) dmgBoss(av, ac); shake('big'); logMsg(h.def.name + ' 「' + sk.name + '」 ' + av + ' 피해' + (ac ? ' (치명타!)' : '')); }
     else if (sk.type === 'multi') {
       // 다회 공격 스킬은 타격당 기본 공격력의 1/N(반올림)
       var perHit = Math.max(1, Math.round(pw / sk.val));
       c.busy = true; var mi = 0; // 타격마다 끊어서 연출
       (function mhit() {
         if (mi >= sk.val || b.hp <= 0) { logMsg(h.def.name + ' 「' + sk.name + '」 ' + sk.val + '회 공격(타격당 ' + perHit + ')'); c.busy = false; finishPlay(); return; }
-        mi++; TCG.sfx('attack'); dmgBoss(perHit); shake('sm'); renderCombat(); setTimeout(mhit, 210);
-      })();
+        mi++; TCG.sfx('attack'); var mc = rollCrit(critChance(h)); dmgBoss(mc ? perHit * 2 : perHit, mc); shake('sm'); renderCombat(); setTimeout(mhit, 210); })();
       return; // 비동기 처리 — 아래 공통 finishPlay 건너뜀
     }
     else if (sk.type === 'confuse' || sk.type === 'charm') { fxSupport(bossEl(), '🛡 면역', '#cfd8e3'); logMsg(b.name + ' — ' + (sk.type === 'charm' ? '매혹' : '혼란') + ' 면역!'); } // 레이드 보스는 행동 불가 면역

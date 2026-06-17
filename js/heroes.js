@@ -193,6 +193,21 @@
       localStorage.setItem('hw_collected_heroes', JSON.stringify(collectedHeroes));
     } catch (e) {}
   }
+  function pushGrant(id) {
+    try { var g = JSON.parse(localStorage.getItem('hw_grant_heroes') || '[]'); if (!Array.isArray(g)) g = []; if (g.indexOf(id) === -1) g.push(id); localStorage.setItem('hw_grant_heroes', JSON.stringify(g)); } catch (e) {}
+  }
+  // 특수 획득 장수(여포 등) — 조건 달성 시 호출. toParty=true면 진행 중 파티에 즉시 합류, 아니면 다음 진입 시 합류 대기
+  function unlockSpecialHero(id, reason, toParty) {
+    if (!HW_BY_ID[id]) return;
+    var already = collectedHeroes.indexOf(id) !== -1;
+    if (!already) { collectedHeroes.push(id); try { localStorage.setItem('hw_collected_heroes', JSON.stringify(collectedHeroes)); } catch (e) {} }
+    if (toParty && run && run.party && !run.party.some(function (h) { return h.def.id === id; }) && run.party.length < MAX_PARTY) {
+      run.party.push(mkHero(id));
+    } else {
+      pushGrant(id);
+    }
+    TCG.toast('🐎 ' + reason + ' — ' + HW_BY_ID[id].name + (already ? ' 합류!' : ' 획득!'));
+  }
   // 장수 컬렉션 100% 완료 → 자웅일대검 지급(다른 경로로는 획득 불가)
   function checkCollectionReward() {
     if (!run) return;
@@ -321,6 +336,7 @@
       var rb = null; HW_RAID.bosses.forEach(function (b) { if (b.reward === d.id) rb = b; });
       return '👹 삼국 대장전 — ' + (rb ? HW_COMMANDERS[rb.key].name : '적장') + ' 격파 보상 (대장전에서만 획득)';
     }
+    if (d.exclusive === 'special') return '🐎 화웅(첫 적장)을 주공 풀 HP로 격파 또는 노멀 모드 천하통일';
     return '⚔️ 전투 보상 영입 · 🏪 저잣거리 구매';
   }
   function weaponPath(w) {
@@ -895,11 +911,14 @@
     var hp0 = rectOf(lordEl()); if (hp0) fxRing(hp0.x, hp0.y, '#9fd2ff');
     var pw = effAtk(h);
     if (sk.type === 'strike') {
-      dmgEnemy(target, pw + sk.val, enemyEl(c.enemies.indexOf(target))); shake('big');
-      logMsg(h.def.name + ' 「' + sk.name + '」 ' + (pw + sk.val) + ' 피해');
+      var scrit = rollCrit(critChance(h)); // 스킬도 치명타 적용
+      var sdmg = (pw + sk.val) * (scrit ? 2 : 1);
+      dmgEnemy(target, sdmg, enemyEl(c.enemies.indexOf(target)), scrit ? 'crit' : null); shake('big');
+      logMsg(h.def.name + ' 「' + sk.name + '」 ' + sdmg + ' 피해' + (scrit ? ' (치명타!)' : ''));
     } else if (sk.type === 'aoe') {
-      living(c.enemies).forEach(function (e) { dmgEnemy(e, sk.val, enemyEl(c.enemies.indexOf(e)), 'aoe'); }); shake('big');
-      logMsg(h.def.name + ' 「' + sk.name + '」 전체 ' + sk.val + ' 피해');
+      var acrit = rollCrit(critChance(h)); var aval = sk.val * (acrit ? 2 : 1);
+      living(c.enemies).forEach(function (e) { dmgEnemy(e, aval, enemyEl(c.enemies.indexOf(e)), acrit ? 'crit' : 'aoe'); }); shake('big');
+      logMsg(h.def.name + ' 「' + sk.name + '」 전체 ' + aval + ' 피해' + (acrit ? ' (치명타!)' : ''));
     } else if (sk.type === 'multi') {
       // 다회 공격 스킬은 타격당 기본 공격력의 1/N(반올림) — N=타격 수
       var perHit = Math.max(1, Math.round(pw / sk.val));
@@ -910,7 +929,8 @@
         mi++;
         var e2 = TCG.pick(alive);
         TCG.sfx('attack');
-        dmgEnemy(e2, perHit, enemyEl(c.enemies.indexOf(e2)));
+        var mcrit = rollCrit(critChance(h)); // 다회 스킬도 타격마다 치명타 판정
+        dmgEnemy(e2, mcrit ? perHit * 2 : perHit, enemyEl(c.enemies.indexOf(e2)), mcrit ? 'crit' : null);
         shake('sm'); renderCombat();
         setTimeout(mhit, 210);
       })();
@@ -929,22 +949,22 @@
       fxSupport(lordEl(), '⚔+' + sk.val, '#ffd86b');
       logMsg(h.def.name + ' 「' + sk.name + '」 전군 공격력 +' + sk.val);
     } else if (sk.type === 'charm') {
-      // 적을 매혹 — 다음 자기 턴 행동 불가(매혹된 턴 수만큼)
+      // 적을 매혹 — 행동 불가. 중첩 방지: 마지막 1개만 적용(혼란과도 배타)
       if (target && target.hp > 0) {
-        target.charmed = (target.charmed || 0) + sk.val;
+        target.confused = 0; target.charmed = sk.val;
         var cel = enemyEl(c.enemies.indexOf(target));
         fxSupport(cel, '💗 매혹', '#ff9ad0');
         if (cel && cel.classList) cel.classList.add('charmed');
-        logMsg(h.def.name + ' 「' + sk.name + '」 ' + target.name + ' ' + sk.val + '턴 매혹');
+        logMsg(h.def.name + ' 「' + sk.name + '」 ' + target.name + ' 매혹(행동 불가)');
       }
     } else if (sk.type === 'confuse') {
-      // 적을 혼란 — 다음 자기 턴 행동 불가
+      // 적을 혼란 — 행동 불가. 중첩 방지: 마지막 1개만 적용(매혹과도 배타)
       if (target && target.hp > 0) {
-        target.confused = (target.confused || 0) + sk.val;
+        target.charmed = 0; target.confused = sk.val;
         var cel2 = enemyEl(c.enemies.indexOf(target));
         fxSupport(cel2, '💫 혼란', '#c9a8ff');
         if (cel2 && cel2.classList) cel2.classList.add('charmed');
-        logMsg(h.def.name + ' 「' + sk.name + '」 ' + target.name + ' ' + sk.val + '턴 혼란');
+        logMsg(h.def.name + ' 「' + sk.name + '」 ' + target.name + ' 혼란(행동 불가)');
       }
     }
     finishPlay();
@@ -1098,6 +1118,10 @@
   function winCombat() {
     var c = run.combat;
     TCG.sfx('win');
+    // 여포: 첫 스테이지(반동탁) 적장 화웅을 주공 풀 HP로 격파하면 획득
+    if (c.sub === SUB_COUNT - 1 && c.main === 0 && c.lord.hp >= c.lord.maxHp) {
+      unlockSpecialHero('lubu', '화웅을 풀 HP로 격파', true);
+    }
     // 주공 HP는 모험 내내 유지 — 승리 시 일부만 회복(로그라이크 소모전)
     var heal = Math.round(c.lord.maxHp * 0.115) + relicSum('winHeal'); // 카드 방어 제거 보정(승리 회복↑)
     run.lordHp = Math.min(c.lord.maxHp, c.lord.hp + heal);
@@ -1317,7 +1341,11 @@
     document.getElementById('overText').textContent = '「' + (fst ? fst.name : '') + '」 서브 ' + (run.subStage + 1) + '/' + SUB_COUNT + ' 에서 주공이 쓰러졌습니다. 다시 도전하세요!';
     document.getElementById('overModal').hidden = false;
   }
-  function victory() { showCredits(); }
+  function victory() {
+    // 여포: 노멀 모드 천하통일 시 획득(다음 진입 시 합류 대기)
+    if ((run.mode || 'normal') === 'normal') unlockSpecialHero('lubu', '노멀 모드 천하통일', false);
+    showCredits();
+  }
 
   /* ---------- 엔딩 크레딧 (천하통일 후) ---------- */
   function showCredits() {
