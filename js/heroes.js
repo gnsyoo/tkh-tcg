@@ -42,7 +42,7 @@
   function lordMaxHp() { return HW_LORD.hp + run.party.reduce(function (s, h) { return s + wpnVal(h, 'lordHp'); }, 0); }
   function lordMaxMp() { return HW_LORD.mp + run.party.reduce(function (s, h) { return s + wpnVal(h, 'lordMp'); }, 0); }
   function lordEvade() { return Math.min(0.6, run.party.reduce(function (s, h) { return s + wpnVal(h, 'evade'); }, 0)); } // 회피(무기 합산, 최대 60%)
-  function skillMp(sk) { return 2 + (sk.cost || 1); } // 스킬 MP 비용 3~5
+  function skillMp(sk) { var m = 2 + (sk.cost || 1); return (sk.type === 'buff' && sk.scope === 'army') ? m * 5 : m + 3; } // 모든 스킬 +3, 전군 버프는 현재의 5배
   function ownedHeroIds() { return run.party.map(function (h) { return h.def.id; }); } // 중복 수집 방지
   // 보유 무기 중 아직 장착되지 않은 것들(중복 보유 허용)
   function freeWeaponIds() {
@@ -284,7 +284,7 @@
       '<div class="sub-dots">' + dots + '</div>' +
       '<div class="cs-actions">' +
         '<button class="camp-btn primary" data-act="battle">' + battleLabel + '</button>' +
-        '<button class="camp-btn" data-act="formation">🎴 진형</button>' +
+        '<button class="camp-btn" data-act="formation">🀄 진형</button>' +
         '<button class="camp-btn" data-act="shop">🏪 상점</button>' +
         '<button class="camp-btn" data-act="tavern">🏮 주막</button>' +
       '</div>' +
@@ -659,10 +659,7 @@
   function beginRound() {
     var c = run.combat;
     c.round++;
-    if (c.round > 1) {
-      c.lord.block = 0; // 라운드 시작 시 주공 블록 초기화(1R은 startBlock 유지)
-      c.lord.mp = Math.min(c.lord.maxMp, c.lord.mp + Math.max(2, Math.round(c.lord.maxMp * 0.035))); // 턴마다 MP 재생(스킬 MP 소모 보전)
-    }
+    if (c.round > 1) c.lord.block = 0; // 라운드 시작 시 주공 블록 초기화(1R은 startBlock 유지) — MP 자동 재생 없음
     c.itemUsed = false; // 소모성 아이템은 턴당 1개
     c.cardBuff = {}; // 아군 1명 공격 버프는 1턴만 유지
     if (c.tempAtk && c.tempAtk.turns > 0) { c.tempAtk.turns--; }
@@ -864,7 +861,7 @@
       var sk = h.def.skill;
       var st = c.cstat && c.cstat[uid];
       var stunned = st && st.stun > 0, pois = st && st.poison > 0;
-      var sel = c.sel && c.sel.uid === uid && !c.targeting;
+      var sel = c.sel && c.sel.uid === uid; // 대상 지정 중에도 선택된 카드 강조 유지
       var cls = 'combat-card' + (sel ? ' selected' : '') + ((canAct && !stunned) ? '' : ' unplayable') + (stunned ? ' stunned' : '');
       var ws = heroWpns(h);
       var wEmoji = ws.map(function (w) { return w.emoji; }).join('');
@@ -923,7 +920,7 @@
   function renderActionBar() {
     var c = run.combat;
     var bar = document.getElementById('actionBar');
-    if (!c.sel || c.targeting) { bar.hidden = true; return; }
+    if (!c.sel) { bar.hidden = true; return; }
     var h = heroByUid(c.sel.uid);
     if (!h) { bar.hidden = true; return; }
     var sk = h.def.skill;
@@ -932,10 +929,12 @@
     var canSkill = !buffDone && c.lord.mp >= mp;
     var mpLabel = buffDone ? '✓ 적용됨' : ('💧' + mp);
     var critPct = Math.round(critChance(h) * 100);
+    var tgt = c.targeting && c.pending; // 대상 지정 중 — 선택한 행동을 강조
+    var atkSel = tgt && c.pending.kind === 'attack', skSel = tgt && c.pending.kind === 'skill';
     bar.hidden = false;
     bar.innerHTML =
-      '<button class="act-btn" data-act="attack">기본 공격<small>피해 ' + effAtk(h) + (hasWpnFlag(h, 'doubleStrike') ? ' ×2' : '') + (wpnVal(h, 'poison') ? ' ☠' + wpnVal(h, 'poison') : '') + (critPct > 1 ? ' 💥' + critPct + '%' : '') + '</small></button>' +
-      '<button class="act-btn skill" data-act="skill"' + (canSkill ? '' : ' disabled') + '>' + sk.name + '<small>' + mpLabel + ' · ' + sk.desc + '</small></button>' +
+      '<button class="act-btn' + (atkSel ? ' chosen' : '') + '" data-act="attack">기본 공격<small>피해 ' + effAtk(h) + (hasWpnFlag(h, 'doubleStrike') ? ' ×2' : '') + (wpnVal(h, 'poison') ? ' ☠' + wpnVal(h, 'poison') : '') + (critPct > 1 ? ' 💥' + critPct + '%' : '') + '</small></button>' +
+      '<button class="act-btn skill' + (skSel ? ' chosen' : '') + '" data-act="skill"' + (canSkill ? '' : ' disabled') + '>' + sk.name + '<small>' + mpLabel + ' · ' + sk.desc + '</small></button>' +
       '<button class="act-btn cancel" data-act="cancel">취소</button>';
   }
 

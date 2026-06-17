@@ -50,7 +50,7 @@ var HW_HEROES = [
     skill:{ name:'단기필마', cost:2, type:'strike', val:16, target:'enemy', desc:'적 1명에게 공격력+16 피해' } },
   // ---- 추가 장수 2차 ----
   { id:'caocao',   name:'조조',   emoji:'👑', cls:'군주', rarity:'SSR', hp:40, atk:9, exclusive:'raid', raidOf:'cmd_caocao',
-    skill:{ name:'간웅', cost:3, type:'buff', scope:'army', val:8, target:'ally', desc:'전군 공격력 +8 (전투 동안)' } },
+    skill:{ name:'간웅', cost:3, type:'buff', scope:'army', val:4, target:'ally', desc:'전군 공격력 +4 (전투 동안)' } },
   { id:'xiahoudun',name:'하후돈', emoji:'⚔️', cls:'전사', rarity:'SSR', hp:44, atk:11, exclusive:'raid', raidOf:'cmd_xiahoudun',
     skill:{ name:'발시담정', cost:2, type:'strike', val:11, target:'enemy', desc:'적 1명에게 공격력+11 피해' } },
   { id:'xiahouyuan',name:'하후연',emoji:'🏹', cls:'궁수', rarity:'SR', hp:28, atk:8,
@@ -101,7 +101,7 @@ var HW_HEROES = [
   { id:'zhangliao', name:'장료',  emoji:'🐎', cls:'전사', rarity:'SR', hp:36, atk:10,
     skill:{ name:'소요진', cost:2, type:'strike', val:12, target:'enemy', desc:'적 1명에게 공격력+12 피해' } },
   { id:'caopi',    name:'조비',   emoji:'👑', cls:'군주', rarity:'SR', hp:30, atk:6,
-    skill:{ name:'수선受禪', cost:3, type:'buff', scope:'army', val:6, target:'ally', desc:'전군 공격력 +6 (전투 동안)' } },
+    skill:{ name:'수선受禪', cost:3, type:'buff', scope:'army', val:3, target:'ally', desc:'전군 공격력 +3 (전투 동안)' } },
   { id:'gongsunzan',name:'공손찬',emoji:'🐎', cls:'기마', rarity:'C', hp:32, atk:7,
     skill:{ name:'백마의종', cost:2, type:'strike', val:8, target:'enemy', desc:'적 1명에게 공격력+8 피해' } },
   { id:'weiyan',   name:'위연',   emoji:'🪓', cls:'전사', rarity:'R', hp:34, atk:9,
@@ -112,7 +112,7 @@ var HW_HEROES = [
   { id:'huaxiong', name:'화웅', emoji:'🪓', cls:'전사', rarity:'SSR', hp:40, atk:13, exclusive:'raid', raidOf:'cmd_huaxiong',
     skill:{ name:'관문 수장', cost:2, type:'strike', val:14, target:'enemy', desc:'적 1명에게 공격력+14 피해' } },
   { id:'yuanshao', name:'원소', emoji:'🎌', cls:'군주', rarity:'SSR', hp:44, atk:10, exclusive:'raid', raidOf:'cmd_yuanshao',
-    skill:{ name:'사세삼공', cost:3, type:'buff', scope:'army', val:8, target:'ally', desc:'전군 공격력 +8 (전투 동안)' } },
+    skill:{ name:'사세삼공', cost:3, type:'buff', scope:'army', val:4, target:'ally', desc:'전군 공격력 +4 (전투 동안)' } },
   { id:'simayan', name:'사마염', emoji:'👑', cls:'군주', rarity:'SSR', hp:48, atk:13, exclusive:'raid', raidOf:'cmd_simayan',
     skill:{ name:'삼국 통일', cost:3, type:'aoe', val:18, target:'allEnemies', desc:'모든 적에게 18 피해' } },
   // ---- 특수 획득 장수 ----

@@ -88,7 +88,7 @@
   function effAtk(h) { var c = combat; return h.atk + wpnVal(h, 'atk') + (c ? (c.atkBuff || 0) + ((c.tempAtk && c.tempAtk.turns > 0) ? c.tempAtk.val : 0) + ((c.cardBuff && h.uid && c.cardBuff[h.uid]) ? c.cardBuff[h.uid] : 0) : 0); }
   function lordMaxHp() { return HW_LORD.hp + party.reduce(function (s, h) { return s + wpnVal(h, 'lordHp'); }, 0); }
   function lordMaxMp() { return HW_LORD.mp + party.reduce(function (s, h) { return s + wpnVal(h, 'lordMp'); }, 0); }
-  function skillMp(sk) { return 2 + (sk.cost || 1); }
+  function skillMp(sk) { var m = 2 + (sk.cost || 1); return (sk.type === 'buff' && sk.scope === 'army') ? m * 5 : m + 3; } // 모든 스킬 +3, 전군 버프는 현재의 5배
   var BASE_CRIT = 0.01;
   function critChance(h) { return BASE_CRIT + wpnVal(h, 'crit'); }
   function rollCrit(c) { return Math.random() < c; }
@@ -222,6 +222,7 @@
     fxBanner('👹 ' + cmd.name + ' 레이드', 'boss', 1400); shake('big');
     logMsg(b.title + ' ' + cmd.name + ' 토벌전 개전!');
     beginRound();
+    if (cmd.quote) setTimeout(function () { fxQuote(bossEl(), cmd.quote, 2000); }, 1100); // 보스 등장 대사
   }
 
   function centerSize() { return 3; }
@@ -234,7 +235,7 @@
   function refillCenter() { var c = combat, cap = Math.min(centerSize(), c.draw.length + c.center.length + c.used.length), g = 0; while (c.center.length < cap && g++ < 40) { if (!drawOne()) break; } }
   function beginRound() {
     var c = combat; c.round++;
-    if (c.round > 1) { c.lord.block = 0; c.lord.mp = Math.min(c.lord.maxMp, c.lord.mp + Math.max(2, Math.round(c.lord.maxMp * 0.035))); } // 턴마다 MP 재생
+    if (c.round > 1) c.lord.block = 0; // MP 자동 재생 없음
     c.itemUsed = false; c.cardBuff = {}; // 아이템 턴당 1개 · 1턴 버프 초기화
     if (c.tempAtk && c.tempAtk.turns > 0) c.tempAtk.turns--;
     refillCenter();
@@ -271,6 +272,14 @@
   function fxParticles(x, y, n, color) { for (var i = 0; i < (n || 6); i++) { var a = Math.random() * 6.28, dist = 14 + Math.random() * 24, d = spawn('fx-particle', x, y, 600); if (d) { d.style.setProperty('--c', color || '#ffd0d0'); d.style.setProperty('--dx', (Math.cos(a) * dist) + 'px'); d.style.setProperty('--dy', (Math.sin(a) * dist) + 'px'); } } }
   function fxBanner(text, cls, ms) { var layer = fxLayerEl(); if (!layer || typeof document.createElement !== 'function') return; var d = document.createElement('div'); if (!d) return; d.className = 'fx-banner ' + (cls || ''); d.textContent = text; layer.appendChild(d); setTimeout(function () { if (d.remove) d.remove(); }, ms || 1100); }
   function shake(level) { var sc = document.getElementById('combatScreen'); if (!sc || !sc.classList) return; var cls = level === 'big' ? 'shake-big' : 'shake-sm'; sc.classList.add(cls); setTimeout(function () { sc.classList.remove(cls); }, level === 'big' ? 420 : 240); }
+  function fxQuote(unitEl, text, ms) { // 보스 등장 대사 말풍선(카드 아래)
+    if (!TCG.isDialogueOn() || !text || !unitEl || typeof unitEl.getBoundingClientRect !== 'function') return;
+    var layer = fxLayerEl(); if (!layer || typeof layer.getBoundingClientRect !== 'function') return;
+    var r = unitEl.getBoundingClientRect(), lr = layer.getBoundingClientRect();
+    if (!r.width && !r.height) return;
+    var d = spawn('fx-quote', r.left - lr.left + r.width / 2, r.top - lr.top + r.height + 8, ms || 2000);
+    if (d) d.textContent = text;
+  }
   function bossEl() { return document.querySelector('#enemyRow .unit'); }
   function lordEl() { return document.querySelector('#lordBar .lord-art'); }
   function fxHitBoss(dmg, crit) { var p = rectOf(bossEl()); if (!p) return; fxSlash(p.x, p.y); fxBurst(p.x, p.y, crit ? '#ffd34d' : '#fff'); fxParticles(p.x, p.y, crit ? 10 : 7, crit ? '#ffe89a' : '#ffc6c6'); if (crit) fxFloat(p.x, p.y - 16, '치명타!', '#ffd34d', true); fxFloat(p.x, p.y, '-' + dmg, crit ? '#ffd34d' : '#ff9a9a', true); }
@@ -319,7 +328,7 @@
     var canAct = c.phase !== 'enemy' && !c.targeting && !c.busy && !(c.lordStun > 0);
     var cardsHtml = c.center.map(function (uid) {
       var h = heroByUid(uid); if (!h) return ''; var sk = raidSkill(h);
-      var sel = c.sel && c.sel.uid === uid && !c.targeting;
+      var sel = c.sel && c.sel.uid === uid; // 대상 지정 중에도 선택 강조 유지
       var cls = 'combat-card' + (sel ? ' selected' : '') + (canAct ? '' : ' unplayable');
       var ws = heroWpns(h), wE = ws.map(function (w) { return w.emoji; }).join(''), wN = ws.map(function (w) { return w.name; }).join(', ');
       return '<div class="' + cls + '" data-uid="' + uid + '">' + TCG.portrait(h.def.emoji, h.def.id, 'cc-art', h.def.name) +
@@ -332,7 +341,7 @@
   }
   function renderActionBar() {
     var c = combat, bar = document.getElementById('actionBar');
-    if (!c.sel || c.targeting) { bar.hidden = true; return; }
+    if (!c.sel) { bar.hidden = true; return; }
     var h = heroByUid(c.sel.uid); if (!h) { bar.hidden = true; return; }
     var sk = raidSkill(h), mp = skillMp(sk);
     var immune = (sk.type === 'charm' || sk.type === 'confuse'); // 레이드 보스는 행동 불가(혼란·매혹) 면역
@@ -341,10 +350,11 @@
     var mpLabel = buffDone ? '✓ 적용됨' : (immune ? '🛡 면역' : ('💧' + mp));
     var skDesc = immune ? '레이드 보스는 혼란·매혹에 면역' : sk.desc;
     var critPct = Math.round(critChance(h) * 100);
+    var atkSel = c.targeting && c.pendKind === 'attack', skSel = c.targeting && c.pendKind === 'skill';
     bar.hidden = false;
     bar.innerHTML =
-      '<button class="act-btn" data-act="attack">기본 공격<small>피해 ' + effAtk(h) + (hasWpnFlag(h, 'doubleStrike') ? ' ×2' : '') + (wpnVal(h, 'poison') ? ' ☠' + wpnVal(h, 'poison') : '') + (critPct > 1 ? ' 💥' + critPct + '%' : '') + '</small></button>' +
-      '<button class="act-btn skill" data-act="skill"' + (canSkill ? '' : ' disabled') + '>' + sk.name + '<small>' + mpLabel + ' · ' + skDesc + '</small></button>' +
+      '<button class="act-btn' + (atkSel ? ' chosen' : '') + '" data-act="attack">기본 공격<small>피해 ' + effAtk(h) + (hasWpnFlag(h, 'doubleStrike') ? ' ×2' : '') + (wpnVal(h, 'poison') ? ' ☠' + wpnVal(h, 'poison') : '') + (critPct > 1 ? ' 💥' + critPct + '%' : '') + '</small></button>' +
+      '<button class="act-btn skill' + (skSel ? ' chosen' : '') + '" data-act="skill"' + (canSkill ? '' : ' disabled') + '>' + sk.name + '<small>' + mpLabel + ' · ' + skDesc + '</small></button>' +
       '<button class="act-btn cancel" data-act="cancel">취소</button>';
   }
 
