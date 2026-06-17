@@ -1,4 +1,4 @@
-/* ===== 히어로즈 블러드 — card database (38 cards) =====
+/* ===== 히어로즈 블러드 — card database (69 cards) =====
  * (이름/이모지만 삼국지로. 좌표·스탯·능력·id·덱은 그대로.)
  * Coordinate system (from the owner's perspective):
  *   enh / ability cells are [dRow, dCol]; +dCol = "forward" (toward the enemy).
@@ -79,7 +79,52 @@ var QB_CARDS = [
     ab: { t:'debuff', who:'enemy', cells:[[0,1],[0,2]], val:1, txt:'정면 직선 적 -1' } },
   { id: 'pangde',     name: '방덕',     emoji: '🪓', rank: 2, power: 5, enh: [[0,1],[1,0]] },
   { id: 'luxun',      name: '육손',     emoji: '🔥', rank: 3, power: 6, enh: [[-1,0],[1,0],[0,1]],
-    ab: { t:'buff', who:'ally', scope:'row', val:2, txt:'같은 줄 아군 +2' } }
+    ab: { t:'buff', who:'ally', scope:'row', val:2, txt:'같은 줄 아군 +2' } },
+
+  // ---------- 3차 추가 (영웅전 미수록 장수) ----------
+  // Rank 1 (병종/경장수)
+  { id: 'rogue',      name: '마대',     emoji: '🐎', rank: 1, power: 2, enh: [[0,1],[0,-1]] },
+  { id: 'monk',       name: '주창',     emoji: '🪓', rank: 1, power: 3, enh: [[0,1]] },
+  { id: 'ninja',      name: '여몽',     emoji: '🗡️', rank: 1, power: 2, enh: [[0,1],[1,0]] },
+  { id: 'templar',    name: '도겸',     emoji: '🏯', rank: 1, power: 3, enh: [[-1,0],[1,0]] },
+  { id: 'yuejin',     name: '악진',     emoji: '🗡️', rank: 1, power: 2, enh: [[-1,1],[1,1]] },
+  { id: 'gongsunzan', name: '공손찬',   emoji: '🐎', rank: 1, power: 2, enh: [[0,1],[-1,0]] },
+  { id: 'hejin',      name: '하진',     emoji: '🛡️', rank: 1, power: 2, enh: [[0,-1]] },
+  // Rank 2 (장수)
+  { id: 'huangzhong', name: '황충',     emoji: '🏹', rank: 2, power: 4, enh: [[0,1],[0,2]],
+    ab: { t:'debuff', who:'enemy', cells:[[0,2]], val:2, txt:'먼 정면 적 -2' } },
+  { id: 'frost',      name: '주유',     emoji: '🔥', rank: 2, power: 3, enh: [[-1,1],[1,1]],
+    ab: { t:'debuff', who:'enemy', cells:[[-1,1],[0,1],[1,1]], val:1, txt:'전방 적 -1' } },
+  { id: 'bard',       name: '서서',     emoji: '📜', rank: 2, power: 3, enh: [[0,1]],
+    ab: { t:'buff', who:'ally', cells:[[0,1],[0,-1]], val:1, txt:'좌우 아군 +1' } },
+  { id: 'sage',       name: '유비',     emoji: '👑', rank: 2, power: 4, enh: [[-1,0],[1,0],[0,1]],
+    ab: { t:'buff', who:'ally', cells:[[-1,0],[1,0]], val:2, txt:'상하 아군 +2' } },
+  { id: 'huatuo',     name: '화타',     emoji: '🩹', rank: 2, power: 2, enh: [[-1,0],[1,0]],
+    ab: { t:'buff', who:'ally', cells:[[-1,0],[1,0],[0,1]], val:1, txt:'인접 아군 +1' } },
+  { id: 'hunter',     name: '마등',     emoji: '🏹', rank: 2, power: 4, enh: [[0,1]],
+    ab: { t:'debuff', who:'enemy', cells:[[0,1],[0,2]], val:1, txt:'정면 직선 적 -1' } },
+  { id: 'druid',      name: '정욱',     emoji: '📜', rank: 2, power: 3, enh: [[0,1]],
+    ab: { t:'buff', who:'ally', cells:[[0,1]], val:2, txt:'앞 칸 아군 +2' } },
+  { id: 'zhanghe',    name: '장합',     emoji: '🐎', rank: 2, power: 5, enh: [[-1,1],[1,1]] },
+  { id: 'dengai',     name: '등애',     emoji: '📜', rank: 2, power: 3, enh: [[-1,0],[1,0]],
+    ab: { t:'buff', who:'ally', cells:[[-1,0],[1,0]], val:1, txt:'상하 아군 +1' } },
+  { id: 'xuhuang',    name: '서황',     emoji: '🪓', rank: 2, power: 5, enh: [[0,1],[1,0]] },
+  { id: 'diaochan',   name: '초선',     emoji: '💃', rank: 2, power: 2, enh: [[0,1]],
+    ab: { t:'debuff', who:'enemy', scope:'row', val:1, txt:'같은 줄 적 -1' } },
+  { id: 'xiaoqiao',   name: '소교',     emoji: '🌸', rank: 2, power: 2, enh: [[-1,1],[1,1]],
+    ab: { t:'debuff', who:'enemy', cells:[[0,1]], val:1, txt:'앞 칸 적 -1' } },
+  { id: 'daqiao',     name: '대교',     emoji: '🌺', rank: 2, power: 2, enh: [[-1,1],[1,1]],
+    ab: { t:'debuff', who:'enemy', cells:[[0,1]], val:1, txt:'앞 칸 적 -1' } },
+  { id: 'manchong',   name: '만총',     emoji: '📜', rank: 2, power: 3, enh: [[-1,0],[1,0]],
+    ab: { t:'buff', who:'ally', cells:[[0,-1]], val:2, txt:'뒤 칸 아군 +2' } },
+  { id: 'caopi',      name: '조비',     emoji: '👑', rank: 2, power: 4, enh: [[-1,1],[1,1]],
+    ab: { t:'buff', who:'ally', scope:'row', val:1, txt:'같은 줄 아군 +1' } },
+  // Rank 3 (명장)
+  { id: 'glad',       name: '전위',     emoji: '⚔️', rank: 3, power: 8, enh: [[-1,1],[0,1],[1,1]] },
+  { id: 'yuanshao',   name: '원소',     emoji: '🎌', rank: 3, power: 6, enh: [[-1,0],[1,0],[0,1]],
+    ab: { t:'buff', who:'ally', scope:'row', val:2, txt:'같은 줄 아군 +2' } },
+  { id: 'simayan',    name: '사마염',   emoji: '👑', rank: 3, power: 7, enh: [[0,1]],
+    ab: { t:'debuff', who:'enemy', scope:'row', val:2, txt:'같은 줄 적 -2' } }
 ];
 
 var QB_BY_ID = {};

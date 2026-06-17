@@ -15,7 +15,7 @@ js/
   util.js               공통 헬퍼(TCG 네임스페이스)
   heroes_data.js        장수 53 · 무기 29 · 유물 · 적 · 적장 · 전역 · 레이드 · 난이도
   heroes.js             영웅전 엔진·UI (단일 IIFE)
-  qb_data.js            히어로즈 블러드 카드 44 · 덱
+  qb_data.js            히어로즈 블러드 카드 69 · 덱
   queensblood.js        히어로즈 블러드 엔진·UI (단일 IIFE)
   daejang.js            삼국 대장전(레이드) 엔진·UI — 영웅전 덱(hw_save) 공유
 dist/
