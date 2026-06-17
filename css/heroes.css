@@ -536,6 +536,9 @@
 
 .center-cards {
   display: flex; align-items: center; overflow-x: auto;
+  /* 카드 선택/호버 시 위로 떠오르는 transform(-8px)이 overflow로 잘리지 않도록 상하 여백 확보
+     (overflow-x:auto면 overflow-y도 auto로 계산되어 카드 상단의 ⚔공격력 배지가 잘림) */
+  padding: 11px 2px 6px;
 }
 /* 카드를 내부 래퍼로 감싸 가운데 정렬하되, 넘치면 좌측 끝부터 스크롤되어 잘리지 않게 */
 .center-cards .center-inner { display: flex; gap: 6px; margin: auto; }
