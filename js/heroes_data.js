@@ -243,12 +243,24 @@ var HW_CONS_BY_ID = {}; HW_CONSUMABLES.forEach(function (c) { HW_CONS_BY_ID[c.id
 var HW_ITEM_MAX = 5; // 소모성 아이템 소지 최대 칸
 
 /* 중간보스(각 메인 5·10 출전) — 강화 적 + 아군 카드에 상태이상. mp는 스테이지에 따라 20~50 */
-var HW_MID = { hpMult:2.3, atkMult:1.3, skillChance:0.32 };
+var HW_MID = { hpMult:2.05, atkMult:1.22, skillChance:0.32 };
 var HW_MID_SKILLS = [ // 아군 카드(장수)를 노리는 상태이상
   { name:'미혹의 진', type:'p_charm',   desc:'아군 카드 1장 1턴 매혹(행동 불능)' },
   { name:'환혼술',     type:'p_confuse', desc:'아군 카드 1장 1턴 혼란(행동 불능)' },
   { name:'독무 살포',   type:'p_poison', val:4, desc:'아군 카드 1장 중독(턴마다 주공 피해)' },
   { name:'사신 강림',   type:'p_seal',    desc:'아군 카드 1장 이번 전투 봉인(전투당 1회)' }
+];
+/* 고정 네임드 중간보스 — 각 전역의 5·10 출전(전역별 2명, 스토리 진영에 맞는 장수).
+ * 기본 hp/atk에 HW_MID 배수와 난이도가 곱해집니다. 일반 적 1명과 함께 등장(고정). */
+var HW_MID_BOSSES = [
+  [ { name:'이각',   emoji:'🪓', hp:30, atk:7 }, { name:'곽사',   emoji:'🗡️', hp:32, atk:7 } ],            // 반동탁 연합군(동탁 진영)
+  [ { name:'순우경', emoji:'🍶', hp:32, atk:7 }, { name:'고람',   emoji:'🛡️', hp:36, atk:7 } ],            // 관도대전(원소 진영)
+  [ { name:'조순',   emoji:'🐎', hp:34, atk:8 }, { name:'문빙',   emoji:'🏹', hp:36, atk:8 } ],            // 장판파(조조 추격군)
+  [ { name:'채모',   emoji:'⚓', hp:36, atk:7, aoe:true }, { name:'장윤', emoji:'🚢', hp:38, atk:8 } ],     // 적벽대전(조조 수군)
+  [ { name:'하후상', emoji:'⚔️', hp:38, atk:8 }, { name:'곽회',   emoji:'📜', hp:40, atk:8 } ],            // 정군산(하후연 진영)
+  [ { name:'한당',   emoji:'🏹', hp:40, atk:8 }, { name:'주태',   emoji:'🗡️', hp:42, atk:9 } ],            // 이릉대전(오 진영)
+  [ { name:'학소',   emoji:'🏯', hp:46, atk:8 }, { name:'왕쌍',   emoji:'🪓', hp:42, atk:9 } ],           // 제갈량 북벌(위 진영)
+  [ { name:'종회',   emoji:'📜', hp:46, atk:9, aoe:true }, { name:'제갈탄', emoji:'⚔️', hp:48, atk:9 } ] // 위·촉·오 멸망(진 진영)
 ];
 
 /* 모드(노멀→하드→극악) — 천하통일로 차례로 해금. 위 상/중/하 배수에 곱해 적용.

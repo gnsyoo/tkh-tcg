@@ -605,8 +605,8 @@
 
 /* ---- Shop ---- */
 .shop-items { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 18px; }
-#shopScreen { position: relative; }
-#shopScreen .shop-leave { position: absolute; top: 0; left: 0; z-index: 5; }
+#shopScreen, #tavernScreen { position: relative; }
+.shop-leave { position: absolute; top: 0; left: 0; z-index: 5; }
 .shop-item {
   width: 150px; background: linear-gradient(170deg, #2c2658, #1e1942);
   border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; padding: 12px; text-align: center;

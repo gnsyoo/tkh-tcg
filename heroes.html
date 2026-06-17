@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0d0b1a">
 <title>삼국 영웅전 · 목업</title>
-<link rel="stylesheet" href="css/common.css?v=20260617w">
-<link rel="stylesheet" href="css/heroes.css?v=20260617w">
+<link rel="stylesheet" href="css/common.css?v=20260617x">
+<link rel="stylesheet" href="css/heroes.css?v=20260617x">
 </head>
 <body>
   <div class="float-menu" id="floatMenu">
@@ -83,8 +83,16 @@
     <section class="screen" id="shopScreen" hidden>
       <button class="btn ghost shop-leave" id="shopLeave">← 떠나기</button>
       <h3 class="screen-title">🛒 상점</h3>
-      <p class="screen-sub">골드로 영웅과 보물(무기)을 구매하세요</p>
+      <p class="screen-sub">골드로 무기·보물·소모품을 구매하세요 (장수는 주막에서)</p>
       <div class="shop-items" id="shopItems"></div>
+    </section>
+
+    <!-- Tavern screen -->
+    <section class="screen" id="tavernScreen" hidden>
+      <button class="btn ghost shop-leave" id="tavernLeave">← 떠나기</button>
+      <h3 class="screen-title">🏮 주막</h3>
+      <p class="screen-sub">골드로 장수를 영입하세요 (스테이지를 진행하면 명단이 바뀝니다)</p>
+      <div class="shop-items" id="tavernItems"></div>
     </section>
 
     <!-- Treasure / event -->
@@ -236,10 +244,20 @@
   <!-- 수집한 장수 목록 -->
   <div class="overlay" id="rosterModal" hidden>
     <div class="modal" style="max-width:680px;">
-      <h2 style="text-align:center;">⚔️ 출진 덱 편성 <span id="rosterTitleCount" style="color:var(--gold);font-size:13px;"></span></h2>
-      <p class="screen-sub">카드를 탭해 <b>출진 덱</b>에 넣고 빼세요 (최소 10장·최대 30장). 수집 카드가 10장 미만이면 자동으로 모두 편성됩니다. <b>🗡 장비</b> 버튼으로 무기를 장착합니다.</p>
+      <h2 style="text-align:center;">👥 수집한 장수 <span id="rosterTitleCount" style="color:var(--gold);font-size:13px;"></span></h2>
+      <p class="screen-sub">장수를 탭하면 상세 정보와 무기 장착을 할 수 있습니다.</p>
       <div class="party-bar roster-grid" id="rosterGrid"></div>
       <div style="text-align:center;margin-top:12px;"><button class="btn primary" id="rosterClose">닫기</button></div>
+    </div>
+  </div>
+
+  <!-- 출진 덱 편성(진형) -->
+  <div class="overlay" id="formationModal" hidden>
+    <div class="modal" style="max-width:680px;">
+      <h2 style="text-align:center;">🎴 출진 덱 편성 <span id="formationTitle" style="color:var(--gold);font-size:13px;"></span></h2>
+      <p class="screen-sub">카드를 탭해 <b>출진 덱</b>에 넣고 빼세요 (최소 10장·최대 30장). 수집 카드가 10장 미만이면 자동으로 모두 편성됩니다. <b>🗡 장비</b> 버튼으로 무기를 장착합니다.</p>
+      <div class="party-bar roster-grid" id="formationGrid"></div>
+      <div style="text-align:center;margin-top:12px;"><button class="btn primary" id="formationClose">닫기</button></div>
     </div>
   </div>
 
@@ -265,8 +283,8 @@
     </div>
   </div>
 
-  <script src="js/util.js?v=20260617w"></script>
-  <script src="js/heroes_data.js?v=20260617w"></script>
-  <script src="js/heroes.js?v=20260617w"></script>
+  <script src="js/util.js?v=20260617x"></script>
+  <script src="js/heroes_data.js?v=20260617x"></script>
+  <script src="js/heroes.js?v=20260617x"></script>
 </body>
 </html>

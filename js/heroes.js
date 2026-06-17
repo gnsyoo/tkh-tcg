@@ -103,6 +103,7 @@
         v: 3, diff: diff,
         party: run.party.map(function (h) { return { id: h.def.id, atk: h.atk, uid: h.uid, weapons: heroWpnIds(h).slice() }; }),
         deck: (run.deck || []).slice(),
+        tavern: run.tavern || null,
         gold: run.gold, mainStage: run.mainStage, subStage: run.subStage,
         relics: run.relics.map(function (r) { return r.id; }),
         weapons: run.weapons.slice(), items: (run.items || []).slice(), sorties: run.sorties || 0,
@@ -137,6 +138,7 @@
       items: (d.items || []).filter(function (id) { return HW_CONS_BY_ID[id]; }).slice(0, HW_ITEM_MAX),
       sorties: d.sorties || 0,
       deck: Array.isArray(d.deck) ? d.deck.slice() : [],
+      tavern: (d.tavern && Array.isArray(d.tavern.items)) ? d.tavern : null,
       stageShopped: false, combat: null
     };
     run.lordHp = (typeof d.lordHp === 'number') ? Math.min(d.lordHp, lordMaxHp()) : lordMaxHp();
@@ -270,7 +272,8 @@
     for (var i = 0; i < SUB_COUNT; i++) {
       var dc = i < s ? ' done' : (i === s ? ' current' : '');
       var isMidDot = (i === 4 || i === 9);
-      dots += '<span class="sub-dot' + dc + (i === SUB_COUNT - 1 ? ' boss' : (isMidDot ? ' mid' : '')) + '">' + (isMidDot ? '⚜' : (i === SUB_COUNT - 1 ? '👑' : '')) + '</span>';
+      var clickable = isMidDot || (i === SUB_COUNT - 1); // 중간보스·적장 칸은 탭하면 적 정보
+      dots += '<span class="sub-dot' + dc + (i === SUB_COUNT - 1 ? ' boss' : (isMidDot ? ' mid' : '')) + (clickable ? ' info' : '') + '"' + (clickable ? ' data-sub="' + i + '"' : '') + '>' + (isMidDot ? '⚜' : (i === SUB_COUNT - 1 ? '👑' : '')) + '</span>';
     }
     var battleLabel = isBoss ? ('👑 적장 ' + HW_COMMANDERS[st.boss].name + ' 토벌') : ('⚔️ 출진 (' + (s + 1) + '/' + SUB_COUNT + ')');
     var html =
@@ -281,7 +284,9 @@
       '<div class="sub-dots">' + dots + '</div>' +
       '<div class="cs-actions">' +
         '<button class="camp-btn primary" data-act="battle">' + battleLabel + '</button>' +
-        '<button class="camp-btn" data-act="shop">🏪 저잣거리</button>' +
+        '<button class="camp-btn" data-act="formation">🎴 진형</button>' +
+        '<button class="camp-btn" data-act="shop">🏪 상점</button>' +
+        '<button class="camp-btn" data-act="tavern">🏮 주막</button>' +
       '</div>' +
       '<div class="map-lord-status">' +
         '<span class="mls hp">❤ ' + (run.lordHp != null ? run.lordHp : lordMaxHp()) + ' / ' + lordMaxHp() + '</span>' +
@@ -293,21 +298,67 @@
     document.getElementById('gearCount').textContent = (run.weapons || []).length;
   }
   document.getElementById('mapTrack').addEventListener('click', function (e) {
+    var dot = e.target.closest('.sub-dot.info');
+    if (dot) { TCG.sfx('tap'); showStageEnemyInfo(parseInt(dot.dataset.sub, 10)); return; } // 중간보스/적장 정보
     var btn = e.target.closest('.camp-btn');
     if (!btn || btn.disabled) return;
     var act = btn.dataset.act;
     TCG.sfx('tap');
     if (act === 'battle') return startStageCombat();
-    if (act === 'shop') { showShop(); } // 저잣거리는 항상 입장 가능
+    if (act === 'formation') return openFormation();
+    if (act === 'shop') return showShop();
+    if (act === 'tavern') return showTavern();
   });
+  // 첫 화면에서 중간보스/적장 칸 탭 → 적 정보 팝업
+  function showStageEnemyInfo(sub) {
+    var main = run.mainStage, st = HW_STAGES[main];
+    var md = HW_MODES[run.mode] || HW_MODES.normal;
+    var prog = main * SUB_COUNT + sub;
+    var hpM = DCFG.eHp * (1 + prog * 0.020) * md.hpMult;
+    var atkM = DCFG.eAtk * (1 + prog * 0.005);
+    var body, isBoss = (sub === SUB_COUNT - 1);
+    if (isBoss) {
+      var cmd = HW_COMMANDERS[st.boss];
+      var bhp = Math.round(cmd.hp * hpM), batk = Math.max(1, Math.round(cmd.atk * atkM * md.bossAtkMult));
+      var bsk = (cmd.hero && HW_BY_ID[cmd.hero]) ? HW_BY_ID[cmd.hero].skill : null;
+      body = TCG.portrait(cmd.emoji, (cmd.hero && HW_BY_ID[cmd.hero]) ? cmd.hero : cmd.name, 'modal-portrait', cmd.name) +
+        '<h2>👑 ' + cmd.name + ' <span class="rar-SSR" style="font-size:13px">적장</span></h2>' +
+        '<p>' + st.name + ' 최종 보스' + (cmd.aoe ? ' · 💥 광역' : '') + '</p>' +
+        '<div style="background:rgba(0,0,0,.25);border-radius:10px;padding:10px;text-align:left;font-size:13px">' +
+        '❤ HP ' + bhp + ' · ⚔ 공격 ' + batk + (bsk ? '<br><b style="color:var(--gold)">「' + bsk.name + '」</b> ' + bsk.desc : '') +
+        '<br><span style="color:var(--ink-dim)">MP 보유 · 확률로 스킬 시전</span></div>';
+    } else {
+      var idx = (sub === 9) ? 1 : 0, mb = (HW_MID_BOSSES[main] || [])[idx];
+      if (!mb) { return; }
+      var mhp = Math.round(mb.hp * hpM * HW_MID.hpMult), matk = Math.max(1, Math.round(mb.atk * atkM * HW_MID.atkMult));
+      var msk = HW_MID_SKILLS[(main * 2 + idx) % HW_MID_SKILLS.length];
+      body = TCG.portrait(mb.emoji, mb.name, 'modal-portrait', mb.name) +
+        '<h2>⚜ ' + mb.name + ' <span class="rar-SR" style="font-size:13px">중간보스</span></h2>' +
+        '<p>' + st.name + ' · ' + (sub + 1) + '번째 출진' + (mb.aoe ? ' · 💥 광역' : '') + '</p>' +
+        '<div style="background:rgba(0,0,0,.25);border-radius:10px;padding:10px;text-align:left;font-size:13px">' +
+        '❤ HP ' + mhp + ' · ⚔ 공격 ' + matk + '<br><b style="color:var(--gold)">「' + msk.name + '」</b> ' + msk.desc +
+        '<br><span style="color:var(--ink-dim)">일반 적 1명과 함께 등장(고정)</span></div>';
+    }
+    document.getElementById('heroModalBody').innerHTML = body +
+      '<button class="btn primary" id="heroModalClose" style="margin-top:14px">닫기</button>';
+    var modal = document.getElementById('heroModal'); modal.hidden = false;
+    document.getElementById('heroModalClose').addEventListener('click', function () { modal.hidden = true; });
+  }
 
-  /* ---------- 수집한 장수 / 장비 보기 ---------- */
-  function renderRosterGrid() {
+  /* ---------- 장수(수집 목록) — 탭하면 정보·장비 장착 ---------- */
+  function openRoster() {
+    TCG.sfx('tap');
+    document.getElementById('rosterTitleCount').textContent = '· 수집 ' + run.party.length + ' / ' + HW_HEROES.length;
+    document.getElementById('rosterGrid').innerHTML = run.party.map(miniHero).join('');
+    document.getElementById('rosterModal').hidden = false;
+  }
+  /* ---------- 진형(출진 덱 편성) ---------- */
+  function renderFormationGrid() {
     var deck = run.deck || [];
     var inDeck = {}; deck.forEach(function (u) { inDeck[u] = true; });
-    document.getElementById('rosterTitleCount').textContent =
-      '· 출진 덱 ' + deck.length + ' / ' + MAX_DECK + ' (최소 ' + deckMin() + ') · 수집 ' + run.party.length + '/' + HW_HEROES.length;
-    document.getElementById('rosterGrid').innerHTML = run.party.map(function (h) {
+    document.getElementById('formationTitle').textContent =
+      '· 출진 덱 ' + deck.length + ' / ' + MAX_DECK + ' (최소 ' + deckMin() + ')';
+    document.getElementById('formationGrid').innerHTML = run.party.map(function (h) {
       var ws = heroWpns(h).map(function (w) { return w.emoji; }).join('');
       var on = !!inDeck[h.uid];
       return '<div class="mini-hero deck-pick' + (on ? ' in-deck' : '') + '" data-uid="' + h.uid + '">' +
@@ -330,16 +381,17 @@
       if (run.deck.length >= MAX_DECK) { TCG.toast('출진 덱은 최대 ' + MAX_DECK + '장입니다'); return; }
       run.deck.push(uid);
     }
-    TCG.sfx('tap'); saveRun(); renderRosterGrid();
+    TCG.sfx('tap'); saveRun(); renderFormationGrid();
   }
-  function openRoster() {
+  function openFormation() {
     TCG.sfx('tap');
     syncDeck(); saveRun(); // 보유<10이면 자동 채움 등 정규화 후 표시
-    renderRosterGrid();
-    document.getElementById('rosterModal').hidden = false;
+    renderFormationGrid();
+    document.getElementById('formationModal').hidden = false;
   }
   function refreshRosterIfOpen() {
-    if (!document.getElementById('rosterModal').hidden) renderRosterGrid();
+    if (!document.getElementById('rosterModal').hidden) document.getElementById('rosterGrid').innerHTML = run.party.map(miniHero).join('');
+    if (!document.getElementById('formationModal').hidden) renderFormationGrid();
   }
   function openGear() {
     TCG.sfx('tap');
@@ -374,11 +426,17 @@
   document.getElementById('rosterBtn').addEventListener('click', openRoster);
   document.getElementById('gearBtn').addEventListener('click', openGear);
   document.getElementById('rosterGrid').addEventListener('click', function (e) {
+    var m = e.target.closest('.mini-hero'); if (!m) return; // 장수 카드 탭 → 상세/장비
+    var h = heroByUid(m.dataset.uid); if (h) showHeroModal(h);
+  });
+  document.getElementById('formationGrid').addEventListener('click', function (e) {
     var eq = e.target.closest('[data-equip]');
     if (eq) { var h = heroByUid(eq.dataset.equip); if (h) showHeroModal(h); return; } // 🗡 장비 버튼 → 상세/장착
     var card = e.target.closest('.deck-pick'); if (!card) return;
     toggleDeck(card.dataset.uid); // 카드 본문 탭 → 출진 덱에 넣고 빼기
   });
+  document.getElementById('formationClose').addEventListener('click', function () { document.getElementById('formationModal').hidden = true; });
+  document.getElementById('formationModal').addEventListener('click', function (e) { if (e.target.id === 'formationModal') e.currentTarget.hidden = true; });
   document.getElementById('rosterClose').addEventListener('click', function () { document.getElementById('rosterModal').hidden = true; });
   document.getElementById('gearClose').addEventListener('click', function () { document.getElementById('gearModal').hidden = true; });
   document.getElementById('rosterModal').addEventListener('click', function (e) { if (e.target.id === 'rosterModal') e.currentTarget.hidden = true; });
@@ -519,8 +577,10 @@
       out.push(inst(TCG.pick(HW_ENEMIES.basic)));
       out.push(inst(HW_COMMANDERS[st.boss], true)); // 적장
     } else if (isMid) {
-      out.push(inst(TCG.pick(HW_ENEMIES.basic)));
-      out.push(inst(TCG.pick(HW_ENEMIES.elite), false, true)); // 중간보스
+      var mbIdx = (sub === 9) ? 1 : 0; // 5출전=0 · 10출전=1
+      var mbSet = HW_MID_BOSSES[main] || HW_MID_BOSSES[HW_MID_BOSSES.length - 1];
+      out.push(inst(HW_ENEMIES.basic[(main + mbIdx) % HW_ENEMIES.basic.length])); // 고정 일반 적 1명
+      out.push(inst(mbSet[mbIdx], false, true)); // 고정 네임드 중간보스
     } else {
       var n = 1 + Math.floor(sub / 4); // 1~3
       for (var i = 0; i < n; i++) {
@@ -1338,22 +1398,57 @@
 
   /* ---------- SHOP ---------- */
   function showShop() {
-    var have = ownedHeroIds();
-    var heroPool = TCG.shuffle(HW_HEROES.filter(function (d) { return !d.exclusive && have.indexOf(d.id) === -1; })).slice(0, 2);
-    var wpnPick = TCG.pick(HW_WEAPONS.filter(function (w) { return !w.exclusive; })); // 전용 장비 제외
-    run.shop = [];
-    if (heroPool[0]) run.shop.push({ kind: 'hero', def: heroPool[0], cost: 35, sold: false });
-    if (heroPool[1]) run.shop.push({ kind: 'hero', def: heroPool[1], cost: 45, sold: false });
-    run.shop.push(
-      { kind: 'weapon', wid: wpnPick.id, cost: weaponCost(wpnPick), sold: false },
+    // 상점은 장수 외 품목만 판매(장수는 주막에서) — 무기 2 · 소모품 2 · 두강주 · 무기 강화
+    var wpns = TCG.shuffle(HW_WEAPONS.filter(function (w) { return !w.exclusive; }));
+    run.shop = [
+      { kind: 'weapon', wid: wpns[0].id, cost: weaponCost(wpns[0]), sold: false },
+      { kind: 'weapon', wid: wpns[1].id, cost: weaponCost(wpns[1]), sold: false },
       { kind: 'item', cid: TCG.pick(HW_CONSUMABLES).id, cost: 22, sold: false }, // 소모성 아이템(랜덤)
       { kind: 'item', cid: TCG.pick(HW_CONSUMABLES).id, cost: 22, sold: false },
       { kind: 'dujiu', cost: 18, sold: false },   // 두강주: MP 20 회복
       { kind: 'upgrade', cost: 28, sold: false }
-    );
+    ];
     renderShop();
     show('shopScreen');
   }
+  /* ---------- 주막(TAVERN) — 장수 1~4장 판매(스테이지 진행 시 갱신) ---------- */
+  function tavernStamp() { return run.mainStage * 100 + run.subStage; }
+  function genTavern() {
+    var have = ownedHeroIds();
+    var pool = TCG.shuffle(HW_HEROES.filter(function (d) { return !d.exclusive && have.indexOf(d.id) === -1; }));
+    var n = Math.min(pool.length, 1 + Math.floor(Math.random() * 4)); // 1~4장
+    var cost = { C: 28, R: 42, SR: 60, SSR: 90 };
+    run.tavern = { stamp: tavernStamp(), items: pool.slice(0, n).map(function (d) { return { id: d.id, cost: cost[d.rarity] || 40, sold: false }; }) };
+  }
+  function showTavern() {
+    if (!run.tavern || run.tavern.stamp !== tavernStamp()) genTavern(); // 같은 스테이지면 유지, 진행하면 갱신
+    renderTavern();
+    show('tavernScreen');
+  }
+  function renderTavern() {
+    var box = document.getElementById('tavernItems');
+    if (!run.tavern.items.length) { box.innerHTML = '<p class="screen-sub">영입할 수 있는 장수가 없습니다 (모두 보유).</p>'; return; }
+    box.innerHTML = run.tavern.items.map(function (it, i) {
+      var d = HW_BY_ID[it.id], afford = run.gold >= it.cost && !it.sold;
+      return '<div class="shop-item shop-hero' + (it.sold ? ' sold' : '') + '" data-info="' + i + '" title="탭하면 상세 정보">' +
+        TCG.portrait(d.emoji, d.id, 'rc-portrait', d.name) +
+        '<div class="si-name">' + d.name + ' <span class="rar-' + d.rarity + '" style="font-size:11px">' + d.rarity + '</span></div>' +
+        '<div class="si-desc">' + d.cls + ' · ❤' + d.hp + ' ⚔' + d.atk + '<br>「' + d.skill.name + '」 ⓘ</div>' +
+        '<button class="btn primary si-buy" data-i="' + i + '"' + (afford ? '' : ' disabled') + '>' + (it.sold ? '영입완료' : '💰 ' + it.cost) + '</button></div>';
+    }).join('');
+  }
+  document.getElementById('tavernItems').addEventListener('click', function (e) {
+    var info = e.target.closest('.shop-hero');
+    if (info && !e.target.closest('.si-buy')) { var hi = run.tavern.items[parseInt(info.dataset.info, 10)]; if (hi) showHeroInfo(HW_BY_ID[hi.id]); return; }
+    var b = e.target.closest('.si-buy'); if (!b || b.disabled) return;
+    var it = run.tavern.items[parseInt(b.dataset.i, 10)];
+    if (!it || it.sold || run.gold < it.cost) return;
+    if (ownedHeroIds().indexOf(it.id) !== -1) { TCG.toast('이미 보유한 장수입니다'); it.sold = true; renderTavern(); return; }
+    if (run.party.length >= MAX_PARTY) { TCG.toast('파티가 가득 찼습니다'); return; }
+    run.party.push(mkHero(it.id)); run.gold -= it.cost; it.sold = true;
+    TCG.toast('영입: ' + HW_BY_ID[it.id].name); updateTop(); saveRun(); renderTavern();
+  });
+  document.getElementById('tavernLeave').addEventListener('click', function () { TCG.sfx('tap'); showMap(); });
   function renderShop() {
     document.getElementById('shopItems').innerHTML = run.shop.map(function (it, i) {
       var afford = run.gold >= it.cost && !it.sold;
