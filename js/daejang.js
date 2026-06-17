@@ -226,13 +226,15 @@
     if (!c.sel || c.targeting) { bar.hidden = true; return; }
     var h = heroByUid(c.sel.uid); if (!h) { bar.hidden = true; return; }
     var sk = h.def.skill, isHeal = sk.type === 'heal', mp = skillMp(sk);
-    var canSkill = isHeal || c.lord.mp >= mp;
-    var mpLabel = isHeal ? ('💧+' + Math.round(sk.val / 4) + ' 회복') : ('💧' + mp);
+    var immune = (sk.type === 'charm' || sk.type === 'confuse'); // 레이드 보스는 행동 불가(혼란·매혹) 면역
+    var canSkill = !immune && (isHeal || c.lord.mp >= mp);
+    var mpLabel = immune ? '🛡 면역' : (isHeal ? ('💧+' + Math.round(sk.val / 4) + ' 회복') : ('💧' + mp));
+    var skDesc = immune ? '레이드 보스는 혼란·매혹에 면역' : sk.desc;
     var critPct = Math.round(critChance(h) * 100);
     bar.hidden = false;
     bar.innerHTML =
       '<button class="act-btn" data-act="attack">기본 공격<small>피해 ' + effAtk(h) + (hasWpnFlag(h, 'doubleStrike') ? ' ×2' : '') + (wpnVal(h, 'poison') ? ' ☠' + wpnVal(h, 'poison') : '') + (critPct > 1 ? ' 💥' + critPct + '%' : '') + '</small></button>' +
-      '<button class="act-btn skill" data-act="skill"' + (canSkill ? '' : ' disabled') + '>' + sk.name + '<small>' + mpLabel + ' · ' + sk.desc + '</small></button>' +
+      '<button class="act-btn skill" data-act="skill"' + (canSkill ? '' : ' disabled') + '>' + sk.name + '<small>' + mpLabel + ' · ' + skDesc + '</small></button>' +
       '<button class="act-btn cancel" data-act="cancel">취소</button>';
   }
 
@@ -255,8 +257,9 @@
     var h = heroByUid(c.sel.uid); if (!h) return;
     if (act === 'attack') { c.targeting = true; c.pendKind = 'attack'; renderCombat(); return; }
     var sk = h.def.skill;
+    if (sk.type === 'charm' || sk.type === 'confuse') { TCG.toast('레이드 보스는 혼란·매혹(행동 불가)에 면역입니다'); return; }
     if (sk.type !== 'heal' && c.lord.mp < skillMp(sk)) { TCG.toast('MP가 부족합니다'); return; }
-    if (sk.type === 'strike' || sk.type === 'charm') { c.targeting = true; c.pendKind = 'skill'; renderCombat(); }
+    if (sk.type === 'strike') { c.targeting = true; c.pendKind = 'skill'; renderCombat(); }
     else doSkill(h, true);
   });
   function executeOn() {
@@ -307,11 +310,10 @@
       })();
       return; // 비동기 처리 — 아래 공통 finishPlay 건너뜀
     }
-    else if (sk.type === 'confuse') { if (b.hp > 0) { b.confused = (b.confused || 0) + sk.val; fxSupport(bossEl(), '💫 혼란', '#c9a8ff'); logMsg(h.def.name + ' 「' + sk.name + '」 ' + b.name + ' ' + sk.val + '턴 혼란'); } }
+    else if (sk.type === 'confuse' || sk.type === 'charm') { fxSupport(bossEl(), '🛡 면역', '#cfd8e3'); logMsg(b.name + ' — ' + (sk.type === 'charm' ? '매혹' : '혼란') + ' 면역!'); } // 레이드 보스는 행동 불가 면역
     else if (sk.type === 'heal') { c.lord.hp = Math.min(c.lord.maxHp, c.lord.hp + sk.val); var mh = Math.round(sk.val / 4); if (mh) c.lord.mp = Math.min(c.lord.maxMp, c.lord.mp + mh); if (h.def.id === 'oracle') c.lord.block += 5; fxSupport(lordEl(), '+' + sk.val + (mh ? ' 💧+' + mh : ''), '#7ef0b5'); logMsg(h.def.name + ' 「' + sk.name + '」 주공 ' + sk.val + ' 회복' + (mh ? ' · MP +' + mh : '')); }
     else if (sk.type === 'shield') { c.lord.block += sk.val; fxSupport(lordEl(), '🛡+' + sk.val, '#9fd2ff'); logMsg(h.def.name + ' 「' + sk.name + '」 주공 방어막 +' + sk.val); }
     else if (sk.type === 'buff') { c.atkBuff = (c.atkBuff || 0) + sk.val; fxSupport(lordEl(), '⚔+' + sk.val, '#ffd86b'); logMsg(h.def.name + ' 「' + sk.name + '」 전군 공격력 +' + sk.val); }
-    else if (sk.type === 'charm') { if (b.hp > 0) { b.charmed = (b.charmed || 0) + sk.val; fxSupport(bossEl(), '💗 매혹', '#ff9ad0'); logMsg(h.def.name + ' 「' + sk.name + '」 ' + b.name + ' ' + sk.val + '턴 매혹'); } }
     finishPlay();
   }
   function finishPlay() {
