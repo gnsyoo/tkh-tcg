@@ -660,6 +660,17 @@
   border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 8px;
 }
 .raid-card.done { border-color: rgba(91,184,122,0.45); }
+.raid-card:not(.locked) { cursor: pointer; }
+.raid-card:not(.locked):hover { border-color: rgba(240,195,60,0.45); }
+/* 보스 정보 팝업 */
+#bossModalBody { text-align: center; }
+#bossModalBody .bi-portrait { width: 96px; height: 96px; margin: 0 auto 6px; border-radius: 14px; }
+#bossModalBody .bi-portrait .p-emoji { font-size: 56px; }
+#bossModalBody .bi-title { color: var(--ink-dim); font-size: 13px; margin: 2px 0 8px; }
+#bossModalBody .bi-stat { font-size: 13px; font-weight: 700; }
+#bossModalBody .bi-sec { color: var(--gold); font-weight: 800; font-size: 13px; margin: 12px 0 4px; }
+#bossModalBody .bi-skill { background: rgba(0,0,0,0.25); border-radius: 8px; padding: 6px 8px; font-size: 12px; margin-bottom: 4px; text-align: left; }
+#bossModalBody .bi-kind { color: var(--gold); font-size: 11px; font-weight: 800; }
 .raid-boss { display: flex; align-items: center; gap: 12px; position: relative; }
 .raid-boss .raid-art { width: 52px; height: 52px; flex: 0 0 auto; border-radius: 12px; }
 .raid-boss .raid-art .p-emoji { font-size: 32px; }

@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0d0b1a">
 <title>삼국 대장전 · 목업</title>
-<link rel="stylesheet" href="css/common.css?v=20260617n">
-<link rel="stylesheet" href="css/heroes.css?v=20260617n">
+<link rel="stylesheet" href="css/common.css?v=20260617o">
+<link rel="stylesheet" href="css/heroes.css?v=20260617o">
 </head>
 <body>
   <div class="float-menu" id="floatMenu">
@@ -28,7 +28,7 @@
     <!-- Raid selection -->
     <section class="screen" id="selectScreen">
       <h3 class="screen-title">👹 대장전 (레이드)</h3>
-      <p class="screen-sub">영웅전 덱으로 거대 보스에 도전 — 격파 시 전용 장수를 획득합니다</p>
+      <p class="screen-sub">영웅전 덱으로 거대 보스에 도전 — 격파 시 전용 장수를 획득합니다. <b>보스 카드를 탭하면 정보</b>를 봅니다.</p>
       <div class="map-collect">
         <button class="collect-btn" id="rosterBtn">👥 장수 <b id="rosterCount">0</b></button>
         <button class="collect-btn" id="gearBtn">🗡️ 장비</button>
@@ -100,6 +100,11 @@
     </div>
   </div>
 
+  <!-- 보스 정보 -->
+  <div class="overlay" id="bossModal" hidden>
+    <div class="modal" id="bossModalBody" style="max-width:360px;"></div>
+  </div>
+
   <!-- Result -->
   <div class="overlay" id="overModal" hidden>
     <div class="modal">
@@ -113,8 +118,8 @@
     </div>
   </div>
 
-  <script src="js/util.js?v=20260617n"></script>
-  <script src="js/heroes_data.js?v=20260617n"></script>
-  <script src="js/daejang.js?v=20260617n"></script>
+  <script src="js/util.js?v=20260617o"></script>
+  <script src="js/heroes_data.js?v=20260617o"></script>
+  <script src="js/daejang.js?v=20260617o"></script>
 </body>
 </html>

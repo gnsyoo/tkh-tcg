@@ -261,15 +261,25 @@ var HW_MODES = {
 var HW_MODE_ORDER = ['normal', 'hard', 'extreme'];
 
 /* 적장(스테이지 보스) — 스테이지 진행에 따라 난이도 가산 */
+/* 적장(커맨더) — 영웅전 보스 + 대장전 레이드 보스로 공용.
+ * skills: 대장전 전용 2종(① 공격 또는 방어 · ② 회복 또는 행동 불가). 영웅전 보스는 hero의 단일 스킬을 사용. */
 var HW_COMMANDERS = {
-  cmd_huaxiong:  { name:'화웅',   emoji:'🪓', hp:30,  atk:7,  hero:'huaxiong' },
-  cmd_yuanshao:  { name:'원소',   emoji:'🎌', hp:36,  atk:7,  hero:'yuanshao' },
-  cmd_xiahoudun: { name:'하후돈', emoji:'⚔️', hp:42,  atk:8,  hero:'xiahoudun' },
-  cmd_caocao:    { name:'조조',   emoji:'👑', hp:52,  atk:9, aoe:true, hero:'caocao' },
-  cmd_xiahouyuan:{ name:'하후연', emoji:'🏹', hp:58,  atk:9,  hero:'xiahouyuan' },
-  cmd_luxun:     { name:'육손',   emoji:'🔥', hp:66,  atk:10, aoe:true, hero:'luxun' },
-  cmd_simayi:    { name:'사마의', emoji:'🪶', hp:70,  atk:10, aoe:true, hero:'warlock' },
-  cmd_simayan:   { name:'사마염', emoji:'👑', hp:78,  atk:10, aoe:true, hero:'simayan' }
+  cmd_huaxiong:  { name:'화웅',   emoji:'🪓', hp:30,  atk:7,  hero:'huaxiong',
+    skills:[ { name:'관문 수장', type:'strike', val:14, cost:2 }, { name:'맹장의 호통', type:'confuse', val:1, cost:2 } ] },
+  cmd_yuanshao:  { name:'원소',   emoji:'🎌', hp:36,  atk:7,  hero:'yuanshao',
+    skills:[ { name:'사세삼공', type:'shield', val:20, cost:3 }, { name:'명문대가', type:'heal', val:30, cost:3 } ] },
+  cmd_xiahoudun: { name:'하후돈', emoji:'⚔️', hp:42,  atk:8,  hero:'xiahoudun',
+    skills:[ { name:'발시담정', type:'strike', val:13, cost:2 }, { name:'독안의 위압', type:'confuse', val:1, cost:2 } ] },
+  cmd_caocao:    { name:'조조',   emoji:'👑', hp:52,  atk:9, aoe:true, hero:'caocao',
+    skills:[ { name:'간웅', type:'aoe', val:16, cost:3 }, { name:'난세의 책략', type:'heal', val:34, cost:3 } ] },
+  cmd_xiahouyuan:{ name:'하후연', emoji:'🏹', hp:58,  atk:9,  hero:'xiahouyuan',
+    skills:[ { name:'질풍사격', type:'multi', val:3, cost:2 }, { name:'기습 봉쇄', type:'charm', val:1, cost:2 } ] },
+  cmd_luxun:     { name:'육손',   emoji:'🔥', hp:66,  atk:10, aoe:true, hero:'luxun',
+    skills:[ { name:'이릉대화', type:'aoe', val:18, cost:3 }, { name:'연환 화계', type:'confuse', val:1, cost:2 } ] },
+  cmd_simayi:    { name:'사마의', emoji:'🪶', hp:70,  atk:10, aoe:true, hero:'warlock',
+    skills:[ { name:'화계', type:'aoe', val:18, cost:3 }, { name:'대기만성', type:'heal', val:40, cost:3 } ] },
+  cmd_simayan:   { name:'사마염', emoji:'👑', hp:78,  atk:10, aoe:true, hero:'simayan',
+    skills:[ { name:'삼국 통일', type:'aoe', val:20, cost:3 }, { name:'천하 제압', type:'confuse', val:2, cost:3 } ] }
 };
 
 /* 보스(스테이지·레이드) — 난이도별 스킬 사용 확률·마나, 격파 시 영웅전 적립 골드.
@@ -297,7 +307,7 @@ var HW_STAGES = [
  * hpMult: 적장 기본 HP 대비 배수, atkMult: 공격 배수, deck: 영웅전 파티 공유 */
 var HW_RAID = {
   hpMult: 12,
-  atkMult: 1.25,
+  atkMult: 1.375,
   bosses: [
     { key:'cmd_huaxiong',   reward:'huaxiong',    title:'관문의 맹장' },
     { key:'cmd_yuanshao',   reward:'yuanshao',    title:'하북의 패자' },
