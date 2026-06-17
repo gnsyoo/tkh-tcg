@@ -307,7 +307,7 @@ var HW_STAGES = [
  * hpMult: 적장 기본 HP 대비 배수, atkMult: 공격 배수, deck: 영웅전 파티 공유 */
 var HW_RAID = {
   hpMult: 12,
-  atkMult: 1.375,
+  atkMult: 1.65,
   bosses: [
     { key:'cmd_huaxiong',   reward:'huaxiong',    title:'관문의 맹장' },
     { key:'cmd_yuanshao',   reward:'yuanshao',    title:'하북의 패자' },

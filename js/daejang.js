@@ -176,9 +176,10 @@
     var atk = Math.max(2, Math.round(cmd.atk * HW_RAID.atkMult * DCFG.eAtk));
     var mhp = lordMaxHp(), mmp = lordMaxMp();
     var bc = HW_BOSS[diff] || HW_BOSS.normal;
+    var bmp = Math.max(0, bc.mp - 20); // 대장전 레이드 보스 MP -20 (영웅전 적장은 그대로)
     combat = {
       raidIdx: idx, boss: { def: cmd, name: cmd.name, emoji: cmd.emoji, maxHp: hp, hp: hp, atk: atk, atk0: atk, aoe: !!cmd.aoe, block: 0, poison: 0, charmed: 0, intent: null,
-        skills: (cmd.skills || []).slice(), mp: bc.mp, maxMp: bc.mp, skillChance: bc.skillChance },
+        skills: (cmd.skills || []).slice(), mp: bmp, maxMp: bmp, skillChance: bc.skillChance },
       round: 0, lord: { hp: mhp, maxHp: mhp, mp: mmp, maxMp: mmp, block: 0 }, atkBuff: 0, lordStun: 0,
       draw: TCG.shuffle(activeDeckUids().slice()), center: [], used: [],
       sel: null, targeting: false, phase: 'player', log: [], over: false
