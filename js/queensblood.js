@@ -628,6 +628,13 @@
   /* ---------- deck builder ---------- */
   var builderDeck = null;
   var builderRows = 3;
+  var builderSort = 'default'; // 'default' | 'rank'(레벨순) | 'power'(점수순)
+  function sortedBuilderCards() {
+    var list = QB_CARDS.slice();
+    if (builderSort === 'rank') list.sort(function (a, b) { return (a.rank - b.rank) || (b.power - a.power); });       // 레벨 낮은→높은, 동률은 점수 높은 순
+    else if (builderSort === 'power') list.sort(function (a, b) { return (b.power - a.power) || (a.rank - b.rank); }); // 점수 높은→낮은
+    return list;
+  }
   function openDeckBuilder() {
     builderDeck = getPlayerDeck().slice();
     builderRows = getRows();
@@ -640,7 +647,11 @@
     if (sizeSel) sizeSel.querySelectorAll('.bss-btn').forEach(function (b) {
       b.classList.toggle('active', parseInt(b.dataset.rows, 10) === builderRows);
     });
-    document.getElementById('deckGrid').innerHTML = QB_CARDS.map(function (c) {
+    var sortSel = document.getElementById('deckSortSel');
+    if (sortSel) sortSel.querySelectorAll('.bss-btn').forEach(function (b) {
+      b.classList.toggle('active', b.dataset.sort === builderSort);
+    });
+    document.getElementById('deckGrid').innerHTML = sortedBuilderCards().map(function (c) {
       var sel = builderDeck.indexOf(c.id) !== -1;
       var rp = ''; for (var k = 0; k < c.rank; k++) rp += '<span class="rp"></span>';
       return '<div class="deck-card' + (sel ? ' sel' : '') + '" data-id="' + c.id + '">' +
@@ -666,6 +677,13 @@
   if (sizeSelEl) sizeSelEl.addEventListener('click', function (e) {
     var b = e.target.closest('.bss-btn'); if (!b) return;
     builderRows = parseInt(b.dataset.rows, 10);
+    TCG.sfx('tap');
+    renderDeckBuilder();
+  });
+  var sortSelEl = document.getElementById('deckSortSel');
+  if (sortSelEl) sortSelEl.addEventListener('click', function (e) {
+    var b = e.target.closest('.bss-btn'); if (!b) return;
+    builderSort = b.dataset.sort;
     TCG.sfx('tap');
     renderDeckBuilder();
   });

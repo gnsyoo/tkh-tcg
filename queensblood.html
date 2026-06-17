@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0d0b1a">
 <title>히어로즈 블러드 · 목업</title>
-<link rel="stylesheet" href="css/common.css?v=20260617q">
-<link rel="stylesheet" href="css/queensblood.css?v=20260617q">
+<link rel="stylesheet" href="css/common.css?v=20260617r">
+<link rel="stylesheet" href="css/queensblood.css?v=20260617r">
 </head>
 <body>
   <div class="float-menu" id="floatMenu">
@@ -89,6 +89,12 @@
         <button class="bss-btn" data-rows="3">3 × 5</button>
         <button class="bss-btn" data-rows="4">4 × 5</button>
       </div>
+      <div class="board-size-sel" id="deckSortSel">
+        <span class="bss-label">정렬</span>
+        <button class="bss-btn active" data-sort="default">기본</button>
+        <button class="bss-btn" data-sort="rank">레벨순</button>
+        <button class="bss-btn" data-sort="power">점수순</button>
+      </div>
       <div class="deck-grid" id="deckGrid"></div>
       <div class="deck-actions">
         <button class="btn ghost" id="deckDefault">기본덱</button>
@@ -131,8 +137,8 @@
     </div>
   </div>
 
-  <script src="js/util.js?v=20260617q"></script>
-  <script src="js/qb_data.js?v=20260617q"></script>
-  <script src="js/queensblood.js?v=20260617q"></script>
+  <script src="js/util.js?v=20260617r"></script>
+  <script src="js/qb_data.js?v=20260617r"></script>
+  <script src="js/queensblood.js?v=20260617r"></script>
 </body>
 </html>
