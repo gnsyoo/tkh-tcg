@@ -80,16 +80,19 @@
   }
   var collectedHeroes = loadCollected('hw_collected_heroes');
   var collectedWeapons = loadCollected('hw_collected_weapons');
+  var collectedRelics = loadCollected('hw_collected_relics');
   function syncCollection() {
     var changed = false;
     if (run) {
       run.party.forEach(function (h) { if (collectedHeroes.indexOf(h.def.id) === -1) { collectedHeroes.push(h.def.id); changed = true; } });
       (run.weapons || []).forEach(function (id) { if (collectedWeapons.indexOf(id) === -1) { collectedWeapons.push(id); changed = true; } });
+      (run.relics || []).forEach(function (r) { if (r && collectedRelics.indexOf(r.id) === -1) { collectedRelics.push(r.id); changed = true; } });
     }
     if (changed) {
       try {
         localStorage.setItem('hw_collected_heroes', JSON.stringify(collectedHeroes));
         localStorage.setItem('hw_collected_weapons', JSON.stringify(collectedWeapons));
+        localStorage.setItem('hw_collected_relics', JSON.stringify(collectedRelics));
       } catch (e) {}
     }
   }
@@ -107,6 +110,7 @@
         gold: run.gold, mainStage: run.mainStage, subStage: run.subStage,
         relics: run.relics.map(function (r) { return r.id; }),
         weapons: run.weapons.slice(), items: (run.items || []).slice(), sorties: run.sorties || 0,
+        treasureMain: (run.treasureMain != null ? run.treasureMain : -1),
         lordHp: run.lordHp, lordMp: run.lordMp, mode: run.mode || 'normal'
       }));
     } catch (e) {}
@@ -137,6 +141,7 @@
       weapons: (d.weapons || []).filter(function (id) { return HW_WEAPON_BY_ID[id]; }),
       items: (d.items || []).filter(function (id) { return HW_CONS_BY_ID[id]; }).slice(0, HW_ITEM_MAX),
       sorties: d.sorties || 0,
+      treasureMain: (typeof d.treasureMain === 'number') ? d.treasureMain : -1,
       deck: Array.isArray(d.deck) ? d.deck.slice() : [],
       tavern: (d.tavern && Array.isArray(d.tavern.items)) ? d.tavern : null,
       stageShopped: false, combat: null
@@ -161,7 +166,7 @@
     HW_HEROES.forEach(function (d) {
       if (d.exclusive && collectedHeroes.indexOf(d.id) !== -1 && startIds.indexOf(d.id) === -1) startIds.push(d.id);
     });
-    run = { party: startIds.map(mkHero), deck: [], gold: DCFG.startGold, mainStage: 0, subStage: 0, relics: [], weapons: [], items: [], sorties: 0, stageShopped: false, combat: null };
+    run = { party: startIds.map(mkHero), deck: [], gold: DCFG.startGold, mainStage: 0, subStage: 0, relics: [], weapons: [], items: [], sorties: 0, treasureMain: -1, stageShopped: false, combat: null };
     run.mode = (HW_MODES[mode] && isModeUnlocked(mode)) ? mode : 'normal';
     run.lordHp = lordMaxHp(); // 주공 HP는 모험 내내 유지(스테이지마다 일부 회복)
     run.lordMp = lordMaxMp(); // 주공 MP도 모험 내내 유지(전투 시작 시 10% 회복)
@@ -555,6 +560,9 @@
     if (w.exclusive === 'collection') return '📕 장수 컬렉션 100% 완료 보상';
     return '💎 보물상자(출진 5·10회) · 🏪 상점';
   }
+  function relicPath(r) {
+    return '👑 메인 적장 격파 보상 · 💎 보물 발견 이벤트(메인 전역당 ~10% 등장)';
+  }
   function renderHeroCodex() {
     document.getElementById('heroColTitle').textContent = '(' + collectedHeroes.length + ' / ' + HW_HEROES.length + ')';
     document.getElementById('heroColGrid').innerHTML = sortDefList(HW_HEROES, codexSort).map(function (d) {
@@ -582,22 +590,47 @@
     }).join('');
     document.getElementById('weaponColDetail').innerHTML = '👆 장비를 선택하면 <b>획득 경로</b>가 표시됩니다';
   }
+  function renderRelicCodex() {
+    document.getElementById('relicColTitle').textContent = '(' + collectedRelics.length + ' / ' + HW_RELICS.length + ')';
+    document.getElementById('relicColList').innerHTML = HW_RELICS.map(function (r) {
+      var got = collectedRelics.indexOf(r.id) !== -1;
+      return '<div class="gear-row col-relic-pick' + (got ? '' : ' locked') + '" data-id="' + r.id + '">' +
+        '<div class="gear-emoji">' + r.emoji + '</div>' +
+        '<div class="gear-info">' +
+          '<div class="gear-name">' + r.name + (got ? '' : ' 🔒') + '</div>' +
+          '<div class="gear-desc">' + r.desc + '</div>' +
+        '</div></div>';
+    }).join('');
+    document.getElementById('relicColDetail').innerHTML = '👆 유물을 선택하면 <b>효과·획득 경로</b>가 표시됩니다';
+  }
   function showCodexTab(tab) {
-    var hero = tab !== 'weapon';
-    document.getElementById('codexHeroPanel').hidden = !hero;
-    document.getElementById('codexWeaponPanel').hidden = hero;
-    document.getElementById('codexTabHero').classList.toggle('active', hero);
-    document.getElementById('codexTabWeapon').classList.toggle('active', !hero);
+    document.getElementById('codexHeroPanel').hidden = tab !== 'hero';
+    document.getElementById('codexWeaponPanel').hidden = tab !== 'weapon';
+    document.getElementById('codexRelicPanel').hidden = tab !== 'relic';
+    document.getElementById('codexTabHero').classList.toggle('active', tab === 'hero');
+    document.getElementById('codexTabWeapon').classList.toggle('active', tab === 'weapon');
+    document.getElementById('codexTabRelic').classList.toggle('active', tab === 'relic');
   }
   function openCodex(tab) {
     TCG.sfx('tap'); syncCollection();
-    renderHeroCodex(); renderWeaponCodex();
+    renderHeroCodex(); renderWeaponCodex(); renderRelicCodex();
     showCodexTab(tab || 'hero');
     document.getElementById('codexModal').hidden = false;
   }
   document.getElementById('codexBtn').addEventListener('click', function () { openCodex('hero'); });
   document.getElementById('codexTabHero').addEventListener('click', function () { TCG.sfx('tap'); showCodexTab('hero'); });
   document.getElementById('codexTabWeapon').addEventListener('click', function () { TCG.sfx('tap'); showCodexTab('weapon'); });
+  document.getElementById('codexTabRelic').addEventListener('click', function () { TCG.sfx('tap'); showCodexTab('relic'); });
+  document.getElementById('relicColList').addEventListener('click', function (e) {
+    var c = e.target.closest('.col-relic-pick'); if (!c) return;
+    var r = HW_RELICS.find(function (x) { return x.id === c.dataset.id; }); if (!r) return;
+    var got = collectedRelics.indexOf(r.id) !== -1;
+    document.getElementById('relicColDetail').innerHTML =
+      '<b>' + r.emoji + ' ' + r.name + '</b> · ' + (got ? '<span class="cd-got">보유 중</span>' : '<span class="cd-no">미보유</span>') +
+      '<br><span class="cd-sub">' + r.desc + '</span>' +
+      '<br><span class="cd-path">획득 경로: ' + relicPath(r) + '</span>';
+    TCG.sfx('tap');
+  });
   document.getElementById('heroColGrid').addEventListener('click', function (e) {
     var c = e.target.closest('.col-card'); if (!c) return;
     var d = HW_BY_ID[c.dataset.id]; if (!d) return;
@@ -1394,6 +1427,11 @@
     if (isBoss) { showReward('relic', gold); return; }      // 메인 적장 처치 → 유물
     if (isMid) { grantMidBoss(c.main, c.sub); showReward('hero', gold); return; } // 중간보스 격파 → 중간보스 카드 습득 + 장수 영입
     if ((c.sub + 1) % 4 === 0) { showReward('hero', gold); return; } // 4서브마다 장수 영입
+    // 보물 발견 이벤트 — 메인 전역당 최대 1회, 약 10% 확률로 등장(유물 1개 선택)
+    if (run.treasureMain !== run.mainStage && Math.random() < 0.10) {
+      run.treasureMain = run.mainStage;
+      showTreasure(); return;
+    }
     advanceStage();                                         // 일반 서브 → 바로 다음 (골드만 보상)
     showGoldPopup(gold);
   }
@@ -1662,7 +1700,7 @@
 
   /* ---------- TREASURE ---------- */
   function showTreasure() {
-    var gold = Math.round((20 + run.stage * 4) * DCFG.gold);
+    var gold = Math.round((20 + run.mainStage * 4) * DCFG.gold);
     run.gold += gold; updateTop();
     document.getElementById('eventTitle').textContent = '💎 보물 발견! +💰' + gold;
     var owned = run.relics.map(function (r) { return r.id; });

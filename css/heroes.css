@@ -798,9 +798,9 @@
 /* 도감 탭 */
 .codex-tabs { display: flex; gap: 8px; margin-bottom: 10px; }
 .codex-tab {
-  flex: 1; padding: 10px 8px; border-radius: 10px; cursor: pointer;
+  flex: 1; padding: 10px 6px; border-radius: 10px; cursor: pointer;
   background: rgba(0,0,0,0.28); border: 1px solid rgba(255,255,255,0.12);
-  color: var(--ink-dim); font-weight: 800; font-size: 14px; transition: all .15s;
+  color: var(--ink-dim); font-weight: 800; font-size: 13px; line-height: 1.25; transition: all .15s;
 }
 .codex-tab:hover { border-color: var(--gold); }
 .codex-tab.active { color: var(--ink); border-color: var(--gold); background: rgba(212,175,55,0.16); }

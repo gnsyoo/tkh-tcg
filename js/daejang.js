@@ -715,6 +715,7 @@
     return '⚔️ 전투 보상 영입 · 🏮 주막 영입';
   }
   function weaponPath(w) { return w.exclusive === 'collection' ? '📕 장수 컬렉션 100% 완료 보상' : '💎 보물상자(출진 5·10회) · 🏪 상점'; }
+  function relicPath(r) { return '👑 영웅전 메인 적장 격파 보상 · 💎 보물 발견 이벤트(메인 전역당 ~10% 등장)'; }
   /* ---------- 정렬(도감·출진 덱 편성) ---------- */
   function rarityRank(r) { return ({ C: 0, R: 1, SR: 2, SSR: 3 })[r] || 0; }
   var codexSort = { key: 'rarity', dir: 'desc' };  // 도감 기본: 등급 내림차순
@@ -818,14 +819,25 @@
     }).join('');
     document.getElementById('weaponColDetail').innerHTML = '👆 장비를 선택하면 <b>획득 경로</b>가 표시됩니다';
   }
-  function showCodexTab(tab) {
-    var hero = tab !== 'weapon';
-    document.getElementById('codexHeroPanel').hidden = !hero;
-    document.getElementById('codexWeaponPanel').hidden = hero;
-    document.getElementById('codexTabHero').classList.toggle('active', hero);
-    document.getElementById('codexTabWeapon').classList.toggle('active', !hero);
+  function renderRelicCodex() {
+    var col = lsArr('hw_collected_relics');
+    document.getElementById('relicColTitle').textContent = '(' + col.length + ' / ' + HW_RELICS.length + ')';
+    document.getElementById('relicColList').innerHTML = HW_RELICS.map(function (r) {
+      var got = col.indexOf(r.id) !== -1;
+      return '<div class="gear-row col-relic-pick' + (got ? '' : ' locked') + '" data-id="' + r.id + '"><div class="gear-emoji">' + r.emoji + '</div><div class="gear-info">' +
+        '<div class="gear-name">' + r.name + (got ? '' : ' 🔒') + '</div><div class="gear-desc">' + r.desc + '</div></div></div>';
+    }).join('');
+    document.getElementById('relicColDetail').innerHTML = '👆 유물을 선택하면 <b>효과·획득 경로</b>가 표시됩니다';
   }
-  function openCodex(tab) { TCG.sfx('tap'); renderHeroCodex(); renderWeaponCodex(); showCodexTab(tab || 'hero'); document.getElementById('codexModal').hidden = false; }
+  function showCodexTab(tab) {
+    document.getElementById('codexHeroPanel').hidden = tab !== 'hero';
+    document.getElementById('codexWeaponPanel').hidden = tab !== 'weapon';
+    document.getElementById('codexRelicPanel').hidden = tab !== 'relic';
+    document.getElementById('codexTabHero').classList.toggle('active', tab === 'hero');
+    document.getElementById('codexTabWeapon').classList.toggle('active', tab === 'weapon');
+    document.getElementById('codexTabRelic').classList.toggle('active', tab === 'relic');
+  }
+  function openCodex(tab) { TCG.sfx('tap'); renderHeroCodex(); renderWeaponCodex(); renderRelicCodex(); showCodexTab(tab || 'hero'); document.getElementById('codexModal').hidden = false; }
   document.getElementById('rosterBtn').addEventListener('click', openRoster);
   document.getElementById('rosterSort').addEventListener('click', function (e) { var b = e.target.closest('.sort-btn'); if (!b) return; TCG.sfx('tap'); applySortClick(rosterSort, b.dataset.sort); renderRosterGrid(); });
   document.getElementById('heroColSort').addEventListener('click', function (e) { var b = e.target.closest('.sort-btn'); if (!b) return; TCG.sfx('tap'); applySortClick(codexSort, b.dataset.sort); renderHeroCodex(); });
@@ -837,6 +849,17 @@
   document.getElementById('codexBtn').addEventListener('click', function () { openCodex('hero'); });
   document.getElementById('codexTabHero').addEventListener('click', function () { TCG.sfx('tap'); showCodexTab('hero'); });
   document.getElementById('codexTabWeapon').addEventListener('click', function () { TCG.sfx('tap'); showCodexTab('weapon'); });
+  document.getElementById('codexTabRelic').addEventListener('click', function () { TCG.sfx('tap'); showCodexTab('relic'); });
+  document.getElementById('relicColList').addEventListener('click', function (e) {
+    var c = e.target.closest('.col-relic-pick'); if (!c) return;
+    var r = HW_RELICS.find(function (x) { return x.id === c.dataset.id; }); if (!r) return;
+    var got = lsArr('hw_collected_relics').indexOf(r.id) !== -1;
+    document.getElementById('relicColDetail').innerHTML =
+      '<b>' + r.emoji + ' ' + r.name + '</b> · ' + (got ? '<span class="cd-got">보유 중</span>' : '<span class="cd-no">미보유</span>') +
+      '<br><span class="cd-sub">' + r.desc + '</span>' +
+      '<br><span class="cd-path">획득 경로: ' + relicPath(r) + '</span>';
+    TCG.sfx('tap');
+  });
   document.getElementById('heroColGrid').addEventListener('click', function (e) {
     var c = e.target.closest('.col-card'); if (!c || !c.dataset.id) return;
     var d = HW_BY_ID[c.dataset.id]; if (!d) return;
