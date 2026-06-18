@@ -50,13 +50,13 @@
 .cs-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
 /* 출진/저잣거리 아래 주공 상태 + 골드 */
 .map-lord-status {
-  display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+  display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;
   margin-top: 12px;
 }
 .map-lord-status .mls {
-  display: inline-flex; align-items: center; gap: 4px;
+  display: inline-flex; align-items: center; gap: 3px;
   background: var(--panel); border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 999px; padding: 5px 14px; font-size: 13px; font-weight: 800; white-space: nowrap;
+  border-radius: 999px; padding: 4px 10px; font-size: 12px; font-weight: 800; white-space: nowrap;
 }
 .map-lord-status .mls.hp { color: #ff9a9a; }
 .map-lord-status .mls.mp { color: #7ec0ff; }
