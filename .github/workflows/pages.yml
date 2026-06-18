@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [claude/roguelike-tcg-mockup-obq0mw]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
