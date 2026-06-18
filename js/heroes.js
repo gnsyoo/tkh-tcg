@@ -291,22 +291,33 @@
       '<div class="map-lord-status">' +
         '<span class="mls hp">❤ ' + (run.lordHp != null ? run.lordHp : lordMaxHp()) + ' / ' + lordMaxHp() + '</span>' +
         '<span class="mls mp">💧 ' + (run.lordMp != null ? run.lordMp : lordMaxMp()) + ' / ' + lordMaxMp() + '</span>' +
-        '<span class="mls relic relic-pick" title="탭하면 적용 유물 상세">✨ 유물 ' + run.relics.length + '</span>' +
+        '<span class="mls relic relic-pick" title="탭하면 추가 능력 상세">✨ 추가 능력</span>' +
       '</div>';
     document.getElementById('mapTrack').innerHTML = html;
     document.getElementById('rosterCount').textContent = run.party.length;
     document.getElementById('gearCount').textContent = (run.weapons || []).length;
   }
-  // 적용된 유물 상세 팝업
+  // 추가 능력 상세 팝업 — 유물 효과 + 아이템(장비)으로 적용되는 주공 능력치
+  function statRow(label, val, bonus) {
+    return '<div style="display:flex;justify-content:space-between;background:rgba(0,0,0,.25);border-radius:8px;padding:7px 10px;margin-bottom:6px"><span>' + label + '</span><b>' + val +
+      (bonus ? ' <span style="color:#8effb0;font-weight:700">(아이템 +' + bonus + ')</span>' : '') + '</b></div>';
+  }
+  function sectionHead(t) { return '<div style="text-align:left;font-size:12px;color:var(--gold);font-weight:800;margin:12px 2px 5px">' + t + '</div>'; }
   function showRelicsInfo() {
     var rs = run.relics || [];
+    var hpBonus = lordMaxHp() - HW_LORD.hp, mpBonus = lordMaxMp() - HW_LORD.mp, evadePct = Math.round(lordEvade() * 100);
     document.getElementById('heroModalBody').innerHTML =
-      '<h2>✨ 적용된 유물 <span style="color:var(--gold);font-size:14px">' + rs.length + '</span></h2>' +
+      '<h2>✨ 추가 능력</h2>' +
+      sectionHead('🏺 유물 효과 <span style="color:var(--ink-dim);font-weight:600">' + rs.length + '개</span>') +
       (rs.length
-        ? '<div style="text-align:left;font-size:13px;line-height:1.5;margin-top:8px">' + rs.map(function (r) {
+        ? '<div style="text-align:left;font-size:13px;line-height:1.5">' + rs.map(function (r) {
             return '<div style="background:rgba(0,0,0,.25);border-radius:8px;padding:8px 10px;margin-bottom:6px"><b>' + r.emoji + ' ' + r.name + '</b><br><span style="color:var(--ink-dim)">' + r.desc + '</span></div>';
           }).join('') + '</div>'
-        : '<p style="color:var(--ink-dim);margin-top:10px">아직 획득한 유물이 없습니다. 메인 적장을 격파하면 유물을 얻습니다.</p>') +
+        : '<p style="color:var(--ink-dim);font-size:13px;text-align:left;margin:2px 2px 8px">아직 획득한 유물이 없습니다. 메인 적장을 격파하면 유물을 얻습니다.</p>') +
+      sectionHead('🛡 아이템 적용 주공 능력치') +
+      statRow('❤ 최대 HP', lordMaxHp(), hpBonus) +
+      statRow('💧 최대 MP', lordMaxMp(), mpBonus) +
+      statRow('🍃 회피율', evadePct + '%', 0) +
       '<button class="btn primary" id="heroModalClose" style="margin-top:14px">닫기</button>';
     var modal = document.getElementById('heroModal'); modal.hidden = false;
     document.getElementById('heroModalClose').addEventListener('click', function () { modal.hidden = true; });

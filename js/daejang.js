@@ -56,14 +56,24 @@
   var relicById = {}; (typeof HW_RELICS !== 'undefined' ? HW_RELICS : []).forEach(function (r) { relicById[r.id] = r; });
   var relics = (SAVE.relics || []).map(function (id) { return relicById[id]; }).filter(Boolean);
   function relicSum(key) { return relics.reduce(function (s, r) { return s + (r.effect[key] || 0); }, 0); }
-  function showRelicsInfo() { // 적용된 유물 상세 팝업
+  function dStatRow(label, val, bonus) {
+    return '<div style="display:flex;justify-content:space-between;background:rgba(0,0,0,.25);border-radius:8px;padding:7px 10px;margin-bottom:6px"><span>' + label + '</span><b>' + val +
+      (bonus ? ' <span style="color:#8effb0;font-weight:700">(아이템 +' + bonus + ')</span>' : '') + '</b></div>';
+  }
+  function dSectionHead(t) { return '<div style="text-align:left;font-size:12px;color:var(--gold);font-weight:800;margin:12px 2px 5px">' + t + '</div>'; }
+  function showRelicsInfo() { // 추가 능력 상세 팝업 — 유물 효과 + 아이템(장비)으로 적용되는 주공 능력치
+    var hpBonus = lordMaxHp() - HW_LORD.hp, mpBonus = lordMaxMp() - HW_LORD.mp;
     document.getElementById('bossModalBody').innerHTML =
-      '<h2 style="text-align:center;">✨ 적용된 유물 <span style="color:var(--gold);font-size:14px">' + relics.length + '</span></h2>' +
+      '<h2 style="text-align:center;">✨ 추가 능력</h2>' +
+      dSectionHead('🏺 유물 효과 <span style="color:var(--ink-dim);font-weight:600">' + relics.length + '개</span>') +
       (relics.length
-        ? '<div style="text-align:left;font-size:13px;line-height:1.5;margin-top:8px">' + relics.map(function (r) {
+        ? '<div style="text-align:left;font-size:13px;line-height:1.5">' + relics.map(function (r) {
             return '<div style="background:rgba(0,0,0,.25);border-radius:8px;padding:8px 10px;margin-bottom:6px"><b>' + r.emoji + ' ' + r.name + '</b><br><span style="color:var(--ink-dim)">' + r.desc + '</span></div>';
           }).join('') + '</div>'
-        : '<p style="color:var(--ink-dim);text-align:center;margin-top:10px">적용된 유물이 없습니다. 영웅전에서 유물을 획득하세요.</p>') +
+        : '<p style="color:var(--ink-dim);font-size:13px;text-align:left;margin:2px 2px 8px">적용된 유물이 없습니다. 영웅전에서 유물을 획득하세요.</p>') +
+      dSectionHead('🛡 아이템 적용 주공 능력치') +
+      dStatRow('❤ 최대 HP', lordMaxHp(), hpBonus) +
+      dStatRow('💧 최대 MP', lordMaxMp(), mpBonus) +
       '<div style="text-align:center;margin-top:14px;"><button class="btn primary" id="relicInfoClose">닫기</button></div>';
     var m = document.getElementById('bossModal'); m.hidden = false;
     document.getElementById('relicInfoClose').addEventListener('click', function () { m.hidden = true; });
@@ -172,7 +182,7 @@
         '<div class="map-lord-status">' +
           '<span class="mls hp">❤ ' + lhp + ' / ' + mhp + '</span>' +
           '<span class="mls mp">💧 ' + lmp + ' / ' + mmp + '</span>' +
-          '<span class="mls relic relic-pick" title="탭하면 적용 유물 상세">✨ 유물 ' + relics.length + '</span>' +
+          '<span class="mls relic relic-pick" title="탭하면 추가 능력 상세">✨ 추가 능력</span>' +
         '</div>';
     }
     var html = HW_RAID.bosses.map(function (b, i) {
