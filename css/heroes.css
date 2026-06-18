@@ -61,7 +61,6 @@
 .map-lord-status .mls.hp { color: #ff9a9a; }
 .map-lord-status .mls.mp { color: #7ec0ff; }
 .map-lord-status .mls.gold { color: var(--gold); }
-.map-lord-status .status-break { flex-basis: 100%; width: 100%; height: 0; margin: 0; } /* 유물 칩을 다음 줄로 */
 .map-lord-status .mls.fx { color: #d9b3ff; cursor: pointer; }
 .map-lord-status .mls.fx:hover { border-color: rgba(217,179,255,0.6); }
 .camp-btn {
