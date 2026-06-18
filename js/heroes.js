@@ -472,6 +472,13 @@
   document.getElementById('gearModal').addEventListener('click', function (e) { if (e.target.id === 'gearModal') e.currentTarget.hidden = true; });
 
   /* ---------- 컬렉션(도감): 전체 카탈로그 + 수집 여부 + 획득 경로 ---------- */
+  function midBossInfoByHid(hid) {
+    for (var m = 0; m < HW_MID_BOSSES.length; m++) {
+      var pair = HW_MID_BOSSES[m];
+      for (var i = 0; i < pair.length; i++) { if (pair[i].hid === hid) return { main: m, idx: i }; }
+    }
+    return null;
+  }
   function heroPath(d) {
     if (HW_STARTERS.indexOf(d.id) !== -1) return '🏳️ 시작 장수 (처음부터 보유)';
     if (d.exclusive === 'qb') return '🃏 히어로즈 블러드 3연승 보상';
@@ -480,11 +487,19 @@
       return '👹 삼국 대장전 — ' + (rb ? HW_COMMANDERS[rb.key].name : '적장') + ' 격파 보상 (대장전에서만 획득)';
     }
     if (d.exclusive === 'special') return '🐎 화웅(첫 적장)을 주공 풀 HP로 격파 또는 노멀 모드 천하통일';
-    return '⚔️ 전투 보상 영입 · 🏪 저잣거리 구매';
+    if (d.exclusive === 'mid') {
+      var mi = midBossInfoByHid(d.id);
+      if (mi) {
+        var stage = HW_STAGES[mi.main] ? HW_STAGES[mi.main].name : '';
+        return '⚜ ' + stage + ' ' + (mi.idx === 0 ? '5출진' : '10출진') + ' 중간보스 — ' + (mi.idx === 0 ? '노멀' : '하드') + ' 난이도에서 격파 시 습득';
+      }
+      return '⚜ 중간보스 격파 보상';
+    }
+    return '⚔️ 전투 보상 영입 · 🏮 주막 영입';
   }
   function weaponPath(w) {
     if (w.exclusive === 'collection') return '📕 장수 컬렉션 100% 완료 보상';
-    return '💎 보물상자(출진 5·10회) · 🏪 저잣거리';
+    return '💎 보물상자(출진 5·10회) · 🏪 상점';
   }
   function renderHeroCodex() {
     document.getElementById('heroColTitle').textContent = '(' + collectedHeroes.length + ' / ' + HW_HEROES.length + ')';
