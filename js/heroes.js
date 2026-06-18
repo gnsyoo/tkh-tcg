@@ -291,14 +291,30 @@
       '<div class="map-lord-status">' +
         '<span class="mls hp">❤ ' + (run.lordHp != null ? run.lordHp : lordMaxHp()) + ' / ' + lordMaxHp() + '</span>' +
         '<span class="mls mp">💧 ' + (run.lordMp != null ? run.lordMp : lordMaxMp()) + ' / ' + lordMaxMp() + '</span>' +
-        '<span class="mls fx" title="' + (run.relics.length ? run.relics.map(function (r) { return r.name + ': ' + r.desc; }).join(' / ') : '적용된 효과 없음') + '">✨ ' + (run.relics.length ? run.relics.map(function (r) { return r.emoji; }).join('') : '없음') + '</span>' +
+        '<span class="mls fx relic-pick" style="cursor:pointer" title="탭하면 적용 유물 상세">✨ 유물 ' + run.relics.length + '</span>' +
         '<span class="mls gold">💰 ' + run.gold + '</span>' +
       '</div>';
     document.getElementById('mapTrack').innerHTML = html;
     document.getElementById('rosterCount').textContent = run.party.length;
     document.getElementById('gearCount').textContent = (run.weapons || []).length;
   }
+  // 적용된 유물 상세 팝업
+  function showRelicsInfo() {
+    var rs = run.relics || [];
+    document.getElementById('heroModalBody').innerHTML =
+      '<h2>✨ 적용된 유물 <span style="color:var(--gold);font-size:14px">' + rs.length + '</span></h2>' +
+      (rs.length
+        ? '<div style="text-align:left;font-size:13px;line-height:1.5;margin-top:8px">' + rs.map(function (r) {
+            return '<div style="background:rgba(0,0,0,.25);border-radius:8px;padding:8px 10px;margin-bottom:6px"><b>' + r.emoji + ' ' + r.name + '</b><br><span style="color:var(--ink-dim)">' + r.desc + '</span></div>';
+          }).join('') + '</div>'
+        : '<p style="color:var(--ink-dim);margin-top:10px">아직 획득한 유물이 없습니다. 메인 적장을 격파하면 유물을 얻습니다.</p>') +
+      '<button class="btn primary" id="heroModalClose" style="margin-top:14px">닫기</button>';
+    var modal = document.getElementById('heroModal'); modal.hidden = false;
+    document.getElementById('heroModalClose').addEventListener('click', function () { modal.hidden = true; });
+  }
   document.getElementById('mapTrack').addEventListener('click', function (e) {
+    var rp = e.target.closest('.relic-pick');
+    if (rp) { TCG.sfx('tap'); showRelicsInfo(); return; } // ✨ 적용 유물 상세
     var dot = e.target.closest('.sub-dot.info');
     if (dot) { TCG.sfx('tap'); showStageEnemyInfo(parseInt(dot.dataset.sub, 10)); return; } // 중간보스/적장 정보
     var btn = e.target.closest('.camp-btn');

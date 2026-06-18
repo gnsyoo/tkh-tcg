@@ -56,6 +56,21 @@
   var relicById = {}; (typeof HW_RELICS !== 'undefined' ? HW_RELICS : []).forEach(function (r) { relicById[r.id] = r; });
   var relics = (SAVE.relics || []).map(function (id) { return relicById[id]; }).filter(Boolean);
   function relicSum(key) { return relics.reduce(function (s, r) { return s + (r.effect[key] || 0); }, 0); }
+  function showRelicsInfo() { // 적용된 유물 상세 팝업
+    document.getElementById('bossModalBody').innerHTML =
+      '<h2 style="text-align:center;">✨ 적용된 유물 <span style="color:var(--gold);font-size:14px">' + relics.length + '</span></h2>' +
+      (relics.length
+        ? '<div style="text-align:left;font-size:13px;line-height:1.5;margin-top:8px">' + relics.map(function (r) {
+            return '<div style="background:rgba(0,0,0,.25);border-radius:8px;padding:8px 10px;margin-bottom:6px"><b>' + r.emoji + ' ' + r.name + '</b><br><span style="color:var(--ink-dim)">' + r.desc + '</span></div>';
+          }).join('') + '</div>'
+        : '<p style="color:var(--ink-dim);text-align:center;margin-top:10px">적용된 유물이 없습니다. 영웅전에서 유물을 획득하세요.</p>') +
+      '<div style="text-align:center;margin-top:14px;"><button class="btn primary" id="relicInfoClose">닫기</button></div>';
+    var m = document.getElementById('bossModal'); m.hidden = false;
+    document.getElementById('relicInfoClose').addEventListener('click', function () { m.hidden = true; });
+  }
+  document.getElementById('raidLordStatus').addEventListener('click', function (e) {
+    if (e.target.closest('.relic-pick')) { TCG.sfx('tap'); showRelicsInfo(); }
+  });
   function renderItemBar() {
     var bar = document.getElementById('itemBar'); if (!bar) return;
     var c = combat, used = c && (c.itemUsed || c.phase === 'enemy' || c.targeting || c.lordStun > 0);
@@ -156,7 +171,7 @@
       ls.innerHTML =
         '<span class="mls hp">❤ ' + lhp + ' / ' + mhp + '</span>' +
         '<span class="mls mp">💧 ' + lmp + ' / ' + mmp + '</span>' +
-        '<span class="mls fx" title="' + (relics.length ? relics.map(function (r) { return r.name + ': ' + r.desc; }).join(' / ') : '적용된 효과 없음') + '">✨ ' + (relics.length ? relics.map(function (r) { return r.emoji; }).join('') : '없음') + '</span>' +
+        '<span class="mls fx relic-pick" style="cursor:pointer" title="탭하면 적용 유물 상세">✨ 유물 ' + relics.length + '</span>' +
         '<span class="mls gold">💰 ' + (SAVE.gold || 0) + '</span>';
     }
     var html = HW_RAID.bosses.map(function (b, i) {
