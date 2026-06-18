@@ -50,6 +50,12 @@
   function loadItems() { try { var d = JSON.parse(lsGet('hw_save') || 'null'); if (d && Array.isArray(d.items)) return d.items.filter(function (id) { return HW_CONS_BY_ID[id]; }).slice(0, HW_ITEM_MAX); } catch (e) {} return []; }
   var items = loadItems();
   function saveItems() { try { var raw = lsGet('hw_save'); if (!raw) return; var d = JSON.parse(raw); if (!d) return; d.items = items.slice(); lsSet('hw_save', JSON.stringify(d)); } catch (e) {} }
+
+  /* ---------- 영웅전 런 데이터(유물·골드·주공 HP/MP) — hw_save 공유 ---------- */
+  var SAVE = (function () { try { return JSON.parse(lsGet('hw_save') || 'null') || {}; } catch (e) { return {}; } })();
+  var relicById = {}; (typeof HW_RELICS !== 'undefined' ? HW_RELICS : []).forEach(function (r) { relicById[r.id] = r; });
+  var relics = (SAVE.relics || []).map(function (id) { return relicById[id]; }).filter(Boolean);
+  function relicSum(key) { return relics.reduce(function (s, r) { return s + (r.effect[key] || 0); }, 0); }
   function renderItemBar() {
     var bar = document.getElementById('itemBar'); if (!bar) return;
     var c = combat, used = c && (c.itemUsed || c.phase === 'enemy' || c.targeting || c.lordStun > 0);
@@ -142,6 +148,17 @@
   function renderSelect() {
     document.getElementById('deckPill').textContent = '출진 덱 ' + activeDeckUids().length;
     var dp = document.getElementById('diffPill'); if (dp) dp.textContent = '난이도 ' + TCG.diffLabel(diff);
+    var ls = document.getElementById('raidLordStatus');
+    if (ls) {
+      var mhp = lordMaxHp(), mmp = lordMaxMp();
+      var lhp = (typeof SAVE.lordHp === 'number') ? Math.min(SAVE.lordHp, mhp) : mhp;
+      var lmp = (typeof SAVE.lordMp === 'number') ? Math.min(SAVE.lordMp, mmp) : mmp;
+      ls.innerHTML =
+        '<span class="mls hp">❤ ' + lhp + ' / ' + mhp + '</span>' +
+        '<span class="mls mp">💧 ' + lmp + ' / ' + mmp + '</span>' +
+        '<span class="mls fx" title="' + (relics.length ? relics.map(function (r) { return r.name + ': ' + r.desc; }).join(' / ') : '적용된 효과 없음') + '">✨ ' + (relics.length ? relics.map(function (r) { return r.emoji; }).join('') : '없음') + '</span>' +
+        '<span class="mls gold">💰 ' + (SAVE.gold || 0) + '</span>';
+    }
     var html = HW_RAID.bosses.map(function (b, i) {
       var cmd = HW_COMMANDERS[b.key];
       var rew = HW_BY_ID[b.reward];
@@ -214,7 +231,7 @@
     combat = {
       raidIdx: idx, boss: { def: cmd, name: cmd.name, emoji: cmd.emoji, maxHp: hp, hp: hp, atk: atk, atk0: atk, aoe: !!cmd.aoe, block: 0, poison: 0, charmed: 0, intent: null,
         skills: (cmd.skills || []).slice(), mp: bmp, maxMp: bmp, skillChance: bc.skillChance },
-      round: 0, lord: { hp: mhp, maxHp: mhp, mp: mmp, maxMp: mmp, block: 0 }, atkBuff: 0, lordStun: 0,
+      round: 0, lord: { hp: mhp, maxHp: mhp, mp: mmp, maxMp: mmp, block: relicSum('startBlock') }, atkBuff: relicSum('startAtk'), lordStun: 0,
       draw: TCG.shuffle(activeDeckUids().slice()), center: [], used: [],
       sel: null, targeting: false, phase: 'player', log: [], over: false, itemUsed: false, tempAtk: null, cardBuff: {}
     };
@@ -225,7 +242,7 @@
     if (cmd.quote) setTimeout(function () { fxQuote(bossEl(), cmd.quote, 5000); }, 1100); // 보스 등장 대사(5초)
   }
 
-  function centerSize() { return 3; }
+  function centerSize() { return 3 + relicSum('energy'); }
   function drawOne() {
     var c = combat;
     if (!c.draw.length) { if (!c.used.length) return false; c.draw = TCG.shuffle(c.used); c.used = []; logMsg('덱을 다시 섞었습니다'); }
@@ -411,6 +428,7 @@
     }
     function done() {
       var pv = wpnVal(h, 'poison'); if (pv && b.hp > 0) { b.poison = (b.poison || 0) + pv; logMsg(b.name + '에 독 +' + pv); }
+      var ls = relicSum('lifesteal'); if (ls && c.lord.hp > 0) { c.lord.hp = Math.min(c.lord.maxHp, c.lord.hp + ls); } // 오추마(유물)
       logMsg(h.def.name + ' → ' + b.name + ' ' + total + ' 피해' + (anyCrit ? ' (치명타!)' : ''));
       c.busy = false;
       finishPlay();

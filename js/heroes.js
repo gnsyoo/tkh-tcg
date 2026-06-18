@@ -291,6 +291,7 @@
       '<div class="map-lord-status">' +
         '<span class="mls hp">❤ ' + (run.lordHp != null ? run.lordHp : lordMaxHp()) + ' / ' + lordMaxHp() + '</span>' +
         '<span class="mls mp">💧 ' + (run.lordMp != null ? run.lordMp : lordMaxMp()) + ' / ' + lordMaxMp() + '</span>' +
+        '<span class="mls fx" title="' + (run.relics.length ? run.relics.map(function (r) { return r.name + ': ' + r.desc; }).join(' / ') : '적용된 효과 없음') + '">✨ ' + (run.relics.length ? run.relics.map(function (r) { return r.emoji; }).join('') : '없음') + '</span>' +
         '<span class="mls gold">💰 ' + run.gold + '</span>' +
       '</div>';
     document.getElementById('mapTrack').innerHTML = html;

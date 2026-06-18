@@ -161,8 +161,8 @@ var HW_RELICS = [
   { id:'banner', name:'대장군 깃발', emoji:'🚩', desc:'가운데 카드 칸 +1', effect:{ energy:1 } },
   { id:'fang',   name:'오추마',     emoji:'🐎', desc:'기본 공격 시 HP 2 회복',  effect:{ lifesteal:2 } },
   { id:'drum',   name:'전고(戰鼓)', emoji:'🥁', desc:'전투 시작 시 전원 공격력 +2', effect:{ startAtk:2 } },
-  { id:'crest',  name:'방패 진형',  emoji:'🛡️', desc:'전투 시작 시 전원 방어막 5',  effect:{ startBlock:5 } },
-  { id:'chalice',name:'군량미',     emoji:'🍚', desc:'전투 승리 후 전원 HP 6 회복', effect:{ winHeal:6 } }
+  { id:'crest',  name:'방패 진형',  emoji:'🛡️', desc:'전투 시작 시 주공 방어막 +5',  effect:{ startBlock:5 } },
+  { id:'chalice',name:'군량미',     emoji:'🍚', desc:'전투 승리 후 주공 HP +6 회복', effect:{ winHeal:6 } }
 ];
 
 /* 주공(나) 기본 스탯 */
