@@ -716,10 +716,10 @@
 .raid-result-rew b { color: var(--gold); }
 .raid-result-rew.owned { color: var(--ink-dim); }
 /* 레이드 보스는 크게 표시 */
-.unit.raid-boss-unit { width: clamp(150px, 60vw, 230px); }
-.unit.raid-boss-unit .portrait { height: 88px; }
-.unit.raid-boss-unit .portrait .p-emoji { font-size: 64px; }
-.unit.raid-boss-unit .u-name { font-size: 14px; }
+.unit.raid-boss-unit { width: clamp(100px, 40vw, 153px); }
+.unit.raid-boss-unit .portrait { height: 59px; }
+.unit.raid-boss-unit .portrait .p-emoji { font-size: 43px; }
+.unit.raid-boss-unit .u-name { font-size: 13px; }
 .unit.raid-add { width: clamp(72px, 22vw, 92px); align-self: flex-end; opacity: 0.96; }
 .unit.raid-add .portrait { height: 50px; }
 .unit.raid-add .portrait .p-emoji { font-size: 34px; }
