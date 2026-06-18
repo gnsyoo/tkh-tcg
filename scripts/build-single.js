@@ -57,6 +57,14 @@ const out = `<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0d0b1a">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-RZW78R7430"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-RZW78R7430');
+</script>
 <title>삼국지 카드 게임</title>
 <style>${common}\n${read('css/home.css')}
 .game-frame { position: fixed; inset: 0; z-index: 500; background: var(--bg-0); display: none; }
