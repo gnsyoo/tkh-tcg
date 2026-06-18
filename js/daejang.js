@@ -332,7 +332,7 @@
   /* ---------- render ---------- */
   function renderCombat() {
     var c = combat, b = c.boss;
-    document.getElementById('energyBox').innerHTML = '🎴 가운데 카드: 사용하면 <b>공격</b> · 턴 종료 시 남기면 <b>방어</b>';
+    document.getElementById('energyBox').innerHTML = '🎴 가운데 카드를 선택해 <b>공격</b>하거나, 턴을 종료하세요';
     var dead = b.hp <= 0, charmed = b.charmed > 0 || b.confused > 0;
     var tgt = c.targeting && !dead;
     var intentTxt = (b.confused > 0) ? '💤 혼란' : (b.charmed > 0) ? '💤 매혹' : (b.intent ? (b.intent.type === 'aoe' ? '💥' + b.intent.dmg : '⚔️' + b.intent.dmg) : '');
@@ -362,7 +362,7 @@
     renderItemBar();
     document.getElementById('endTurnBtn').disabled = (c.phase === 'enemy' || c.busy);
     var hint = document.getElementById('combatHint');
-    hint.textContent = c.phase === 'enemy' ? '보스가 행동 중…' : (c.lordStun > 0 ? '💫 행동 불가 — 턴 종료(방어)만 가능' : (c.targeting ? '보스를 선택하세요' : (c.sel ? '행동을 선택하세요' : '가운데 카드로 공격하거나, 턴 종료 시 남은 카드로 방어합니다')));
+    hint.textContent = c.phase === 'enemy' ? '보스가 행동 중…' : (c.lordStun > 0 ? '💫 행동 불가 — 턴 종료만 가능' : (c.targeting ? '보스를 선택하세요' : (c.sel ? '행동을 선택하세요' : '가운데 카드를 선택해 공격하거나, 턴을 종료하세요')));
   }
   function renderPiles() {
     var c = combat;
@@ -375,7 +375,7 @@
       var cls = 'combat-card' + (sel ? ' selected' : '') + (canAct ? '' : ' unplayable');
       var ws = heroWpns(h), wE = ws.map(function (w) { return w.emoji; }).join(''), wN = ws.map(function (w) { return w.name; }).join(', ');
       return '<div class="' + cls + '" data-uid="' + uid + '">' + TCG.portrait(h.def.emoji, h.def.id, 'cc-art', h.def.name) +
-        '<div class="cc-name">' + h.def.name + '</div><div class="cc-atk">⚔' + effAtk(h) + '</div><div class="cc-def">🛡' + defenseOf(h) + '</div>' +
+        '<div class="cc-name">' + h.def.name + '</div><div class="cc-atk">⚔' + effAtk(h) + '</div>' +
         (wE ? '<div class="cc-wpn" title="' + wN + '">' + wE + '</div>' : '') + '<div class="cc-skill">' + sk.name + '</div></div>';
     }).join('');
     document.getElementById('centerCards').innerHTML = cardsHtml ? '<div class="center-inner">' + cardsHtml + '</div>' : '<div class="center-empty">카드 없음</div>';
@@ -409,7 +409,7 @@
   });
   document.getElementById('centerCards').addEventListener('click', function (e) {
     var c = combat; if (!c || c.phase === 'enemy' || c.targeting || c.busy) return;
-    if (c.lordStun > 0) { TCG.toast('행동 불가 — 이번 턴은 턴 종료(방어)만 가능합니다'); return; }
+    if (c.lordStun > 0) { TCG.toast('행동 불가 — 이번 턴은 턴 종료만 가능합니다'); return; }
     var card = e.target.closest('.combat-card'); if (!card) return;
     var uid = card.dataset.uid; c.sel = (c.sel && c.sel.uid === uid) ? null : { uid: uid }; renderCombat();
   });
@@ -506,12 +506,11 @@
     if (c.boss.hp <= 0) { setTimeout(winRaid, 550); }
   }
 
+  // 턴 종료: 가운데 남은 카드는 사용한 풀로 버려진다(방어 기능 제거 — 영웅전과 동일) → 보스 턴
   document.getElementById('endTurnBtn').addEventListener('click', function () {
     var c = combat; if (!c || c.phase === 'enemy' || c.targeting || c.over || c.busy) return;
-    var total = 0, n = 0;
-    c.center.slice().forEach(function (uid) { var h = heroByUid(uid); if (h) { total += defenseOf(h); n++; } c.used.push(uid); });
+    c.center.slice().forEach(function (uid) { c.used.push(uid); });
     c.center = []; c.sel = null;
-    if (total) { c.lord.block += total; fxSupport(lordEl(), '🛡+' + total, '#9fd2ff'); TCG.sfx('skill'); logMsg(n + '명이 방어해 주공 블록 +' + total); }
     if (c.lordStun > 0) c.lordStun--; // 행동 불가 1턴 소모
     bossPhase();
   });
