@@ -117,7 +117,40 @@ var HW_HEROES = [
     skill:{ name:'삼국 통일', cost:3, type:'aoe', val:18, target:'allEnemies', desc:'모든 적에게 18 피해' } },
   // ---- 특수 획득 장수 ----
   { id:'lubu', name:'여포', emoji:'🐎', cls:'전사', rarity:'SSR', hp:46, atk:15, exclusive:'special',
-    skill:{ name:'천하무쌍', cost:3, type:'strike', val:18, target:'enemy', desc:'적 1명에게 공격력+18 피해' } }
+    skill:{ name:'천하무쌍', cost:3, type:'strike', val:18, target:'enemy', desc:'적 1명에게 공격력+18 피해' } },
+  // ---- 중간보스 영입 장수(주막 미출현 · 중간보스 격파로만 획득. 5출진=노멀·10출진=하드) ----
+  { id:'mb_lijue',      name:'이각',   emoji:'🪓', cls:'전사', rarity:'R',  hp:32, atk:8, exclusive:'mid',
+    skill:{ name:'장안의 칼', cost:2, type:'strike', val:8, target:'enemy', desc:'적 1명에게 공격력+8 피해' } },
+  { id:'mb_guosi',      name:'곽사',   emoji:'🗡️', cls:'기습', rarity:'SR', hp:34, atk:9, exclusive:'mid',
+    skill:{ name:'교란 기습', cost:2, type:'confuse', val:1, target:'enemy', desc:'적 1명을 1턴 혼란(행동 불능)' } },
+  { id:'mb_chunyujing', name:'순우경', emoji:'🍶', cls:'수호', rarity:'R',  hp:38, atk:6, exclusive:'mid',
+    skill:{ name:'오소 수비', cost:1, type:'shield', val:10, target:'self', desc:'주공 방어막 +10' } },
+  { id:'mb_gaolan',     name:'고람',   emoji:'🛡️', cls:'수호', rarity:'SR', hp:46, atk:7, exclusive:'mid',
+    skill:{ name:'하북의 방패', cost:2, type:'shield', val:16, target:'self', desc:'주공 방어막 +16' } },
+  { id:'mb_zhaochun',   name:'조순',   emoji:'🐎', cls:'기마', rarity:'R',  hp:30, atk:9, exclusive:'mid',
+    skill:{ name:'추격', cost:2, type:'strike', val:9, target:'enemy', desc:'적 1명에게 공격력+9 피해' } },
+  { id:'mb_wenpin',     name:'문빙',   emoji:'🏹', cls:'수호', rarity:'SR', hp:40, atk:8, exclusive:'mid',
+    skill:{ name:'강하 수비', cost:2, type:'shield', val:14, target:'self', desc:'주공 방어막 +14' } },
+  { id:'mb_caimao',     name:'채모',   emoji:'⚓', cls:'책사', rarity:'R',  hp:30, atk:6, exclusive:'mid',
+    skill:{ name:'수군 일제사격', cost:2, type:'aoe', val:6, target:'allEnemies', desc:'모든 적에게 6 피해' } },
+  { id:'mb_zhangyun',   name:'장윤',   emoji:'🚢', cls:'궁수', rarity:'SR', hp:32, atk:9, exclusive:'mid',
+    skill:{ name:'연환 사격', cost:2, type:'multi', val:3, target:'enemy', desc:'무작위 적을 3회 공격' } },
+  { id:'mb_xiahoushang',name:'하후상', emoji:'⚔️', cls:'전사', rarity:'R',  hp:34, atk:9, exclusive:'mid',
+    skill:{ name:'위군 돌격', cost:2, type:'strike', val:9, target:'enemy', desc:'적 1명에게 공격력+9 피해' } },
+  { id:'mb_guohuai',    name:'곽회',   emoji:'📜', cls:'책사', rarity:'SR', hp:34, atk:8, exclusive:'mid',
+    skill:{ name:'허점 간파', cost:2, type:'confuse', val:1, target:'enemy', desc:'적 1명을 1턴 혼란(행동 불능)' } },
+  { id:'mb_handang',    name:'한당',   emoji:'🏹', cls:'궁수', rarity:'R',  hp:32, atk:8, exclusive:'mid',
+    skill:{ name:'노장의 연사', cost:1, type:'multi', val:2, target:'enemy', desc:'무작위 적을 2회 공격' } },
+  { id:'mb_zhoutai',    name:'주태',   emoji:'🗡️', cls:'수호', rarity:'SR', hp:48, atk:8, exclusive:'mid',
+    skill:{ name:'분전', cost:2, type:'shield', val:15, target:'self', desc:'주공 방어막 +15' } },
+  { id:'mb_haozhao',    name:'학소',   emoji:'🏯', cls:'수호', rarity:'R',  hp:44, atk:6, exclusive:'mid',
+    skill:{ name:'진창성 수성', cost:2, type:'shield', val:13, target:'self', desc:'주공 방어막 +13' } },
+  { id:'mb_wangshuang', name:'왕쌍',   emoji:'🪓', cls:'전사', rarity:'SR', hp:38, atk:11, exclusive:'mid',
+    skill:{ name:'유성추', cost:2, type:'strike', val:12, target:'enemy', desc:'적 1명에게 공격력+12 피해' } },
+  { id:'mb_zhonghui',   name:'종회',   emoji:'📜', cls:'책략', rarity:'R',  hp:30, atk:7, exclusive:'mid',
+    skill:{ name:'촉 평정', cost:2, type:'aoe', val:7, target:'allEnemies', desc:'모든 적에게 7 피해' } },
+  { id:'mb_zhugedan',   name:'제갈탄', emoji:'⚔️', cls:'전사', rarity:'SR', hp:40, atk:10, exclusive:'mid',
+    skill:{ name:'회남의 의기', cost:3, type:'charm', val:1, target:'enemy', desc:'적 1명을 1턴 매혹(행동 불능)' } }
 ];
 var HW_BY_ID = {};
 HW_HEROES.forEach(function (h) { HW_BY_ID[h.id] = h; });
@@ -253,14 +286,14 @@ var HW_MID_SKILLS = [ // 아군 카드(장수)를 노리는 상태이상
 /* 고정 네임드 중간보스 — 각 전역의 5·10 출전(전역별 2명, 스토리 진영에 맞는 장수).
  * 기본 hp/atk에 HW_MID 배수와 난이도가 곱해집니다. 일반 적 1명과 함께 등장(고정). */
 var HW_MID_BOSSES = [
-  [ { name:'이각',   emoji:'🪓', hp:30, atk:7, quote:'동탁 승상의 명을 받든다. 네놈들은 여기서 끝이다!' }, { name:'곽사',   emoji:'🗡️', hp:32, atk:7, quote:'장안은 우리 손안에 있다. 썩 물러가라!' } ],
-  [ { name:'순우경', emoji:'🍶', hp:32, atk:7, quote:'오소의 군량은 내가 지킨다… 한 톨도 내줄 수 없지!' }, { name:'고람',   emoji:'🛡️', hp:36, atk:7, quote:'원소 공의 방패가 여기 있다. 어디 뚫어보아라.' } ],
-  [ { name:'조순',   emoji:'🐎', hp:34, atk:8, quote:'유비를 쫓는다! 도망치는 자의 목을 가져가겠다.' }, { name:'문빙',   emoji:'🏹', hp:36, atk:8, quote:'강하의 수비엔 빈틈이 없다. 발길을 돌려라.' } ],
-  [ { name:'채모',   emoji:'⚓', hp:36, atk:7, aoe:true, quote:'수전이라면 우리 형주 수군을 당할 자가 없지!' }, { name:'장윤', emoji:'🚢', hp:38, atk:8, quote:'물 위에선 네놈들이 우리 밥이다.' } ],
-  [ { name:'하후상', emoji:'⚔️', hp:38, atk:8, quote:'정군산은 우리 위군의 땅. 한 발도 들이지 못한다!' }, { name:'곽회',   emoji:'📜', hp:40, atk:8, quote:'냉정하게, 너희 진형의 허점을 찌르겠다.' } ],
-  [ { name:'한당',   emoji:'🏹', hp:40, atk:8, quote:'강동의 노장이 아직 녹슬지 않았음을 보여주마!' }, { name:'주태',   emoji:'🗡️', hp:42, atk:9, quote:'이 몸의 상처가 곧 충심의 증표다. 덤벼라!' } ],
-  [ { name:'학소',   emoji:'🏯', hp:46, atk:8, quote:'진창성은 천 명으로도 못 뚫는다. 헛수고 말거라.' }, { name:'왕쌍',   emoji:'🪓', hp:42, atk:9, quote:'촉의 북벌, 바로 여기서 끝이다!' } ],
-  [ { name:'종회',   emoji:'📜', hp:46, atk:9, aoe:true, quote:'촉을 멸한 공이 누구의 것이더냐. 비켜서라.' }, { name:'제갈탄', emoji:'⚔️', hp:48, atk:9, quote:'회남의 의기, 끝까지 꺾이지 않는다!' } ]
+  [ { name:'이각',   emoji:'🪓', hp:30, atk:7, hid:'mb_lijue',   quote:'동탁 승상의 명을 받든다. 네놈들은 여기서 끝이다!' }, { name:'곽사',   emoji:'🗡️', hp:32, atk:7, hid:'mb_guosi',   quote:'장안은 우리 손안에 있다. 썩 물러가라!' } ],
+  [ { name:'순우경', emoji:'🍶', hp:32, atk:7, hid:'mb_chunyujing', quote:'오소의 군량은 내가 지킨다… 한 톨도 내줄 수 없지!' }, { name:'고람',   emoji:'🛡️', hp:36, atk:7, hid:'mb_gaolan',   quote:'원소 공의 방패가 여기 있다. 어디 뚫어보아라.' } ],
+  [ { name:'조순',   emoji:'🐎', hp:34, atk:8, hid:'mb_zhaochun', quote:'유비를 쫓는다! 도망치는 자의 목을 가져가겠다.' }, { name:'문빙',   emoji:'🏹', hp:36, atk:8, hid:'mb_wenpin',   quote:'강하의 수비엔 빈틈이 없다. 발길을 돌려라.' } ],
+  [ { name:'채모',   emoji:'⚓', hp:36, atk:7, aoe:true, hid:'mb_caimao', quote:'수전이라면 우리 형주 수군을 당할 자가 없지!' }, { name:'장윤', emoji:'🚢', hp:38, atk:8, hid:'mb_zhangyun', quote:'물 위에선 네놈들이 우리 밥이다.' } ],
+  [ { name:'하후상', emoji:'⚔️', hp:38, atk:8, hid:'mb_xiahoushang', quote:'정군산은 우리 위군의 땅. 한 발도 들이지 못한다!' }, { name:'곽회',   emoji:'📜', hp:40, atk:8, hid:'mb_guohuai', quote:'냉정하게, 너희 진형의 허점을 찌르겠다.' } ],
+  [ { name:'한당',   emoji:'🏹', hp:40, atk:8, hid:'mb_handang', quote:'강동의 노장이 아직 녹슬지 않았음을 보여주마!' }, { name:'주태',   emoji:'🗡️', hp:42, atk:9, hid:'mb_zhoutai', quote:'이 몸의 상처가 곧 충심의 증표다. 덤벼라!' } ],
+  [ { name:'학소',   emoji:'🏯', hp:46, atk:8, hid:'mb_haozhao', quote:'진창성은 천 명으로도 못 뚫는다. 헛수고 말거라.' }, { name:'왕쌍',   emoji:'🪓', hp:42, atk:9, hid:'mb_wangshuang', quote:'촉의 북벌, 바로 여기서 끝이다!' } ],
+  [ { name:'종회',   emoji:'📜', hp:46, atk:9, aoe:true, hid:'mb_zhonghui', quote:'촉을 멸한 공이 누구의 것이더냐. 비켜서라.' }, { name:'제갈탄', emoji:'⚔️', hp:48, atk:9, hid:'mb_zhugedan', quote:'회남의 의기, 끝까지 꺾이지 않는다!' } ]
 ];
 
 /* 모드(노멀→하드→극악) — 천하통일로 차례로 해금. 위 상/중/하 배수에 곱해 적용.

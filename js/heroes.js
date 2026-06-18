@@ -346,7 +346,7 @@
     var body, isBoss = (sub === SUB_COUNT - 1);
     if (isBoss) {
       var cmd = HW_COMMANDERS[st.boss];
-      var bhp = Math.round(cmd.hp * hpM), batk = Math.max(1, Math.round(cmd.atk * atkM * md.bossAtkMult));
+      var bhp = Math.round(cmd.hp * hpM), batk = Math.max(1, Math.round(cmd.atk * atkM * md.bossAtkMult * 1.2));
       var bsk = (cmd.hero && HW_BY_ID[cmd.hero]) ? HW_BY_ID[cmd.hero].skill : null;
       body = TCG.portrait(cmd.emoji, (cmd.hero && HW_BY_ID[cmd.hero]) ? cmd.hero : cmd.name, 'modal-portrait', cmd.name) +
         '<h2>👑 ' + cmd.name + ' <span class="rar-SSR" style="font-size:13px">적장</span></h2>' +
@@ -357,14 +357,16 @@
     } else {
       var idx = (sub === 9) ? 1 : 0, mb = (HW_MID_BOSSES[main] || [])[idx];
       if (!mb) { return; }
-      var mhp = Math.round(mb.hp * hpM * HW_MID.hpMult), matk = Math.max(1, Math.round(mb.atk * atkM * HW_MID.atkMult));
+      var mhp = Math.round(mb.hp * hpM * HW_MID.hpMult), matk = Math.max(1, Math.round(mb.atk * atkM * HW_MID.atkMult * 1.2));
       var msk = HW_MID_SKILLS[(main * 2 + idx) % HW_MID_SKILLS.length];
-      body = TCG.portrait(mb.emoji, mb.name, 'modal-portrait', mb.name) +
+      var mbHero = (mb.hid && HW_BY_ID[mb.hid]) ? HW_BY_ID[mb.hid] : null;
+      var recruitTxt = mbHero ? ('<br><span style="color:#d9b3ff">🃏 격파 시 영입 가능 — ' + mbHero.name + ' <span class="rar-' + mbHero.rarity + '">' + mbHero.rarity + '</span> (' + (idx === 0 ? '노멀' : '하드') + ' 난이도)</span>') : '';
+      body = TCG.portrait(mb.emoji, mb.hid || mb.name, 'modal-portrait', mb.name) +
         '<h2>⚜ ' + mb.name + ' <span class="rar-SR" style="font-size:13px">중간보스</span></h2>' +
         '<p>' + st.name + ' · ' + (sub + 1) + '번째 출진' + (mb.aoe ? ' · 💥 광역' : '') + '</p>' +
         '<div style="background:rgba(0,0,0,.25);border-radius:10px;padding:10px;text-align:left;font-size:13px">' +
         '❤ HP ' + mhp + ' · ⚔ 공격 ' + matk + '<br><b style="color:var(--gold)">「' + msk.name + '」</b> ' + msk.desc +
-        '<br><span style="color:var(--ink-dim)">일반 적 1명과 함께 등장(고정)</span></div>';
+        '<br><span style="color:var(--ink-dim)">일반 적 1명과 함께 등장(고정)</span>' + recruitTxt + '</div>';
     }
     document.getElementById('heroModalBody').innerHTML = body +
       '<button class="btn primary" id="heroModalClose" style="margin-top:14px">닫기</button>';
@@ -585,8 +587,8 @@
     function inst(d, boss, mid) {
       var hpx = mid ? HW_MID.hpMult : 1, atkx = mid ? HW_MID.atkMult : 1;
       var hp = Math.round(d.hp * hpM * hpx);
-      var atk = Math.max(1, Math.round(d.atk * atkM * (boss ? md.bossAtkMult : 1) * atkx)); // 모드: 적장 공격 배수
-      var e = { def: d, name: (mid ? '⚜ ' + d.name : d.name), emoji: d.emoji, maxHp: hp, hp: hp,
+      var atk = Math.max(1, Math.round(d.atk * atkM * (boss ? md.bossAtkMult : 1) * atkx * ((boss || mid) ? 1.2 : 1))); // 모드 배수 + 적장·중간보스 공격 +20%
+      var e = { def: d, name: (mid ? '⚜ ' + d.name : d.name), emoji: d.emoji, face: (mid && d.hid) ? d.hid : null, maxHp: hp, hp: hp,
         atk: atk, aoe: !!d.aoe, boss: !!boss, mid: !!mid, quote: d.quote || null, crit: (boss ? md.bossCrit : BASE_CRIT), block: 0, intent: null };
       if (boss && d.hero && HW_BY_ID[d.hero]) { // 적장은 대응 장수의 원래 스킬 + MP 보유
         var bc = HW_BOSS[diff] || HW_BOSS.normal;
@@ -840,7 +842,7 @@
         (e.block > 0 ? '<div class="u-block">🛡' + e.block + '</div>' : '') +
         (charmed ? '<div class="u-charm">💗' + e.charmed + '</div>' : '') +
         (e.poison > 0 ? '<div class="u-poison">☠' + e.poison + '</div>' : '') +
-        TCG.portrait(e.emoji, e.name) +
+        TCG.portrait(e.emoji, e.face || e.name) +
         '<div class="u-name">' + e.name + '</div>' +
         '<div class="u-hp-text">❤ ' + Math.max(0, e.hp) + '/' + e.maxHp + '</div>' +
         (e.maxMp ? '<div class="u-mp-text">💧 ' + Math.max(0, e.mp) + '/' + e.maxMp + '</div>' : '') +
@@ -1320,7 +1322,7 @@
     if (run.sorties === 5 || run.sorties === 10) { showReward('weapon', gold); return; }
     if (isBoss && c.main === HW_STAGES.length - 1) { victory(); return; } // 최종 적장 격파
     if (isBoss) { showReward('relic', gold); return; }      // 메인 적장 처치 → 유물
-    if (isMid) { showReward('hero', gold); return; }        // 중간보스 격파 → 장수 영입
+    if (isMid) { grantMidBoss(c.main, c.sub); showReward('hero', gold); return; } // 중간보스 격파 → 중간보스 카드 습득 + 장수 영입
     if ((c.sub + 1) % 4 === 0) { showReward('hero', gold); return; } // 4서브마다 장수 영입
     advanceStage();                                         // 일반 서브 → 바로 다음 (골드만 보상)
     showGoldPopup(gold);
@@ -1339,6 +1341,26 @@
     var pop = document.getElementById('goldPopup');
     if (pop) pop.addEventListener('click', function () { clearTimeout(showGoldPopup._t); pop.hidden = true; });
   })();
+
+  // 중간보스 격파 보상: 5출진(idx0)=노멀 · 10출진(idx1)=하드에서 격파 시 그 중간보스 카드 영입.
+  // 이미 보유했으면 골드 +50. (주막에는 출현하지 않음 · 대장전과 컬렉션 공유)
+  function grantMidBoss(main, sub) {
+    var idx = (sub === 9) ? 1 : 0;
+    var mb = (HW_MID_BOSSES[main] || [])[idx];
+    if (!mb || !mb.hid || !HW_BY_ID[mb.hid]) return;
+    var hid = mb.hid;
+    if (collectedHeroes.indexOf(hid) !== -1) { // 이미 습득 → 골드 +50
+      run.gold += 50; updateTop();
+      TCG.toast('💰 ' + mb.name + ' 이미 보유 — 골드 +50');
+      return;
+    }
+    var eligible = (idx === 0) ? (run.mode === 'normal') : (run.mode === 'hard' || run.mode === 'extreme');
+    if (eligible) {
+      unlockSpecialHero(hid, '⚜ ' + mb.name + ' 격파', true);
+    } else {
+      TCG.toast(mb.name + ' 카드는 ' + (idx === 0 ? '노멀' : '하드') + ' 난이도 격파 시 영입할 수 있습니다');
+    }
+  }
 
   /* ---------- REWARD ---------- */
   function showReward(mode, gold) {
