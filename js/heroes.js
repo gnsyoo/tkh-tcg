@@ -375,10 +375,52 @@
   }
 
   /* ---------- 장수(수집 목록) — 탭하면 정보·장비 장착 ---------- */
+  /* ---------- 정렬(도감·수집·출진 덱 편성) ---------- */
+  function rarityRank(r) { return ({ C: 0, R: 1, SR: 2, SSR: 3 })[r] || 0; }
+  var codexSort = { key: 'rarity', dir: 'desc' };  // 도감 기본: 등급 내림차순
+  var rosterSort = { key: 'acquire', dir: 'asc' };  // 수집/덱: 기본 습득순
+  var formSort = { key: 'acquire', dir: 'asc' };
+  function paintSortBar(barId, st) {
+    var bar = document.getElementById(barId); if (!bar) return;
+    bar.querySelectorAll('.sort-btn').forEach(function (b) {
+      if (b.dataset.label == null) b.dataset.label = b.textContent;
+      var on = b.dataset.sort === st.key;
+      b.classList.toggle('active', on);
+      b.textContent = b.dataset.label + (on ? (st.dir === 'asc' ? ' ▲' : ' ▼') : '');
+    });
+  }
+  function applySortClick(st, key) { if (st.key === key) st.dir = (st.dir === 'asc' ? 'desc' : 'asc'); else { st.key = key; st.dir = (key === 'acquire' ? 'asc' : 'desc'); } }
+  function sortPartyList(list, st) {
+    var idx = {}; run.party.forEach(function (h, i) { idx[h.uid] = i; }); // 습득 순서 = party 인덱스
+    var a = list.slice();
+    a.sort(function (x, y) {
+      var v = 0;
+      if (st.key === 'atk') v = effAtk(x) - effAtk(y);
+      else if (st.key === 'rarity') v = rarityRank(x.def.rarity) - rarityRank(y.def.rarity);
+      if (v === 0) v = idx[x.uid] - idx[y.uid];
+      return v;
+    });
+    if (st.dir === 'desc') a.reverse();
+    return a;
+  }
+  function sortDefList(defs, st) {
+    var a = defs.slice();
+    a.sort(function (x, y) {
+      var v = st.key === 'atk' ? (x.atk - y.atk) : (rarityRank(x.rarity) - rarityRank(y.rarity));
+      if (v === 0) v = HW_HEROES.indexOf(x) - HW_HEROES.indexOf(y);
+      return v;
+    });
+    if (st.dir === 'desc') a.reverse();
+    return a;
+  }
+  function renderRoster() {
+    document.getElementById('rosterTitleCount').textContent = '· 수집 ' + run.party.length + ' / ' + HW_HEROES.length;
+    document.getElementById('rosterGrid').innerHTML = sortPartyList(run.party, rosterSort).map(miniHero).join('');
+    paintSortBar('rosterSort', rosterSort);
+  }
   function openRoster() {
     TCG.sfx('tap');
-    document.getElementById('rosterTitleCount').textContent = '· 수집 ' + run.party.length + ' / ' + HW_HEROES.length;
-    document.getElementById('rosterGrid').innerHTML = run.party.map(miniHero).join('');
+    renderRoster();
     document.getElementById('rosterModal').hidden = false;
   }
   /* ---------- 진형(출진 덱 편성) ---------- */
@@ -387,7 +429,7 @@
     var inDeck = {}; deck.forEach(function (u) { inDeck[u] = true; });
     document.getElementById('formationTitle').textContent =
       '· 출진 덱 ' + deck.length + ' / ' + MAX_DECK + ' (최소 ' + deckMin() + ')';
-    document.getElementById('formationGrid').innerHTML = run.party.map(function (h) {
+    document.getElementById('formationGrid').innerHTML = sortPartyList(run.party, formSort).map(function (h) {
       var ws = heroWpns(h).map(function (w) { return w.emoji; }).join('');
       var on = !!inDeck[h.uid];
       return '<div class="mini-hero deck-pick' + (on ? ' in-deck' : '') + '" data-uid="' + h.uid + '">' +
@@ -399,6 +441,7 @@
         '<button class="mh-equip" data-equip="' + h.uid + '">🗡 장비</button>' +
         '</div>';
     }).join('');
+    paintSortBar('formationSort', formSort);
   }
   function toggleDeck(uid) {
     if (!run.deck) run.deck = [];
@@ -419,7 +462,7 @@
     document.getElementById('formationModal').hidden = false;
   }
   function refreshRosterIfOpen() {
-    if (!document.getElementById('rosterModal').hidden) document.getElementById('rosterGrid').innerHTML = run.party.map(miniHero).join('');
+    if (!document.getElementById('rosterModal').hidden) renderRoster();
     if (!document.getElementById('formationModal').hidden) renderFormationGrid();
   }
   function openGear() {
@@ -454,6 +497,9 @@
   }
   document.getElementById('rosterBtn').addEventListener('click', openRoster);
   document.getElementById('gearBtn').addEventListener('click', openGear);
+  document.getElementById('rosterSort').addEventListener('click', function (e) { var b = e.target.closest('.sort-btn'); if (!b) return; TCG.sfx('tap'); applySortClick(rosterSort, b.dataset.sort); renderRoster(); });
+  document.getElementById('formationSort').addEventListener('click', function (e) { var b = e.target.closest('.sort-btn'); if (!b) return; TCG.sfx('tap'); applySortClick(formSort, b.dataset.sort); renderFormationGrid(); });
+  document.getElementById('heroColSort').addEventListener('click', function (e) { var b = e.target.closest('.sort-btn'); if (!b) return; TCG.sfx('tap'); applySortClick(codexSort, b.dataset.sort); renderHeroCodex(); });
   document.getElementById('rosterGrid').addEventListener('click', function (e) {
     var m = e.target.closest('.mini-hero'); if (!m) return; // 장수 카드 탭 → 상세/장비
     var h = heroByUid(m.dataset.uid); if (h) showHeroModal(h);
@@ -503,7 +549,7 @@
   }
   function renderHeroCodex() {
     document.getElementById('heroColTitle').textContent = '(' + collectedHeroes.length + ' / ' + HW_HEROES.length + ')';
-    document.getElementById('heroColGrid').innerHTML = HW_HEROES.map(function (d) {
+    document.getElementById('heroColGrid').innerHTML = sortDefList(HW_HEROES, codexSort).map(function (d) {
       var got = collectedHeroes.indexOf(d.id) !== -1;
       return '<div class="col-card' + (got ? '' : ' locked') + '" data-id="' + d.id + '">' +
         TCG.portrait(d.emoji, d.id, '', d.name) +
@@ -512,6 +558,7 @@
         (got ? '' : '<div class="col-lock">🔒</div>') +
         '</div>';
     }).join('');
+    paintSortBar('heroColSort', codexSort);
     document.getElementById('heroColDetail').innerHTML = '👆 장수를 선택하면 <b>능력치·획득 경로</b>가 표시됩니다';
   }
   function renderWeaponCodex() {
