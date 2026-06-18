@@ -1375,7 +1375,7 @@
     var isBoss = c.sub === SUB_COUNT - 1;
     var isMid = (c.sub === 4 || c.sub === 9);
     var prog = c.main * SUB_COUNT + c.sub;
-    var gold = Math.round((6 + prog * 1.5) * DCFG.gold * ((HW_MODES[run.mode] || HW_MODES.normal).gold) * (isMid ? 1.5 : 1));
+    var gold = Math.round((6 + prog * 1.5) * DCFG.gold * ((HW_MODES[run.mode] || HW_MODES.normal).gold) * (isMid ? 1.5 : 1)) + 20; // 출진 클리어 골드 +20 상향
     run.gold += gold;
     run.sorties = (run.sorties || 0) + 1; // 누적 출진 횟수
     updateTop();
