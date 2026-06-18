@@ -267,13 +267,21 @@
       var cl = i < m ? 'done' : (i === m ? 'current' : 'locked');
       return '<div class="main-chip ' + cl + '">' + (i < m ? '✔' : (i === m ? (i + 1) : '🔒')) + '</div>';
     }).join('');
-    // 서브 진행 점
+    // 서브 출진 경로 노드 (스테이지 맵)
     var dots = '';
     for (var i = 0; i < SUB_COUNT; i++) {
-      var dc = i < s ? ' done' : (i === s ? ' current' : '');
+      var state = i < s ? 'done' : (i === s ? 'current' : 'locked');
       var isMidDot = (i === 4 || i === 9);
-      var clickable = isMidDot || (i === SUB_COUNT - 1); // 중간보스·적장 칸은 탭하면 적 정보
-      dots += '<span class="sub-dot' + dc + (i === SUB_COUNT - 1 ? ' boss' : (isMidDot ? ' mid' : '')) + (clickable ? ' info' : '') + '"' + (clickable ? ' data-sub="' + i + '"' : '') + '>' + (isMidDot ? '⚜' : (i === SUB_COUNT - 1 ? '👑' : '')) + '</span>';
+      var isBossDot = (i === SUB_COUNT - 1);
+      var type = isBossDot ? 'boss' : (isMidDot ? 'mid' : 'normal');
+      var icon = isBossDot ? '👑' : (isMidDot ? '🏯' : '⚔️');
+      var clickable = isMidDot || isBossDot; // 중간보스·적장 칸은 탭하면 적 정보
+      dots += '<div class="stage-node ' + type + ' ' + state + (clickable ? ' info' : '') + '"' +
+        (clickable ? ' data-sub="' + i + '"' : '') + '>' +
+          '<span class="sn-badge">' + (i + 1) + '</span>' +
+          '<span class="sn-icon">' + (state === 'done' ? '✔' : icon) + '</span>' +
+          (state === 'current' ? '<span class="sn-here">📍</span>' : '') +
+        '</div>';
     }
     var battleLabel = isBoss ? ('👑 적장 ' + HW_COMMANDERS[st.boss].name + ' 토벌') : ('⚔️ 출진 (' + (s + 1) + '/' + SUB_COUNT + ')');
     var html =
@@ -325,7 +333,7 @@
   document.getElementById('mapTrack').addEventListener('click', function (e) {
     var rp = e.target.closest('.relic-pick');
     if (rp) { TCG.sfx('tap'); showRelicsInfo(); return; } // ✨ 적용 유물 상세
-    var dot = e.target.closest('.sub-dot.info');
+    var dot = e.target.closest('.stage-node.info');
     if (dot) { TCG.sfx('tap'); showStageEnemyInfo(parseInt(dot.dataset.sub, 10)); return; } // 중간보스/적장 정보
     var btn = e.target.closest('.camp-btn');
     if (!btn || btn.disabled) return;

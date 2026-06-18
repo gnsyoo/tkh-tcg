@@ -107,15 +107,69 @@
 .main-banner .mb-title { display: flex; flex-direction: column; line-height: 1.2; }
 .main-banner .mb-title b { font-size: 18px; }
 .main-banner .mb-title small { font-size: 11px; color: var(--ink-dim); }
-.sub-dots { display: flex; gap: 5px; justify-content: center; flex-wrap: wrap; margin: 12px 0; }
-.sub-dot {
-  width: 12px; height: 12px; border-radius: 50%;
-  background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.15);
+/* 출진 경로 — 스테이지 맵 노드 */
+.sub-dots {
+  display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
+  gap: 14px 18px; margin: 18px 2px 8px; position: relative;
 }
-.sub-dot.done { background: var(--green); border-color: var(--green); }
-.sub-dot.current { background: var(--gold); border-color: var(--gold); box-shadow: 0 0 8px var(--gold); transform: scale(1.25); }
-.sub-dot.boss { border-radius: 3px; width: 14px; height: 14px; border-color: var(--foe); }
-.sub-dot.boss.current { background: var(--foe); box-shadow: 0 0 8px var(--foe); }
+.stage-node {
+  position: relative; width: 40px; height: 40px; flex: 0 0 auto;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 19px; line-height: 1;
+  background: linear-gradient(160deg, #322b4d 0%, #1c1832 100%);
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 3px 5px rgba(0,0,0,0.4);
+  transition: transform .15s, box-shadow .15s;
+}
+/* 노드를 잇는 길(점선) */
+.stage-node::after {
+  content: ''; position: absolute; top: 50%; right: -18px;
+  width: 18px; height: 3px; transform: translateY(-50%);
+  background-image: linear-gradient(90deg, rgba(240,195,60,0.55) 55%, transparent 55%);
+  background-size: 7px 3px; border-radius: 2px; opacity: .6; pointer-events: none;
+}
+.stage-node.boss::after, .stage-node:last-child::after { display: none; }
+.stage-node .sn-icon { filter: drop-shadow(0 1px 1px rgba(0,0,0,0.5)); }
+.stage-node .sn-badge {
+  position: absolute; top: -8px; left: -8px;
+  min-width: 16px; height: 16px; padding: 0 3px; box-sizing: border-box;
+  border-radius: 9px; background: #0e0b1c; border: 1px solid rgba(255,255,255,0.25);
+  color: var(--ink-dim); font-size: 9px; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+}
+.stage-node .sn-here {
+  position: absolute; top: -17px; left: 50%; transform: translateX(-50%);
+  font-size: 14px; animation: snBounce 1s ease-in-out infinite; pointer-events: none;
+}
+@keyframes snBounce { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(-3px); } }
+/* 상태 */
+.stage-node.done {
+  background: linear-gradient(160deg, rgba(91,184,122,0.45), rgba(40,90,60,0.55));
+  border-color: rgba(120,210,150,0.6);
+}
+.stage-node.done .sn-icon { color: #d6ffe2; font-size: 16px; }
+.stage-node.locked { opacity: 0.45; filter: grayscale(0.4); }
+.stage-node.current {
+  transform: scale(1.18);
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(240,195,60,0.4), 0 0 14px rgba(240,195,60,0.5);
+}
+.stage-node.current .sn-badge { background: var(--gold); color: #3a2600; border-color: var(--gold); }
+/* 중간보스 / 적장 노드 강조 */
+.stage-node.mid {
+  background: linear-gradient(160deg, #3a2a5c, #241640);
+  border-color: rgba(199,155,255,0.6);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 0 8px rgba(199,155,255,0.4);
+}
+.stage-node.boss {
+  width: 46px; height: 46px; font-size: 22px; border-radius: 14px;
+  background: linear-gradient(160deg, #5a2030, #2a0f1a);
+  border-color: var(--foe);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 0 12px rgba(255,90,90,0.5);
+}
+.stage-node.info { cursor: pointer; }
+.stage-node.info:hover { box-shadow: 0 0 0 2px rgba(255,255,255,0.3); }
 
 /* 지도 화면의 장수/장비 버튼 */
 .map-collect { display: flex; gap: 10px; justify-content: center; margin-top: 14px; }
@@ -427,13 +481,6 @@
   border: 7px solid transparent; border-top: 0; border-bottom-color: #e8536b;
 }
 @keyframes quotePop { from { opacity: 0; transform: translate(-50%, -6px); } to { opacity: 1; transform: translate(-50%, 0); } }
-
-/* 중간보스 진행 점 강조 */
-.sub-dot { display: inline-flex; align-items: center; justify-content: center; font-size: 9px; line-height: 1; color: transparent; }
-.sub-dot.mid { width: 15px; height: 15px; border-radius: 4px; border-color: #c79bff; color: #c79bff; box-shadow: 0 0 6px rgba(199,155,255,0.6); }
-.sub-dot.mid.current { background: rgba(160,110,230,0.55); box-shadow: 0 0 10px #c79bff; }
-.sub-dot.mid.done { background: rgba(160,110,230,0.35); }
-.sub-dot.boss { color: #ff8a4c; font-size: 10px; }
 
 /* 적 유닛 태그(적장/중간보스) */
 .unit .u-tag { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); font-size: 9px; font-weight: 800; padding: 1px 6px; border-radius: 8px; white-space: nowrap; z-index: 3; }
