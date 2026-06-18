@@ -140,7 +140,7 @@
     var hd = (cmd && cmd.hero && HW_BY_ID[cmd.hero]) ? HW_BY_ID[cmd.hero] : null;
     return hd ? TCG.portrait(hd.emoji, hd.id, extraClass, hd.name) : TCG.portrait(cmd.emoji, cmd.name, extraClass, cmd.name);
   }
-  function skillKindLabel(t) { return (t === 'shield') ? '방어' : (t === 'heal') ? '회복' : (t === 'confuse' || t === 'charm') ? '행동 불가' : '공격'; }
+  function skillKindLabel(t) { return (t === 'shield') ? '방어' : (t === 'heal') ? '회복' : (t === 'confuse' || t === 'charm') ? '행동 불가' : (t === 'cardstun') ? '카드 행동 불가' : '공격'; }
   function pickBossSkill(b) { // 두 스킬 중 상황에 맞게 하나 선택
     var aff = (b.skills || []).filter(function (s) { return b.mp >= skillMp(s); });
     if (!aff.length) return null;
@@ -149,6 +149,23 @@
     if (lowHp && sustain.length && Math.random() < 0.6) return TCG.pick(sustain);
     var aggro = aff.filter(function (s) { return s.type !== 'heal' && s.type !== 'shield'; });
     return TCG.pick(aggro.length ? aggro : aff);
+  }
+  // 하후돈(레이드 3번째)부터 추가되는 보스 3번째 스킬 — 공격 또는 카드 행동 불가(cardstun)
+  var RAID_EXTRA_SKILLS = {
+    cmd_xiahoudun:  { name: '철기 돌격', type: 'strike',   val: 14, cost: 2 },
+    cmd_caocao:     { name: '위왕의 위압', type: 'cardstun', val: 1,  cost: 3 },
+    cmd_xiahouyuan: { name: '난사 연발', type: 'multi',    val: 3,  cost: 2 },
+    cmd_luxun:      { name: '연환 폭화', type: 'aoe',      val: 18, cost: 3 },
+    cmd_simayi:     { name: '심리 교란', type: 'cardstun', val: 1,  cost: 3 },
+    cmd_simayan:    { name: '천하 통일포', type: 'strike',  val: 18, cost: 3 }
+  };
+  function raidBossSkills(b) { // 레이드 보스 스킬(하후돈부터 3종)
+    var s = (HW_COMMANDERS[b.key].skills || []).slice();
+    if (RAID_EXTRA_SKILLS[b.key]) s.push(RAID_EXTRA_SKILLS[b.key]);
+    return s;
+  }
+  function raidBossAtk(cmd, idx) { // 공격력 = 기본 × 배수 + 레이드 순번 × 2
+    return Math.max(2, Math.round(cmd.atk * HW_RAID.atkMult * DCFG.eAtk)) + (idx + 1) * 2;
   }
 
   /* ---------- raid clear / grant storage ---------- */
@@ -225,18 +242,19 @@
   function showBossInfo(i) {
     var b = HW_RAID.bosses[i], cmd = HW_COMMANDERS[b.key], rew = HW_BY_ID[b.reward];
     var hp = Math.round(cmd.hp * HW_RAID.hpMult);
-    var atk = Math.max(2, Math.round(cmd.atk * HW_RAID.atkMult * DCFG.eAtk));
+    var atk = raidBossAtk(cmd, i);
     var got = collected(b.reward), done = isCleared(b.key);
-    var skillsHtml = (cmd.skills || []).map(function (s) {
+    var skills = raidBossSkills(b);
+    var skillsHtml = skills.map(function (s) {
       return '<div class="bi-skill"><b>「' + s.name + '」</b> <span class="bi-kind">' + skillKindLabel(s.type) + '</span>' +
-        (s.type === 'heal' ? ' · 회복 ' + s.val : s.type === 'shield' ? ' · 방어막 ' + s.val : (s.type === 'confuse' || s.type === 'charm') ? ' · 주공 ' + (s.val || 1) + '턴 행동 불가' : ' · 위력 ' + s.val) + '</div>';
+        (s.type === 'heal' ? ' · 회복 ' + s.val : s.type === 'shield' ? ' · 방어막 ' + s.val : (s.type === 'confuse' || s.type === 'charm') ? ' · 주공 ' + (s.val || 1) + '턴 행동 불가' : s.type === 'cardstun' ? ' · 카드 1장 ' + (s.val || 1) + '턴 행동 불가' : ' · 위력 ' + s.val) + '</div>';
     }).join('');
     document.getElementById('bossModalBody').innerHTML =
       bossFace(cmd, 'bi-portrait') +
       '<h2>' + cmd.name + ' <span class="rar-SSR" style="font-size:13px;">레이드</span></h2>' +
       '<p class="bi-title">' + b.title + (done ? ' · <span class="cd-got">격파함</span>' : '') + '</p>' +
       '<div class="bi-stat">❤ HP ' + hp + ' · ⚔ 공격 ' + atk + (cmd.aoe ? ' · 💥 광역' : '') + '</div>' +
-      '<div class="bi-sec">👹 보스 스킬 2종</div>' + skillsHtml +
+      '<div class="bi-sec">👹 보스 스킬 ' + skills.length + '종</div>' + skillsHtml +
       '<div class="bi-sec">🎁 격파 보상</div>' +
       '<div class="bi-skill">전용 장수 <b>' + rew.name + '</b> <span class="rar-' + rew.rarity + '">' + rew.rarity + '</span>' + (got ? ' <span class="raid-owned">보유 중 — 재도전 시 골드</span>' : '') + '</div>' +
       '<button class="btn primary" id="bossModalClose" style="margin-top:14px;">닫기</button>';
@@ -250,15 +268,15 @@
     var b = HW_RAID.bosses[idx];
     var cmd = HW_COMMANDERS[b.key];
     var hp = Math.round(cmd.hp * HW_RAID.hpMult);
-    var atk = Math.max(2, Math.round(cmd.atk * HW_RAID.atkMult * DCFG.eAtk));
+    var atk = raidBossAtk(cmd, idx);
     var mhp = lordMaxHp(), mmp = lordMaxMp();
     var bc = HW_BOSS[diff] || HW_BOSS.normal;
     var bmp = Math.max(0, bc.mp - 20); // 대장전 레이드 보스 MP -20 (영웅전 적장은 그대로)
     combat = {
       raidIdx: idx, boss: { def: cmd, name: cmd.name, emoji: cmd.emoji, maxHp: hp, hp: hp, atk: atk, atk0: atk, aoe: !!cmd.aoe, block: 0, poison: 0, charmed: 0, intent: null,
-        skills: (cmd.skills || []).slice(), mp: bmp, maxMp: bmp, skillChance: bc.skillChance },
+        skills: raidBossSkills(b), mp: bmp, maxMp: bmp, skillChance: bc.skillChance },
       round: 0, lord: { hp: mhp, maxHp: mhp, mp: mmp, maxMp: mmp, block: relicSum('startBlock') }, atkBuff: relicSum('startAtk'), lordStun: 0,
-      draw: TCG.shuffle(activeDeckUids().slice()), center: [], used: [],
+      draw: TCG.shuffle(activeDeckUids().slice()), center: [], used: [], cstat: {},
       sel: null, targeting: false, phase: 'player', log: [], over: false, itemUsed: false, tempAtk: null, cardBuff: {}
     };
     show('combatScreen');
@@ -371,10 +389,11 @@
     var canAct = c.phase !== 'enemy' && !c.targeting && !c.busy && !(c.lordStun > 0);
     var cardsHtml = c.center.map(function (uid) {
       var h = heroByUid(uid); if (!h) return ''; var sk = raidSkill(h);
+      var stunned = c.cstat && c.cstat[uid] && c.cstat[uid].stun > 0; // 보스 카드 봉쇄
       var sel = c.sel && c.sel.uid === uid; // 대상 지정 중에도 선택 강조 유지
-      var cls = 'combat-card' + (sel ? ' selected' : '') + (canAct ? '' : ' unplayable');
+      var cls = 'combat-card' + (sel ? ' selected' : '') + ((canAct && !stunned) ? '' : ' unplayable') + (stunned ? ' stunned' : '');
       var ws = heroWpns(h), wE = ws.map(function (w) { return w.emoji; }).join(''), wN = ws.map(function (w) { return w.name; }).join(', ');
-      return '<div class="' + cls + '" data-uid="' + uid + '">' + TCG.portrait(h.def.emoji, h.def.id, 'cc-art', h.def.name) +
+      return '<div class="' + cls + '" data-uid="' + uid + '">' + (stunned ? '<div class="cc-stun">💫</div>' : '') + TCG.portrait(h.def.emoji, h.def.id, 'cc-art', h.def.name) +
         '<div class="cc-name">' + h.def.name + '</div><div class="cc-atk">⚔' + effAtk(h) + '</div>' +
         (wE ? '<div class="cc-wpn" title="' + wN + '">' + wE + '</div>' : '') + '<div class="cc-skill">' + sk.name + '</div></div>';
     }).join('');
@@ -411,7 +430,9 @@
     var c = combat; if (!c || c.phase === 'enemy' || c.targeting || c.busy) return;
     if (c.lordStun > 0) { TCG.toast('행동 불가 — 이번 턴은 턴 종료만 가능합니다'); return; }
     var card = e.target.closest('.combat-card'); if (!card) return;
-    var uid = card.dataset.uid; c.sel = (c.sel && c.sel.uid === uid) ? null : { uid: uid }; renderCombat();
+    var uid = card.dataset.uid;
+    if (c.cstat && c.cstat[uid] && c.cstat[uid].stun > 0) { TCG.toast('행동 불가 상태인 카드입니다'); return; }
+    c.sel = (c.sel && c.sel.uid === uid) ? null : { uid: uid }; renderCombat();
   });
   document.getElementById('actionBar').addEventListener('click', function (e) {
     var b = e.target.closest('.act-btn'); if (!b || b.disabled) return;
@@ -509,7 +530,10 @@
   // 턴 종료: 가운데 남은 카드는 사용한 풀로 버려진다(방어 기능 제거 — 영웅전과 동일) → 보스 턴
   document.getElementById('endTurnBtn').addEventListener('click', function () {
     var c = combat; if (!c || c.phase === 'enemy' || c.targeting || c.over || c.busy) return;
-    c.center.slice().forEach(function (uid) { c.used.push(uid); });
+    c.center.slice().forEach(function (uid) {
+      c.used.push(uid);
+      if (c.cstat[uid] && c.cstat[uid].stun > 0) c.cstat[uid].stun--; // 출진한 카드의 봉쇄 1턴 소모
+    });
     c.center = []; c.sel = null;
     if (c.lordStun > 0) c.lordStun--; // 행동 불가 1턴 소모
     bossPhase();
@@ -535,6 +559,14 @@
     else if (sk.type === 'confuse' || sk.type === 'charm') { // 주공 행동 불가(공격 스킬 봉쇄). 카드는 방어만 가능
       var turns = sk.val || 1; c.lordStun = Math.max(c.lordStun || 0, turns);
       fxSupport(lordEl(), '💫 행동 불가', '#c79bff'); logMsg(b.name + ' 「' + sk.name + '」 — 주공 ' + turns + '턴 행동 불가!'); }
+    else if (sk.type === 'cardstun') { // 아군 카드(장수) 1장 행동 불가 — 다음 출진 시 1턴
+      var pool = c.draw.concat(c.center, c.used).filter(function (u) { return heroByUid(u) && !(c.cstat[u] && c.cstat[u].stun > 0); });
+      if (pool.length) {
+        var su = TCG.pick(pool), st = sk.val || 1, sh = heroByUid(su);
+        c.cstat[su] = { stun: st };
+        fxSupport(lordEl(), '💫 카드 봉쇄', '#c79bff'); logMsg(b.name + ' 「' + sk.name + '」 — ' + (sh ? sh.def.name : '카드') + ' ' + st + '턴 행동 불가!');
+      } else { var dc = Math.max(1, Math.round(b.atk * 0.5)); dmgLord(dc, false); logMsg(b.name + ' 「' + sk.name + '」 주공 ' + dc + ' 피해'); }
+    }
     else { var d3 = Math.max(1, Math.round(b.atk * 0.5)); dmgLord(d3, false); logMsg(b.name + ' 「' + sk.name + '」 주공 ' + d3 + ' 피해'); }
     return true;
   }
