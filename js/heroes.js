@@ -622,7 +622,7 @@
     // 보스/중간보스 등장 대사 — 카드 아래 말풍선 2초
     var lead = enemies[enemies.length - 1];
     if (lead && lead.quote && (lead.boss || lead.mid)) {
-      setTimeout(function () { fxQuote(enemyEl(enemies.length - 1), lead.quote, 2000); }, isBoss ? 1100 : 700);
+      setTimeout(function () { fxQuote(enemyEl(enemies.length - 1), lead.quote, 5000); }, isBoss ? 1100 : 700);
     }
   }
 

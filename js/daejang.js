@@ -222,7 +222,7 @@
     fxBanner('👹 ' + cmd.name + ' 레이드', 'boss', 1400); shake('big');
     logMsg(b.title + ' ' + cmd.name + ' 토벌전 개전!');
     beginRound();
-    if (cmd.quote) setTimeout(function () { fxQuote(bossEl(), cmd.quote, 2000); }, 1100); // 보스 등장 대사
+    if (cmd.quote) setTimeout(function () { fxQuote(bossEl(), cmd.quote, 5000); }, 1100); // 보스 등장 대사(5초)
   }
 
   function centerSize() { return 3; }
