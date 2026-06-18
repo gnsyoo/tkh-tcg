@@ -32,7 +32,7 @@
   }
   function syncDeck() { run.deck = activeDeckUids(); } // 정규화 결과를 run.deck에 반영(자동 채움 포함)
   var BASE_CRIT = 0.01; // 기본 치명타 확률 1%
-  function critChance(h) { return BASE_CRIT + (h ? wpnVal(h, 'crit') : 0); }
+  function critChance(h) { return Math.min(0.5, BASE_CRIT + (h ? wpnVal(h, 'crit') : 0)); } // 치명타 확률 최대 50%
   function rollCrit(chance) { return Math.random() < chance; }
   function heroWpnIds(h) { return (h && h.weapons) ? h.weapons : []; }
   function heroWpns(h) { return heroWpnIds(h).map(function (id) { return HW_WEAPON_BY_ID[id]; }).filter(Boolean); }
@@ -41,7 +41,7 @@
   function effAtk(h) { var c = run.combat; return h.atk + wpnVal(h, 'atk') + (c ? (c.atkBuff || 0) + ((c.tempAtk && c.tempAtk.turns > 0) ? c.tempAtk.val : 0) + ((c.cardBuff && h.uid && c.cardBuff[h.uid]) ? c.cardBuff[h.uid] : 0) : 0); }
   function lordMaxHp() { return HW_LORD.hp + run.party.reduce(function (s, h) { return s + wpnVal(h, 'lordHp'); }, 0); }
   function lordMaxMp() { return HW_LORD.mp + run.party.reduce(function (s, h) { return s + wpnVal(h, 'lordMp'); }, 0); }
-  function lordEvade() { return Math.min(0.6, run.party.reduce(function (s, h) { return s + wpnVal(h, 'evade'); }, 0)); } // 회피(무기 합산, 최대 60%)
+  function lordEvade() { return Math.min(0.3, run.party.reduce(function (s, h) { return s + wpnVal(h, 'evade'); }, 0)); } // 회피(무기 합산, 최대 30%)
   function skillMp(sk) { var m = 2 + (sk.cost || 1); return (sk.type === 'buff' && sk.scope === 'army') ? m * 5 : m + 3; } // 모든 스킬 +3, 전군 버프는 현재의 5배
   function ownedHeroIds() { return run.party.map(function (h) { return h.def.id; }); } // 중복 수집 방지
   // 보유 무기 중 아직 장착되지 않은 복사본들(중복 보유 허용 — 장수마다 1개씩 나눠 장착 가능)

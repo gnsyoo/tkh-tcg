@@ -111,7 +111,7 @@
   function lordMaxMp() { return HW_LORD.mp + party.reduce(function (s, h) { return s + wpnVal(h, 'lordMp'); }, 0); }
   function skillMp(sk) { var m = 2 + (sk.cost || 1); return (sk.type === 'buff' && sk.scope === 'army') ? m * 5 : m + 3; } // 모든 스킬 +3, 전군 버프는 현재의 5배
   var BASE_CRIT = 0.01;
-  function critChance(h) { return BASE_CRIT + wpnVal(h, 'crit'); }
+  function critChance(h) { return Math.min(0.5, BASE_CRIT + wpnVal(h, 'crit')); } // 치명타 확률 최대 50%
   function rollCrit(c) { return Math.random() < c; }
   function defenseOf(h) { return 3 + Math.floor(effAtk(h) / 3); }
   function heroByUid(uid) { return party.find(function (h) { return h.uid === uid; }); }
