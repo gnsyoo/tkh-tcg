@@ -291,7 +291,7 @@
       '<div class="map-lord-status">' +
         '<span class="mls hp">❤ ' + (run.lordHp != null ? run.lordHp : lordMaxHp()) + ' / ' + lordMaxHp() + '</span>' +
         '<span class="mls mp">💧 ' + (run.lordMp != null ? run.lordMp : lordMaxMp()) + ' / ' + lordMaxMp() + '</span>' +
-        '<span class="mls fx relic-pick" title="탭하면 적용 유물 상세">✨ 유물 ' + run.relics.length + '</span>' +
+        '<span class="mls relic relic-pick" title="탭하면 적용 유물 상세">✨ 유물 ' + run.relics.length + '</span>' +
       '</div>';
     document.getElementById('mapTrack').innerHTML = html;
     document.getElementById('rosterCount').textContent = run.party.length;

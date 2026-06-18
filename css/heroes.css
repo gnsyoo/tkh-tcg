@@ -61,8 +61,8 @@
 .map-lord-status .mls.hp { color: #ff9a9a; }
 .map-lord-status .mls.mp { color: #7ec0ff; }
 .map-lord-status .mls.gold { color: var(--gold); }
-.map-lord-status .mls.fx { color: #d9b3ff; cursor: pointer; }
-.map-lord-status .mls.fx:hover { border-color: rgba(217,179,255,0.6); }
+.map-lord-status .mls.relic { color: #d9b3ff; cursor: pointer; }
+.map-lord-status .mls.relic:hover { border-color: rgba(217,179,255,0.6); }
 .camp-btn {
   background: linear-gradient(180deg, #3a2a20, #2a1c14); color: var(--ink);
   border: 1px solid rgba(255,255,255,0.16); border-radius: 10px;
