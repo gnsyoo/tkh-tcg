@@ -626,7 +626,7 @@
       out.push(inst(HW_ENEMIES.basic[(main + mbIdx) % HW_ENEMIES.basic.length])); // 고정 일반 적 1명
       out.push(inst(mbSet[mbIdx], false, true)); // 고정 네임드 중간보스
     } else {
-      var n = 1 + Math.floor(sub / 4); // 1~3
+      var n = (sub <= 3) ? 2 : 3; // 1~4출진=적 2명 · 6~9출진=적 3명 (5·10=중간보스, 11=적장 별도)
       for (var i = 0; i < n; i++) {
         var useElite = (main >= 3 || sub >= 6) && i === 0; // 후반 서브에 부장(정예) 1명
         out.push(inst(TCG.pick(useElite ? HW_ENEMIES.elite : HW_ENEMIES.basic)));
