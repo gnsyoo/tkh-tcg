@@ -1311,8 +1311,23 @@
     if (isBoss) { showReward('relic', gold); return; }      // 메인 적장 처치 → 유물
     if (isMid) { showReward('hero', gold); return; }        // 중간보스 격파 → 장수 영입
     if ((c.sub + 1) % 4 === 0) { showReward('hero', gold); return; } // 4서브마다 장수 영입
-    advanceStage();                                         // 일반 서브 → 바로 다음
+    advanceStage();                                         // 일반 서브 → 바로 다음 (골드만 보상)
+    showGoldPopup(gold);
   }
+
+  // 보상이 골드만 있는 경우 대기실에서 3초 뒤 자동으로 사라지는 팝업
+  function showGoldPopup(gold) {
+    var pop = document.getElementById('goldPopup');
+    if (!pop) return;
+    document.getElementById('goldPopupText').textContent = '+' + gold + ' 골드 획득!';
+    pop.hidden = false;
+    clearTimeout(showGoldPopup._t);
+    showGoldPopup._t = setTimeout(function () { pop.hidden = true; }, 3000);
+  }
+  (function () {
+    var pop = document.getElementById('goldPopup');
+    if (pop) pop.addEventListener('click', function () { clearTimeout(showGoldPopup._t); pop.hidden = true; });
+  })();
 
   /* ---------- REWARD ---------- */
   function showReward(mode, gold) {

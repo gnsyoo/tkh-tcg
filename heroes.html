@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0d0b1a">
 <title>삼국 영웅전 · 목업</title>
-<link rel="stylesheet" href="css/common.css?v=20260618o">
-<link rel="stylesheet" href="css/heroes.css?v=20260618o">
+<link rel="stylesheet" href="css/common.css?v=20260618p">
+<link rel="stylesheet" href="css/heroes.css?v=20260618p">
 </head>
 <body>
   <div class="float-menu" id="floatMenu">
@@ -159,6 +159,14 @@
     <div class="modal" id="heroModalBody" style="max-width:340px;"></div>
   </div>
 
+  <!-- 골드 보상 팝업 (3초 뒤 자동 사라짐) -->
+  <div class="overlay" id="goldPopup" hidden>
+    <div class="modal gold-popup">
+      <div class="gp-icon">💰</div>
+      <h2 id="goldPopupText">+0 골드 획득!</h2>
+    </div>
+  </div>
+
   <!-- 도감(장수/장비 탭) -->
   <div class="overlay" id="codexModal" hidden>
     <div class="modal" style="max-width:700px;">
@@ -286,8 +294,8 @@
     </div>
   </div>
 
-  <script src="js/util.js?v=20260618o"></script>
-  <script src="js/heroes_data.js?v=20260618o"></script>
-  <script src="js/heroes.js?v=20260618o"></script>
+  <script src="js/util.js?v=20260618p"></script>
+  <script src="js/heroes_data.js?v=20260618p"></script>
+  <script src="js/heroes.js?v=20260618p"></script>
 </body>
 </html>
