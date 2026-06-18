@@ -44,13 +44,18 @@
   function lordEvade() { return Math.min(0.6, run.party.reduce(function (s, h) { return s + wpnVal(h, 'evade'); }, 0)); } // 회피(무기 합산, 최대 60%)
   function skillMp(sk) { var m = 2 + (sk.cost || 1); return (sk.type === 'buff' && sk.scope === 'army') ? m * 5 : m + 3; } // 모든 스킬 +3, 전군 버프는 현재의 5배
   function ownedHeroIds() { return run.party.map(function (h) { return h.def.id; }); } // 중복 수집 방지
-  // 보유 무기 중 아직 장착되지 않은 것들(중복 보유 허용)
+  // 보유 무기 중 아직 어디에도 장착되지 않은 것 — 같은 이름(id) 장비는 1개만 장착 가능(중복 제거)
   function freeWeaponIds() {
-    var owned = (run.weapons || []).slice();
+    var equipped = {};
     run.party.forEach(function (h) {
-      heroWpnIds(h).forEach(function (wid) { var i = owned.indexOf(wid); if (i !== -1) owned.splice(i, 1); });
+      heroWpnIds(h).forEach(function (wid) { equipped[wid] = true; });
     });
-    return owned;
+    var seen = {};
+    return (run.weapons || []).filter(function (id) {
+      if (equipped[id] || seen[id]) return false; // 이미 장착됨 or 같은 이름 중복 표시 방지
+      seen[id] = true;
+      return true;
+    });
   }
   function living(arr) { return arr.filter(function (u) { return u.hp > 0; }); }
   function lowest(arr) {
@@ -425,7 +430,7 @@
         });
         var free = owned - wearers.length;
         var wearTxt = wearers.length
-          ? '<span class="gear-on">착용: ' + wearers.join(', ') + '</span>' + (free > 0 ? ' <span class="gear-free">· 미장착 ' + free + '</span>' : '')
+          ? '<span class="gear-on">착용: ' + wearers.join(', ') + '</span>' + (free > 0 ? ' <span class="gear-free">· 예비 ' + free + '</span>' : '')
           : '<span class="gear-free">미장착</span>';
         return '<div class="gear-row">' +
           '<div class="gear-emoji">' + w.emoji + '</div>' +
@@ -1701,8 +1706,8 @@
         TCG.sfx('tap');
         if (b.dataset.wact === 'unequip') {
           h.weapons.splice(parseInt(b.dataset.slot, 10), 1);
-        } else if (h.weapons.length < weaponSlots(h)) {
-          h.weapons.push(b.dataset.wid);
+        } else if (h.weapons.length < weaponSlots(h) && freeWeaponIds().indexOf(b.dataset.wid) !== -1) {
+          h.weapons.push(b.dataset.wid); // 같은 이름 장비는 1개만 장착 가능
         }
         saveRun();
         showHeroModal(h); // 다시 렌더
