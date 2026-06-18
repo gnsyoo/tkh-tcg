@@ -172,7 +172,6 @@
         '<div class="map-lord-status">' +
           '<span class="mls hp">❤ ' + lhp + ' / ' + mhp + '</span>' +
           '<span class="mls mp">💧 ' + lmp + ' / ' + mmp + '</span>' +
-          '<span class="mls gold">💰 ' + (SAVE.gold || 0) + '</span>' +
           '<span class="mls fx relic-pick" title="탭하면 적용 유물 상세">✨ 유물 ' + relics.length + '</span>' +
         '</div>';
     }

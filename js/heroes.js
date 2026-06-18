@@ -291,7 +291,6 @@
       '<div class="map-lord-status">' +
         '<span class="mls hp">❤ ' + (run.lordHp != null ? run.lordHp : lordMaxHp()) + ' / ' + lordMaxHp() + '</span>' +
         '<span class="mls mp">💧 ' + (run.lordMp != null ? run.lordMp : lordMaxMp()) + ' / ' + lordMaxMp() + '</span>' +
-        '<span class="mls gold">💰 ' + run.gold + '</span>' +
         '<span class="mls fx relic-pick" title="탭하면 적용 유물 상세">✨ 유물 ' + run.relics.length + '</span>' +
       '</div>';
     document.getElementById('mapTrack').innerHTML = html;
@@ -1453,6 +1452,7 @@
     show('tavernScreen');
   }
   function renderTavern() {
+    document.getElementById('tavernGold').textContent = '💰 ' + run.gold;
     var box = document.getElementById('tavernItems');
     if (!run.tavern.items.length) { box.innerHTML = '<p class="screen-sub">영입할 수 있는 장수가 없습니다 (모두 보유).</p>'; return; }
     box.innerHTML = run.tavern.items.map(function (it, i) {
@@ -1477,6 +1477,7 @@
   });
   document.getElementById('tavernLeave').addEventListener('click', function () { TCG.sfx('tap'); showMap(); });
   function renderShop() {
+    document.getElementById('shopGold').textContent = '💰 ' + run.gold;
     document.getElementById('shopItems').innerHTML = run.shop.map(function (it, i) {
       var afford = run.gold >= it.cost && !it.sold;
       var buyBtn = '<button class="btn primary si-buy" data-i="' + i + '"' + (afford ? '' : ' disabled') + '>' + (it.sold ? '구매완료' : '💰 ' + it.cost) + '</button>';

@@ -626,7 +626,9 @@
 /* ---- Shop ---- */
 .shop-items { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 18px; }
 #shopScreen, #tavernScreen { position: relative; padding-top: 30px; } /* 좌상단 떠나기 버튼과 제목/설명 겹침 방지 */
+#shopScreen .screen-title, #tavernScreen .screen-title { margin-top: 15px; } /* 상점·주막 제목 아래로 */
 .shop-leave { position: absolute; top: 0; left: 0; z-index: 5; }
+.shop-gold { position: absolute; top: 2px; left: 50%; transform: translateX(-50%); z-index: 5; background: var(--panel); border: 1px solid rgba(255,255,255,0.12); border-radius: 999px; padding: 4px 14px; font-size: 14px; font-weight: 800; color: var(--gold); white-space: nowrap; }
 .shop-item {
   width: 150px; background: linear-gradient(170deg, #2c2658, #1e1942);
   border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; padding: 12px; text-align: center;
