@@ -63,6 +63,7 @@
   function dSectionHead(t) { return '<div style="text-align:left;font-size:12px;color:var(--gold);font-weight:800;margin:12px 2px 5px">' + t + '</div>'; }
   function showRelicsInfo() { // 추가 능력 상세 팝업 — 유물 효과 + 아이템(장비)으로 적용되는 주공 능력치
     var hpBonus = lordMaxHp() - HW_LORD.hp, mpBonus = lordMaxMp() - HW_LORD.mp;
+    var critPct = Math.round((BASE_CRIT + relicSum('crit')) * 100);
     document.getElementById('bossModalBody').innerHTML =
       '<h2 style="text-align:center;">✨ 추가 능력</h2>' +
       dSectionHead('🏺 유물 효과 <span style="color:var(--ink-dim);font-weight:600">' + relics.length + '개</span>') +
@@ -71,9 +72,10 @@
             return '<div style="background:rgba(0,0,0,.25);border-radius:8px;padding:8px 10px;margin-bottom:6px"><b>' + r.emoji + ' ' + r.name + '</b><br><span style="color:var(--ink-dim)">' + r.desc + '</span></div>';
           }).join('') + '</div>'
         : '<p style="color:var(--ink-dim);font-size:13px;text-align:left;margin:2px 2px 8px">적용된 유물이 없습니다. 영웅전에서 유물을 획득하세요.</p>') +
-      dSectionHead('🛡 아이템 적용 주공 능력치') +
+      dSectionHead('🛡 적용된 주공 능력치') +
       dStatRow('❤ 최대 HP', lordMaxHp(), hpBonus) +
       dStatRow('💧 최대 MP', lordMaxMp(), mpBonus) +
+      dStatRow('💥 치명타 확률', critPct + '%', 0) +
       '<div style="text-align:center;margin-top:14px;"><button class="btn primary" id="relicInfoClose">닫기</button></div>';
     var m = document.getElementById('bossModal'); m.hidden = false;
     document.getElementById('relicInfoClose').addEventListener('click', function () { m.hidden = true; });

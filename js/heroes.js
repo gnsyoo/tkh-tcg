@@ -339,6 +339,7 @@
   function showRelicsInfo() {
     var rs = run.relics || [];
     var hpBonus = lordMaxHp() - HW_LORD.hp, mpBonus = lordMaxMp() - HW_LORD.mp, evadePct = Math.round(lordEvade() * 100);
+    var critPct = Math.round((BASE_CRIT + relicSum('crit')) * 100);
     document.getElementById('heroModalBody').innerHTML =
       '<h2>✨ 추가 능력</h2>' +
       sectionHead('🏺 유물 효과 <span style="color:var(--ink-dim);font-weight:600">' + rs.length + '개</span>') +
@@ -347,10 +348,11 @@
             return '<div style="background:rgba(0,0,0,.25);border-radius:8px;padding:8px 10px;margin-bottom:6px"><b>' + r.emoji + ' ' + r.name + '</b><br><span style="color:var(--ink-dim)">' + r.desc + '</span></div>';
           }).join('') + '</div>'
         : '<p style="color:var(--ink-dim);font-size:13px;text-align:left;margin:2px 2px 8px">아직 획득한 유물이 없습니다. 메인 적장을 격파하면 유물을 얻습니다.</p>') +
-      sectionHead('🛡 아이템 적용 주공 능력치') +
+      sectionHead('🛡 적용된 주공 능력치') +
       statRow('❤ 최대 HP', lordMaxHp(), hpBonus) +
       statRow('💧 최대 MP', lordMaxMp(), mpBonus) +
       statRow('🍃 회피율', evadePct + '%', 0) +
+      statRow('💥 치명타 확률', critPct + '%', 0) +
       '<button class="btn primary" id="heroModalClose" style="margin-top:14px">닫기</button>';
     var modal = document.getElementById('heroModal'); modal.hidden = false;
     document.getElementById('heroModalClose').addEventListener('click', function () { modal.hidden = true; });
@@ -1732,26 +1734,41 @@
   });
   document.getElementById('shopLeave').addEventListener('click', function () { showMap(); });
 
-  /* ---------- TREASURE ---------- */
+  /* ---------- TREASURE — 히어로즈 블러드 도전 보상 ---------- */
+  var pendingTreasureRelic = null;
   function showTreasure() {
-    var gold = Math.round((20 + run.mainStage * 4) * DCFG.gold * (1 + relicSum('goldBonus')));
-    run.gold += gold; updateTop();
-    document.getElementById('eventTitle').textContent = '💎 보물 발견! +💰' + gold;
     var owned = run.relics.map(function (r) { return r.id; });
-    var avail = TCG.shuffle(HW_RELICS.filter(function (r) { return !r.exclusive && owned.indexOf(r.id) === -1; })).slice(0, 2);
-    if (!avail.length) { document.getElementById('eventSub').textContent = '추가 골드를 얻었습니다.'; document.getElementById('eventChoices').innerHTML = '<button class="btn primary" id="evGo">계속</button>'; }
-    else {
-      document.getElementById('eventSub').textContent = '유물 하나를 가져갈 수 있습니다';
-      document.getElementById('eventChoices').innerHTML = avail.map(function (r) {
-        return '<div class="reward-card" data-relic="' + r.id + '"><div class="rc-emoji">' + r.emoji + '</div><div class="rc-name">' + r.name + '</div><div class="rc-skill">' + r.desc + '</div></div>';
-      }).join('') + '<div style="width:100%"><button class="btn ghost" id="evSkip">그냥 떠나기</button></div>';
+    var avail = HW_RELICS.filter(function (r) { return !r.exclusive && owned.indexOf(r.id) === -1; });
+    if (!avail.length) { // 모든 유물 보유 → 추가 골드로 대체
+      var gold = Math.round((20 + run.mainStage * 4) * DCFG.gold * (1 + relicSum('goldBonus')));
+      run.gold += gold; updateTop();
+      document.getElementById('eventTitle').textContent = '💎 보물 발견! +💰' + gold;
+      document.getElementById('eventSub').textContent = '모든 유물을 보유 중 — 추가 골드를 얻었습니다.';
+      document.getElementById('eventChoices').innerHTML = '<button class="btn primary" id="evGo">계속</button>';
+      show('eventScreen'); return;
     }
+    var prize = TCG.pick(avail);
+    pendingTreasureRelic = prize;
+    document.getElementById('eventTitle').textContent = '💎 보물 발견!';
+    document.getElementById('eventSub').innerHTML = '🃏 <b>히어로즈 블러드</b>에서 <b>승리</b>하면 이 유물을 획득합니다';
+    document.getElementById('eventChoices').innerHTML =
+      '<div class="reward-card" style="pointer-events:none"><div class="rc-emoji">' + prize.emoji + '</div><div class="rc-name">' + prize.name + '</div><div class="rc-skill">' + prize.desc + '</div></div>' +
+      '<div style="width:100%;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:6px">' +
+        '<button class="btn primary" id="evChallenge">🃏 히어로즈 블러드 도전</button>' +
+        '<button class="btn ghost" id="evSkip">그냥 떠나기</button>' +
+      '</div>';
     show('eventScreen');
   }
   document.getElementById('eventChoices').addEventListener('click', function (e) {
-    var card = e.target.closest('.reward-card');
-    if (card) { var r = HW_RELICS.find(function (x) { return x.id === card.dataset.relic; }); run.relics.push(r); TCG.toast('유물 획득: ' + r.name); advanceStage(); return; }
-    if (e.target.id === 'evSkip' || e.target.id === 'evGo') advanceStage();
+    if (e.target.id === 'evChallenge') {
+      if (pendingTreasureRelic) {
+        try { localStorage.setItem('hw_treasure_relic', JSON.stringify({ id: pendingTreasureRelic.id, name: pendingTreasureRelic.name, emoji: pendingTreasureRelic.emoji })); } catch (e2) {}
+      }
+      advanceStage();              // 진행 상황 저장(다음 출진으로)
+      location.href = 'queensblood.html?treasure=1';
+      return;
+    }
+    if (e.target.id === 'evSkip' || e.target.id === 'evGo') { pendingTreasureRelic = null; advanceStage(); }
   });
 
   /* ---------- end states ---------- */

@@ -362,6 +362,20 @@
   function curStreak() { try { return parseInt(localStorage.getItem('qb_winstreak') || '0', 10) || 0; } catch (e) { return 0; } }
   function hasOracle() { try { var c = JSON.parse(localStorage.getItem('hw_collected_heroes') || '[]'); return Array.isArray(c) && c.indexOf('oracle') !== -1; } catch (e) { return false; } }
   function hasEdict() { try { var c = JSON.parse(localStorage.getItem('hw_collected_relics') || '[]'); return Array.isArray(c) && c.indexOf('edict') !== -1; } catch (e) { return false; } }
+  // 영웅전 보물 이벤트 도전 모드(?treasure=1): 승리 시 지정 유물을 영웅전으로 지급
+  function treasureChallenge() {
+    if (!/[?&]treasure=1/.test(location.search)) return null;
+    try { var raw = localStorage.getItem('hw_treasure_relic'); return raw ? JSON.parse(raw) : null; } catch (e) { return null; }
+  }
+  function grantTreasureRelic(t) {
+    try {
+      var rg = JSON.parse(localStorage.getItem('hw_grant_relics') || '[]'); if (!Array.isArray(rg)) rg = [];
+      if (rg.indexOf(t.id) === -1) rg.push(t.id);
+      localStorage.setItem('hw_grant_relics', JSON.stringify(rg));
+      var rc = JSON.parse(localStorage.getItem('hw_collected_relics') || '[]'); if (!Array.isArray(rc)) rc = [];
+      if (rc.indexOf(t.id) === -1) { rc.push(t.id); localStorage.setItem('hw_collected_relics', JSON.stringify(rc)); }
+    } catch (e) {}
+  }
   function endGame() {
     state.over = true;
     var s = scoreOf(state.board);
@@ -410,6 +424,19 @@
       updateWinStreak(false);
       text = '무력 총합이 같습니다.';
       goldHtml = '<div class="end-gold draw"><span class="eg-val">골드 정산 없음</span></div>';
+    }
+    var tc = treasureChallenge();
+    if (tc) {
+      try { localStorage.removeItem('hw_treasure_relic'); } catch (e) {}
+      if (s.you > s.foe) {
+        grantTreasureRelic(tc);
+        goldHtml += '<div class="end-gold gain"><span class="eg-label">🏺 보물 도전 성공</span>' +
+          '<span class="eg-val"><b>' + tc.emoji + ' ' + tc.name + '</b> 획득! 영웅전에서 받습니다</span></div>';
+      } else {
+        goldHtml += '<div class="end-gold loss"><span class="eg-label">🏺 보물 도전 실패</span>' +
+          '<span class="eg-val">' + tc.emoji + ' ' + tc.name + '을(를) 놓쳤습니다</span></div>';
+      }
+      goldHtml += '<div style="margin-top:8px;text-align:center"><a class="btn primary" href="heroes.html">🗺️ 영웅전으로 돌아가기</a></div>';
     }
     document.getElementById('endTitle').textContent = title;
     document.getElementById('endText').textContent = text;
@@ -757,4 +784,5 @@
   var diffPillEl = document.getElementById('diffPill'); if (diffPillEl) diffPillEl.textContent = '난이도 ' + TCG.diffLabel(diff);
   newGame();            // 배경 보드 준비
   openDeckBuilder();    // 진입 시 덱 구성 화면부터 보여주고 시작
+  (function () { var t = treasureChallenge(); if (t) TCG.toast('🏺 보물 도전 — 승리 시 ' + t.emoji + ' ' + t.name + ' 획득!'); })();
 })();
