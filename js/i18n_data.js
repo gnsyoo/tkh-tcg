@@ -22,7 +22,12 @@
     'map.relics': { ko: '✨ 추가 능력', en: '✨ Bonuses', ja: '✨ 追加能力', zh: '✨ 附加能力', zhTW: '✨ 附加能力' },
     'map.subInfo': { ko: '{year} · 서브 {n}/{max}', en: '{year} · Sortie {n}/{max}', ja: '{year} · サブ {n}/{max}', zh: '{year} · 出阵 {n}/{max}', zhTW: '{year} · 出陣 {n}/{max}' },
     'map.bossTag': { ko: ' · 적장전', en: ' · Commander', ja: ' · 敵将戦', zh: ' · 敌将战', zhTW: ' · 敵將戰' },
-    'ui.goldGet': { ko: '+{n} 골드 획득!', en: '+{n} gold!', ja: '+{n} ゴールド獲得！', zh: '+{n} 金币！', zhTW: '+{n} 金幣！' }
+    'ui.goldGet': { ko: '+{n} 골드 획득!', en: '+{n} gold!', ja: '+{n} ゴールド獲得！', zh: '+{n} 金币！', zhTW: '+{n} 金幣！' },
+    // 전투(영웅전·대장전 공용)
+    'cmb.attack': { ko: '기본 공격', en: 'Attack', ja: '通常攻撃', zh: '普通攻击', zhTW: '普通攻擊' },
+    'cmb.cancel': { ko: '취소', en: 'Cancel', ja: 'キャンセル', zh: '取消', zhTW: '取消' },
+    'cmb.applied': { ko: '✓ 적용됨', en: '✓ Applied', ja: '✓ 適用済', zh: '✓ 已应用', zhTW: '✓ 已套用' },
+    'cmb.dmg': { ko: '피해', en: 'DMG', ja: 'ダメージ', zh: '伤害', zhTW: '傷害' }
   });
 
   if (lang === 'ko') return; // 한국어는 데이터 원본 그대로(UI 사전은 위에서 등록 완료)

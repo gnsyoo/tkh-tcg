@@ -1094,15 +1094,15 @@
     var buffDone = sk.type === 'buff' && sk.scope === 'army' && c.buffApplied && c.buffApplied[h.uid]; // 전군 버프는 전투당 1회
     var mp = skillMp(sk);
     var canSkill = !buffDone && c.lord.mp >= mp;
-    var mpLabel = buffDone ? '✓ 적용됨' : ('💧' + mp);
+    var mpLabel = buffDone ? TCG.t('cmb.applied') : ('💧' + mp);
     var critPct = Math.round(critChance(h) * 100);
     var tgt = c.targeting && c.pending; // 대상 지정 중 — 선택한 행동을 강조
     var atkSel = tgt && c.pending.kind === 'attack', skSel = tgt && c.pending.kind === 'skill';
     bar.hidden = false;
     bar.innerHTML =
-      '<button class="act-btn' + (atkSel ? ' chosen' : '') + '" data-act="attack">기본 공격<small>피해 ' + effAtk(h) + (hasWpnFlag(h, 'doubleStrike') ? ' ×2' : '') + (wpnVal(h, 'poison') ? ' ☠' + wpnVal(h, 'poison') : '') + (critPct > 1 ? ' 💥' + critPct + '%' : '') + '</small></button>' +
+      '<button class="act-btn' + (atkSel ? ' chosen' : '') + '" data-act="attack">' + TCG.t('cmb.attack') + '<small>' + TCG.t('cmb.dmg') + ' ' + effAtk(h) + (hasWpnFlag(h, 'doubleStrike') ? ' ×2' : '') + (wpnVal(h, 'poison') ? ' ☠' + wpnVal(h, 'poison') : '') + (critPct > 1 ? ' 💥' + critPct + '%' : '') + '</small></button>' +
       '<button class="act-btn skill' + (skSel ? ' chosen' : '') + '" data-act="skill"' + (canSkill ? '' : ' disabled') + '>' + sk.name + '<small>' + mpLabel + ' · ' + sk.desc + '</small></button>' +
-      '<button class="act-btn cancel" data-act="cancel">취소</button>';
+      '<button class="act-btn cancel" data-act="cancel">' + TCG.t('cmb.cancel') + '</button>';
   }
 
   // input — 적장만 대상 선택(아군 스킬은 주공에게 자동 적용)

@@ -158,7 +158,31 @@
     uiToMenu: { ko: '← 메뉴로', en: '← Menu', ja: '← メニューへ', zh: '← 返回菜单', zhTW: '← 返回選單' },
     uiToHeroes: { ko: '🗺️ 영웅전', en: '🗺️ Heroes', ja: '🗺️ 英雄伝', zh: '🗺️ 英雄传', zhTW: '🗺️ 英雄傳' },
     qbDeck: { ko: '🃏 덱 구성', en: '🃏 Deck', ja: '🃏 デッキ編成', zh: '🃏 卡组', zhTW: '🃏 牌組' },
-    qbRules: { ko: '📜 규칙', en: '📜 Rules', ja: '📜 ルール', zh: '📜 规则', zhTW: '📜 規則' }
+    qbRules: { ko: '📜 규칙', en: '📜 Rules', ja: '📜 ルール', zh: '📜 规则', zhTW: '📜 規則' },
+
+    /* 인게임 정적 화면(영웅전 — 지도/전투/보상/휴식/상점/주막/시작/결과) */
+    uiOfficers: { ko: '장수', en: 'Officers', ja: '武将', zh: '武将', zhTW: '武將' },
+    uiGear: { ko: '장비', en: 'Gear', ja: '装備', zh: '装备', zhTW: '裝備' },
+    uiCodexBtn: { ko: '📖 도감', en: '📖 Codex', ja: '📖 図鑑', zh: '📖 图鉴', zhTW: '📖 圖鑑' },
+    uiCombatHint: { ko: '영웅을 선택해 행동하세요', en: 'Select an officer to act', ja: '武将を選んで行動', zh: '选择武将进行行动', zhTW: '選擇武將進行行動' },
+    uiEndTurn: { ko: '턴 종료', en: 'End Turn', ja: 'ターン終了', zh: '结束回合', zhTW: '結束回合' },
+    uiRewardSkip: { ko: '건너뛰기 (골드만 받기)', en: 'Skip (gold only)', ja: 'スキップ（ゴールドのみ）', zh: '跳过（仅金币）', zhTW: '跳過（僅金幣）' },
+    uiRestTitle: { ko: '🔥 모닥불', en: '🔥 Campfire', ja: '🔥 焚き火', zh: '🔥 篝火', zhTW: '🔥 篝火' },
+    uiRestSub: { ko: '잠시 휴식을 취합니다', en: 'Take a short rest', ja: 'しばし休息します', zh: '稍作休息', zhTW: '稍作休息' },
+    uiRestHeal: { ko: '휴식', en: 'Rest', ja: '休息', zh: '休息', zhTW: '休息' },
+    uiRestHealD: { ko: '파티 전원 HP 40% 회복', en: 'Whole party restores 40% HP', ja: '味方全員HP40%回復', zh: '全队恢复40%HP', zhTW: '全隊恢復40%HP' },
+    uiRestTrain: { ko: '단련', en: 'Train', ja: '鍛錬', zh: '锻炼', zhTW: '鍛鍊' },
+    uiRestTrainD: { ko: '영웅 1명 최대 HP +6, 공격력 +2', en: 'One officer +6 max HP, +2 ATK', ja: '武将1人 最大HP+6・攻撃+2', zh: '1名武将 最大HP+6、攻击+2', zhTW: '1名武將 最大HP+6、攻擊+2' },
+    uiLeave: { ko: '← 떠나기', en: '← Leave', ja: '← 立ち去る', zh: '← 离开', zhTW: '← 離開' },
+    uiShopTitle: { ko: '🛒 상점', en: '🛒 Shop', ja: '🛒 商店', zh: '🛒 商店', zhTW: '🛒 商店' },
+    uiShopSub: { ko: '골드로 무기·보물·소모품을 구매하세요 (장수는 주막에서)', en: 'Buy weapons·treasures·items with gold (officers at the Tavern)', ja: 'ゴールドで武器・宝物・消耗品を購入（武将は酒場）', zh: '用金币购买武器·宝物·消耗品（武将在酒馆）', zhTW: '用金幣購買武器·寶物·消耗品（武將在酒館）' },
+    uiTavernTitle: { ko: '🏮 주막', en: '🏮 Tavern', ja: '🏮 酒場', zh: '🏮 酒馆', zhTW: '🏮 酒館' },
+    uiTavernSub: { ko: '골드로 장수를 영입하세요 (스테이지를 진행하면 명단이 바뀝니다)', en: 'Recruit officers with gold (roster changes as you progress)', ja: 'ゴールドで武将を登用（進行で名簿が変化）', zh: '用金币招募武将（推进后名单会变化）', zhTW: '用金幣招募武將（推進後名單會變化）' },
+    uiStartTitle: { ko: '🗺️ 삼국 영웅전', en: '🗺️ Three Kingdoms: Heroes', ja: '🗺️ 三国英雄伝', zh: '🗺️ 三国英雄传', zhTW: '🗺️ 三國英雄傳' },
+    uiContinue: { ko: '이어하기', en: 'Continue', ja: 'つづきから', zh: '继续游戏', zhTW: '繼續遊戲' },
+    uiNewRunLabel: { ko: '새 모험 — 모드 선택', en: 'New Adventure — Select Mode', ja: '新たな冒険 — モード選択', zh: '新冒险 — 选择模式', zhTW: '新冒險 — 選擇模式' },
+    uiNewRun: { ko: '새 모험', en: 'New Adventure', ja: '新たな冒険', zh: '新冒险', zhTW: '新冒險' },
+    uiMenu: { ko: '메뉴로', en: 'Menu', ja: 'メニューへ', zh: '返回菜单', zhTW: '返回選單' }
   };
 
   function get(lang, key) {
