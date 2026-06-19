@@ -686,7 +686,11 @@
     document.getElementById('codexDetailClose').addEventListener('click', function () { dm.hidden = true; });
     dm.addEventListener('click', function (e) { if (e.target === dm) dm.hidden = true; });
   })();
-  document.getElementById('codexBack').addEventListener('click', function () { TCG.sfx('tap'); document.getElementById('codexModal').hidden = true; });
+  var codexOnBack = null; // 홈→도감 진입 시, 도감을 닫으면 영웅전 정상 진입을 지연 실행
+  document.getElementById('codexBack').addEventListener('click', function () {
+    TCG.sfx('tap'); document.getElementById('codexModal').hidden = true;
+    if (codexOnBack) { var f = codexOnBack; codexOnBack = null; f(); }
+  });
   document.getElementById('restParty').addEventListener('click', onMiniClick);
   function onMiniClick(e) {
     var m = e.target.closest('.mini-hero'); if (!m) return;
@@ -1998,22 +2002,38 @@
   document.getElementById('newRunBtn').addEventListener('click', function () { startNew('normal'); }); // 호환
   renderModeSel();
   var multiMode = HW_MODE_ORDER.filter(isModeUnlocked).length > 1;
-  if (saved && /[?&]resume=1/.test(location.search)) {
-    // 보물 도전 등에서 복귀 — 시작 모달 없이 자동 이어하기
-    TCG.audioResume(); resumeRun(saved);
-  } else if (saved) {
-    var sst = HW_STAGES[Math.min(saved.mainStage || 0, HW_STAGES.length - 1)];
-    var smd = HW_MODES[saved.mode] || HW_MODES.normal;
-    document.getElementById('continueBtn').hidden = false;
-    document.getElementById('startText').textContent =
-      '진행 중: ' + smd.emoji + smd.label + ' · ' + ((saved.mainStage || 0) + 1) + '. ' + (sst ? sst.name : '') + ' 서브 ' + ((saved.subStage || 0) + 1) + '/' + SUB_COUNT + ' · 장수 ' + saved.party.length + '명';
-    document.getElementById('startModal').hidden = false;
-  } else if (multiMode) {
-    // 저장은 없지만 상위 모드가 해금됨 → 모드 선택 화면
-    document.getElementById('continueBtn').hidden = true;
-    document.getElementById('startText').textContent = '도전할 모드를 선택하세요.';
-    document.getElementById('startModal').hidden = false;
+  function normalBoot() {
+    if (saved && /[?&]resume=1/.test(location.search)) {
+      // 보물 도전 등에서 복귀 — 시작 모달 없이 자동 이어하기
+      TCG.audioResume(); resumeRun(saved);
+    } else if (saved) {
+      var sst = HW_STAGES[Math.min(saved.mainStage || 0, HW_STAGES.length - 1)];
+      var smd = HW_MODES[saved.mode] || HW_MODES.normal;
+      document.getElementById('continueBtn').hidden = false;
+      document.getElementById('startText').textContent =
+        '진행 중: ' + smd.emoji + smd.label + ' · ' + ((saved.mainStage || 0) + 1) + '. ' + (sst ? sst.name : '') + ' 서브 ' + ((saved.subStage || 0) + 1) + '/' + SUB_COUNT + ' · 장수 ' + saved.party.length + '명';
+      document.getElementById('startModal').hidden = false;
+    } else if (multiMode) {
+      // 저장은 없지만 상위 모드가 해금됨 → 모드 선택 화면
+      document.getElementById('continueBtn').hidden = true;
+      document.getElementById('startText').textContent = '도전할 모드를 선택하세요.';
+      document.getElementById('startModal').hidden = false;
+    } else {
+      newRun('normal'); // 첫 플레이(노멀만 해금) → 바로 시작
+    }
+  }
+  // 홈 화면 하단 탭에서 진입: ?go=codex|shop|tavern
+  var goParam = (location.search.match(/[?&]go=(codex|shop|tavern)/) || [])[1];
+  if (goParam === 'shop' || goParam === 'tavern') {
+    // 상점·주막은 진행 중 모험이 필요 — 저장이 있으면 이어하기, 없으면 새 모험 시작
+    TCG.audioResume();
+    if (saved) resumeRun(saved); else newRun('normal');
+    if (goParam === 'shop') showShop(); else showTavern();
+  } else if (goParam === 'codex') {
+    // 도감은 모험과 무관하게 열람 — 시작 모달 없이 바로 도감, 닫으면 정상 진입
+    codexOnBack = normalBoot;
+    openCodex('hero');
   } else {
-    newRun('normal'); // 첫 플레이(노멀만 해금) → 바로 시작
+    normalBoot();
   }
 })();
