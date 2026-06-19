@@ -289,48 +289,70 @@
   function renderCampaign() {
     var m = run.mainStage, s = run.subStage, st = HW_STAGES[m];
     var isBoss = s === SUB_COUNT - 1;
+    var A = 'assets/img/heroes/';
+    var maxHp = lordMaxHp(), maxMp = lordMaxMp();
+    var hp = (run.lordHp != null ? run.lordHp : maxHp), mp = (run.lordMp != null ? run.lordMp : maxMp);
+    var hpPct = Math.max(0, Math.min(100, Math.round(hp / maxHp * 100)));
+    var mpPct = Math.max(0, Math.min(100, Math.round(mp / Math.max(1, maxMp) * 100)));
     // 메인 전역 칩 (해금/진행/평정)
     var chips = HW_STAGES.map(function (x, i) {
       var cl = i < m ? 'done' : (i === m ? 'current' : 'locked');
-      return '<div class="main-chip ' + cl + '">' + (i < m ? '✔' : (i === m ? (i + 1) : '🔒')) + '</div>';
+      return '<div class="wr-camp ' + cl + '">' + (i < m ? '✔' : (i === m ? (i + 1) : '')) + '</div>';
     }).join('');
-    // 서브 출진 경로 노드 (스테이지 맵)
-    var dots = '';
+    // 스테이지 타임라인 (11)
+    var rows = '';
     for (var i = 0; i < SUB_COUNT; i++) {
       var state = i < s ? 'done' : (i === s ? 'current' : 'locked');
-      var isMidDot = (i === 4 || i === 9);
-      var isBossDot = (i === SUB_COUNT - 1);
-      var type = isBossDot ? 'boss' : (isMidDot ? 'mid' : 'normal');
-      var icon = isBossDot ? '👑' : (isMidDot ? '🏯' : '⚔️');
-      var clickable = isMidDot || isBossDot; // 중간보스·적장 칸은 탭하면 적 정보
-      dots += '<div class="stage-node ' + type + ' ' + state + (clickable ? ' info' : '') + '"' +
-        (clickable ? ' data-sub="' + i + '"' : '') + '>' +
-          '<span class="sn-badge">' + (i + 1) + '</span>' +
-          '<span class="sn-icon">' + (state === 'done' ? '✔' : icon) + '</span>' +
-          (state === 'current' ? '<span class="sn-here">📍</span>' : '') +
+      var isMid = (i === 4 || i === 9), isB = (i === SUB_COUNT - 1);
+      var type = isB ? 'boss' : (isMid ? 'elite' : 'normal');
+      var name, kind;
+      if (isB) { name = HW_COMMANDERS[st.boss] ? HW_COMMANDERS[st.boss].name : '전역 보스'; kind = (i + 1) + '스테이지 · 전역 보스'; }
+      else if (isMid) { var mb = (HW_MID_BOSSES[m] || [])[i === 9 ? 1 : 0]; name = mb ? mb.name : '정예'; kind = (i + 1) + '스테이지 · 정예(중간보스)'; }
+      else { name = (st.regions && st.regions[i]) ? st.regions[i] : ((i + 1) + '스테이지'); kind = (m + 1) + '전역 · ' + (i + 1) + '스테이지 · 전투'; }
+      var marker = isB
+        ? '<svg width="26" height="26" viewBox="0 0 24 24"><path d="M3 8l4 3 5-6 5 6 4-3-2 12H5z" fill="#f0c33c"/></svg>'
+        : '<img src="' + A + (isMid ? 'ic-ninja' : 'ic-tower') + '.png" alt="">';
+      var clickable = isMid || isB;
+      rows += '<div class="wr-row ' + type + ' ' + state + (clickable ? ' info' : '') + '"' + (clickable ? ' data-sub="' + i + '"' : '') + '>' +
+          '<div class="wr-mark">' + marker + (state === 'done' ? '<span class="wr-done">✔</span>' : '') + '</div>' +
+          '<div class="wr-row-body">' +
+            '<div class="wr-kind">' + kind + '</div>' +
+            '<div class="wr-name">' + name + '</div>' +
+          '</div>' +
+          (state === 'current' ? '<span class="wr-march" data-act="battle">진군</span>'
+            : (isB ? '<span class="wr-badge boss">BOSS</span>' : (isMid ? '<span class="wr-badge elite">정예</span>' : ''))) +
         '</div>';
     }
-    var battleLabel = isBoss ? TCG.t('map.battleBoss', { name: HW_COMMANDERS[st.boss].name }) : TCG.t('map.battle', { n: s + 1, max: SUB_COUNT });
     var html =
-      '<div class="main-chips">' + chips + '</div>' +
-      '<div class="main-banner' + (isBoss ? ' boss' : '') + '"><span class="mb-no">' + (m + 1) + '</span>' +
-        '<div class="mb-title"><b>' + st.name + '</b>' + ((st.regions && st.regions[s]) ? '<span class="mb-region">📍 ' + st.regions[s] + '</span>' : '') + '<small>' + TCG.t('map.subInfo', { year: st.year, n: s + 1, max: SUB_COUNT }) + (isBoss ? TCG.t('map.bossTag') : '') + '</small></div></div>' +
-      '<p class="cs-desc">' + st.desc + '</p>' +
-      '<div class="sub-dots">' + dots + '</div>' +
-      '<div class="cs-actions">' +
-        '<button class="camp-btn primary" data-act="battle">' + battleLabel + '</button>' +
-        '<button class="camp-btn" data-act="formation">' + TCG.t('camp.formation') + '</button>' +
-        '<button class="camp-btn" data-act="shop">' + TCG.t('camp.shop') + '</button>' +
-        '<button class="camp-btn" data-act="tavern">' + TCG.t('camp.tavern') + '</button>' +
+      '<div class="wr-top">' +
+        '<div class="wr-chip gold"><img src="' + A + 'coin-gold2.png" alt=""><b>' + run.gold + '</b></div>' +
+        '<span class="wr-spacer"></span>' +
+        '<button class="wr-chip" data-act="roster"><img src="' + A + 'ic-general.png" alt=""><b>' + run.party.length + '</b></button>' +
+        '<button class="wr-chip" data-act="gear"><img src="' + A + 'ic-swords.png" alt=""><b>' + (run.weapons || []).length + '</b></button>' +
       '</div>' +
-      '<div class="map-lord-status">' +
-        '<span class="mls hp">❤ ' + (run.lordHp != null ? run.lordHp : lordMaxHp()) + ' / ' + lordMaxHp() + '</span>' +
-        '<span class="mls mp">💧 ' + (run.lordMp != null ? run.lordMp : lordMaxMp()) + ' / ' + lordMaxMp() + '</span>' +
-        '<span class="mls relic relic-pick" title="탭하면 추가 능력 상세">' + TCG.t('map.relics') + '</span>' +
+      '<div class="wr-camps">' + chips + '</div>' +
+      '<div class="wr-banner' + (isBoss ? ' boss' : '') + '"><span class="wr-bno">' + (m + 1) + '</span>' +
+        '<div class="wr-btitle"><b>' + st.name + '</b><small>' + TCG.t('map.subInfo', { year: st.year, n: s + 1, max: SUB_COUNT }) + '</small></div></div>' +
+      '<div class="wr-lord">' +
+        '<div class="wr-bar"><span class="wr-bl hp">HP</span><div class="wr-track"><i class="hp" style="width:' + hpPct + '%"></i></div><span class="wr-bv">' + hp + '/' + maxHp + '</span></div>' +
+        '<div class="wr-bar"><span class="wr-bl mp">MP</span><div class="wr-track"><i class="mp" style="width:' + mpPct + '%"></i></div><span class="wr-bv">' + mp + '/' + maxMp + '</span></div>' +
+        '<div class="wr-lbtns">' +
+          '<button data-act="roster"><img src="' + A + 'ic-general.png" alt="">' + TCG.t('camp.officers') + '</button>' +
+          '<button data-act="gear"><img src="' + A + 'ic-swords.png" alt="">' + TCG.t('camp.gear') + '</button>' +
+          '<button data-act="relic"><img src="' + A + 'ic-gear.png" alt="">' + TCG.t('camp.bonus') + '</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="wr-timeline"><div class="wr-line"></div>' + rows + '</div>' +
+      '<div class="wr-actions">' +
+        '<button class="wr-act primary" data-act="battle"><img src="' + A + 'ped-chuljin.png" alt="">' + TCG.t('camp.battle') + '</button>' +
+        '<button class="wr-act" data-act="formation"><img src="' + A + 'ped-jinhyeong.png" alt="">' + TCG.t('camp.formation') + '</button>' +
+        '<button class="wr-act" data-act="shop"><img src="' + A + 'ped-shop.png" alt="">' + TCG.t('camp.shop') + '</button>' +
+        '<button class="wr-act" data-act="tavern"><img src="' + A + 'ped-tavern.png" alt="">' + TCG.t('camp.tavern') + '</button>' +
+        '<button class="wr-act" data-act="codex"><img src="' + A + 'ped-codex.png" alt="">' + TCG.t('camp.codex') + '</button>' +
       '</div>';
     document.getElementById('mapTrack').innerHTML = html;
-    document.getElementById('rosterCount').textContent = run.party.length;
-    document.getElementById('gearCount').textContent = (run.weapons || []).length;
+    var rc = document.getElementById('rosterCount'); if (rc) rc.textContent = run.party.length;
+    var gc = document.getElementById('gearCount'); if (gc) gc.textContent = (run.weapons || []).length;
   }
   // 추가 능력 상세 팝업 — 유물 효과 + 아이템(장비)으로 적용되는 주공 능력치
   function statRow(label, val, bonus) {
@@ -360,18 +382,22 @@
     document.getElementById('heroModalClose').addEventListener('click', function () { modal.hidden = true; });
   }
   document.getElementById('mapTrack').addEventListener('click', function (e) {
-    var rp = e.target.closest('.relic-pick');
-    if (rp) { TCG.sfx('tap'); showRelicsInfo(); return; } // ✨ 적용 유물 상세
-    var dot = e.target.closest('.stage-node.info');
-    if (dot) { TCG.sfx('tap'); showStageEnemyInfo(parseInt(dot.dataset.sub, 10)); return; } // 중간보스/적장 정보
-    var btn = e.target.closest('.camp-btn');
-    if (!btn || btn.disabled) return;
-    var act = btn.dataset.act;
-    TCG.sfx('tap');
-    if (act === 'battle') return startStageCombat();
-    if (act === 'formation') return openFormation();
-    if (act === 'shop') return showShop();
-    if (act === 'tavern') return showTavern();
+    var btn = e.target.closest('[data-act]');
+    if (btn && !btn.disabled) {
+      var act = btn.dataset.act;
+      TCG.sfx('tap');
+      if (act === 'battle') return startStageCombat();
+      if (act === 'formation') return openFormation();
+      if (act === 'shop') return showShop();
+      if (act === 'tavern') return showTavern();
+      if (act === 'roster') return openRoster();
+      if (act === 'gear') return openGear();
+      if (act === 'relic') return showRelicsInfo();
+      if (act === 'codex') return openCodex('hero');
+      return;
+    }
+    var dot = e.target.closest('.wr-row.info'); // 정예/보스 스테이지 → 적 정보 미리보기
+    if (dot) { TCG.sfx('tap'); showStageEnemyInfo(parseInt(dot.dataset.sub, 10)); return; }
   });
   // 첫 화면에서 중간보스/적장 칸 탭 → 적 정보 팝업
   function showStageEnemyInfo(sub) {
@@ -532,8 +558,8 @@
     document.getElementById('gearList').innerHTML = html;
     document.getElementById('gearModal').hidden = false;
   }
-  document.getElementById('rosterBtn').addEventListener('click', openRoster);
-  document.getElementById('gearBtn').addEventListener('click', openGear);
+  var _rb = document.getElementById('rosterBtn'); if (_rb) _rb.addEventListener('click', openRoster);
+  var _gb = document.getElementById('gearBtn'); if (_gb) _gb.addEventListener('click', openGear);
   document.getElementById('rosterSort').addEventListener('click', function (e) { var b = e.target.closest('.sort-btn'); if (!b) return; TCG.sfx('tap'); applySortClick(rosterSort, b.dataset.sort); renderRoster(); });
   document.getElementById('formationSort').addEventListener('click', function (e) { var b = e.target.closest('.sort-btn'); if (!b) return; TCG.sfx('tap'); applySortClick(formSort, b.dataset.sort); renderFormationGrid(); });
   document.getElementById('heroColSort').addEventListener('click', function (e) { var b = e.target.closest('.sort-btn'); if (!b) return; TCG.sfx('tap'); applySortClick(codexSort, b.dataset.sort); renderHeroCodex(); });
@@ -642,7 +668,7 @@
     showCodexTab(tab || 'hero');
     document.getElementById('codexModal').hidden = false;
   }
-  document.getElementById('codexBtn').addEventListener('click', function () { openCodex('hero'); });
+  var _cb = document.getElementById('codexBtn'); if (_cb) _cb.addEventListener('click', function () { openCodex('hero'); });
   document.getElementById('codexTabHero').addEventListener('click', function () { TCG.sfx('tap'); showCodexTab('hero'); });
   document.getElementById('codexTabWeapon').addEventListener('click', function () { TCG.sfx('tap'); showCodexTab('weapon'); });
   document.getElementById('codexTabRelic').addEventListener('click', function () { TCG.sfx('tap'); showCodexTab('relic'); });
