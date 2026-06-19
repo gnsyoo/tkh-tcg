@@ -4,11 +4,14 @@
   min-height: 100dvh;
   background: var(--bg-0);
   padding: 0;
+  /* 세로가 길면 꽉 차고, 가로가 길면(가로 > 세로*0.8) 중앙 컬럼으로 제한 */
+  --home-col: calc(100dvh * 0.8);
 }
 .home-app {
   position: relative;
   margin: 0 auto;
   width: 100%;
+  max-width: var(--home-col);
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
@@ -25,8 +28,8 @@
     repeating-linear-gradient(0deg, rgba(0,0,0,.18) 0 2px, transparent 2px 4px);
 }
 
-/* ── 키 비주얼 (폭에 비례해 높이 조절 — 이미지는 object-fit:cover로 비율 유지) ── */
-.kv { position: relative; flex: none; height: 60vw; max-height: 420px; overflow: hidden; z-index: 1; }
+/* ── 키 비주얼 (컬럼 폭에 비례해 높이 결정 — 이미지는 object-fit:cover로 비율 유지) ── */
+.kv { position: relative; flex: none; width: 100%; aspect-ratio: 16 / 10; max-height: 55dvh; overflow: hidden; z-index: 1; }
 .kv-img { width: 100%; height: 100%; object-fit: cover; object-position: center 28%; display: block; }
 .kv-fade {
   position: absolute; inset: 0; pointer-events: none;
@@ -93,8 +96,8 @@
 
 /* ── 하단 탭바 ── */
 .tabbar {
-  position: fixed; left: 0; right: 0; bottom: 0;
-  z-index: 80; width: 100%; flex: none;
+  position: fixed; left: 50%; bottom: 0; transform: translateX(-50%);
+  z-index: 80; width: 100%; max-width: var(--home-col); flex: none;
   display: flex; padding: 10px 4px calc(14px + env(safe-area-inset-bottom));
   background: linear-gradient(0deg, rgba(8,4,3,.96), rgba(8,4,3,.62));
   border-top: 1px solid rgba(240,195,60,.16);
@@ -122,8 +125,8 @@
 }
 .ss-backdrop.open { opacity: 1; }
 .settings-sheet {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 121;
-  width: 100%; transform: translateY(100%);
+  position: fixed; left: 50%; bottom: 0; z-index: 121;
+  width: 100%; max-width: var(--home-col); transform: translate(-50%, 100%);
   background: linear-gradient(180deg, #1f1411, #140d0b);
   border-top: 1.5px solid rgba(240,195,60,.35);
   border-radius: 22px 22px 0 0;
@@ -131,7 +134,7 @@
   padding: 8px 12px calc(16px + env(safe-area-inset-bottom));
   transition: transform .24s cubic-bezier(.22,.61,.36,1);
 }
-.settings-sheet.open { transform: translateY(0); }
+.settings-sheet.open { transform: translate(-50%, 0); }
 .ss-handle { width: 38px; height: 4px; border-radius: 2px; background: rgba(240,195,60,.4); margin: 6px auto 10px; }
 .ss-head {
   display: flex; align-items: center; gap: 8px;

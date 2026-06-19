@@ -1,5 +1,6 @@
 /* ===== Heroes Wanted ===== */
-.hw-main { max-width: 820px; margin: 0 auto; padding: 12px 12px 28px; }
+/* 세로가 길면 최대 820px까지, 가로가 길면 화면 높이에 비례해 중앙 컬럼으로 제한 */
+.hw-main { max-width: min(820px, calc(100dvh * 0.95)); margin: 0 auto; padding: 12px 12px 28px; }
 /* 정렬 바(도감·수집·출진 덱 편성) */
 .sort-bar { display: flex; align-items: center; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 2px 0 10px; }
 .sort-bar .sort-label { font-size: 12px; color: var(--ink-dim); margin-right: 2px; }
