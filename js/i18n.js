@@ -186,7 +186,25 @@
     uiToList: { ko: '목록으로', en: 'Back to List', ja: '一覧へ', zh: '返回列表', zhTW: '返回列表' },
     uiCmbCardHint: { ko: '가운데 카드를 선택해 공격하세요', en: 'Pick a center card to attack', ja: '中央のカードを選んで攻撃', zh: '选择中央卡牌进攻', zhTW: '選擇中央卡牌進攻' },
     uiRaidTitle: { ko: '👹 대장전 (레이드)', en: '👹 Raid', ja: '👹 大将戦（レイド）', zh: '👹 大将战（团队）', zhTW: '👹 大將戰（團隊）' },
-    uiRaidSub: { ko: '영웅전 덱으로 거대 보스에 도전 — 격파 시 전용 장수를 획득합니다. <b>보스 카드를 탭하면 정보</b>를 봅니다.', en: 'Challenge giant bosses with your Heroes deck — defeat one to recruit an exclusive officer. <b>Tap a boss card for info</b>.', ja: '英雄伝のデッキで巨大ボスに挑戦 — 撃破で専用武将を獲得。<b>ボスカードをタップで情報</b>。', zh: '用英雄传卡组挑战巨型首领 — 击破获得专属武将。<b>点击首领卡查看信息</b>。', zhTW: '用英雄傳牌組挑戰巨型首領 — 擊破獲得專屬武將。<b>點擊首領卡查看資訊</b>。' }
+    uiRaidSub: { ko: '영웅전 덱으로 거대 보스에 도전 — 격파 시 전용 장수를 획득합니다. <b>보스 카드를 탭하면 정보</b>를 봅니다.', en: 'Challenge giant bosses with your Heroes deck — defeat one to recruit an exclusive officer. <b>Tap a boss card for info</b>.', ja: '英雄伝のデッキで巨大ボスに挑戦 — 撃破で専用武将を獲得。<b>ボスカードをタップで情報</b>。', zh: '用英雄传卡组挑战巨型首领 — 击破获得专属武将。<b>点击首领卡查看信息</b>。', zhTW: '用英雄傳牌組挑戰巨型首領 — 擊破獲得專屬武將。<b>點擊首領卡查看資訊</b>。' },
+
+    /* 히어로즈 블러드 정적 화면 */
+    qbFoe: { ko: '🤖 상대', en: '🤖 Opponent', ja: '🤖 相手', zh: '🤖 对手', zhTW: '🤖 對手' },
+    qbYou: { ko: '🧑 당신', en: '🧑 You', ja: '🧑 あなた', zh: '🧑 你', zhTW: '🧑 你' },
+    qbPass: { ko: '패스', en: 'Pass', ja: 'パス', zh: '过牌', zhTW: '過牌' },
+    qbDeckTitle: { ko: '🃏 덱 구성', en: '🃏 Deck Build', ja: '🃏 デッキ編成', zh: '🃏 卡组构建', zhTW: '🃏 牌組構建' },
+    qbBoardSize: { ko: '판 크기', en: 'Board Size', ja: '盤面サイズ', zh: '棋盘大小', zhTW: '棋盤大小' },
+    qbDefaultDeck: { ko: '기본덱', en: 'Default', ja: '基本デッキ', zh: '默认卡组', zhTW: '預設牌組' },
+    qbSave: { ko: '저장', en: 'Save', ja: '保存', zh: '保存', zhTW: '儲存' },
+    qbStartDeck: { ko: '이 덱으로 시작', en: 'Start with this deck', ja: 'このデッキで開始', zh: '用此卡组开始', zhTW: '用此牌組開始' },
+    qbClose: { ko: '닫기', en: 'Close', ja: '閉じる', zh: '关闭', zhTW: '關閉' },
+    qbEndQ: { ko: '⚑ 게임 종료?', en: '⚑ End game?', ja: '⚑ ゲーム終了？', zh: '⚑ 结束游戏？', zhTW: '⚑ 結束遊戲？' },
+    qbEndText: { ko: '패스를 2번 하셨습니다. 게임을 종료하고 정산할까요?', en: 'You passed twice. End the game and settle?', ja: '2回パスしました。ゲームを終了して精算しますか？', zh: '你已过牌两次。结束游戏并结算吗？', zhTW: '你已過牌兩次。結束遊戲並結算嗎？' },
+    qbEndYes: { ko: '종료하고 정산', en: 'End & settle', ja: '終了して精算', zh: '结束并结算', zhTW: '結束並結算' },
+    qbEndNo: { ko: '계속하기', en: 'Keep playing', ja: '続ける', zh: '继续', zhTW: '繼續' },
+    qbAgain: { ko: '다시 하기', en: 'Play Again', ja: 'もう一度', zh: '再来一局', zhTW: '再來一局' },
+    qbRulesTitle: { ko: '📜 게임 규칙', en: '📜 Rules', ja: '📜 ゲームルール', zh: '📜 游戏规则', zhTW: '📜 遊戲規則' },
+    qbConfirm: { ko: '확인', en: 'OK', ja: 'OK', zh: '确定', zhTW: '確定' }
   };
 
   function get(lang, key) {

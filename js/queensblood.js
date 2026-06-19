@@ -381,7 +381,7 @@
     var s = scoreOf(state.board);
     var title, text, goldHtml = '';
     if (s.you > s.foe) {
-      title = '🏆 승리!';
+      title = TCG.t('qb.win');
       var streakNow = curStreak() + 1; // 이번 승리 포함 연승 수
       var bonus = Math.round(s.you * streakNow * 0.05); // 연승 보너스 = 무력 총합 × 연승 수 × 5%
       var gw = settleHeroesGold(s.you + bonus, true);
@@ -411,7 +411,7 @@
       }
       TCG.sfx('win');
     } else if (s.foe > s.you) {
-      title = '😢 패배';
+      title = TCG.t('qb.lose');
       var gl = settleHeroesGold(s.you, false);
       updateWinStreak(false);
       text = '상대의 무력 총합이 더 높았습니다. (연승 초기화)';
@@ -420,7 +420,7 @@
         '<span class="eg-val">삼국 영웅전 골드 <b>' + gl + '</b></span></div>';
       TCG.sfx('lose');
     } else {
-      title = '🤝 무승부';
+      title = TCG.t('qb.draw');
       updateWinStreak(false);
       text = '무력 총합이 같습니다.';
       goldHtml = '<div class="end-gold draw"><span class="eg-val">골드 정산 없음</span></div>';
@@ -460,7 +460,7 @@
     renderHand();
     renderStrips();
     var ti = document.getElementById('turnInd');
-    ti.textContent = state.over ? '게임 종료' : (state.turn === 'you' ? '당신의 턴' : '상대의 턴…');
+    ti.textContent = state.over ? TCG.t('qb.gameover') : (state.turn === 'you' ? TCG.t('qb.yourTurn') : TCG.t('qb.foeTurn'));
     ti.classList.toggle('foe-turn', state.turn === 'foe' && !state.over);
     document.getElementById('passBtn').disabled = state.over || state.turn !== 'you' || state.busy || state.awaitingEnd;
   }

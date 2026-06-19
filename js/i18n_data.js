@@ -42,7 +42,14 @@
     'cmb.raidBanner': { ko: '👹 {name} 레이드', en: '👹 {name} Raid', ja: '👹 {name} レイド', zh: '👹 {name} 团队战', zhTW: '👹 {name} 團隊戰' },
     'cmb.hintBossActing': { ko: '보스가 행동 중…', en: 'Boss acting…', ja: 'ボスが行動中…', zh: '首领行动中…', zhTW: '首領行動中…' },
     'cmb.hintStunned': { ko: '💫 행동 불가 — 턴 종료만 가능', en: '💫 Stunned — end turn only', ja: '💫 行動不能 — ターン終了のみ', zh: '💫 无法行动 — 仅可结束回合', zhTW: '💫 無法行動 — 僅可結束回合' },
-    'cmb.bossTurn': { ko: '보스의 턴', en: "Boss's turn", ja: 'ボスのターン', zh: '首领回合', zhTW: '首領回合' }
+    'cmb.bossTurn': { ko: '보스의 턴', en: "Boss's turn", ja: 'ボスのターン', zh: '首领回合', zhTW: '首領回合' },
+    // 히어로즈 블러드
+    'qb.yourTurn': { ko: '당신의 턴', en: 'Your turn', ja: 'あなたのターン', zh: '你的回合', zhTW: '你的回合' },
+    'qb.foeTurn': { ko: '상대의 턴…', en: "Opponent's turn…", ja: '相手のターン…', zh: '对手回合…', zhTW: '對手回合…' },
+    'qb.gameover': { ko: '게임 종료', en: 'Game over', ja: 'ゲーム終了', zh: '游戏结束', zhTW: '遊戲結束' },
+    'qb.win': { ko: '🏆 승리!', en: '🏆 Victory!', ja: '🏆 勝利！', zh: '🏆 胜利！', zhTW: '🏆 勝利！' },
+    'qb.lose': { ko: '😢 패배', en: '😢 Defeat', ja: '😢 敗北', zh: '😢 失败', zhTW: '😢 失敗' },
+    'qb.draw': { ko: '🤝 무승부', en: '🤝 Draw', ja: '🤝 引き分け', zh: '🤝 平局', zhTW: '🤝 平局' }
   });
 
   if (lang === 'ko') return; // 한국어는 데이터 원본 그대로(UI 사전은 위에서 등록 완료)
