@@ -325,12 +325,13 @@
   // 연승 보상: 3연승=제갈량(영웅전 전용 장수), 10연승=천자의 밀서(유물, 1회).
   // win=true 연승 누적, 아니면 0으로 초기화. 반환: { oracle, edict } — 이번에 획득한 보상 플래그.
   function updateWinStreak(win) {
-    var res = { oracle: false, edict: false };
+    var res = { oracle: false, diaochan: false, edict: false };
     try {
       var n = parseInt(localStorage.getItem('qb_winstreak') || '0', 10) || 0;
       n = win ? n + 1 : 0;
       var collected = JSON.parse(localStorage.getItem('hw_collected_heroes') || '[]');
       var hasO = Array.isArray(collected) && collected.indexOf('oracle') !== -1;
+      var hasD = Array.isArray(collected) && collected.indexOf('diaochan') !== -1;
       var relicsCol = JSON.parse(localStorage.getItem('hw_collected_relics') || '[]');
       var hasE = Array.isArray(relicsCol) && relicsCol.indexOf('edict') !== -1;
       if (win && n >= 3 && !hasO) { // 3연승 → 제갈량
@@ -343,6 +344,17 @@
         }
         localStorage.setItem('qb_winstreak', '0'); // 보상 후 초기화
         res.oracle = true; return res;
+      }
+      if (win && n >= 5 && hasO && !hasD) { // 5연승 → 초선
+        var gd = JSON.parse(localStorage.getItem('hw_grant_heroes') || '[]');
+        if (!Array.isArray(gd)) gd = [];
+        if (gd.indexOf('diaochan') === -1) gd.push('diaochan');
+        localStorage.setItem('hw_grant_heroes', JSON.stringify(gd));
+        if (Array.isArray(collected) && collected.indexOf('diaochan') === -1) {
+          collected.push('diaochan'); localStorage.setItem('hw_collected_heroes', JSON.stringify(collected));
+        }
+        localStorage.setItem('qb_winstreak', '0'); // 보상 후 초기화
+        res.diaochan = true; return res;
       }
       if (win && n >= 10 && hasO && !hasE) { // 10연승 → 천자의 밀서(유물, 1회)
         var rg = JSON.parse(localStorage.getItem('hw_grant_relics') || '[]');
@@ -361,6 +373,7 @@
   }
   function curStreak() { try { return parseInt(localStorage.getItem('qb_winstreak') || '0', 10) || 0; } catch (e) { return 0; } }
   function hasOracle() { try { var c = JSON.parse(localStorage.getItem('hw_collected_heroes') || '[]'); return Array.isArray(c) && c.indexOf('oracle') !== -1; } catch (e) { return false; } }
+  function hasDiaochan() { try { var c = JSON.parse(localStorage.getItem('hw_collected_heroes') || '[]'); return Array.isArray(c) && c.indexOf('diaochan') !== -1; } catch (e) { return false; } }
   function hasEdict() { try { var c = JSON.parse(localStorage.getItem('hw_collected_relics') || '[]'); return Array.isArray(c) && c.indexOf('edict') !== -1; } catch (e) { return false; } }
   // 영웅전 보물 이벤트 도전 모드(?treasure=1): 승리 시 지정 유물을 영웅전으로 지급
   function treasureChallenge() {
@@ -386,9 +399,10 @@
       var bonus = Math.round(s.you * streakNow * 0.05); // 연승 보너스 = 무력 총합 × 연승 수 × 5%
       var gw = settleHeroesGold(s.you + bonus, true);
       var owned = hasOracle();
+      var hadDiaochan = hasDiaochan();
       var hadEdict = hasEdict();
       var streakRes = updateWinStreak(true);
-      var gotOracle = streakRes.oracle, gotEdict = streakRes.edict;
+      var gotOracle = streakRes.oracle, gotDiaochan = streakRes.diaochan, gotEdict = streakRes.edict;
       var streak = gotOracle ? 3 : curStreak();
       text = '배치한 카드 무력 총합에서 앞섰습니다. (연승 ' + streakNow + ')';
       goldHtml = '<div class="end-gold gain">' +
@@ -401,7 +415,14 @@
         } else if (streak < 3) {
           goldHtml += '<div class="streak-note">🔥 3연승 시 <b>제갈량</b> 획득 (' + streak + '/3)</div>';
         }
-      } else if (!hadEdict) { // 제갈량 보유 후 — 10연승 시 천자의 밀서(유물)
+      } else if (!hadDiaochan) { // 제갈량 보유 후 — 5연승 시 초선
+        if (gotDiaochan) {
+          goldHtml += '<div class="end-gold gain"><span class="eg-label">🌟 5연승 달성</span>' +
+            '<span class="eg-val"><b>초선</b>(SSR) 획득! 삼국 영웅전에서 합류합니다</span></div>';
+        } else {
+          goldHtml += '<div class="streak-note">🔥 5연승 시 <b>초선</b>(SSR) 획득 (' + curStreak() + '/5)</div>';
+        }
+      } else if (!hadEdict) { // 초선 보유 후 — 10연승 시 천자의 밀서(유물)
         if (gotEdict) {
           goldHtml += '<div class="end-gold gain"><span class="eg-label">🌟 10연승 달성</span>' +
             '<span class="eg-val"><b>천자의 밀서</b>(유물) 획득! 골드 보상 +20%</span></div>';

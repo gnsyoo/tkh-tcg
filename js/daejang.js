@@ -712,7 +712,8 @@
       var rb = null; HW_RAID.bosses.forEach(function (b) { if (b.reward === d.id) rb = b; });
       return '👹 삼국 대장전 — ' + (rb ? HW_COMMANDERS[rb.key].name : '적장') + ' 격파 보상 (대장전에서만 획득)';
     }
-    if (d.exclusive === 'special') return '🐎 화웅(첫 적장)을 주공 풀 HP로 격파 또는 노멀 모드 천하통일';
+    if (d.exclusive === 'special') return '🐎 적장(보스)을 주공 풀 HP로 격파 시 획득';
+    if (d.exclusive === 'normalclear') return '💃 노멀 모드 천하통일 또는 히어로즈 블러드 5연승 시 획득';
     if (d.exclusive === 'mid') {
       var mi = midBossInfoByHid(d.id);
       if (mi) {

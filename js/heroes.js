@@ -262,7 +262,7 @@
     } else {
       pushGrant(id);
     }
-    TCG.toast('🐎 ' + reason + ' — ' + HW_BY_ID[id].name + (already ? ' 합류!' : ' 획득!'));
+    TCG.toast((HW_BY_ID[id].emoji || '🎖') + ' ' + reason + ' — ' + HW_BY_ID[id].name + (already ? ' 합류!' : ' 획득!'));
   }
   // 장수 컬렉션 100% 완료 → 자웅일대검 지급(다른 경로로는 획득 불가)
   function checkCollectionReward() {
@@ -612,7 +612,8 @@
       var rb = null; HW_RAID.bosses.forEach(function (b) { if (b.reward === d.id) rb = b; });
       return '👹 삼국 대장전 — ' + (rb ? HW_COMMANDERS[rb.key].name : '적장') + ' 격파 보상 (대장전에서만 획득)';
     }
-    if (d.exclusive === 'special') return '🐎 화웅(첫 적장)을 주공 풀 HP로 격파 또는 노멀 모드 천하통일';
+    if (d.exclusive === 'special') return '🐎 적장(보스)을 주공 풀 HP로 격파 시 획득';
+    if (d.exclusive === 'normalclear') return '💃 노멀 모드 천하통일 또는 히어로즈 블러드 5연승 시 획득';
     if (d.exclusive === 'mid') {
       var mi = midBossInfoByHid(d.id);
       if (mi) {
@@ -1352,7 +1353,9 @@
         var cel = enemyEl(c.enemies.indexOf(target));
         fxSupport(cel, '💗 매혹', '#ff9ad0');
         if (cel && cel.classList) cel.classList.add('charmed');
-        logMsg(h.def.name + ' 「' + sk.name + '」 ' + target.name + ' 매혹(행동 불가)');
+        var clog = h.def.name + ' 「' + sk.name + '」 ' + target.name + ' 매혹(행동 불가)';
+        if (sk.poison) { target.poison = (target.poison || 0) + sk.poison; clog += ' + 중독 +' + sk.poison; } // 매혹 + 중독(초선)
+        logMsg(clog);
       }
     } else if (sk.type === 'confuse') {
       // 적을 혼란 — 행동 불가. 중첩 방지: 마지막 1개만 적용(매혹과도 배타)
@@ -1515,9 +1518,9 @@
   function winCombat() {
     var c = run.combat;
     TCG.sfx('win');
-    // 여포: 첫 스테이지(반동탁) 적장 화웅을 주공 풀 HP로 격파하면 획득
-    if (c.sub === SUB_COUNT - 1 && c.main === 0 && c.lord.hp >= c.lord.maxHp) {
-      unlockSpecialHero('lubu', '화웅을 풀 HP로 격파', true);
+    // 여포: 어떤 전역이든 적장(보스)을 주공 풀 HP로 격파하면 획득
+    if (c.sub === SUB_COUNT - 1 && c.lord.hp >= c.lord.maxHp) {
+      unlockSpecialHero('lubu', '보스를 주공 풀 HP로 격파', true);
     }
     // 주공 HP는 모험 내내 유지 — 전투 후 기본 회복 없음(로그라이크 소모전). 군량미(유물) 보유 시에만 회복.
     var heal = relicSum('winHeal'); // 기본 패시브 회복 제거 — 유물 효과만 적용
@@ -1894,8 +1897,8 @@
     document.getElementById('overModal').hidden = false;
   }
   function victory() {
-    // 여포: 노멀 모드 천하통일 시 획득(다음 진입 시 합류 대기)
-    if ((run.mode || 'normal') === 'normal') unlockSpecialHero('lubu', '노멀 모드 천하통일', false);
+    // 초선: 노멀 모드 천하통일 시 획득(다음 진입 시 합류 대기 · 히어로즈 블러드 5연승으로도 획득)
+    if ((run.mode || 'normal') === 'normal') unlockSpecialHero('diaochan', '노멀 모드 천하통일', false);
     showCredits();
   }
 
