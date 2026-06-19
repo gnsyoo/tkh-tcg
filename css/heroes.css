@@ -829,6 +829,13 @@
 /* 페이지 안에서는 내부 목록이 자체 스크롤 대신 페이지 스크롤을 사용 */
 .codex-page .col-grid,
 .codex-page .col-weapon-list { max-height: none; overflow: visible; }
+/* 상세는 하단 패널 대신 팝업으로 표시 */
+.codex-page .col-detail { display: none; }
+.codex-detail-body { font-size: 14px; line-height: 1.75; }
+.codex-detail-body .cd-got { color: var(--green); font-weight: 800; }
+.codex-detail-body .cd-no { color: var(--ink-dim); font-weight: 700; }
+.codex-detail-body .cd-path { color: var(--gold); font-weight: 700; }
+.codex-detail-body .cd-sub { color: var(--ink-dim); }
 
 /* 도감 탭 */
 .codex-tabs { display: flex; gap: 8px; margin-bottom: 10px; }

@@ -13,8 +13,8 @@
   gtag('config', 'G-RZW78R7430');
 </script>
 <title>삼국 영웅전 · 목업</title>
-<link rel="stylesheet" href="css/common.css?v=1.4.19">
-<link rel="stylesheet" href="css/heroes.css?v=1.4.19">
+<link rel="stylesheet" href="css/common.css?v=1.5.0">
+<link rel="stylesheet" href="css/heroes.css?v=1.5.0">
 </head>
 <body>
   <a class="home-btn" id="homeBtn" href="index.html" title="홈" aria-label="홈">🏠</a>
@@ -190,6 +190,14 @@
     </div>
   </div>
 
+  <!-- 도감 상세(장수/장비/유물) 팝업 -->
+  <div class="overlay" id="codexDetailModal" hidden style="z-index:140;">
+    <div class="modal" style="max-width:360px;text-align:left;">
+      <div id="codexDetailBody" class="codex-detail-body"></div>
+      <div style="text-align:center;margin-top:14px;"><button class="btn primary" id="codexDetailClose" data-i18n="uiClose">닫기</button></div>
+    </div>
+  </div>
+
   <!-- 게임 가이드 -->
   <div class="overlay" id="guideModal" hidden>
     <div class="modal guide-modal">
@@ -298,10 +306,10 @@
     </div>
   </div>
 
-  <script src="js/util.js?v=1.4.19"></script>
-  <script src="js/heroes_data.js?v=1.4.19"></script>
-  <script src="js/i18n_data.js?v=1.4.19"></script>
-  <script src="js/heroes.js?v=1.4.19"></script>
-  <script src="js/i18n.js?v=1.4.19"></script>
+  <script src="js/util.js?v=1.5.0"></script>
+  <script src="js/heroes_data.js?v=1.5.0"></script>
+  <script src="js/i18n_data.js?v=1.5.0"></script>
+  <script src="js/heroes.js?v=1.5.0"></script>
+  <script src="js/i18n.js?v=1.5.0"></script>
 </body>
 </html>

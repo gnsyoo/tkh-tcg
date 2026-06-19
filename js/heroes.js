@@ -646,39 +646,46 @@
   document.getElementById('codexTabHero').addEventListener('click', function () { TCG.sfx('tap'); showCodexTab('hero'); });
   document.getElementById('codexTabWeapon').addEventListener('click', function () { TCG.sfx('tap'); showCodexTab('weapon'); });
   document.getElementById('codexTabRelic').addEventListener('click', function () { TCG.sfx('tap'); showCodexTab('relic'); });
+  function showCodexDetail(html) {
+    document.getElementById('codexDetailBody').innerHTML = html;
+    document.getElementById('codexDetailModal').hidden = false;
+    TCG.sfx('tap');
+  }
   document.getElementById('relicColList').addEventListener('click', function (e) {
     var c = e.target.closest('.col-relic-pick'); if (!c) return;
     var r = HW_RELICS.find(function (x) { return x.id === c.dataset.id; }); if (!r) return;
     var got = collectedRelics.indexOf(r.id) !== -1;
-    document.getElementById('relicColDetail').innerHTML =
+    showCodexDetail(
       '<b>' + r.emoji + ' ' + r.name + '</b> · ' + (got ? '<span class="cd-got">보유 중</span>' : '<span class="cd-no">미보유</span>') +
       '<br><span class="cd-sub">' + r.desc + '</span>' +
-      '<br><span class="cd-path">획득 경로: ' + relicPath(r) + '</span>';
-    TCG.sfx('tap');
+      '<br><span class="cd-path">획득 경로: ' + relicPath(r) + '</span>');
   });
   document.getElementById('heroColGrid').addEventListener('click', function (e) {
     var c = e.target.closest('.col-card'); if (!c) return;
     var d = HW_BY_ID[c.dataset.id]; if (!d) return;
     var got = collectedHeroes.indexOf(d.id) !== -1;
     var slots = slotsForRarity(d.rarity);
-    document.getElementById('heroColDetail').innerHTML =
+    showCodexDetail(
       '<b>' + d.emoji + ' ' + d.name + '</b> <span class="rar-' + d.rarity + '">' + d.rarity + '</span> · ' + (got ? '<span class="cd-got">보유 중</span>' : '<span class="cd-no">미보유</span>') +
       '<br><span class="cd-sub">' + d.cls + ' · ❤️ HP ' + d.hp + ' · ⚔️ 공격 ' + d.atk + ' · 🗡️ 무기 슬롯 ' + slots + '</span>' +
       '<br><span class="cd-sub">✨ ' + d.skill.name + ' (MP ' + d.skill.cost + '): ' + d.skill.desc + '</span>' +
-      '<br><span class="cd-path">획득 경로: ' + heroPath(d) + '</span>';
-    TCG.sfx('tap');
+      '<br><span class="cd-path">획득 경로: ' + heroPath(d) + '</span>');
   });
   document.getElementById('weaponColList').addEventListener('click', function (e) {
     var c = e.target.closest('.col-pick'); if (!c) return;
     var w = HW_WEAPON_BY_ID[c.dataset.id]; if (!w) return;
     var got = collectedWeapons.indexOf(w.id) !== -1;
-    document.getElementById('weaponColDetail').innerHTML =
+    showCodexDetail(
       '<b>' + w.emoji + ' ' + w.name + '</b> · ' + (got ? '<span class="cd-got">보유 중</span>' : '<span class="cd-no">미보유</span>') +
       '<br><span class="cd-sub">' + w.desc + '</span>' +
       '<br><span class="cd-sub">💰 가치 ' + weaponCost(w) + ' 골드</span>' +
-      '<br><span class="cd-path">획득 경로: ' + weaponPath(w) + '</span>';
-    TCG.sfx('tap');
+      '<br><span class="cd-path">획득 경로: ' + weaponPath(w) + '</span>');
   });
+  (function () {
+    var dm = document.getElementById('codexDetailModal');
+    document.getElementById('codexDetailClose').addEventListener('click', function () { dm.hidden = true; });
+    dm.addEventListener('click', function (e) { if (e.target === dm) dm.hidden = true; });
+  })();
   document.getElementById('codexBack').addEventListener('click', function () { TCG.sfx('tap'); document.getElementById('codexModal').hidden = true; });
   document.getElementById('restParty').addEventListener('click', onMiniClick);
   function onMiniClick(e) {
