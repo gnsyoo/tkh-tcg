@@ -9,6 +9,8 @@
 
   /* ---------- 공유 덱(영웅전 파티) ---------- */
   function slotsForRarity(r) { return r === 'SSR' ? 3 : r === 'SR' ? 2 : r === 'R' ? 1 : 0; }
+  var RAR_BG = { C: '#9aa0a6', R: '#5aa6ff', SR: '#c77bff', SSR: '#f0c33c' };
+  function rarBg(r) { return RAR_BG[r] || '#9aa0a6'; }
   function mkHero(id) { var d = HW_BY_ID[id]; return { uid: id + '_' + Math.random().toString(36).slice(2, 7), def: d, atk: d.atk, weapons: [] }; }
   function loadParty() {
     try {
@@ -809,32 +811,35 @@
     document.getElementById('heroColTitle').textContent = '(' + col.length + ' / ' + HW_HEROES.length + ')';
     document.getElementById('heroColGrid').innerHTML = sortDefList(HW_HEROES, codexSort).map(function (d) {
       var got = col.indexOf(d.id) !== -1;
-      return '<div class="col-card' + (got ? '' : ' locked') + '" data-id="' + d.id + '">' + TCG.portrait(d.emoji, d.id, '', d.name) +
-        '<div class="col-name">' + d.name + '</div><div class="col-rar rar-' + d.rarity + '">' + d.rarity + ' · ' + d.cls + '</div>' +
-        (got ? '' : '<div class="col-lock">🔒</div>') + '</div>';
+      return '<div class="col-card' + (got ? '' : ' locked') + '" data-id="' + d.id + '">' +
+        '<div class="col-port">' + TCG.portrait(d.emoji, d.id, '', d.name) +
+          '<span class="col-badge" style="background:' + rarBg(d.rarity) + '">' + d.rarity + '</span>' +
+          (got ? '' : '<div class="col-lockov">🔒</div>') + '</div>' +
+        '<div class="col-name">' + d.name + '</div>' +
+        '<div class="col-cls">' + (got ? d.cls : '미발견 장수') + '</div></div>';
     }).join('');
     paintSortBar('heroColSort', codexSort);
-    document.getElementById('heroColDetail').innerHTML = '👆 장수를 선택하면 <b>능력치·획득 경로</b>가 표시됩니다';
+  }
+  function codexListRow(it, got, pickClass) {
+    return '<div class="gear-row ' + pickClass + (got ? '' : ' locked') + '" data-id="' + it.id + '">' +
+      '<div class="gear-emoji">' + it.emoji + '</div>' +
+      '<div class="gear-info"><div class="gear-name">' + (got ? it.name : '???') + '</div>' +
+        '<div class="gear-desc">' + (got ? it.desc : '미발견 — 획득하면 정보가 공개됩니다') + '</div></div>' +
+      '<span class="col-mark" style="color:' + (got ? 'var(--gold)' : 'var(--ink-dim)') + '">' + (got ? '✦' : '🔒') + '</span></div>';
   }
   function renderWeaponCodex() {
     var col = lsArr('hw_collected_weapons');
     document.getElementById('weaponColTitle').textContent = '(' + col.length + ' / ' + HW_WEAPONS.length + ')';
     document.getElementById('weaponColList').innerHTML = HW_WEAPONS.map(function (w) {
-      var got = col.indexOf(w.id) !== -1;
-      return '<div class="gear-row col-pick' + (got ? '' : ' locked') + '" data-id="' + w.id + '"><div class="gear-emoji">' + w.emoji + '</div><div class="gear-info">' +
-        '<div class="gear-name">' + w.name + (got ? '' : ' 🔒') + '</div><div class="gear-desc">' + w.desc + '</div></div></div>';
+      return codexListRow(w, col.indexOf(w.id) !== -1, 'col-pick');
     }).join('');
-    document.getElementById('weaponColDetail').innerHTML = '👆 장비를 선택하면 <b>획득 경로</b>가 표시됩니다';
   }
   function renderRelicCodex() {
     var col = lsArr('hw_collected_relics');
     document.getElementById('relicColTitle').textContent = '(' + col.length + ' / ' + HW_RELICS.length + ')';
     document.getElementById('relicColList').innerHTML = HW_RELICS.map(function (r) {
-      var got = col.indexOf(r.id) !== -1;
-      return '<div class="gear-row col-relic-pick' + (got ? '' : ' locked') + '" data-id="' + r.id + '"><div class="gear-emoji">' + r.emoji + '</div><div class="gear-info">' +
-        '<div class="gear-name">' + r.name + (got ? '' : ' 🔒') + '</div><div class="gear-desc">' + r.desc + '</div></div></div>';
+      return codexListRow(r, col.indexOf(r.id) !== -1, 'col-relic-pick');
     }).join('');
-    document.getElementById('relicColDetail').innerHTML = '👆 유물을 선택하면 <b>효과·획득 경로</b>가 표시됩니다';
   }
   function showCodexTab(tab) {
     document.getElementById('codexHeroPanel').hidden = tab !== 'hero';
@@ -844,7 +849,16 @@
     document.getElementById('codexTabWeapon').classList.toggle('active', tab === 'weapon');
     document.getElementById('codexTabRelic').classList.toggle('active', tab === 'relic');
   }
-  function openCodex(tab) { TCG.sfx('tap'); renderHeroCodex(); renderWeaponCodex(); renderRelicCodex(); showCodexTab(tab || 'hero'); document.getElementById('codexModal').hidden = false; }
+  function codexPct() {
+    var tot = HW_HEROES.length + HW_WEAPONS.length + HW_RELICS.length;
+    var got = lsArr('hw_collected_heroes').length + lsArr('hw_collected_weapons').length + lsArr('hw_collected_relics').length;
+    return tot ? Math.round(got / tot * 100) : 0;
+  }
+  function openCodex(tab) {
+    TCG.sfx('tap'); renderHeroCodex(); renderWeaponCodex(); renderRelicCodex();
+    var pe = document.getElementById('codexPct'); if (pe) pe.textContent = codexPct() + '%';
+    showCodexTab(tab || 'hero'); document.getElementById('codexModal').hidden = false;
+  }
   document.getElementById('rosterBtn').addEventListener('click', openRoster);
   document.getElementById('rosterSort').addEventListener('click', function (e) { var b = e.target.closest('.sort-btn'); if (!b) return; TCG.sfx('tap'); applySortClick(rosterSort, b.dataset.sort); renderRosterGrid(); });
   document.getElementById('heroColSort').addEventListener('click', function (e) { var b = e.target.closest('.sort-btn'); if (!b) return; TCG.sfx('tap'); applySortClick(codexSort, b.dataset.sort); renderHeroCodex(); });
@@ -857,44 +871,60 @@
   document.getElementById('codexTabHero').addEventListener('click', function () { TCG.sfx('tap'); showCodexTab('hero'); });
   document.getElementById('codexTabWeapon').addEventListener('click', function () { TCG.sfx('tap'); showCodexTab('weapon'); });
   document.getElementById('codexTabRelic').addEventListener('click', function () { TCG.sfx('tap'); showCodexTab('relic'); });
-  function showCodexDetail(html) {
+  var _cdxX = '<button class="wr-pop-x cdx-x" data-close>✕</button>';
+  function showCodexDetail(html, accent) {
+    var panel = document.querySelector('#codexDetailModal .modal');
+    if (panel && accent) panel.style.borderColor = accent;
     document.getElementById('codexDetailBody').innerHTML = html;
     document.getElementById('codexDetailModal').hidden = false;
     TCG.sfx('tap');
   }
+  function codexHeroDetail(d) {
+    var got = lsArr('hw_collected_heroes').indexOf(d.id) !== -1, rc = rarBg(d.rarity);
+    return '<div class="cdx-pop-port">' + TCG.portrait(d.emoji, d.id, '', d.name) +
+        '<span class="cdx-pop-rb" style="background:' + rc + '">' + d.rarity + '</span>' + _cdxX +
+        '<span class="cdx-pop-own" style="color:' + (got ? '#7ef0b5' : '#c4ab90') + '">' + (got ? '보유 중' : '미보유') + '</span></div>' +
+      '<div style="padding:13px 15px 16px">' +
+        '<div class="cdx-pop-h"><b>' + d.name + '</b><small>' + d.cls + '</small></div>' +
+        '<div class="cdx-pop-stats"><div class="atk"><div class="lbl">공격력</div><div class="val">⚔ ' + d.atk + '</div></div>' +
+          '<div class="hp"><div class="lbl">체력</div><div class="val">♥ ' + d.hp + '</div></div></div>' +
+        '<div class="cdx-pop-box"><div class="sk">✦ ' + d.skill.name + ' <span style="color:#8a7560;font-weight:700;font-size:11px">MP ' + skillMp(d.skill) + '</span></div><div class="skd">' + d.skill.desc + '</div></div>' +
+        '<div class="cdx-pop-src"><span style="font-size:14px">📍</span><div><div class="lbl">획득 경로</div><div class="v">' + heroPath(d) + '</div></div></div>' +
+      '</div>';
+  }
+  function codexItemDetail(it, kind) {
+    var isW = kind === 'weapon';
+    var got = lsArr(isW ? 'hw_collected_weapons' : 'hw_collected_relics').indexOf(it.id) !== -1;
+    var accent = isW ? '#c77bff' : '#f0c33c';
+    var src = isW ? weaponPath(it) : relicPath(it);
+    var effHtml = it.desc + (isW ? ' · 💰 가치 ' + weaponCost(it) + ' 골드' : '');
+    return _cdxX +
+      '<div style="padding:18px 16px 16px">' +
+        '<div class="cdx-pop-item-head"><div class="cdx-pop-ico" style="box-shadow:inset 0 0 0 1.5px ' + accent + ';' + (got ? '' : 'filter:grayscale(1) brightness(.6)') + '">' + it.emoji + '</div>' +
+          '<div style="flex:1;min-width:0"><div class="cdx-pop-kind" style="color:' + accent + '">' + (isW ? '장비' : '유물') + '</div>' +
+            '<div class="nm">' + it.name + '</div><div class="ow" style="color:' + (got ? '#7ef0b5' : '#c4ab90') + '">' + (got ? '보유 중' : '미보유') + '</div></div></div>' +
+        '<div class="cdx-pop-box"><div class="lbl" style="font-size:9px;font-weight:700;color:#8a7560">효과</div><div style="font-size:12px;color:#e6d8c4;margin-top:3px;line-height:1.5">' + effHtml + '</div></div>' +
+        '<div class="cdx-pop-src"><span style="font-size:14px">📍</span><div><div class="lbl">획득 경로</div><div class="v">' + src + '</div></div></div>' +
+      '</div>';
+  }
   document.getElementById('relicColList').addEventListener('click', function (e) {
     var c = e.target.closest('.col-relic-pick'); if (!c) return;
     var r = HW_RELICS.find(function (x) { return x.id === c.dataset.id; }); if (!r) return;
-    var got = lsArr('hw_collected_relics').indexOf(r.id) !== -1;
-    showCodexDetail(
-      '<b>' + r.emoji + ' ' + r.name + '</b> · ' + (got ? '<span class="cd-got">보유 중</span>' : '<span class="cd-no">미보유</span>') +
-      '<br><span class="cd-sub">' + r.desc + '</span>' +
-      '<br><span class="cd-path">획득 경로: ' + relicPath(r) + '</span>');
+    showCodexDetail(codexItemDetail(r, 'relic'), '#f0c33c');
   });
   document.getElementById('heroColGrid').addEventListener('click', function (e) {
     var c = e.target.closest('.col-card'); if (!c || !c.dataset.id) return;
     var d = HW_BY_ID[c.dataset.id]; if (!d) return;
-    var got = lsArr('hw_collected_heroes').indexOf(d.id) !== -1, slots = slotsForRarity(d.rarity);
-    showCodexDetail(
-      '<b>' + d.emoji + ' ' + d.name + '</b> <span class="rar-' + d.rarity + '">' + d.rarity + '</span> · ' + (got ? '<span class="cd-got">보유 중</span>' : '<span class="cd-no">미보유</span>') +
-      '<br><span class="cd-sub">' + d.cls + ' · ❤️ HP ' + d.hp + ' · ⚔️ 공격 ' + d.atk + ' · 🗡️ 무기 슬롯 ' + slots + '</span>' +
-      '<br><span class="cd-sub">✨ ' + d.skill.name + ' (MP ' + d.skill.cost + '): ' + d.skill.desc + '</span>' +
-      '<br><span class="cd-path">획득 경로: ' + heroPath(d) + '</span>');
+    showCodexDetail(codexHeroDetail(d), rarBg(d.rarity));
   });
   document.getElementById('weaponColList').addEventListener('click', function (e) {
     var c = e.target.closest('.col-pick'); if (!c) return;
     var w = HW_WEAPON_BY_ID[c.dataset.id]; if (!w) return;
-    var got = lsArr('hw_collected_weapons').indexOf(w.id) !== -1;
-    showCodexDetail(
-      '<b>' + w.emoji + ' ' + w.name + '</b> · ' + (got ? '<span class="cd-got">보유 중</span>' : '<span class="cd-no">미보유</span>') +
-      '<br><span class="cd-sub">' + w.desc + '</span>' +
-      '<br><span class="cd-sub">💰 가치 ' + weaponCost(w) + ' 골드</span>' +
-      '<br><span class="cd-path">획득 경로: ' + weaponPath(w) + '</span>');
+    showCodexDetail(codexItemDetail(w, 'weapon'), '#c77bff');
   });
   (function () {
     var dm = document.getElementById('codexDetailModal');
-    document.getElementById('codexDetailClose').addEventListener('click', function () { dm.hidden = true; });
-    dm.addEventListener('click', function (e) { if (e.target === dm) dm.hidden = true; });
+    dm.addEventListener('click', function (e) { if (e.target === dm || e.target.closest('[data-close]')) dm.hidden = true; });
   })();
   [['rosterClose', 'rosterModal'], ['gearClose', 'gearModal']].forEach(function (p) {
     document.getElementById(p[0]).addEventListener('click', function () { document.getElementById(p[1]).hidden = true; });

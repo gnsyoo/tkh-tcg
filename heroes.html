@@ -13,8 +13,8 @@
   gtag('config', 'G-RZW78R7430');
 </script>
 <title>삼국 영웅전 · 목업</title>
-<link rel="stylesheet" href="css/common.css?v=1.5.18">
-<link rel="stylesheet" href="css/heroes.css?v=1.5.18">
+<link rel="stylesheet" href="css/common.css?v=1.5.19">
+<link rel="stylesheet" href="css/heroes.css?v=1.5.19">
 </head>
 <body>
   <main class="hw-main" id="hwMain">
@@ -65,20 +65,27 @@
 
     <!-- Shop screen -->
     <section class="screen" id="shopScreen" hidden>
-      <button class="btn ghost shop-leave" id="shopLeave" data-i18n="uiLeave">← 떠나기</button>
-      <div class="shop-gold" id="shopGold">💰 0</div>
-      <h3 class="screen-title" data-i18n="uiShopTitle">🛒 상점</h3>
-      <p class="screen-sub" data-i18n="uiShopSub">골드로 무기·보물·소모품을 구매하세요 (장수는 주막에서)</p>
-      <div class="shop-items" id="shopItems"></div>
+      <div class="wr-shead">
+        <button class="wr-back" id="shopLeave" aria-label="뒤로"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="#f0c33c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <div class="wr-shead-t"><span data-i18n="uiShopName">상점</span><img src="assets/img/heroes/ped-shop.png?v=1.5.19" alt=""></div>
+        <div class="wr-goldchip"><img src="assets/img/heroes/coin-gold2.png?v=1.5.19" alt=""><b id="shopGold">0</b></div>
+      </div>
+      <div class="wr-greet">
+        <p>"먼 길 오셨소. 다음 전투 전에 <b>보급</b>을 갖추시오."</p>
+        <button class="wr-reroll" id="shopReroll"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 12a8 8 0 0114-5l2 2M20 12a8 8 0 01-14 5l-2-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 4v5h-5M4 20v-5h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> 새로고침 50</button>
+      </div>
+      <div class="wr-goods" id="shopItems"></div>
     </section>
 
     <!-- Tavern screen -->
     <section class="screen" id="tavernScreen" hidden>
-      <button class="btn ghost shop-leave" id="tavernLeave" data-i18n="uiLeave">← 떠나기</button>
-      <div class="shop-gold" id="tavernGold">💰 0</div>
-      <h3 class="screen-title" data-i18n="uiTavernTitle">🏮 주막</h3>
-      <p class="screen-sub" data-i18n="uiTavernSub">골드로 장수를 영입하세요 (스테이지를 진행하면 명단이 바뀝니다)</p>
-      <div class="shop-items" id="tavernItems"></div>
+      <div class="wr-shead">
+        <button class="wr-back" id="tavernLeave" aria-label="뒤로"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="#f0c33c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <div class="wr-shead-t"><span data-i18n="uiTavernName">주막</span><img src="assets/img/heroes/ped-tavern.png?v=1.5.19" alt=""></div>
+        <div class="wr-goldchip"><img src="assets/img/heroes/coin-gold2.png?v=1.5.19" alt=""><b id="tavernGold">0</b></div>
+      </div>
+      <div class="wr-hearth"><div class="wr-hearth-in"><div class="wr-hearth-ic">🍶</div><div class="wr-hearth-t"><b>주막에 모여든 인재들</b><small>천하의 장수들이 잔을 기울이며 주공을 기다립니다. 마음에 드는 인재를 <b style="color:#ffd9a0">등용</b>하세요.</small></div></div></div>
+      <div class="wr-goods" id="tavernItems"></div>
     </section>
 
     <!-- Treasure / event -->
@@ -150,11 +157,12 @@
     </div>
   </div>
 
-  <!-- 도감(장수/장비 탭) — 전체 페이지 -->
+  <!-- 도감(장수/장비/유물 탭) — 전체 페이지 -->
   <div class="codex-page" id="codexModal" hidden>
     <div class="codex-page-bar">
       <button class="codex-back" id="codexBack" data-i18n="uiBack">← 이전</button>
-      <span class="codex-page-title" data-i18n="uiCodexBtn">📖 도감</span>
+      <span class="codex-page-title"><span data-i18n="uiCodexName">도감</span><img class="cb-icon" src="assets/img/heroes/ped-codex.png?v=1.5.19" alt=""></span>
+      <span class="codex-pct"><span data-i18n="uiCollRate">수집률</span> <b id="codexPct">0%</b></span>
     </div>
     <div class="codex-page-body">
       <div class="codex-tabs">
@@ -163,29 +171,22 @@
         <button class="codex-tab" id="codexTabRelic" data-tab="relic">🏺 <span data-i18n="uiRelics">유물</span> <span id="relicColTitle" style="color:var(--gold);font-size:11px;"></span></button>
       </div>
       <div id="codexHeroPanel">
-        <p class="screen-sub" data-i18n="uiColHeroSub">수집한 장수는 밝게, 아직 못 모은 장수는 어둡게 표시됩니다</p>
         <div class="sort-bar" id="heroColSort"><span class="sort-label" data-i18n="uiSort">정렬</span><button class="sort-btn" data-sort="rarity" data-i18n="uiSortRarity">등급</button><button class="sort-btn" data-sort="atk" data-i18n="uiSortAtk">공격력</button></div>
         <div class="col-grid" id="heroColGrid"></div>
-        <div class="col-detail" id="heroColDetail"></div>
       </div>
       <div id="codexWeaponPanel" hidden>
-        <p class="screen-sub" data-i18n="uiColWeaponSub">수집한 장비는 밝게, 아직 못 모은 장비는 어둡게 표시됩니다</p>
         <div class="col-weapon-list" id="weaponColList"></div>
-        <div class="col-detail" id="weaponColDetail"></div>
       </div>
       <div id="codexRelicPanel" hidden>
-        <p class="screen-sub" data-i18n="uiColRelicSub">획득한 유물은 밝게, 아직 못 모은 유물은 어둡게 표시됩니다 — 메인 적장 격파·보물 발견 이벤트로 획득</p>
         <div class="col-weapon-list" id="relicColList"></div>
-        <div class="col-detail" id="relicColDetail"></div>
       </div>
     </div>
   </div>
 
   <!-- 도감 상세(장수/장비/유물) 팝업 -->
   <div class="overlay" id="codexDetailModal" hidden style="z-index:140;">
-    <div class="modal" style="max-width:360px;text-align:left;">
-      <div id="codexDetailBody" class="codex-detail-body"></div>
-      <div style="text-align:center;margin-top:14px;"><button class="btn primary" id="codexDetailClose" data-i18n="uiClose">닫기</button></div>
+    <div class="modal cdx-pop" style="max-width:300px;text-align:left;padding:0;overflow:hidden;">
+      <div id="codexDetailBody"></div>
     </div>
   </div>
 
@@ -258,7 +259,7 @@
     <div class="wr-pop-scrim" data-close></div>
     <div class="wr-pop-panel">
       <div class="wr-pop-head">
-        <img src="assets/img/heroes/ic-general.png?v=1.5.18" alt="">
+        <img src="assets/img/heroes/ic-general.png?v=1.5.19" alt="">
         <span class="wr-pop-title">수집한 장수 <span class="cnt" id="rosterTitleCount"></span></span>
         <button class="wr-pop-x" id="rosterClose" data-close>✕</button>
       </div>
@@ -272,7 +273,7 @@
     <div class="wr-pop-scrim" data-close></div>
     <div class="wr-pop-panel">
       <div class="wr-pop-head">
-        <img src="assets/img/heroes/ped-jinhyeong.png?v=1.5.18" alt="">
+        <img src="assets/img/heroes/ped-jinhyeong.png?v=1.5.19" alt="">
         <span class="wr-pop-title">출진 덱 편성 <span class="cnt" id="formationTitle"></span></span>
         <button class="wr-pop-x" id="formationClose" data-close>✕</button>
       </div>
@@ -287,7 +288,7 @@
     <div class="wr-pop-scrim" data-close></div>
     <div class="wr-pop-panel">
       <div class="wr-pop-head">
-        <img src="assets/img/heroes/ic-swords.png?v=1.5.18" alt="">
+        <img src="assets/img/heroes/ic-swords.png?v=1.5.19" alt="">
         <span class="wr-pop-title">장비 보유 현황 <span class="cnt" id="gearTitleCount"></span></span>
         <button class="wr-pop-x" id="gearClose" data-close>✕</button>
       </div>
@@ -300,7 +301,7 @@
     <div class="wr-pop-scrim" data-close></div>
     <div class="wr-pop-panel">
       <div class="wr-pop-head">
-        <img src="assets/img/heroes/ic-gear.png?v=1.5.18" alt="">
+        <img src="assets/img/heroes/ic-gear.png?v=1.5.19" alt="">
         <span class="wr-pop-title">추가 능력 · 유물 <span class="cnt" id="relicTitleCount"></span></span>
         <button class="wr-pop-x" id="relicClose" data-close>✕</button>
       </div>
@@ -320,10 +321,10 @@
     </div>
   </div>
 
-  <script src="js/util.js?v=1.5.18"></script>
-  <script src="js/heroes_data.js?v=1.5.18"></script>
-  <script src="js/i18n_data.js?v=1.5.18"></script>
-  <script src="js/heroes.js?v=1.5.18"></script>
-  <script src="js/i18n.js?v=1.5.18"></script>
+  <script src="js/util.js?v=1.5.19"></script>
+  <script src="js/heroes_data.js?v=1.5.19"></script>
+  <script src="js/i18n_data.js?v=1.5.19"></script>
+  <script src="js/heroes.js?v=1.5.19"></script>
+  <script src="js/i18n.js?v=1.5.19"></script>
 </body>
 </html>

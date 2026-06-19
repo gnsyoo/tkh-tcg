@@ -17,6 +17,8 @@
   }
   // 무기 효과 헬퍼 (장착 수: C=0 · R=1 · SR=2 · SSR=3)
   function slotsForRarity(r) { return r === 'SSR' ? 3 : r === 'SR' ? 2 : r === 'R' ? 1 : 0; }
+  var RAR_BG = { C: '#9aa0a6', R: '#5aa6ff', SR: '#c77bff', SSR: '#f0c33c' };
+  function rarBg(r) { return RAR_BG[r] || '#9aa0a6'; }
   function weaponSlots(h) { return h && h.def ? slotsForRarity(h.def.rarity) : 0; }
   /* ---------- 출진 덱(run.deck = uid 목록) ---------- */
   function deckMin() { return Math.min(MIN_DECK, run.party.length); } // 보유<10이면 보유 전부가 최소
@@ -630,40 +632,36 @@
     document.getElementById('heroColGrid').innerHTML = sortDefList(HW_HEROES, codexSort).map(function (d) {
       var got = collectedHeroes.indexOf(d.id) !== -1;
       return '<div class="col-card' + (got ? '' : ' locked') + '" data-id="' + d.id + '">' +
-        TCG.portrait(d.emoji, d.id, '', d.name) +
+        '<div class="col-port">' + TCG.portrait(d.emoji, d.id, '', d.name) +
+          '<span class="col-badge" style="background:' + rarBg(d.rarity) + '">' + d.rarity + '</span>' +
+          (got ? '' : '<div class="col-lockov">🔒</div>') + '</div>' +
         '<div class="col-name">' + d.name + '</div>' +
-        '<div class="col-rar rar-' + d.rarity + '">' + d.rarity + ' · ' + d.cls + '</div>' +
-        (got ? '' : '<div class="col-lock">🔒</div>') +
+        '<div class="col-cls">' + (got ? d.cls : '미발견 장수') + '</div>' +
         '</div>';
     }).join('');
     paintSortBar('heroColSort', codexSort);
-    document.getElementById('heroColDetail').innerHTML = '👆 장수를 선택하면 <b>능력치·획득 경로</b>가 표시됩니다';
+  }
+  function codexListRow(it, got, pickClass) {
+    return '<div class="gear-row ' + pickClass + (got ? '' : ' locked') + '" data-id="' + it.id + '">' +
+      '<div class="gear-emoji">' + it.emoji + '</div>' +
+      '<div class="gear-info">' +
+        '<div class="gear-name">' + (got ? it.name : '???') + '</div>' +
+        '<div class="gear-desc">' + (got ? it.desc : '미발견 — 획득하면 정보가 공개됩니다') + '</div>' +
+      '</div>' +
+      '<span class="col-mark" style="color:' + (got ? 'var(--gold)' : 'var(--ink-dim)') + '">' + (got ? '✦' : '🔒') + '</span>' +
+      '</div>';
   }
   function renderWeaponCodex() {
     document.getElementById('weaponColTitle').textContent = '(' + collectedWeapons.length + ' / ' + HW_WEAPONS.length + ')';
     document.getElementById('weaponColList').innerHTML = HW_WEAPONS.map(function (w) {
-      var got = collectedWeapons.indexOf(w.id) !== -1;
-      return '<div class="gear-row col-pick' + (got ? '' : ' locked') + '" data-id="' + w.id + '">' +
-        '<div class="gear-emoji">' + w.emoji + '</div>' +
-        '<div class="gear-info">' +
-          '<div class="gear-name">' + w.name + (got ? '' : ' 🔒') + '</div>' +
-          '<div class="gear-desc">' + w.desc + '</div>' +
-        '</div></div>';
+      return codexListRow(w, collectedWeapons.indexOf(w.id) !== -1, 'col-pick');
     }).join('');
-    document.getElementById('weaponColDetail').innerHTML = '👆 장비를 선택하면 <b>획득 경로</b>가 표시됩니다';
   }
   function renderRelicCodex() {
     document.getElementById('relicColTitle').textContent = '(' + collectedRelics.length + ' / ' + HW_RELICS.length + ')';
     document.getElementById('relicColList').innerHTML = HW_RELICS.map(function (r) {
-      var got = collectedRelics.indexOf(r.id) !== -1;
-      return '<div class="gear-row col-relic-pick' + (got ? '' : ' locked') + '" data-id="' + r.id + '">' +
-        '<div class="gear-emoji">' + r.emoji + '</div>' +
-        '<div class="gear-info">' +
-          '<div class="gear-name">' + r.name + (got ? '' : ' 🔒') + '</div>' +
-          '<div class="gear-desc">' + r.desc + '</div>' +
-        '</div></div>';
+      return codexListRow(r, collectedRelics.indexOf(r.id) !== -1, 'col-relic-pick');
     }).join('');
-    document.getElementById('relicColDetail').innerHTML = '👆 유물을 선택하면 <b>효과·획득 경로</b>가 표시됩니다';
   }
   function showCodexTab(tab) {
     document.getElementById('codexHeroPanel').hidden = tab !== 'hero';
@@ -673,9 +671,15 @@
     document.getElementById('codexTabWeapon').classList.toggle('active', tab === 'weapon');
     document.getElementById('codexTabRelic').classList.toggle('active', tab === 'relic');
   }
+  function codexPct() {
+    var tot = HW_HEROES.length + HW_WEAPONS.length + HW_RELICS.length;
+    var got = collectedHeroes.length + collectedWeapons.length + collectedRelics.length;
+    return tot ? Math.round(got / tot * 100) : 0;
+  }
   function openCodex(tab) {
     TCG.sfx('tap'); syncCollection();
     renderHeroCodex(); renderWeaponCodex(); renderRelicCodex();
+    var pe = document.getElementById('codexPct'); if (pe) pe.textContent = codexPct() + '%';
     showCodexTab(tab || 'hero');
     document.getElementById('codexModal').hidden = false;
   }
@@ -683,45 +687,62 @@
   document.getElementById('codexTabHero').addEventListener('click', function () { TCG.sfx('tap'); showCodexTab('hero'); });
   document.getElementById('codexTabWeapon').addEventListener('click', function () { TCG.sfx('tap'); showCodexTab('weapon'); });
   document.getElementById('codexTabRelic').addEventListener('click', function () { TCG.sfx('tap'); showCodexTab('relic'); });
-  function showCodexDetail(html) {
+  var _cdxX = '<button class="wr-pop-x cdx-x" data-close>✕</button>';
+  function showCodexDetail(html, accent) {
+    var panel = document.querySelector('#codexDetailModal .modal');
+    if (panel && accent) panel.style.borderColor = accent;
     document.getElementById('codexDetailBody').innerHTML = html;
     document.getElementById('codexDetailModal').hidden = false;
     TCG.sfx('tap');
   }
+  // 장수 상세(핸드오프 카드형 — 초상·스탯·스킬·획득 경로)
+  function codexHeroDetail(d) {
+    var got = collectedHeroes.indexOf(d.id) !== -1, rc = rarBg(d.rarity);
+    return '<div class="cdx-pop-port">' + TCG.portrait(d.emoji, d.id, '', d.name) +
+        '<span class="cdx-pop-rb" style="background:' + rc + '">' + d.rarity + '</span>' + _cdxX +
+        '<span class="cdx-pop-own" style="color:' + (got ? '#7ef0b5' : '#c4ab90') + '">' + (got ? '보유 중' : '미보유') + '</span></div>' +
+      '<div style="padding:13px 15px 16px">' +
+        '<div class="cdx-pop-h"><b>' + d.name + '</b><small>' + d.cls + '</small></div>' +
+        '<div class="cdx-pop-stats"><div class="atk"><div class="lbl">공격력</div><div class="val">⚔ ' + d.atk + '</div></div>' +
+          '<div class="hp"><div class="lbl">체력</div><div class="val">♥ ' + d.hp + '</div></div></div>' +
+        '<div class="cdx-pop-box"><div class="sk">✦ ' + d.skill.name + ' <span style="color:#8a7560;font-weight:700;font-size:11px">MP ' + skillMp(d.skill) + '</span></div><div class="skd">' + d.skill.desc + '</div></div>' +
+        '<div class="cdx-pop-src"><span style="font-size:14px">📍</span><div><div class="lbl">획득 경로</div><div class="v">' + heroPath(d) + '</div></div></div>' +
+      '</div>';
+  }
+  // 장비/유물 상세(핸드오프 카드형)
+  function codexItemDetail(it, kind) {
+    var isW = kind === 'weapon';
+    var got = (isW ? collectedWeapons : collectedRelics).indexOf(it.id) !== -1;
+    var accent = isW ? '#c77bff' : '#f0c33c';
+    var src = isW ? weaponPath(it) : relicPath(it);
+    var effHtml = it.desc + (isW ? ' · 💰 가치 ' + weaponCost(it) + ' 골드' : '');
+    return _cdxX +
+      '<div style="padding:18px 16px 16px">' +
+        '<div class="cdx-pop-item-head"><div class="cdx-pop-ico" style="box-shadow:inset 0 0 0 1.5px ' + accent + ';' + (got ? '' : 'filter:grayscale(1) brightness(.6)') + '">' + it.emoji + '</div>' +
+          '<div style="flex:1;min-width:0"><div class="cdx-pop-kind" style="color:' + accent + '">' + (isW ? '장비' : '유물') + '</div>' +
+            '<div class="nm">' + it.name + '</div><div class="ow" style="color:' + (got ? '#7ef0b5' : '#c4ab90') + '">' + (got ? '보유 중' : '미보유') + '</div></div></div>' +
+        '<div class="cdx-pop-box"><div class="lbl" style="font-size:9px;font-weight:700;color:#8a7560">효과</div><div style="font-size:12px;color:#e6d8c4;margin-top:3px;line-height:1.5">' + effHtml + '</div></div>' +
+        '<div class="cdx-pop-src"><span style="font-size:14px">📍</span><div><div class="lbl">획득 경로</div><div class="v">' + src + '</div></div></div>' +
+      '</div>';
+  }
   document.getElementById('relicColList').addEventListener('click', function (e) {
     var c = e.target.closest('.col-relic-pick'); if (!c) return;
     var r = HW_RELICS.find(function (x) { return x.id === c.dataset.id; }); if (!r) return;
-    var got = collectedRelics.indexOf(r.id) !== -1;
-    showCodexDetail(
-      '<b>' + r.emoji + ' ' + r.name + '</b> · ' + (got ? '<span class="cd-got">보유 중</span>' : '<span class="cd-no">미보유</span>') +
-      '<br><span class="cd-sub">' + r.desc + '</span>' +
-      '<br><span class="cd-path">획득 경로: ' + relicPath(r) + '</span>');
+    showCodexDetail(codexItemDetail(r, 'relic'), '#f0c33c');
   });
   document.getElementById('heroColGrid').addEventListener('click', function (e) {
     var c = e.target.closest('.col-card'); if (!c) return;
     var d = HW_BY_ID[c.dataset.id]; if (!d) return;
-    var got = collectedHeroes.indexOf(d.id) !== -1;
-    var slots = slotsForRarity(d.rarity);
-    showCodexDetail(
-      '<b>' + d.emoji + ' ' + d.name + '</b> <span class="rar-' + d.rarity + '">' + d.rarity + '</span> · ' + (got ? '<span class="cd-got">보유 중</span>' : '<span class="cd-no">미보유</span>') +
-      '<br><span class="cd-sub">' + d.cls + ' · ❤️ HP ' + d.hp + ' · ⚔️ 공격 ' + d.atk + ' · 🗡️ 무기 슬롯 ' + slots + '</span>' +
-      '<br><span class="cd-sub">✨ ' + d.skill.name + ' (MP ' + d.skill.cost + '): ' + d.skill.desc + '</span>' +
-      '<br><span class="cd-path">획득 경로: ' + heroPath(d) + '</span>');
+    showCodexDetail(codexHeroDetail(d), rarBg(d.rarity));
   });
   document.getElementById('weaponColList').addEventListener('click', function (e) {
     var c = e.target.closest('.col-pick'); if (!c) return;
     var w = HW_WEAPON_BY_ID[c.dataset.id]; if (!w) return;
-    var got = collectedWeapons.indexOf(w.id) !== -1;
-    showCodexDetail(
-      '<b>' + w.emoji + ' ' + w.name + '</b> · ' + (got ? '<span class="cd-got">보유 중</span>' : '<span class="cd-no">미보유</span>') +
-      '<br><span class="cd-sub">' + w.desc + '</span>' +
-      '<br><span class="cd-sub">💰 가치 ' + weaponCost(w) + ' 골드</span>' +
-      '<br><span class="cd-path">획득 경로: ' + weaponPath(w) + '</span>');
+    showCodexDetail(codexItemDetail(w, 'weapon'), '#c77bff');
   });
   (function () {
     var dm = document.getElementById('codexDetailModal');
-    document.getElementById('codexDetailClose').addEventListener('click', function () { dm.hidden = true; });
-    dm.addEventListener('click', function (e) { if (e.target === dm) dm.hidden = true; });
+    dm.addEventListener('click', function (e) { if (e.target === dm || e.target.closest('[data-close]')) dm.hidden = true; });
   })();
   var codexOnBack = null; // 홈→도감 진입 시, 도감을 닫으면 영웅전 정상 진입을 지연 실행
   document.getElementById('codexBack').addEventListener('click', function () {
@@ -1669,7 +1690,7 @@
   });
 
   /* ---------- SHOP ---------- */
-  function showShop() {
+  function genShop() {
     // 상점은 장수 외 품목만 판매(장수는 주막에서) — 무기 2 · 소모품 2 · 두강주 · 무기 강화
     // 장비는 이미 보유한 종류 제외(중복 획득 방지). 거의 다 보유 시엔 중복 허용으로 진열을 채움
     var allW = HW_WEAPONS.filter(function (w) { return !w.exclusive; });
@@ -1684,8 +1705,17 @@
       { kind: 'dujiu', cost: 18, sold: false },   // 두강주: MP 20 회복
       { kind: 'upgrade', cost: 28, sold: false }
     ];
+  }
+  var SHOP_REROLL_COST = 50;
+  function showShop() {
+    if (!run.shop || run.shopStamp !== tavernStamp()) { genShop(); run.shopStamp = tavernStamp(); }
     renderShop();
     show('shopScreen');
+  }
+  function rerollShop() {
+    if (run.gold < SHOP_REROLL_COST) { TCG.toast('금화가 부족합니다 (새로고침 ' + SHOP_REROLL_COST + ')'); return; }
+    TCG.sfx('tap'); run.gold -= SHOP_REROLL_COST; genShop(); run.shopStamp = tavernStamp();
+    updateTop(); saveRun(); renderShop();
   }
   /* ---------- 주막(TAVERN) — 장수 1~4장 판매(스테이지 진행 시 갱신) ---------- */
   function tavernStamp() { return run.mainStage * 100 + run.subStage; }
@@ -1702,22 +1732,31 @@
     show('tavernScreen');
   }
   function renderTavern() {
-    document.getElementById('tavernGold').textContent = '💰 ' + run.gold;
+    document.getElementById('tavernGold').textContent = run.gold;
     var box = document.getElementById('tavernItems');
-    if (!run.tavern.items.length) { box.innerHTML = '<p class="screen-sub">영입할 수 있는 장수가 없습니다 (모두 보유).</p>'; return; }
+    if (!run.tavern.items.length) { box.innerHTML = '<div class="wr-empty">영입할 수 있는 장수가 없습니다.<br>(모든 장수를 보유했거나 다음 스테이지에서 갱신됩니다)</div>'; return; }
     box.innerHTML = run.tavern.items.map(function (it, i) {
-      var d = HW_BY_ID[it.id], afford = run.gold >= it.cost && !it.sold;
-      return '<div class="shop-item shop-hero' + (it.sold ? ' sold' : '') + '" data-info="' + i + '" title="탭하면 상세 정보">' +
-        TCG.portrait(d.emoji, d.id, 'rc-portrait', d.name) +
-        '<div class="si-name">' + d.name + ' <span class="rar-' + d.rarity + '" style="font-size:11px">' + d.rarity + '</span></div>' +
-        '<div class="si-desc">' + d.cls + ' · ❤' + d.hp + ' ⚔' + d.atk + '<br>「' + d.skill.name + '」 ⓘ</div>' +
-        '<button class="btn primary si-buy" data-i="' + i + '"' + (afford ? '' : ' disabled') + '>' + (it.sold ? '영입완료' : '💰 ' + it.cost) + '</button></div>';
+      var d = HW_BY_ID[it.id], afford = run.gold >= it.cost;
+      var bcls = it.sold ? 'sold' : (afford ? '' : 'poor');
+      var price = it.sold ? '완료' : ('💰 ' + it.cost);
+      var bsub = it.sold ? '등용됨' : (afford ? '등용' : '금화 부족');
+      return '<div class="wr-recruit' + (it.sold ? ' sold' : '') + '" data-info="' + i + '">' +
+        '<div class="wr-recruit-port">' + TCG.portrait(d.emoji, d.id, '', d.name) +
+          '<span class="wr-rb" style="background:' + rarBg(d.rarity) + '">' + d.rarity + '</span></div>' +
+        '<div class="wr-recruit-body">' +
+          '<div class="wr-recruit-name"><b>' + d.name + '</b><small>' + d.cls + '</small></div>' +
+          '<div class="wr-recruit-stats"><span class="a">⚔ ' + d.atk + '</span><span class="h">♥ ' + d.hp + '</span></div>' +
+          '<div class="wr-recruit-sk">「' + d.skill.name + '」 · ' + d.skill.desc + '</div>' +
+        '</div>' +
+        '<button class="wr-buy ' + bcls + '" data-i="' + i + '"' + ((it.sold || !afford) ? ' disabled' : '') + '>' +
+          '<span class="p">' + price + '</span><span class="s">' + bsub + '</span></button>' +
+        '</div>';
     }).join('');
   }
   document.getElementById('tavernItems').addEventListener('click', function (e) {
-    var info = e.target.closest('.shop-hero');
-    if (info && !e.target.closest('.si-buy')) { var hi = run.tavern.items[parseInt(info.dataset.info, 10)]; if (hi) showHeroInfo(HW_BY_ID[hi.id]); return; }
-    var b = e.target.closest('.si-buy'); if (!b || b.disabled) return;
+    var b = e.target.closest('.wr-buy');
+    if (!b) { var info = e.target.closest('.wr-recruit'); if (info) { var hi = run.tavern.items[parseInt(info.dataset.info, 10)]; if (hi) showHeroInfo(HW_BY_ID[hi.id]); } return; }
+    if (b.disabled) return;
     var it = run.tavern.items[parseInt(b.dataset.i, 10)];
     if (!it || it.sold || run.gold < it.cost) return;
     if (ownedHeroIds().indexOf(it.id) !== -1) { TCG.toast('이미 보유한 장수입니다'); it.sold = true; renderTavern(); return; }
@@ -1726,29 +1765,41 @@
     TCG.toast('영입: ' + HW_BY_ID[it.id].name); updateTop(); saveRun(); renderTavern();
   });
   document.getElementById('tavernLeave').addEventListener('click', function () { TCG.sfx('tap'); showMap(); });
+  function buyBtnHtml(it, i) {
+    var afford = run.gold >= it.cost;
+    var cls = it.sold ? 'sold' : (afford ? '' : 'poor');
+    var price = it.sold ? '품절' : ('💰 ' + it.cost);
+    var sub = it.sold ? '판매됨' : (afford ? '구매' : '금화 부족');
+    return '<button class="wr-buy ' + cls + '" data-i="' + i + '"' + ((it.sold || !afford) ? ' disabled' : '') + '>' +
+      '<span class="p">' + price + '</span><span class="s">' + sub + '</span></button>';
+  }
+  function shopGood(it, i) {
+    var emoji, name, desc, rb = '';
+    if (it.kind === 'weapon') { var w = HW_WEAPON_BY_ID[it.wid]; emoji = w.emoji; name = w.name; desc = w.desc; if (w.rarity) rb = '<span class="wr-rb" style="background:' + rarBg(w.rarity) + '">' + w.rarity + '</span>'; }
+    else if (it.kind === 'item') { var ci = HW_CONS_BY_ID[it.cid]; emoji = ci.emoji; name = ci.name; desc = ci.desc; }
+    else if (it.kind === 'dujiu') { emoji = '🍶'; name = '두강주'; desc = '주공 MP 20 회복'; }
+    else { emoji = '⚒️'; name = '무기 강화'; desc = '무작위 영웅 공격력 +3'; }
+    return '<div class="wr-good' + (it.sold ? ' sold' : '') + '">' +
+      '<div class="wr-good-tile">' + emoji + '</div>' +
+      '<div class="wr-good-info"><div class="wr-good-name">' + name + rb + '</div>' +
+      '<div class="wr-good-desc">' + desc + '</div></div>' +
+      buyBtnHtml(it, i) + '</div>';
+  }
   function renderShop() {
-    document.getElementById('shopGold').textContent = '💰 ' + run.gold;
-    document.getElementById('shopItems').innerHTML = run.shop.map(function (it, i) {
-      var afford = run.gold >= it.cost && !it.sold;
-      var buyBtn = '<button class="btn primary si-buy" data-i="' + i + '"' + (afford ? '' : ' disabled') + '>' + (it.sold ? '구매완료' : '💰 ' + it.cost) + '</button>';
-      if (it.kind === 'hero') { // 장수는 카드 형태(탭하면 정보)
-        var d = it.def;
-        return '<div class="shop-item shop-hero' + (it.sold ? ' sold' : '') + '" data-info="' + i + '" title="탭하면 상세 정보">' +
-          TCG.portrait(d.emoji, d.id, 'rc-portrait', d.name) +
-          '<div class="si-name">' + d.name + ' <span class="rar-' + d.rarity + '" style="font-size:11px">' + d.rarity + '</span></div>' +
-          '<div class="si-desc">' + d.cls + ' · ❤' + d.hp + ' ⚔' + d.atk + '<br>「' + d.skill.name + '」 ⓘ</div>' +
-          buyBtn + '</div>';
-      }
-      var emoji, name, desc;
-      if (it.kind === 'weapon') { var w = HW_WEAPON_BY_ID[it.wid]; emoji = w.emoji; name = w.name; desc = w.desc; }
-      else if (it.kind === 'item') { var ci = HW_CONS_BY_ID[it.cid]; emoji = ci.emoji; name = ci.name + ' (소모품)'; desc = ci.desc; }
-      else if (it.kind === 'dujiu') { emoji = '🍶'; name = '두강주'; desc = '주공 MP 20 회복'; }
-      else { emoji = '⚒️'; name = '무기 강화'; desc = '무작위 영웅 공격력 +3'; }
-      return '<div class="shop-item' + (it.sold ? ' sold' : '') + '">' +
-        '<div class="si-emoji">' + emoji + '</div>' +
-        '<div class="si-name">' + name + '</div>' +
-        '<div class="si-desc">' + desc + '</div>' + buyBtn + '</div>';
+    document.getElementById('shopGold').textContent = run.gold;
+    var rr = document.getElementById('shopReroll'); if (rr) rr.disabled = run.gold < SHOP_REROLL_COST;
+    // 섹션: 장비 / 소모품 / 상단 서비스
+    var secs = [
+      { icon: '🗡️', title: '장비', kinds: ['weapon'] },
+      { icon: '🎒', title: '소모품', kinds: ['item'] },
+      { icon: '🏮', title: '상단 서비스', kinds: ['dujiu', 'upgrade'] }
+    ];
+    var html = secs.map(function (sec) {
+      var rows = run.shop.map(function (it, i) { return sec.kinds.indexOf(it.kind) !== -1 ? shopGood(it, i) : ''; }).join('');
+      if (!rows) return '';
+      return '<div class="wr-sec"><div class="wr-sec-h"><span>' + sec.icon + ' ' + sec.title + '</span><i></i></div>' + rows + '</div>';
     }).join('');
+    document.getElementById('shopItems').innerHTML = html;
   }
   // 저잣거리 장수 카드 — 탭하면 상세 정보(읽기 전용)
   function showHeroInfo(d) {
@@ -1767,16 +1818,12 @@
     modal.hidden = false;
     document.getElementById('heroModalClose').addEventListener('click', function () { modal.hidden = true; });
   }
+  var _srr = document.getElementById('shopReroll'); if (_srr) _srr.addEventListener('click', rerollShop);
   document.getElementById('shopItems').addEventListener('click', function (e) {
-    var info = e.target.closest('.shop-hero');
-    if (info && !e.target.closest('.si-buy')) { var hi = run.shop[parseInt(info.dataset.info, 10)]; if (hi && hi.def) showHeroInfo(hi.def); return; }
-    var b = e.target.closest('.si-buy'); if (!b || b.disabled) return;
+    var b = e.target.closest('.wr-buy'); if (!b || b.disabled) return;
     var it = run.shop[parseInt(b.dataset.i, 10)];
     if (it.sold || run.gold < it.cost) return;
-    if (it.kind === 'hero') {
-      if (run.party.length >= MAX_PARTY) { TCG.toast('파티가 가득 찼습니다 (최대 ' + MAX_PARTY + '명)'); return; }
-      run.party.push(mkHero(it.def.id));
-    } else if (it.kind === 'weapon') {
+    if (it.kind === 'weapon') {
       if (run.weapons.indexOf(it.wid) !== -1) { TCG.toast('이미 보유한 장비입니다'); return; } // 장비 중복 획득 방지
       run.weapons.push(it.wid); TCG.toast('보물 구입: ' + HW_WEAPON_BY_ID[it.wid].name);
     } else if (it.kind === 'item') {
