@@ -426,6 +426,7 @@
       goldHtml = '<div class="end-gold draw"><span class="eg-val">골드 정산 없음</span></div>';
     }
     var tc = treasureChallenge();
+    var endActions = document.getElementById('endActions');
     if (tc) {
       try { localStorage.removeItem('hw_treasure_relic'); } catch (e) {}
       if (s.you > s.foe) {
@@ -436,8 +437,10 @@
         goldHtml += '<div class="end-gold loss"><span class="eg-label">🏺 보물 도전 실패</span>' +
           '<span class="eg-val">' + tc.emoji + ' ' + tc.name + '을(를) 놓쳤습니다</span></div>';
       }
-      goldHtml += '<div style="margin-top:8px;text-align:center"><a class="btn primary" href="heroes.html">🗺️ 영웅전으로 돌아가기</a></div>';
-    }
+      // 보물 도전 결과창은 '영웅전으로 돌아가기'(자동 이어하기)만 노출
+      goldHtml += '<div style="margin-top:10px;text-align:center"><a class="btn primary" href="heroes.html?resume=1">🗺️ 영웅전으로 돌아가기</a></div>';
+      if (endActions) endActions.hidden = true;
+    } else if (endActions) { endActions.hidden = false; }
     document.getElementById('endTitle').textContent = title;
     document.getElementById('endText').textContent = text;
     document.getElementById('endScore').innerHTML =

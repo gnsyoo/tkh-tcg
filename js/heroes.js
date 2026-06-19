@@ -279,7 +279,8 @@
     checkCollectionReward();
     updateTop();
     var mt = document.getElementById('mapTitle');
-    if (mt) { var md = HW_MODES[run.mode] || HW_MODES.normal; mt.textContent = '📜 연대기 · ' + md.emoji + ' ' + md.label; }
+    if (mt) { var md = HW_MODES[run.mode] || HW_MODES.normal; mt.textContent = TCG.t('map.title') + ' · ' + md.emoji + ' ' + md.label; }
+    var msub = document.getElementById('mapSub'); if (msub) msub.textContent = TCG.t('map.sub');
     renderCampaign();
     show('mapScreen');
     saveRun();
@@ -308,23 +309,23 @@
           (state === 'current' ? '<span class="sn-here">📍</span>' : '') +
         '</div>';
     }
-    var battleLabel = isBoss ? ('👑 적장 ' + HW_COMMANDERS[st.boss].name + ' 토벌') : ('⚔️ 출진 (' + (s + 1) + '/' + SUB_COUNT + ')');
+    var battleLabel = isBoss ? TCG.t('map.battleBoss', { name: HW_COMMANDERS[st.boss].name }) : TCG.t('map.battle', { n: s + 1, max: SUB_COUNT });
     var html =
       '<div class="main-chips">' + chips + '</div>' +
       '<div class="main-banner' + (isBoss ? ' boss' : '') + '"><span class="mb-no">' + (m + 1) + '</span>' +
-        '<div class="mb-title"><b>' + st.name + '</b><small>' + st.year + ' · 서브 ' + (s + 1) + '/' + SUB_COUNT + (isBoss ? ' · 적장전' : '') + '</small></div></div>' +
+        '<div class="mb-title"><b>' + st.name + '</b><small>' + TCG.t('map.subInfo', { year: st.year, n: s + 1, max: SUB_COUNT }) + (isBoss ? TCG.t('map.bossTag') : '') + '</small></div></div>' +
       '<p class="cs-desc">' + st.desc + '</p>' +
       '<div class="sub-dots">' + dots + '</div>' +
       '<div class="cs-actions">' +
         '<button class="camp-btn primary" data-act="battle">' + battleLabel + '</button>' +
-        '<button class="camp-btn" data-act="formation">🀄 진형</button>' +
-        '<button class="camp-btn" data-act="shop">🏪 상점</button>' +
-        '<button class="camp-btn" data-act="tavern">🏮 주막</button>' +
+        '<button class="camp-btn" data-act="formation">' + TCG.t('camp.formation') + '</button>' +
+        '<button class="camp-btn" data-act="shop">' + TCG.t('camp.shop') + '</button>' +
+        '<button class="camp-btn" data-act="tavern">' + TCG.t('camp.tavern') + '</button>' +
       '</div>' +
       '<div class="map-lord-status">' +
         '<span class="mls hp">❤ ' + (run.lordHp != null ? run.lordHp : lordMaxHp()) + ' / ' + lordMaxHp() + '</span>' +
         '<span class="mls mp">💧 ' + (run.lordMp != null ? run.lordMp : lordMaxMp()) + ' / ' + lordMaxMp() + '</span>' +
-        '<span class="mls relic relic-pick" title="탭하면 추가 능력 상세">✨ 추가 능력</span>' +
+        '<span class="mls relic relic-pick" title="탭하면 추가 능력 상세">' + TCG.t('map.relics') + '</span>' +
       '</div>';
     document.getElementById('mapTrack').innerHTML = html;
     document.getElementById('rosterCount').textContent = run.party.length;
@@ -1476,7 +1477,7 @@
   function showGoldPopup(gold) {
     var pop = document.getElementById('goldPopup');
     if (!pop) return;
-    document.getElementById('goldPopupText').textContent = '+' + gold + ' 골드 획득!';
+    document.getElementById('goldPopupText').textContent = TCG.t('ui.goldGet', { n: gold });
     pop.hidden = false;
     clearTimeout(showGoldPopup._t);
     showGoldPopup._t = setTimeout(function () { pop.hidden = true; }, 3000);
@@ -1984,7 +1985,10 @@
   document.getElementById('newRunBtn').addEventListener('click', function () { startNew('normal'); }); // 호환
   renderModeSel();
   var multiMode = HW_MODE_ORDER.filter(isModeUnlocked).length > 1;
-  if (saved) {
+  if (saved && /[?&]resume=1/.test(location.search)) {
+    // 보물 도전 등에서 복귀 — 시작 모달 없이 자동 이어하기
+    TCG.audioResume(); resumeRun(saved);
+  } else if (saved) {
     var sst = HW_STAGES[Math.min(saved.mainStage || 0, HW_STAGES.length - 1)];
     var smd = HW_MODES[saved.mode] || HW_MODES.normal;
     document.getElementById('continueBtn').hidden = false;

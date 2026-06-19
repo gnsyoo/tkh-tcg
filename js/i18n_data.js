@@ -8,7 +8,24 @@
   var LANGS = ['ko', 'en', 'ja', 'zh', 'zhTW'];
   function curLang() { try { var l = localStorage.getItem('tcg_lang'); return LANGS.indexOf(l) !== -1 ? l : 'ko'; } catch (e) { return 'ko'; } }
   var lang = curLang();
-  if (lang === 'ko') return; // 한국어는 원본 그대로
+
+  /* ===== 동적 UI 문구 사전(TCG.t) — 모든 언어 공통 등록(ko 포함) ===== */
+  window.__UI_I18N__ = Object.assign(window.__UI_I18N__ || {}, {
+    // 지도 / 대기실 (영웅전)
+    'map.title': { ko: '📜 연대기', en: '📜 Chronicle', ja: '📜 年代記', zh: '📜 编年史', zhTW: '📜 編年史' },
+    'map.sub': { ko: '다음 목적지를 선택하세요', en: 'Choose your next destination', ja: '次の目的地を選びましょう', zh: '请选择下一个目的地', zhTW: '請選擇下一個目的地' },
+    'map.battle': { ko: '⚔️ 출진 ({n}/{max})', en: '⚔️ Sortie ({n}/{max})', ja: '⚔️ 出陣 ({n}/{max})', zh: '⚔️ 出阵 ({n}/{max})', zhTW: '⚔️ 出陣 ({n}/{max})' },
+    'map.battleBoss': { ko: '👑 적장 {name} 토벌', en: '👑 Subjugate {name}', ja: '👑 敵将 {name} 討伐', zh: '👑 讨伐敌将 {name}', zhTW: '👑 討伐敵將 {name}' },
+    'camp.formation': { ko: '🀄 진형', en: '🀄 Formation', ja: '🀄 陣形', zh: '🀄 阵型', zhTW: '🀄 陣型' },
+    'camp.shop': { ko: '🏪 상점', en: '🏪 Shop', ja: '🏪 商店', zh: '🏪 商店', zhTW: '🏪 商店' },
+    'camp.tavern': { ko: '🏮 주막', en: '🏮 Tavern', ja: '🏮 酒場', zh: '🏮 酒馆', zhTW: '🏮 酒館' },
+    'map.relics': { ko: '✨ 추가 능력', en: '✨ Bonuses', ja: '✨ 追加能力', zh: '✨ 附加能力', zhTW: '✨ 附加能力' },
+    'map.subInfo': { ko: '{year} · 서브 {n}/{max}', en: '{year} · Sortie {n}/{max}', ja: '{year} · サブ {n}/{max}', zh: '{year} · 出阵 {n}/{max}', zhTW: '{year} · 出陣 {n}/{max}' },
+    'map.bossTag': { ko: ' · 적장전', en: ' · Commander', ja: ' · 敵将戦', zh: ' · 敌将战', zhTW: ' · 敵將戰' },
+    'ui.goldGet': { ko: '+{n} 골드 획득!', en: '+{n} gold!', ja: '+{n} ゴールド獲得！', zh: '+{n} 金币！', zhTW: '+{n} 金幣！' }
+  });
+
+  if (lang === 'ko') return; // 한국어는 데이터 원본 그대로(UI 사전은 위에서 등록 완료)
 
   function pick(map, key) { var e = map[key]; return (e && e[lang] != null) ? e[lang] : key; }
   var pct = function (f) { return Math.round(f * 100); };

@@ -13,8 +13,8 @@
   gtag('config', 'G-RZW78R7430');
 </script>
 <title>삼국지 카드 게임</title>
-<link rel="stylesheet" href="css/common.css?v=1.4.7">
-<link rel="stylesheet" href="css/home.css?v=1.4.7">
+<link rel="stylesheet" href="css/common.css?v=1.4.8">
+<link rel="stylesheet" href="css/home.css?v=1.4.8">
 </head>
 <body class="home-body">
   <div class="home-wrap">
@@ -42,7 +42,7 @@
     </section>
 
     <footer class="home-version">
-      <span class="ver-badge" id="verBadge">v1.4.7 · 2026.06.19</span>
+      <span class="ver-badge" id="verBadge">v1.4.8 · 2026.06.19</span>
       <button class="btn ghost ver-btn" id="guideBtn" data-i18n="footGuide">📖 게임 가이드</button>
       <button class="btn ghost ver-btn" id="changelogBtn" data-i18n="footChangelog">📜 변경 내역</button>
       <button class="btn ghost ver-btn" id="creditsBtn" data-i18n="footCredits">🎬 만든이</button>
@@ -59,10 +59,12 @@
   <!-- 변경 내역 팝업 -->
   <div class="overlay" id="changelogModal" hidden>
     <div class="modal" style="max-width:560px;text-align:left;">
-      <h2 style="text-align:center;">📜 변경 내역 <span style="color:var(--gold);font-size:14px;">v1.4.7</span></h2>
+      <h2 style="text-align:center;">📜 변경 내역 <span style="color:var(--gold);font-size:14px;">v1.4.8</span></h2>
       <div class="changelog-list">
         <h4>📅 2026.06.19</h4>
         <ul>
+          <li><b>다국어 — 인게임 동적 문구(1차: 지도)</b> — 동적 UI 번역 엔진(<code>TCG.t</code>) 도입, 영웅전 <b>지도/대기실</b> 문구(출진·진형·상점·주막·연대기 등)부터 5개 언어 적용. (전투·보상·상점·결과 화면은 순차 진행)</li>
+          <li><b>보물 도전 복귀 개선</b> — 히어로즈 블러드 결과창에서 보물 도전 시 <b>'영웅전으로 돌아가기'만</b> 노출(다시 하기·메뉴로 제거), 복귀 시 <b>자동 이어하기</b>로 진입.</li>
           <li><b>보물 이벤트 → 히어로즈 블러드 도전</b> — 보물 발견 시 유물을 바로 고르는 대신, <b>히어로즈 블러드에서 승리하면</b> 해당 유물을 획득하도록 변경.</li>
           <li><b>추가 능력 개편</b> — '적용된 주공 능력치'에 <b>치명타 확률</b> 항목 추가, 명칭을 '아이템 적용 주공 능력치' → <b>'적용된 주공 능력치'</b>로 변경(영웅전·대장전).</li>
           <li><b>다국어 — 인게임 데이터 적용</b> — 영웅전·대장전·히어로즈 블러드의 <b>장수·병종·스킬·스테이지·유물·장비·소모품</b>이 선택 언어로 표시됩니다(효과 설명은 자동 생성). 각 게임 메뉴에도 <b>언어 선택</b> 추가. (전투 로그 등 동적 문구는 순차 적용 예정)</li>
@@ -164,6 +166,6 @@
       wire('creditsBtn', 'creditsModal', 'creditsClose');
     })();
   </script>
-  <script src="js/i18n.js?v=1.4.7"></script>
+  <script src="js/i18n.js?v=1.4.8"></script>
 </body>
 </html>

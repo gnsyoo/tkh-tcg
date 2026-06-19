@@ -11,6 +11,16 @@ var TCG = (function () {
   function diffLabel(d) {
     return { easy: '하 (Easy)', normal: '중 (Normal)', hard: '상 (Hard)' }[d] || d;
   }
+  // 동적 UI 문구 번역 — window.__UI_I18N__(키→{ko,en,ja,zh,zhTW})에서 현재 언어 문자열을 찾아 {var} 치환
+  function t(key, vars) {
+    var lang = 'ko';
+    try { var l = localStorage.getItem('tcg_lang'); if (['ko', 'en', 'ja', 'zh', 'zhTW'].indexOf(l) !== -1) lang = l; } catch (e) {}
+    var dict = (typeof window !== 'undefined' && window.__UI_I18N__) || {};
+    var e = dict[key];
+    var s = e ? (e[lang] != null ? e[lang] : e.ko) : key;
+    if (vars) s = String(s).replace(/\{(\w+)\}/g, function (m, k) { return vars[k] != null ? vars[k] : m; });
+    return s;
+  }
   function rand(n) { return Math.floor(Math.random() * n); }
   function pick(arr) { return arr[rand(arr.length)]; }
   function shuffle(arr) {
@@ -248,6 +258,7 @@ var TCG = (function () {
   return {
     getDifficulty: getDifficulty,
     diffLabel: diffLabel,
+    t: t,
     rand: rand, pick: pick, shuffle: shuffle, clamp: clamp,
     hue: hue, portrait: portrait,
     toast: toast, floatText: floatText, delay: delay,
