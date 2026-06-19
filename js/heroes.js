@@ -300,7 +300,7 @@
       var cl = i < m ? 'done' : (i === m ? 'current' : (i === m + 1 ? 'next' : 'locked'));
       var inner = i < m ? '✔' : (i === m ? (i + 1) : lockSvg);
       return '<div class="wr-camp ' + cl + '">' + inner + '</div>';
-    }).join('<span class="wr-camp-link"></span>');
+    }).join('');
     // 스테이지 타임라인 (11)
     var rows = '';
     for (var i = 0; i < SUB_COUNT; i++) {
@@ -346,7 +346,7 @@
           '<button data-act="relic"><img src="' + A + 'ic-gear.png" alt="">' + TCG.t('camp.bonus') + '</button>' +
         '</div>' +
       '</div>' +
-      '<div class="wr-timeline"><div class="wr-inner"><div class="wr-line"></div>' + rows + '</div></div>' +
+      '<div class="wr-timeline"><div class="wr-inner">' + rows + '</div></div>' +
       '<div class="wr-actions">' +
         '<button class="wr-act primary" data-act="battle"><img src="' + A + 'ped-chuljin.png" alt="">' + TCG.t('camp.battle') + '</button>' +
         '<button class="wr-act" data-act="formation"><img src="' + A + 'ped-jinhyeong.png" alt="">' + TCG.t('camp.formation') + '</button>' +
@@ -2059,11 +2059,24 @@
   var goParam = (location.search.match(/[?&]go=(codex|shop|tavern)/) || [])[1];
   var adminParam = /[?&]admin=1\b/.test(location.search);
   if (adminParam) {
-    // 관리자: 극악·마지막 전역 출진 1에 배치 + 금화 10000 (컬렉션은 홈에서 이미 해금)
+    // 관리자: 모든 장수 영입 + 모든 장비/유물 보유 + 컬렉션 전체 해금, 극악·마지막 전역 출진 1, 금화 10000
     TCG.audioResume(); newRun('extreme');
+    HW_HEROES.forEach(function (d) {
+      if (collectedHeroes.indexOf(d.id) === -1) collectedHeroes.push(d.id);
+      if (!run.party.some(function (h) { return h.def.id === d.id; })) run.party.push(mkHero(d.id));
+    });
+    run.weapons = HW_WEAPONS.map(function (w) { return w.id; });
+    run.relics = HW_RELICS.slice();
+    collectedWeapons = HW_WEAPONS.map(function (w) { return w.id; });
+    collectedRelics = HW_RELICS.map(function (r) { return r.id; });
+    try {
+      localStorage.setItem('hw_collected_heroes', JSON.stringify(collectedHeroes));
+      localStorage.setItem('hw_collected_weapons', JSON.stringify(collectedWeapons));
+      localStorage.setItem('hw_collected_relics', JSON.stringify(collectedRelics));
+    } catch (e) {}
     run.mainStage = HW_STAGES.length - 1; run.subStage = 0; run.gold = 10000;
     run.lordHp = lordMaxHp(); run.lordMp = lordMaxMp();
-    saveRun(); showMap();
+    syncDeck(); saveRun(); showMap();
   } else if (modeParam) {
     // 홈 난이도 선택 → 해당 난이도로 새 게임
     TCG.audioResume(); newRun(modeParam);
