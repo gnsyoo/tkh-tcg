@@ -32,15 +32,15 @@
   }
   function syncDeck() { run.deck = activeDeckUids(); } // 정규화 결과를 run.deck에 반영(자동 채움 포함)
   var BASE_CRIT = 0.01; // 기본 치명타 확률 1%
-  function critChance(h) { return Math.min(0.5, BASE_CRIT + (h ? wpnVal(h, 'crit') : 0)); } // 치명타 확률 최대 50%
+  function critChance(h) { return Math.min(0.5, BASE_CRIT + (h ? wpnVal(h, 'crit') : 0) + relicSum('crit')); } // 치명타 확률 최대 50%(유물 합산)
   function rollCrit(chance) { return Math.random() < chance; }
   function heroWpnIds(h) { return (h && h.weapons) ? h.weapons : []; }
   function heroWpns(h) { return heroWpnIds(h).map(function (id) { return HW_WEAPON_BY_ID[id]; }).filter(Boolean); }
   function wpnVal(h, key) { return heroWpns(h).reduce(function (s, w) { return s + (w.effect[key] || 0); }, 0); }
   function hasWpnFlag(h, key) { return heroWpns(h).some(function (w) { return !!w.effect[key]; }); }
   function effAtk(h) { var c = run.combat; return h.atk + wpnVal(h, 'atk') + (c ? (c.atkBuff || 0) + ((c.tempAtk && c.tempAtk.turns > 0) ? c.tempAtk.val : 0) + ((c.cardBuff && h.uid && c.cardBuff[h.uid]) ? c.cardBuff[h.uid] : 0) : 0); }
-  function lordMaxHp() { return HW_LORD.hp + run.party.reduce(function (s, h) { return s + wpnVal(h, 'lordHp'); }, 0); }
-  function lordMaxMp() { return HW_LORD.mp + run.party.reduce(function (s, h) { return s + wpnVal(h, 'lordMp'); }, 0); }
+  function lordMaxHp() { return HW_LORD.hp + run.party.reduce(function (s, h) { return s + wpnVal(h, 'lordHp'); }, 0) + relicSum('maxHp'); }
+  function lordMaxMp() { return HW_LORD.mp + run.party.reduce(function (s, h) { return s + wpnVal(h, 'lordMp'); }, 0) + relicSum('maxMp'); }
   function lordEvade() { return Math.min(0.3, run.party.reduce(function (s, h) { return s + wpnVal(h, 'evade'); }, 0)); } // 회피(무기 합산, 최대 30%)
   function skillMp(sk) { var m = 2 + (sk.cost || 1); return (sk.type === 'buff' && sk.scope === 'army') ? m * 5 : m + 3; } // 모든 스킬 +3, 전군 버프는 현재의 5배
   function ownedHeroIds() { return run.party.map(function (h) { return h.def.id; }); } // 중복 수집 방지
@@ -223,6 +223,25 @@
       localStorage.setItem('hw_collected_heroes', JSON.stringify(collectedHeroes));
     } catch (e) {}
   }
+  // 히어로즈 블러드 10연승 등으로 해금된 유물을 현재 모험에 영입(hw_grant_relics → run.relics)
+  function applyPendingRelics() {
+    try {
+      var raw = localStorage.getItem('hw_grant_relics');
+      var list = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(list) || !list.length) return;
+      var relicById = {}; HW_RELICS.forEach(function (r) { relicById[r.id] = r; });
+      list.forEach(function (id) {
+        var r = relicById[id]; if (!r) return;
+        if (collectedRelics.indexOf(id) === -1) collectedRelics.push(id);
+        if (!run.relics.some(function (x) { return x.id === id; })) {
+          run.relics.push(r);
+          TCG.toast('🏺 특별 유물 획득: ' + r.name);
+        }
+      });
+      localStorage.setItem('hw_grant_relics', '[]');
+      localStorage.setItem('hw_collected_relics', JSON.stringify(collectedRelics));
+    } catch (e) {}
+  }
   function pushGrant(id) {
     try { var g = JSON.parse(localStorage.getItem('hw_grant_heroes') || '[]'); if (!Array.isArray(g)) g = []; if (g.indexOf(id) === -1) g.push(id); localStorage.setItem('hw_grant_heroes', JSON.stringify(g)); } catch (e) {}
   }
@@ -256,6 +275,7 @@
   function showMap() {
     applyBonusGold();
     applyPendingGrants();
+    applyPendingRelics();
     checkCollectionReward();
     updateTop();
     var mt = document.getElementById('mapTitle');
@@ -561,6 +581,7 @@
     return '💎 보물상자(출진 5·10회) · 🏪 상점';
   }
   function relicPath(r) {
+    if (r.exclusive === 'qb') return '🃏 히어로즈 블러드 10연승 보상 (1회)';
     return '👑 메인 적장 격파 보상 · 💎 보물 발견 이벤트(메인 전역당 ~10% 등장)';
   }
   function renderHeroCodex() {
@@ -742,6 +763,7 @@
       sel: null, targeting: false, pending: null, phase: 'player', log: [],
       cstat: {}, sealed: null, sealUsed: false, itemUsed: false, tempAtk: null // 아군 카드 상태이상 / 소모품
     };
+    applyStartPoison(run.combat.enemies); // 독항아리(유물) — 전투 시작 시 임의의 적 1명 중독
     show('combatScreen');
     if (isBoss) {
       fxBanner('👑 적장 ' + HW_COMMANDERS[st.boss].name, 'boss', 1500); shake('big');
@@ -756,6 +778,16 @@
     if (lead && lead.quote && (lead.boss || lead.mid)) {
       setTimeout(function () { fxQuote(enemyEl(enemies.length - 1), lead.quote, 5000); }, isBoss ? 1100 : 700);
     }
+  }
+
+  // 독항아리(유물): 전투 시작 시 살아있는 적 1명을 임의로 골라 중독 부여
+  function applyStartPoison(enemies) {
+    var p = relicSum('startPoison'); if (!p) return;
+    var alive = (enemies || []).filter(function (e) { return e.hp > 0; });
+    if (!alive.length) return;
+    var target = TCG.pick(alive);
+    target.poison = (target.poison || 0) + p;
+    logMsg('☠ 독항아리 — ' + target.name + ' 중독 +' + p);
   }
 
   /* ---------- card piles: 뽑을 풀(draw) / 가운데(center,3장) / 사용한 풀(used) ---------- */
@@ -1411,12 +1443,12 @@
     // 주공 HP는 모험 내내 유지 — 승리 시 일부만 회복(로그라이크 소모전)
     var heal = Math.round(c.lord.maxHp * 0.115) + relicSum('winHeal'); // 카드 방어 제거 보정(승리 회복↑)
     run.lordHp = Math.min(c.lord.maxHp, c.lord.hp + heal);
-    run.lordMp = Math.min(c.lord.maxMp, c.lord.mp); // MP는 전투에서 남은 대로 유지
+    run.lordMp = Math.min(c.lord.maxMp, c.lord.mp + relicSum('winMp')); // MP는 남은 대로 유지 + 옥천수(유물) 회복
     // gold + reward cadence
     var isBoss = c.sub === SUB_COUNT - 1;
     var isMid = (c.sub === 4 || c.sub === 9);
     var prog = c.main * SUB_COUNT + c.sub;
-    var gold = Math.round((6 + prog * 1.5) * DCFG.gold * ((HW_MODES[run.mode] || HW_MODES.normal).gold) * (isMid ? 1.5 : 1)) + 20; // 출진 클리어 골드 +20 상향
+    var gold = Math.round(((6 + prog * 1.5) * DCFG.gold * ((HW_MODES[run.mode] || HW_MODES.normal).gold) * (isMid ? 1.5 : 1) + 20) * (1 + relicSum('goldBonus'))); // 출진 클리어 골드 +20 · 천자의 밀서(유물) +%
     run.gold += gold;
     run.sorties = (run.sorties || 0) + 1; // 누적 출진 횟수
     updateTop();
@@ -1428,7 +1460,9 @@
     if (isMid) { grantMidBoss(c.main, c.sub); showReward('hero', gold); return; } // 중간보스 격파 → 중간보스 카드 습득 + 장수 영입
     if ((c.sub + 1) % 4 === 0) { showReward('hero', gold); return; } // 4서브마다 장수 영입
     // 보물 발견 이벤트 — 메인 전역당 최대 1회, 약 10% 확률로 등장(유물 1개 선택)
-    if (run.treasureMain !== run.mainStage && Math.random() < 0.10) {
+    // ⚠️ 임시(테스트): 보물 발견 확률 100% — 정식 배포 전 0.10으로 되돌릴 것
+    var TREASURE_CHANCE = 1.00; // TODO: 테스트 후 0.10 복원
+    if (run.treasureMain !== run.mainStage && Math.random() < TREASURE_CHANCE) {
       run.treasureMain = run.mainStage;
       showTreasure(); return;
     }
@@ -1494,7 +1528,7 @@
     } else {
       document.getElementById('rewardSub').textContent = '획득할 유물을 선택하세요';
       var owned = run.relics.map(function (r) { return r.id; });
-      var avail = HW_RELICS.filter(function (r) { return owned.indexOf(r.id) === -1; });
+      var avail = HW_RELICS.filter(function (r) { return !r.exclusive && owned.indexOf(r.id) === -1; });
       avail = TCG.shuffle(avail).slice(0, 3);
       if (!avail.length) { afterReward(); return; }
       box.innerHTML = avail.map(function (r) {
@@ -1700,11 +1734,11 @@
 
   /* ---------- TREASURE ---------- */
   function showTreasure() {
-    var gold = Math.round((20 + run.mainStage * 4) * DCFG.gold);
+    var gold = Math.round((20 + run.mainStage * 4) * DCFG.gold * (1 + relicSum('goldBonus')));
     run.gold += gold; updateTop();
     document.getElementById('eventTitle').textContent = '💎 보물 발견! +💰' + gold;
     var owned = run.relics.map(function (r) { return r.id; });
-    var avail = TCG.shuffle(HW_RELICS.filter(function (r) { return owned.indexOf(r.id) === -1; })).slice(0, 2);
+    var avail = TCG.shuffle(HW_RELICS.filter(function (r) { return !r.exclusive && owned.indexOf(r.id) === -1; })).slice(0, 2);
     if (!avail.length) { document.getElementById('eventSub').textContent = '추가 골드를 얻었습니다.'; document.getElementById('eventChoices').innerHTML = '<button class="btn primary" id="evGo">계속</button>'; }
     else {
       document.getElementById('eventSub').textContent = '유물 하나를 가져갈 수 있습니다';

@@ -322,15 +322,18 @@
     } catch (e) {}
     return delta;
   }
-  // 3연승 시 제갈량(영웅전 전용 해금) 획득. win=true 연승 누적, 아니면 0으로 초기화.
-  // 반환: 이번에 제갈량을 획득했으면 true
+  // 연승 보상: 3연승=제갈량(영웅전 전용 장수), 10연승=천자의 밀서(유물, 1회).
+  // win=true 연승 누적, 아니면 0으로 초기화. 반환: { oracle, edict } — 이번에 획득한 보상 플래그.
   function updateWinStreak(win) {
+    var res = { oracle: false, edict: false };
     try {
       var n = parseInt(localStorage.getItem('qb_winstreak') || '0', 10) || 0;
       n = win ? n + 1 : 0;
       var collected = JSON.parse(localStorage.getItem('hw_collected_heroes') || '[]');
-      var has = Array.isArray(collected) && collected.indexOf('oracle') !== -1;
-      if (win && n >= 3 && !has) {
+      var hasO = Array.isArray(collected) && collected.indexOf('oracle') !== -1;
+      var relicsCol = JSON.parse(localStorage.getItem('hw_collected_relics') || '[]');
+      var hasE = Array.isArray(relicsCol) && relicsCol.indexOf('edict') !== -1;
+      if (win && n >= 3 && !hasO) { // 3연승 → 제갈량
         var grants = JSON.parse(localStorage.getItem('hw_grant_heroes') || '[]');
         if (!Array.isArray(grants)) grants = [];
         if (grants.indexOf('oracle') === -1) grants.push('oracle');
@@ -339,14 +342,26 @@
           collected.push('oracle'); localStorage.setItem('hw_collected_heroes', JSON.stringify(collected));
         }
         localStorage.setItem('qb_winstreak', '0'); // 보상 후 초기화
-        return true;
+        res.oracle = true; return res;
+      }
+      if (win && n >= 10 && hasO && !hasE) { // 10연승 → 천자의 밀서(유물, 1회)
+        var rg = JSON.parse(localStorage.getItem('hw_grant_relics') || '[]');
+        if (!Array.isArray(rg)) rg = [];
+        if (rg.indexOf('edict') === -1) rg.push('edict');
+        localStorage.setItem('hw_grant_relics', JSON.stringify(rg));
+        if (Array.isArray(relicsCol) && relicsCol.indexOf('edict') === -1) {
+          relicsCol.push('edict'); localStorage.setItem('hw_collected_relics', JSON.stringify(relicsCol));
+        }
+        localStorage.setItem('qb_winstreak', '0'); // 보상 후 초기화
+        res.edict = true; return res;
       }
       localStorage.setItem('qb_winstreak', String(n));
     } catch (e) {}
-    return false;
+    return res;
   }
   function curStreak() { try { return parseInt(localStorage.getItem('qb_winstreak') || '0', 10) || 0; } catch (e) { return 0; } }
   function hasOracle() { try { var c = JSON.parse(localStorage.getItem('hw_collected_heroes') || '[]'); return Array.isArray(c) && c.indexOf('oracle') !== -1; } catch (e) { return false; } }
+  function hasEdict() { try { var c = JSON.parse(localStorage.getItem('hw_collected_relics') || '[]'); return Array.isArray(c) && c.indexOf('edict') !== -1; } catch (e) { return false; } }
   function endGame() {
     state.over = true;
     var s = scoreOf(state.board);
@@ -357,7 +372,9 @@
       var bonus = Math.round(s.you * streakNow * 0.05); // 연승 보너스 = 무력 총합 × 연승 수 × 5%
       var gw = settleHeroesGold(s.you + bonus, true);
       var owned = hasOracle();
-      var gotOracle = updateWinStreak(true);
+      var hadEdict = hasEdict();
+      var streakRes = updateWinStreak(true);
+      var gotOracle = streakRes.oracle, gotEdict = streakRes.edict;
       var streak = gotOracle ? 3 : curStreak();
       text = '배치한 카드 무력 총합에서 앞섰습니다. (연승 ' + streakNow + ')';
       goldHtml = '<div class="end-gold gain">' +
@@ -369,6 +386,13 @@
             '<span class="eg-val"><b>제갈량</b> 획득! 삼국 영웅전에서 합류합니다</span></div>';
         } else if (streak < 3) {
           goldHtml += '<div class="streak-note">🔥 3연승 시 <b>제갈량</b> 획득 (' + streak + '/3)</div>';
+        }
+      } else if (!hadEdict) { // 제갈량 보유 후 — 10연승 시 천자의 밀서(유물)
+        if (gotEdict) {
+          goldHtml += '<div class="end-gold gain"><span class="eg-label">🌟 10연승 달성</span>' +
+            '<span class="eg-val"><b>천자의 밀서</b>(유물) 획득! 골드 보상 +20%</span></div>';
+        } else {
+          goldHtml += '<div class="streak-note">🔥 10연승 시 <b>천자의 밀서</b>(골드 +20% 유물) 획득 (' + streakNow + '/10)</div>';
         }
       }
       TCG.sfx('win');

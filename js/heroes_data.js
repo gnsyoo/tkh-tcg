@@ -195,7 +195,17 @@ var HW_RELICS = [
   { id:'fang',   name:'오추마',     emoji:'🐎', desc:'기본 공격 시 HP 2 회복',  effect:{ lifesteal:2 } },
   { id:'drum',   name:'전고(戰鼓)', emoji:'🥁', desc:'전투 시작 시 전원 공격력 +2', effect:{ startAtk:2 } },
   { id:'crest',  name:'방패 진형',  emoji:'🛡️', desc:'전투 시작 시 주공 방어막 +5',  effect:{ startBlock:5 } },
-  { id:'chalice',name:'군량미',     emoji:'🍚', desc:'전투 승리 후 주공 HP +6 회복', effect:{ winHeal:6 } }
+  { id:'chalice',name:'군량미',     emoji:'🍚', desc:'전투 승리 후 주공 HP +20 회복', effect:{ winHeal:20 } },
+  { id:'venom',  name:'독항아리',   emoji:'☠️', desc:'전투 시작 시 임의의 적 1명 중독(3)', effect:{ startPoison:3 } },
+  { id:'spring', name:'옥천수',     emoji:'💧', desc:'전투 승리 시 주공 MP +10 회복', effect:{ winMp:10 } },
+  { id:'edict',  name:'천자의 밀서', emoji:'📜', desc:'골드 보상 획득량 +20%', effect:{ goldBonus:0.20 }, exclusive:'qb' },
+  { id:'aegis',  name:'현철 갑주',  emoji:'🦾', desc:'주공 최대 HP +20',  effect:{ maxHp:20 } },
+  { id:'gourd',  name:'호리병',     emoji:'🍶', desc:'주공 최대 MP +10',  effect:{ maxMp:10 } },
+  { id:'edge',   name:'예기(銳器)', emoji:'🗡️', desc:'치명타 확률 +8%',   effect:{ crit:0.08 } },
+  { id:'horn',   name:'호각(號角)', emoji:'📣', desc:'전투 시작 시 전원 공격력 +3', effect:{ startAtk:3 } },
+  { id:'rampart',name:'철벽 보루',  emoji:'🧱', desc:'전투 시작 시 주공 방어막 +10', effect:{ startBlock:10 } },
+  { id:'amulet', name:'벽사 부적',  emoji:'🧿', desc:'기본 공격 시 HP 3 회복', effect:{ lifesteal:3 } },
+  { id:'ration', name:'건량(乾糧)', emoji:'🍙', desc:'전투 승리 후 주공 HP +10 회복', effect:{ winHeal:10 } }
 ];
 
 /* 주공(나) 기본 스탯 */

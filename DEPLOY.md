@@ -66,6 +66,25 @@
 > 2. 매 배포마다 첫 화면 변경 내역에 이번 버전 변경 항목을 추가한다.
 > 3. MINOR가 20에 도달하면 자동으로 MIDDLE로 올림된다. 큰 변경은 `middle`로 직접 올린다.
 
+## 데이터 정합성 규칙 (영웅전 · 대장전 동시 적용)
+
+장수·장비·유물 등 **공유 데이터를 추가/변경하면 영웅전과 대장전에 함께 반영**해
+두 게임의 정합성을 유지합니다.
+
+- **단일 소스:** 장수/장비/유물 데이터는 [`js/heroes_data.js`](js/heroes_data.js)
+  (`HW_HEROES` · `HW_WEAPONS` · `HW_RELICS` …)에만 정의하고, 영웅전(`js/heroes.js`)과
+  대장전(`js/daejang.js`)이 **이 데이터를 공유**합니다. 한쪽에 따로 정의하지 않습니다.
+- **수집 기록 공유:** `hw_collected_heroes` · `hw_collected_weapons` · `hw_collected_relics`
+  (localStorage)를 두 게임이 공유합니다 — 도감 탭(장수/장비/유물)도 양쪽에 동일하게 둡니다.
+- **효과 배선:** 새 유물/장비 효과를 추가하면, **두 전투 엔진(`heroes.js`·`daejang.js`)에
+  모두 배선**합니다. 공유 효과 훅 예시 — `lordMaxHp()` / `lordMaxMp()`(maxHp·maxMp),
+  `critChance()`(crit), 전투 시작(startAtk·startBlock·startPoison), 기본 공격(lifesteal),
+  골드 보상(goldBonus). *전투 승리 후 지속 효과(winHeal·winMp)처럼 모드 구조상 적용되지
+  않는 경우는 예외*로 두되, 데이터·도감에는 양쪽 모두 노출합니다.
+- **체크리스트:** 새 장수/장비/유물 추가 시 — ① `heroes_data.js`에 정의 ② 효과를
+  `heroes.js`·`daejang.js` 양쪽에 배선 ③ 도감(장수/장비/유물 탭)에서 양쪽 노출 확인
+  ④ 보상/획득 경로(전투 보상·보물 이벤트·연승 보상 등) 연결.
+
 ## 배포 주소
 
 https://gnsyoo.github.io/tkh-tcg/
