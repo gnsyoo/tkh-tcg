@@ -144,6 +144,10 @@
     setSound: { ko: '소리 설정', en: 'Sound', ja: 'サウンド設定', zh: '声音设置', zhTW: '聲音設定' },
     setLang: { ko: '언어 설정', en: 'Language', ja: '言語設定', zh: '语言设置', zhTW: '語言設定' },
     setDialogue: { ko: '대사 설정', en: 'Dialogue', ja: 'セリフ設定', zh: '台词设置', zhTW: '台詞設定' },
+    setGuideTxt: { ko: '게임 가이드', en: 'Game Guide', ja: 'ゲームガイド', zh: '游戏指南', zhTW: '遊戲指南' },
+    setChangelogTxt: { ko: '변경 내역', en: 'Changelog', ja: '変更履歴', zh: '更新记录', zhTW: '更新記錄' },
+    setCreditsTxt: { ko: '만든이', en: 'Credits', ja: '制作', zh: '制作人员', zhTW: '製作人員' },
+    setResetTxt: { ko: '데이터 초기화', en: 'Reset Data', ja: 'データ初期化', zh: '重置数据', zhTW: '重置資料' },
     resetQ: { ko: '🗑️ 데이터를 초기화할까요?', en: '🗑️ Reset all data?', ja: '🗑️ データを初期化しますか？', zh: '🗑️ 要重置所有数据吗？', zhTW: '🗑️ 要重置所有資料嗎？' },
     resetBody: {
       ko: '삼국 영웅전·삼국 대장전의 모든 진행과 장수/장비 컬렉션, 모드 해금 기록이 <b>모두 삭제</b>됩니다. 되돌릴 수 없습니다.',
