@@ -1458,7 +1458,7 @@
     if (isBoss && c.main === HW_STAGES.length - 1) { victory(); return; } // 최종 적장 격파
     if (isBoss) { showReward('relic', gold); return; }      // 메인 적장 처치 → 유물
     if (isMid) { grantMidBoss(c.main, c.sub); showReward('hero', gold); return; } // 중간보스 격파 → 중간보스 카드 습득 + 장수 영입
-    if ((c.sub + 1) % 4 === 0) { showReward('hero', gold); return; } // 4서브마다 장수 영입
+    // (일반 출진은 장수 영입 보상을 주지 않고 골드 보상으로 처리 — 장수 영입은 중간보스·주막·특수 경로로만)
     // 보물 발견 이벤트 — 메인 전역당 최대 1회, 약 10% 확률로 등장(유물 1개 선택)
     // ⚠️ 임시(테스트): 보물 발견 확률 100% — 정식 배포 전 0.10으로 되돌릴 것
     var TREASURE_CHANCE = 1.00; // TODO: 테스트 후 0.10 복원
