@@ -809,17 +809,15 @@
 .codex-detail-body .cd-path { color: var(--gold); font-weight: 700; }
 .codex-detail-body .cd-sub { color: var(--ink-dim); }
 
-/* 도감 탭 (핸드오프 — 금색 받침대 알약) */
-.codex-tabs { display: flex; gap: 6px; margin-bottom: 8px; }
+/* 도감 탭 */
+.codex-tabs { display: flex; gap: 8px; margin-bottom: 10px; }
 .codex-tab {
-  flex: 1; border: none; border-radius: 10px; cursor: pointer; font-family: inherit;
-  background: rgba(48,30,24,.74); box-shadow: inset 0 0 0 1px rgba(240,195,60,.2);
-  color: var(--ink-dim); font-weight: 800; font-size: 12px; line-height: 1.2; padding: 9px 4px; transition: all .12s;
+  flex: 1; padding: 10px 6px; border-radius: 10px; cursor: pointer;
+  background: rgba(0,0,0,0.28); border: 1px solid rgba(255,255,255,0.12);
+  color: var(--ink-dim); font-weight: 800; font-size: 13px; line-height: 1.25; transition: all .15s;
 }
-.codex-tab .ct-count { font-size: 10px; font-weight: 700; opacity: .8; color: inherit; }
-.codex-tab:hover { box-shadow: inset 0 0 0 1px var(--gold); }
-.codex-tab.active { color: #2a1f00; background: var(--gold); box-shadow: 0 3px 0 #b8902f; }
-.codex-tab.active:hover { box-shadow: 0 3px 0 #b8902f; }
+.codex-tab:hover { border-color: var(--gold); }
+.codex-tab.active { color: var(--ink); border-color: var(--gold); background: rgba(212,175,55,0.16); }
 
 /* 모드 선택(노멀/하드/극악) */
 .mode-label { font-size: 12px; color: var(--ink-dim); margin: 6px 0 8px; }
@@ -1064,23 +1062,3 @@ button.wr-chip:hover { box-shadow: inset 0 0 0 1px var(--gold); }
 #codexDetailModal .modal.cdx-pop { position: relative; background: linear-gradient(180deg,#2a1a14,#160d0a); border-width: 1.5px; }
 .cdx-x { position: absolute; top: 8px; right: 8px; z-index: 3; background: rgba(0,0,0,.45); color: var(--ink); }
 .cdx-pop-port .cdx-x { top: 8px; right: 8px; }
-
-/* ===== 도감(핸드오프) — 그리드 카드·리스트 행·정렬 다크 스타일 ===== */
-.codex-page .col-grid { grid-template-columns: repeat(3, 1fr); gap: 9px; padding: 6px 0 16px; }
-.codex-page .col-card { background: rgba(20,14,12,.55); border: none; box-shadow: inset 0 0 0 1px rgba(240,195,60,.14); border-radius: 11px; padding: 6px 6px 7px; }
-.codex-page .col-card .portrait { width: 100%; height: auto; aspect-ratio: 1; }
-.codex-page .col-card .col-name { color: var(--ink); margin-top: 5px; }
-.codex-page .col-card.locked { border-style: solid; }
-.codex-page .col-card.locked .portrait { filter: grayscale(1) brightness(.4); }
-.codex-page .col-card.locked .col-name { filter: none; color: #9a8a72; }
-.codex-page .col-card.locked .col-cls { filter: none; }
-/* 장비·유물 리스트 행 */
-.codex-page .col-weapon-list { gap: 8px; }
-.codex-page .col-weapon-list .gear-row { background: rgba(20,14,12,.55); border: none; box-shadow: inset 0 0 0 1px rgba(240,195,60,.14); border-radius: 12px; padding: 10px; gap: 11px; }
-.codex-page .col-weapon-list .gear-emoji { flex: none; width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 21px; background: radial-gradient(circle at 50% 30%,rgba(240,195,60,.15),transparent 70%),rgba(0,0,0,.35); box-shadow: inset 0 0 0 1px rgba(240,195,60,.3); }
-.codex-page .col-weapon-list .gear-name { font-size: 13px; }
-.codex-page .col-weapon-list .gear-desc { font-size: 10px; }
-/* 정렬 바(장수 탭) */
-.codex-page .sort-bar { margin: 2px 0 6px; }
-.codex-page .sort-btn { border: none; border-radius: 7px; font-size: 11px; font-weight: 700; padding: 4px 12px; background: rgba(255,255,255,.05); color: var(--ink-dim); box-shadow: none; }
-.codex-page .sort-btn.active { background: rgba(240,195,60,.16); color: var(--gold); box-shadow: inset 0 0 0 1px rgba(240,195,60,.4); }
