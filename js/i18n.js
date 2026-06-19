@@ -227,7 +227,7 @@
     qbEndYes: { ko: '종료하고 정산', en: 'End & settle', ja: '終了して精算', zh: '结束并结算', zhTW: '結束並結算' },
     qbEndNo: { ko: '계속하기', en: 'Keep playing', ja: '続ける', zh: '继续', zhTW: '繼續' },
     qbAgain: { ko: '다시 하기', en: 'Play Again', ja: 'もう一度', zh: '再来一局', zhTW: '再來一局' },
-    qbRulesTitle: { ko: '📜 게임 규칙', en: '📜 Rules', ja: '📜 ゲームルール', zh: '📜 游戏规则', zhTW: '📜 遊戲規則' },
+    qbRulesTitle: { ko: '📖 게임 가이드', en: '📖 Game Guide', ja: '📖 ゲームガイド', zh: '📖 游戏指南', zhTW: '📖 遊戲指南' },
     qbConfirm: { ko: '확인', en: 'OK', ja: 'OK', zh: '确定', zhTW: '確定' },
 
     /* 도감 / 덱·장비 모달(영웅전·대장전 공용) */
