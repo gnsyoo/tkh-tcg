@@ -281,7 +281,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(82px, 1fr));
   gap: 7px;
-  max-height: 56vh;
+  max-height: calc(100dvh - 260px);
   overflow-y: auto;
   padding: 4px;
   margin: 10px 0;

@@ -189,7 +189,7 @@
 
 /* 게임 가이드 모달 */
 .guide-modal { max-width: 560px; text-align: left; }
-.guide-body { max-height: 64vh; overflow-y: auto; padding-right: 4px; }
+.guide-body { max-height: calc(100dvh - 200px); overflow-y: auto; padding-right: 4px; }
 .guide-sec { margin: 12px 0; }
 .guide-sec h3 {
   font-size: 15px; color: var(--gold); margin: 0 0 6px;
@@ -201,10 +201,10 @@
 .guide-sec li b { color: var(--ink); }
 
 /* 수집한 장수 모달 그리드(스크롤) */
-.roster-grid { max-height: 56vh; overflow-y: auto; padding: 4px; }
+.roster-grid { max-height: calc(100dvh - 250px); overflow-y: auto; padding: 4px; }
 
 /* 장비 보유 현황 */
-.gear-list { max-height: 56vh; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin: 8px 0; }
+.gear-list { max-height: calc(100dvh - 220px); overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin: 8px 0; }
 .gear-empty { text-align: center; color: var(--ink-dim); font-size: 13px; line-height: 1.7; padding: 18px 0; }
 .gear-row {
   display: flex; align-items: center; gap: 12px; text-align: left;
@@ -223,7 +223,7 @@
 /* ---- 컬렉션(도감) ---- */
 .col-grid {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px;
-  max-height: 60vh; overflow-y: auto; padding: 4px; margin: 8px 0;
+  max-height: calc(100dvh - 300px); overflow-y: auto; padding: 4px; margin: 8px 0;
 }
 .col-card {
   position: relative; background: var(--panel); border: 1px solid rgba(255,255,255,0.1);
@@ -239,7 +239,7 @@
 }
 .col-card .col-lock { position: absolute; top: 3px; right: 5px; font-size: 13px; }
 
-.col-weapon-list { display: flex; flex-direction: column; gap: 8px; max-height: 60vh; overflow-y: auto; margin: 8px 0; }
+.col-weapon-list { display: flex; flex-direction: column; gap: 8px; max-height: calc(100dvh - 300px); overflow-y: auto; margin: 8px 0; }
 .col-weapon-list .gear-row.locked { border-style: dashed; }
 .col-weapon-list .gear-row.locked .gear-emoji, .col-weapon-list .gear-row.locked .gear-desc { filter: grayscale(1) brightness(0.45); }
 .col-weapon-list .gear-row.locked .gear-name { color: var(--ink-dim); }
