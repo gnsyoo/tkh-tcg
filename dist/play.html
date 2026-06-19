@@ -286,9 +286,8 @@ a { color: inherit; text-decoration: none; }
 }
 .home-app {
   position: relative;
-  margin: auto;
+  margin: 0 auto;
   width: 100%;
-  max-width: 460px;
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
@@ -296,9 +295,6 @@ a { color: inherit; text-decoration: none; }
   background: linear-gradient(180deg, #140d0b 0%, #1f1411 52%, #2c1b15 100%);
   overflow: hidden;
   padding-bottom: calc(86px + env(safe-area-inset-bottom)); /* 하단 고정 탭바 여백 */
-}
-@media (min-width: 480px) {
-  .home-app { min-height: 100dvh; box-shadow: 0 0 60px rgba(0,0,0,.6); }
 }
 .home-texture {
   position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: .5;
@@ -308,9 +304,8 @@ a { color: inherit; text-decoration: none; }
     repeating-linear-gradient(0deg, rgba(0,0,0,.18) 0 2px, transparent 2px 4px);
 }
 
-/* ── 키 비주얼 ── */
-.kv { position: relative; flex: none; height: 230px; overflow: hidden; z-index: 1; }
-@media (min-width: 480px) { .kv { height: 290px; } }
+/* ── 키 비주얼 (폭에 비례해 높이 조절 — 이미지는 object-fit:cover로 비율 유지) ── */
+.kv { position: relative; flex: none; height: 60vw; max-height: 420px; overflow: hidden; z-index: 1; }
 .kv-img { width: 100%; height: 100%; object-fit: cover; object-position: center 28%; display: block; }
 .kv-fade {
   position: absolute; inset: 0; pointer-events: none;
@@ -377,8 +372,8 @@ a { color: inherit; text-decoration: none; }
 
 /* ── 하단 탭바 ── */
 .tabbar {
-  position: fixed; left: 50%; bottom: 0; transform: translateX(-50%);
-  z-index: 80; width: 100%; max-width: 460px; flex: none;
+  position: fixed; left: 0; right: 0; bottom: 0;
+  z-index: 80; width: 100%; flex: none;
   display: flex; padding: 10px 4px calc(14px + env(safe-area-inset-bottom));
   background: linear-gradient(0deg, rgba(8,4,3,.96), rgba(8,4,3,.62));
   border-top: 1px solid rgba(240,195,60,.16);
@@ -406,8 +401,8 @@ a { color: inherit; text-decoration: none; }
 }
 .ss-backdrop.open { opacity: 1; }
 .settings-sheet {
-  position: fixed; left: 50%; bottom: 0; z-index: 121;
-  width: 100%; max-width: 460px; transform: translate(-50%, 100%);
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 121;
+  width: 100%; transform: translateY(100%);
   background: linear-gradient(180deg, #1f1411, #140d0b);
   border-top: 1.5px solid rgba(240,195,60,.35);
   border-radius: 22px 22px 0 0;
@@ -415,7 +410,7 @@ a { color: inherit; text-decoration: none; }
   padding: 8px 12px calc(16px + env(safe-area-inset-bottom));
   transition: transform .24s cubic-bezier(.22,.61,.36,1);
 }
-.settings-sheet.open { transform: translate(-50%, 0); }
+.settings-sheet.open { transform: translateY(0); }
 .ss-handle { width: 38px; height: 4px; border-radius: 2px; background: rgba(240,195,60,.4); margin: 6px auto 10px; }
 .ss-head {
   display: flex; align-items: center; gap: 8px;
@@ -489,10 +484,10 @@ a { color: inherit; text-decoration: none; }
 
     <!-- 키 비주얼 -->
     <header class="kv">
-      <img class="kv-img" src="assets/img/home/hero-keyvisual.png?v=1.4.16" alt="">
+      <img class="kv-img" src="assets/img/home/hero-keyvisual.png?v=1.4.17" alt="">
       <div class="kv-fade"></div>
       <div class="kv-glow"></div>
-      <span class="ver-badge kv-ver" id="verBadge">v1.4.16 · 2026.06.19</span>
+      <span class="ver-badge kv-ver" id="verBadge">v1.4.17 · 2026.06.19</span>
     </header>
 
     <!-- 모드 카드 -->
@@ -500,49 +495,49 @@ a { color: inherit; text-decoration: none; }
       <a class="mode-card heroes" id="cardHeroes" href="heroes.html">
         <span class="mode-glow"></span>
         <div class="mc-head">
-          <span class="mc-icon"><img src="assets/img/home/icon-heroes.png?v=1.4.16" alt=""></span>
+          <span class="mc-icon"><img src="assets/img/home/icon-heroes.png?v=1.4.17" alt=""></span>
           <div class="mc-meta">
             <div class="mc-tag" data-i18n="heroesTag">난세 평정 · 천하통일</div>
             <div class="mc-title" data-i18n="heroesTitle">삼국 영웅전</div>
           </div>
         </div>
         <p class="mc-desc" data-i18n="heroesDesc">장수를 모집해 부대를 꾸리고 진군 경로를 헤쳐가는 턴제 전투. 황건적과 군벌을 격파하고 동탁·여포 등 보스를 토벌하세요.</p>
-        <div class="mc-btn-row"><img class="mc-btn" src="assets/img/home/btn-chuljin.png?v=1.4.16" alt="출진"></div>
+        <div class="mc-btn-row"><img class="mc-btn" src="assets/img/home/btn-chuljin.png?v=1.4.17" alt="출진"></div>
       </a>
 
       <a class="mode-card raid" id="cardRaid" href="daejang.html">
         <span class="mode-glow"></span>
         <div class="mc-head">
-          <span class="mc-icon"><img src="assets/img/home/icon-raid.png?v=1.4.16" alt=""></span>
+          <span class="mc-icon"><img src="assets/img/home/icon-raid.png?v=1.4.17" alt=""></span>
           <div class="mc-meta">
             <div class="mc-tag"><span data-i18n="raidTag">레이드 보스전</span> <span class="mc-badge">RAID</span></div>
             <div class="mc-title" data-i18n="raidTitle">삼국 대장전</div>
           </div>
         </div>
         <p class="mc-desc" data-i18n="raidDesc">삼국 영웅전의 <b>덱을 공유</b>해 거대 HP의 적장(레이드 보스)에 도전. <b>보스를 격파하면 그 적장을 전용 장수로 획득</b>하며, 이 장수들은 오직 대장전에서만 얻을 수 있습니다.</p>
-        <div class="mc-btn-row"><img class="mc-btn" src="assets/img/home/btn-tobeol.png?v=1.4.16" alt="토벌"></div>
+        <div class="mc-btn-row"><img class="mc-btn" src="assets/img/home/btn-tobeol.png?v=1.4.17" alt="토벌"></div>
       </a>
 
       <a class="mode-card queens" id="cardQueens" href="queensblood.html">
         <span class="mode-glow"></span>
         <div class="mc-head">
-          <span class="mc-icon"><img src="assets/img/home/icon-board.png?v=1.4.16" alt=""></span>
+          <span class="mc-icon"><img src="assets/img/home/icon-board.png?v=1.4.17" alt=""></span>
           <div class="mc-meta">
             <div class="mc-tag" data-i18n="queensTag">보드 카드 대전</div>
             <div class="mc-title" data-i18n="queensTitle">히어로즈 블러드</div>
           </div>
         </div>
         <p class="mc-desc" data-i18n="queensDesc">진영(3×5·4×5 선택)에 장수 카드를 배치해 영역을 넓히고, <b>배치한 카드의 무력 총합</b>이 높은 쪽이 승리하는 전략 카드 대전. 덱 빌더(장수 카드 69종)로 15장 덱을 짜고, 대전 결과는 영웅전 <b>골드로 정산</b>됩니다.</p>
-        <div class="mc-btn-row"><img class="mc-btn" src="assets/img/home/btn-daejeon.png?v=1.4.16" alt="대전"></div>
+        <div class="mc-btn-row"><img class="mc-btn" src="assets/img/home/btn-daejeon.png?v=1.4.17" alt="대전"></div>
       </a>
     </section>
 
     <!-- 하단 탭바 -->
     <nav class="tabbar">
-      <button class="tab" id="tabCodex"><span class="tab-tile"><img src="assets/img/home/tab-codex.png?v=1.4.16" alt=""></span><span class="tab-label" data-i18n="tabCodex">도감</span></button>
-      <button class="tab" id="tabShop"><span class="tab-tile"><img src="assets/img/home/tab-shop.png?v=1.4.16" alt=""></span><span class="tab-label" data-i18n="tabShop">상점</span></button>
-      <button class="tab" id="tabTavern"><span class="tab-tile"><img src="assets/img/home/tab-tavern.png?v=1.4.16" alt=""></span><span class="tab-label" data-i18n="tabTavern">주막</span></button>
-      <button class="tab" id="tabSettings"><span class="tab-tile"><img src="assets/img/home/tab-settings.png?v=1.4.16" alt=""></span><span class="tab-label" data-i18n="tabSettings">설정</span></button>
+      <button class="tab" id="tabCodex"><span class="tab-tile"><img src="assets/img/home/tab-codex.png?v=1.4.17" alt=""></span><span class="tab-label" data-i18n="tabCodex">도감</span></button>
+      <button class="tab" id="tabShop"><span class="tab-tile"><img src="assets/img/home/tab-shop.png?v=1.4.17" alt=""></span><span class="tab-label" data-i18n="tabShop">상점</span></button>
+      <button class="tab" id="tabTavern"><span class="tab-tile"><img src="assets/img/home/tab-tavern.png?v=1.4.17" alt=""></span><span class="tab-label" data-i18n="tabTavern">주막</span></button>
+      <button class="tab" id="tabSettings"><span class="tab-tile"><img src="assets/img/home/tab-settings.png?v=1.4.17" alt=""></span><span class="tab-label" data-i18n="tabSettings">설정</span></button>
     </nav>
 
     <!-- 설정 바텀시트 -->
@@ -590,10 +585,11 @@ a { color: inherit; text-decoration: none; }
   <!-- 변경 내역 팝업 -->
   <div class="overlay" id="changelogModal" hidden>
     <div class="modal" style="max-width:560px;text-align:left;">
-      <h2 style="text-align:center;">📜 변경 내역 <span style="color:var(--gold);font-size:14px;">v1.4.16</span></h2>
+      <h2 style="text-align:center;">📜 변경 내역 <span style="color:var(--gold);font-size:14px;">v1.4.17</span></h2>
       <div class="changelog-list">
         <h4>📅 2026.06.19</h4>
         <ul>
+          <li><b>홈 화면 전체 폭 사용</b> — 고정 폭(460px) 제한을 없애 화면 너비에 <b>꽉 차게</b> 표시. 키 비주얼은 폭에 비례해 높이가 조절되며 이미지 비율은 유지(<code>object-fit</code>).</li>
           <li><b>홈 하단 탭바 고정</b> — 도감·상점·주막·설정 탭바를 화면 하단에 <b>고정</b>(스크롤해도 항상 노출), 콘텐츠 하단 여백·세이프에어리어 대응.</li>
           <li><b>설정 항목 아이콘 정리</b> — 홈 설정시트에서 게임 가이드·변경 내역·만든이·데이터 초기화 라벨에 중복으로 붙던 작은 아이콘을 제거(좌측 아이콘 1개로 통일).</li>
           <li><b>홈 화면 리디자인(다크 로그라이크)</b> — 첫 화면을 영웅전 비주얼로 통일: <b>키 비주얼</b>·게임별 글로우(영웅전 적색·대장전 보라·블러드 금색)·일러스트 아이콘/버튼·하단 <b>탭바</b>(도감·상점·주막·설정). 흩어져 있던 설정을 <b>설정 바텀시트</b>로 통합(게임 가이드·소리·언어·대사·변경 내역·만든이·데이터 초기화). 영웅전·대장전 우상단 메뉴는 <b>홈 버튼</b>으로 교체(소리·대사·초기화는 홈에서 전체 적용).</li>

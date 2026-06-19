@@ -7,9 +7,8 @@
 }
 .home-app {
   position: relative;
-  margin: auto;
+  margin: 0 auto;
   width: 100%;
-  max-width: 460px;
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
@@ -17,9 +16,6 @@
   background: linear-gradient(180deg, #140d0b 0%, #1f1411 52%, #2c1b15 100%);
   overflow: hidden;
   padding-bottom: calc(86px + env(safe-area-inset-bottom)); /* 하단 고정 탭바 여백 */
-}
-@media (min-width: 480px) {
-  .home-app { min-height: 100dvh; box-shadow: 0 0 60px rgba(0,0,0,.6); }
 }
 .home-texture {
   position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: .5;
@@ -29,9 +25,8 @@
     repeating-linear-gradient(0deg, rgba(0,0,0,.18) 0 2px, transparent 2px 4px);
 }
 
-/* ── 키 비주얼 ── */
-.kv { position: relative; flex: none; height: 230px; overflow: hidden; z-index: 1; }
-@media (min-width: 480px) { .kv { height: 290px; } }
+/* ── 키 비주얼 (폭에 비례해 높이 조절 — 이미지는 object-fit:cover로 비율 유지) ── */
+.kv { position: relative; flex: none; height: 60vw; max-height: 420px; overflow: hidden; z-index: 1; }
 .kv-img { width: 100%; height: 100%; object-fit: cover; object-position: center 28%; display: block; }
 .kv-fade {
   position: absolute; inset: 0; pointer-events: none;
@@ -98,8 +93,8 @@
 
 /* ── 하단 탭바 ── */
 .tabbar {
-  position: fixed; left: 50%; bottom: 0; transform: translateX(-50%);
-  z-index: 80; width: 100%; max-width: 460px; flex: none;
+  position: fixed; left: 0; right: 0; bottom: 0;
+  z-index: 80; width: 100%; flex: none;
   display: flex; padding: 10px 4px calc(14px + env(safe-area-inset-bottom));
   background: linear-gradient(0deg, rgba(8,4,3,.96), rgba(8,4,3,.62));
   border-top: 1px solid rgba(240,195,60,.16);
@@ -127,8 +122,8 @@
 }
 .ss-backdrop.open { opacity: 1; }
 .settings-sheet {
-  position: fixed; left: 50%; bottom: 0; z-index: 121;
-  width: 100%; max-width: 460px; transform: translate(-50%, 100%);
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 121;
+  width: 100%; transform: translateY(100%);
   background: linear-gradient(180deg, #1f1411, #140d0b);
   border-top: 1.5px solid rgba(240,195,60,.35);
   border-radius: 22px 22px 0 0;
@@ -136,7 +131,7 @@
   padding: 8px 12px calc(16px + env(safe-area-inset-bottom));
   transition: transform .24s cubic-bezier(.22,.61,.36,1);
 }
-.settings-sheet.open { transform: translate(-50%, 0); }
+.settings-sheet.open { transform: translateY(0); }
 .ss-handle { width: 38px; height: 4px; border-radius: 2px; background: rgba(240,195,60,.4); margin: 6px auto 10px; }
 .ss-head {
   display: flex; align-items: center; gap: 8px;
