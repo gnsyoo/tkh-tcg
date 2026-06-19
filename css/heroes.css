@@ -839,8 +839,10 @@
 #mapScreen.waitroom:not([hidden]) { display: flex; flex-direction: column; height: calc(100dvh - 40px); padding: 0; }
 .waitroom .map-track { display: flex; flex-direction: column; flex: 1; min-height: 0; }
 
-/* 헤더 칩(재화·장수·장비) — 우상단 고정 홈/가이드 버튼 자리 확보 */
-.wr-top { display: flex; align-items: center; gap: 8px; padding: 6px 116px 8px 2px; }
+/* 헤더(홈·가이드 + 재화·장수·장비 칩) */
+.wr-top { display: flex; align-items: center; gap: 8px; padding: 8px 12px; }
+.wr-icbtn { width: 38px; height: 38px; flex: none; border: none; border-radius: 10px; background: var(--panel); box-shadow: inset 0 0 0 1px rgba(240,195,60,.22); cursor: pointer; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: box-shadow .12s; }
+.wr-icbtn:hover { box-shadow: inset 0 0 0 1px var(--gold); }
 .wr-chip { display: flex; align-items: center; gap: 6px; background: var(--panel); border: none; border-radius: 11px; padding: 7px 11px; box-shadow: inset 0 0 0 1px rgba(240,195,60,.18); color: var(--ink); font-weight: 800; font-size: 14px; font-family: inherit; }
 .wr-chip img { height: 18px; width: auto; display: block; }
 .wr-chip.gold { color: var(--gold); }

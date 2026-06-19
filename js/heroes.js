@@ -325,6 +325,8 @@
     }
     var html =
       '<div class="wr-top">' +
+        '<a class="wr-icbtn" href="index.html" title="홈" aria-label="홈"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 11.5L12 4l9 7.5" stroke="#f0c33c" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 10v9h13v-9" stroke="#f0c33c" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 19v-5h4v5" stroke="#f0c33c" stroke-width="1.7" stroke-linejoin="round"/></svg></a>' +
+        '<button class="wr-icbtn" data-act="guide" title="게임 가이드" aria-label="게임 가이드"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#f0c33c" stroke-width="1.8"/><path d="M9.2 9.2a2.8 2.8 0 015.4 1c0 1.8-2.6 2.2-2.6 4" stroke="#f0c33c" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="17.4" r="1.05" fill="#f0c33c"/></svg></button>' +
         '<div class="wr-chip gold"><img src="' + A + 'coin-gold2.png" alt=""><b>' + run.gold + '</b></div>' +
         '<span class="wr-spacer"></span>' +
         '<button class="wr-chip" data-act="roster"><img src="' + A + 'ic-general.png" alt=""><b>' + run.party.length + '</b></button>' +
@@ -394,6 +396,7 @@
       if (act === 'gear') return openGear();
       if (act === 'relic') return showRelicsInfo();
       if (act === 'codex') return openCodex('hero');
+      if (act === 'guide') { document.getElementById('guideModal').hidden = false; return; }
       return;
     }
     var dot = e.target.closest('.wr-row.info'); // 정예/보스 스테이지 → 적 정보 미리보기
@@ -1962,12 +1965,12 @@
   /* ---------- boot ---------- */
   TCG.initFloatMenu();
   // 게임 가이드/소리/대사/데이터 초기화는 홈 화면 설정으로 이동 — 인게임에는 홈 버튼만 노출(요소 없으면 안전하게 건너뜀)
-  var _guideBtn = document.getElementById('guideBtn');
-  if (_guideBtn) {
-    _guideBtn.addEventListener('click', function () { TCG.sfx('tap'); document.getElementById('guideModal').hidden = false; });
-    document.getElementById('guideClose').addEventListener('click', function () { document.getElementById('guideModal').hidden = true; });
-    document.getElementById('guideModal').addEventListener('click', function (e) { if (e.target.id === 'guideModal') e.currentTarget.hidden = true; });
-  }
+  // 게임 가이드 — 대기실 헤더의 가이드 버튼(data-act="guide")으로 열고, 닫기/바깥클릭은 항상 연결
+  (function () {
+    var gm = document.getElementById('guideModal'); if (!gm) return;
+    var gc = document.getElementById('guideClose'); if (gc) gc.addEventListener('click', function () { gm.hidden = true; });
+    gm.addEventListener('click', function (e) { if (e.target.id === 'guideModal') e.currentTarget.hidden = true; });
+  })();
   // 데이터 초기화: 영웅전·대장전 진행 + 컬렉션 + 모드 해금 전부 삭제 후 새로고침
   function resetAllData() {
     ['hw_save', 'hw_raid_cleared', 'hw_mode_unlocked', 'hw_collected_heroes', 'hw_collected_weapons', 'hw_grant_heroes', 'hw_bonus_gold']
