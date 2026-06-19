@@ -120,7 +120,7 @@ var TCG = (function () {
     else if (top === 'sidehair') { P.push('<path d="M17 27 Q16 18 22 16 Q19 24 20 28 Z" fill="' + hair + '"/><path d="M47 27 Q48 18 42 16 Q45 24 44 28 Z" fill="' + hair + '"/>'); P.push('<path d="M22 16 Q26 13 32 13 Q38 13 42 16 Q38 15 32 15 Q26 15 22 16 Z" fill="' + hair + '" opacity="0.85"/>'); }
     else P.push('<path d="M19 23 Q19 14 32 13 Q45 14 45 23 Q44 17 32 16 Q20 17 19 23 Z" fill="' + hair + '"/>');
     if (beard !== 'none') P.push('<path d="M25.5 33 Q28 35 32 34.6 Q36 35 38.5 33 Q34 34 32 34 Q30 34 25.5 33 Z" fill="' + hair + '"/>');
-    if (T.eyepatch) { P.push('<path d="M14 21 L48 30" stroke="#1d1d22" stroke-width="2.4"/>'); P.push('<ellipse cx="26" cy="26" rx="4.2" ry="3.2" fill="#1d1d22"/>'); }
+    if (T.eyepatch) { P.push('<path d="M14 23 L48 32" stroke="#1d1d22" stroke-width="2.4"/>'); P.push('<ellipse cx="26" cy="26" rx="4.2" ry="3.2" fill="#1d1d22"/>'); }
     if (female && T.ornate) { // 초선 — 화려한 머리 장식·꽃·귀걸이·이마 화전·늘어뜨린 술
       P.push('<path d="M16 14 L15 27" stroke="#d4af37" stroke-width="1"/><circle cx="15" cy="28" r="1.3" fill="#d4324a"/>');
       P.push('<path d="M48 14 L49 27" stroke="#d4af37" stroke-width="1"/><circle cx="49" cy="28" r="1.3" fill="#d4324a"/>');
