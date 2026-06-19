@@ -182,7 +182,11 @@
     uiContinue: { ko: '이어하기', en: 'Continue', ja: 'つづきから', zh: '继续游戏', zhTW: '繼續遊戲' },
     uiNewRunLabel: { ko: '새 모험 — 모드 선택', en: 'New Adventure — Select Mode', ja: '新たな冒険 — モード選択', zh: '新冒险 — 选择模式', zhTW: '新冒險 — 選擇模式' },
     uiNewRun: { ko: '새 모험', en: 'New Adventure', ja: '新たな冒険', zh: '新冒险', zhTW: '新冒險' },
-    uiMenu: { ko: '메뉴로', en: 'Menu', ja: 'メニューへ', zh: '返回菜单', zhTW: '返回選單' }
+    uiMenu: { ko: '메뉴로', en: 'Menu', ja: 'メニューへ', zh: '返回菜单', zhTW: '返回選單' },
+    uiToList: { ko: '목록으로', en: 'Back to List', ja: '一覧へ', zh: '返回列表', zhTW: '返回列表' },
+    uiCmbCardHint: { ko: '가운데 카드를 선택해 공격하세요', en: 'Pick a center card to attack', ja: '中央のカードを選んで攻撃', zh: '选择中央卡牌进攻', zhTW: '選擇中央卡牌進攻' },
+    uiRaidTitle: { ko: '👹 대장전 (레이드)', en: '👹 Raid', ja: '👹 大将戦（レイド）', zh: '👹 大将战（团队）', zhTW: '👹 大將戰（團隊）' },
+    uiRaidSub: { ko: '영웅전 덱으로 거대 보스에 도전 — 격파 시 전용 장수를 획득합니다. <b>보스 카드를 탭하면 정보</b>를 봅니다.', en: 'Challenge giant bosses with your Heroes deck — defeat one to recruit an exclusive officer. <b>Tap a boss card for info</b>.', ja: '英雄伝のデッキで巨大ボスに挑戦 — 撃破で専用武将を獲得。<b>ボスカードをタップで情報</b>。', zh: '用英雄传卡组挑战巨型首领 — 击破获得专属武将。<b>点击首领卡查看信息</b>。', zhTW: '用英雄傳牌組挑戰巨型首領 — 擊破獲得專屬武將。<b>點擊首領卡查看資訊</b>。' }
   };
 
   function get(lang, key) {

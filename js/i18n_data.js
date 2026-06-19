@@ -27,7 +27,22 @@
     'cmb.attack': { ko: '기본 공격', en: 'Attack', ja: '通常攻撃', zh: '普通攻击', zhTW: '普通攻擊' },
     'cmb.cancel': { ko: '취소', en: 'Cancel', ja: 'キャンセル', zh: '取消', zhTW: '取消' },
     'cmb.applied': { ko: '✓ 적용됨', en: '✓ Applied', ja: '✓ 適用済', zh: '✓ 已应用', zhTW: '✓ 已套用' },
-    'cmb.dmg': { ko: '피해', en: 'DMG', ja: 'ダメージ', zh: '伤害', zhTW: '傷害' }
+    'cmb.dmg': { ko: '피해', en: 'DMG', ja: 'ダメージ', zh: '伤害', zhTW: '傷害' },
+    'cmb.hintEnemy': { ko: '적이 행동 중…', en: 'Enemy acting…', ja: '敵が行動中…', zh: '敌方行动中…', zhTW: '敵方行動中…' },
+    'cmb.hintTarget': { ko: '대상을 선택하세요', en: 'Select a target', ja: '対象を選択', zh: '请选择目标', zhTW: '請選擇目標' },
+    'cmb.hintAction': { ko: '공격 행동을 선택하세요', en: 'Choose an action', ja: '行動を選択', zh: '请选择行动', zhTW: '請選擇行動' },
+    'cmb.hintIdle': { ko: '가운데 카드를 선택해 공격하거나, 턴을 종료하세요', en: 'Pick a center card to attack, or end your turn', ja: '中央のカードで攻撃、またはターン終了', zh: '选择中央卡牌进攻，或结束回合', zhTW: '選擇中央卡牌進攻，或結束回合' },
+    'cmb.hintCard': { ko: '가운데 카드를 선택해 공격하세요', en: 'Pick a center card to attack', ja: '中央のカードを選んで攻撃', zh: '选择中央卡牌进攻', zhTW: '選擇中央卡牌進攻' },
+    'cmb.tagBoss': { ko: '적장', en: 'Commander', ja: '敵将', zh: '敌将', zhTW: '敵將' },
+    'cmb.tagMid': { ko: '중간보스', en: 'Mid-boss', ja: '中ボス', zh: '中间首领', zhTW: '中間首領' },
+    'cmb.crit': { ko: '💥 치명타!', en: '💥 Critical!', ja: '💥 クリティカル！', zh: '💥 暴击！', zhTW: '💥 暴擊！' },
+    'cmb.bannerBoss': { ko: '👑 적장 {name}', en: '👑 Commander {name}', ja: '👑 敵将 {name}', zh: '👑 敌将 {name}', zhTW: '👑 敵將 {name}' },
+    'cmb.bannerSortie': { ko: '⚔ {stage} {n}/{max}', en: '⚔ {stage} {n}/{max}', ja: '⚔ {stage} {n}/{max}', zh: '⚔ {stage} {n}/{max}', zhTW: '⚔ {stage} {n}/{max}' },
+    'cmb.bannerRound': { ko: '라운드 {n}', en: 'Round {n}', ja: 'ラウンド {n}', zh: '回合 {n}', zhTW: '回合 {n}' },
+    'cmb.raidBanner': { ko: '👹 {name} 레이드', en: '👹 {name} Raid', ja: '👹 {name} レイド', zh: '👹 {name} 团队战', zhTW: '👹 {name} 團隊戰' },
+    'cmb.hintBossActing': { ko: '보스가 행동 중…', en: 'Boss acting…', ja: 'ボスが行動中…', zh: '首领行动中…', zhTW: '首領行動中…' },
+    'cmb.hintStunned': { ko: '💫 행동 불가 — 턴 종료만 가능', en: '💫 Stunned — end turn only', ja: '💫 行動不能 — ターン終了のみ', zh: '💫 无法行动 — 仅可结束回合', zhTW: '💫 無法行動 — 僅可結束回合' },
+    'cmb.bossTurn': { ko: '보스의 턴', en: "Boss's turn", ja: 'ボスのターン', zh: '首领回合', zhTW: '首領回合' }
   });
 
   if (lang === 'ko') return; // 한국어는 데이터 원본 그대로(UI 사전은 위에서 등록 완료)

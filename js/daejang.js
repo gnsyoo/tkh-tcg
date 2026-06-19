@@ -302,7 +302,7 @@
       if (p && combat.boss.hp > 0) { combat.boss.poison = (combat.boss.poison || 0) + p; logMsg('☠ 독항아리 — ' + combat.boss.name + ' 중독 +' + p); }
     })();
     show('combatScreen');
-    fxBanner('👹 ' + cmd.name + ' 레이드', 'boss', 1400); shake('big');
+    fxBanner(TCG.t('cmb.raidBanner', { name: cmd.name }), 'boss', 1400); shake('big');
     logMsg(b.title + ' ' + cmd.name + ' 토벌전 개전!');
     beginRound();
     if (cmd.quote) setTimeout(function () { fxQuote(bossEl(), cmd.quote, 5000); }, 1100); // 보스 등장 대사(5초)
@@ -327,7 +327,7 @@
     else b.intent = { type: 'attack', dmg: b.atk };
     c.sel = null; c.targeting = false;
     renderCombat();
-    if (c.round >= 2) fxBanner('라운드 ' + c.round, 'round', 800);
+    if (c.round >= 2) fxBanner(TCG.t('cmb.bannerRound', { n: c.round }), 'round', 800);
   }
   function logMsg(m) {
     var c = combat; c.log.push(m); if (c.log.length > 6) c.log.shift();
@@ -365,8 +365,8 @@
   }
   function bossEl() { return document.querySelector('#enemyRow .unit'); }
   function lordEl() { return document.querySelector('#lordBar .lord-art'); }
-  function fxHitBoss(dmg, crit) { var p = rectOf(bossEl()); if (!p) return; fxSlash(p.x, p.y); fxBurst(p.x, p.y, crit ? '#ffd34d' : '#fff'); fxParticles(p.x, p.y, crit ? 10 : 7, crit ? '#ffe89a' : '#ffc6c6'); if (crit) fxFloat(p.x, p.y - 16, '치명타!', '#ffd34d', true); fxFloat(p.x, p.y, '-' + dmg, crit ? '#ffd34d' : '#ff9a9a', true); }
-  function fxHitLord(dmg, blocked, crit) { var p = rectOf(lordEl()); if (!p) return; if (blocked) fxFloat(p.x, p.y - 14, '🛡' + blocked, '#9fd2ff'); if (dmg > 0) { fxSlash(p.x, p.y); fxBurst(p.x, p.y, crit ? '#ffd34d' : '#ff6b6b'); fxParticles(p.x, p.y, 6, '#ffb0b0'); if (crit) fxFloat(p.x, p.y - 16, '치명타!', '#ffd34d', true); fxFloat(p.x, p.y, '-' + dmg, crit ? '#ffd34d' : '#ff9a9a', true); } }
+  function fxHitBoss(dmg, crit) { var p = rectOf(bossEl()); if (!p) return; fxSlash(p.x, p.y); fxBurst(p.x, p.y, crit ? '#ffd34d' : '#fff'); fxParticles(p.x, p.y, crit ? 10 : 7, crit ? '#ffe89a' : '#ffc6c6'); if (crit) fxFloat(p.x, p.y - 16, TCG.t('cmb.crit'), '#ffd34d', true); fxFloat(p.x, p.y, '-' + dmg, crit ? '#ffd34d' : '#ff9a9a', true); }
+  function fxHitLord(dmg, blocked, crit) { var p = rectOf(lordEl()); if (!p) return; if (blocked) fxFloat(p.x, p.y - 14, '🛡' + blocked, '#9fd2ff'); if (dmg > 0) { fxSlash(p.x, p.y); fxBurst(p.x, p.y, crit ? '#ffd34d' : '#ff6b6b'); fxParticles(p.x, p.y, 6, '#ffb0b0'); if (crit) fxFloat(p.x, p.y - 16, TCG.t('cmb.crit'), '#ffd34d', true); fxFloat(p.x, p.y, '-' + dmg, crit ? '#ffd34d' : '#ff9a9a', true); } }
   function fxSupport(el, t, color) { var p = rectOf(el); if (!p) return; fxFloat(p.x, p.y, t, color); }
 
   /* ---------- render ---------- */
@@ -414,7 +414,7 @@
     renderItemBar();
     document.getElementById('endTurnBtn').disabled = (c.phase === 'enemy' || c.busy);
     var hint = document.getElementById('combatHint');
-    hint.textContent = c.phase === 'enemy' ? '보스가 행동 중…' : (c.lordStun > 0 ? '💫 행동 불가 — 턴 종료만 가능' : (c.targeting ? '공격할 대상을 선택하세요' : (c.sel ? '행동을 선택하세요' : '가운데 카드를 선택해 공격하거나, 턴을 종료하세요')));
+    hint.textContent = c.phase === 'enemy' ? TCG.t('cmb.hintBossActing') : (c.lordStun > 0 ? TCG.t('cmb.hintStunned') : (c.targeting ? TCG.t('cmb.hintTarget') : (c.sel ? TCG.t('cmb.hintAction') : TCG.t('cmb.hintIdle'))));
   }
   function renderPiles() {
     var c = combat;
@@ -491,7 +491,7 @@
   function enemyByIdx(i) { return i === 0 ? combat.boss : (combat.adds || [])[i - 1]; }
   function enemyIdxList() { var l = [0]; (combat.adds || []).forEach(function (_, i) { l.push(i + 1); }); return l; }
   function enemyElByIdx(i) { var els = document.querySelectorAll('#enemyRow .unit'); return (els && els[i]) ? els[i] : bossEl(); }
-  function fxHitEnemyEl(el, dmg, crit) { var p = rectOf(el); if (!p) return; fxSlash(p.x, p.y); fxBurst(p.x, p.y, crit ? '#ffd34d' : '#fff'); fxParticles(p.x, p.y, crit ? 10 : 7, crit ? '#ffe89a' : '#ffc6c6'); if (crit) fxFloat(p.x, p.y - 16, '치명타!', '#ffd34d', true); fxFloat(p.x, p.y, '-' + dmg, crit ? '#ffd34d' : '#ff9a9a', true); }
+  function fxHitEnemyEl(el, dmg, crit) { var p = rectOf(el); if (!p) return; fxSlash(p.x, p.y); fxBurst(p.x, p.y, crit ? '#ffd34d' : '#fff'); fxParticles(p.x, p.y, crit ? 10 : 7, crit ? '#ffe89a' : '#ffc6c6'); if (crit) fxFloat(p.x, p.y - 16, TCG.t('cmb.crit'), '#ffd34d', true); fxFloat(p.x, p.y, '-' + dmg, crit ? '#ffd34d' : '#ff9a9a', true); }
   function dmgTarget(i, dmg, crit) {
     var t = enemyByIdx(i); if (!t) return;
     var d = dmg; if (t.block > 0) { var ab = Math.min(t.block, d); t.block -= ab; d -= ab; }
@@ -633,7 +633,7 @@
     if (b.hp <= 0) { setTimeout(winRaid, 550); return; }
     var skip = (b.charmed > 0 || b.confused > 0);
     if (skip) { var was = b.charmed > 0 ? '매혹' : '혼란'; if (b.charmed > 0) b.charmed--; else b.confused--; fxSupport(bossEl(), '💤 ' + was, '#ff9ad0'); logMsg(b.name + ' ' + was + '되어 행동 불가'); }
-    fxBanner('보스의 턴', 'foe-turn', 800);
+    fxBanner(TCG.t('cmb.bossTurn'), 'foe-turn', 800);
     setTimeout(function () {
       if (!skip) {
         var pick = (b.skills && b.skills.length && Math.random() < (b.skillChance || 0)) ? pickBossSkill(b) : null;

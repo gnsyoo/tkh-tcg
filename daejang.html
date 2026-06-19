@@ -13,8 +13,8 @@
   gtag('config', 'G-RZW78R7430');
 </script>
 <title>삼국 대장전 · 목업</title>
-<link rel="stylesheet" href="css/common.css?v=1.4.10">
-<link rel="stylesheet" href="css/heroes.css?v=1.4.10">
+<link rel="stylesheet" href="css/common.css?v=1.4.11">
+<link rel="stylesheet" href="css/heroes.css?v=1.4.11">
 </head>
 <body>
   <div class="float-menu" id="floatMenu">
@@ -43,13 +43,13 @@
   <main class="hw-main" id="hwMain">
     <!-- Raid selection -->
     <section class="screen" id="selectScreen">
-      <h3 class="screen-title">👹 대장전 (레이드)</h3>
-      <p class="screen-sub">영웅전 덱으로 거대 보스에 도전 — 격파 시 전용 장수를 획득합니다. <b>보스 카드를 탭하면 정보</b>를 봅니다.</p>
+      <h3 class="screen-title" data-i18n="uiRaidTitle">👹 대장전 (레이드)</h3>
+      <p class="screen-sub" data-i18n="uiRaidSub">영웅전 덱으로 거대 보스에 도전 — 격파 시 전용 장수를 획득합니다. <b>보스 카드를 탭하면 정보</b>를 봅니다.</p>
       <div id="raidLordStatus" style="margin-top:12px"></div>
       <div class="map-collect">
-        <button class="collect-btn" id="rosterBtn">👥 장수 <b id="rosterCount">0</b></button>
-        <button class="collect-btn" id="gearBtn">🗡️ 장비</button>
-        <button class="collect-btn" id="codexBtn">📖 도감</button>
+        <button class="collect-btn" id="rosterBtn">👥 <span data-i18n="uiOfficers">장수</span> <b id="rosterCount">0</b></button>
+        <button class="collect-btn" id="gearBtn">🗡️ <span data-i18n="uiGear">장비</span></button>
+        <button class="collect-btn" id="codexBtn" data-i18n="uiCodexBtn">📖 도감</button>
       </div>
       <div class="raid-list" id="raidList"></div>
     </section>
@@ -71,8 +71,8 @@
       <div class="action-bar" id="actionBar" hidden></div>
       <div class="item-bar" id="itemBar" title="소모성 아이템 — 턴당 1개"></div>
       <div class="combat-foot">
-        <span class="hint" id="combatHint">가운데 카드를 선택해 공격하세요</span>
-        <button class="btn primary" id="endTurnBtn">턴 종료</button>
+        <span class="hint" id="combatHint" data-i18n="uiCmbCardHint">가운데 카드를 선택해 공격하세요</span>
+        <button class="btn primary" id="endTurnBtn" data-i18n="uiEndTurn">턴 종료</button>
       </div>
     </section>
   </main>
@@ -138,16 +138,16 @@
       <p id="overText"></p>
       <div id="overReward"></div>
       <div style="display:flex;gap:10px;justify-content:center;margin-top:8px;">
-        <button class="btn primary" id="overAgain">목록으로</button>
-        <a class="btn ghost" href="index.html">메뉴로</a>
+        <button class="btn primary" id="overAgain" data-i18n="uiToList">목록으로</button>
+        <a class="btn ghost" href="index.html" data-i18n="uiMenu">메뉴로</a>
       </div>
     </div>
   </div>
 
-  <script src="js/util.js?v=1.4.10"></script>
-  <script src="js/heroes_data.js?v=1.4.10"></script>
-  <script src="js/i18n_data.js?v=1.4.10"></script>
-  <script src="js/daejang.js?v=1.4.10"></script>
-  <script src="js/i18n.js?v=1.4.10"></script>
+  <script src="js/util.js?v=1.4.11"></script>
+  <script src="js/heroes_data.js?v=1.4.11"></script>
+  <script src="js/i18n_data.js?v=1.4.11"></script>
+  <script src="js/daejang.js?v=1.4.11"></script>
+  <script src="js/i18n.js?v=1.4.11"></script>
 </body>
 </html>

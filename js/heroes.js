@@ -769,11 +769,11 @@
     applyStartPoison(run.combat.enemies); // 독항아리(유물) — 전투 시작 시 임의의 적 1명 중독
     show('combatScreen');
     if (isBoss) {
-      fxBanner('👑 적장 ' + HW_COMMANDERS[st.boss].name, 'boss', 1500); shake('big');
-      logMsg(st.name + ' — 적장 ' + HW_COMMANDERS[st.boss].name + ' 토벌전!');
+      fxBanner(TCG.t('cmb.bannerBoss', { name: HW_COMMANDERS[st.boss].name }), 'boss', 1500); shake('big');
+      logMsg(TCG.t('cmb.bannerBoss', { name: HW_COMMANDERS[st.boss].name }));
     } else {
-      fxBanner('⚔ ' + st.name + ' ' + (s + 1) + '/' + SUB_COUNT, 'round', 1000);
-      logMsg(st.name + ' 서브 ' + (s + 1) + ' 개전!');
+      fxBanner(TCG.t('cmb.bannerSortie', { stage: st.name, n: s + 1, max: SUB_COUNT }), 'round', 1000);
+      logMsg(TCG.t('cmb.bannerSortie', { stage: st.name, n: s + 1, max: SUB_COUNT }));
     }
     beginRound();
     // 보스/중간보스 등장 대사 — 카드 아래 말풍선 2초
@@ -843,7 +843,7 @@
     rollIntents();
     c.sel = null; c.targeting = false; c.pending = null;
     renderCombat();
-    if (c.round >= 2) fxBanner('라운드 ' + c.round, 'round', 850);
+    if (c.round >= 2) fxBanner(TCG.t('cmb.bannerRound', { n: c.round }), 'round', 850);
   }
 
   function rollIntents() {
@@ -941,9 +941,9 @@
     var p = rectOf(el); if (!p) return;
     if (kind === 'crit') {
       fxSlash(p.x, p.y); fxCritBoom(p.x, p.y);
-      fxFloat(p.x, p.y - 24, '💥 치명타!', '#ffd34d', true);
+      fxFloat(p.x, p.y - 24, TCG.t('cmb.crit'), '#ffd34d', true);
       fxFloat(p.x, p.y, '-' + dmg, '#ffd34d', true);
-      fxBanner('💥 치명타!', 'crit', 650);
+      fxBanner(TCG.t('cmb.crit'), 'crit', 650);
     } else if (kind === 'aoe') { fxBurst(p.x, p.y, '#ff8a4c'); fxParticles(p.x, p.y, 8, '#ffcaa0'); fxFloat(p.x, p.y, '-' + dmg, '#ff9a9a', false); }
     else { fxSlash(p.x, p.y); fxBurst(p.x, p.y, '#ffffff'); fxParticles(p.x, p.y, 7, '#ffc6c6'); fxFloat(p.x, p.y, '-' + dmg, '#ff9a9a', true); }
   }
@@ -952,7 +952,7 @@
     if (blocked) fxFloat(p.x, p.y - 14, '🛡' + blocked, '#9fd2ff');
     if (dmg > 0) {
       fxSlash(p.x, p.y); fxBurst(p.x, p.y, crit ? '#ffd34d' : '#ff6b6b');
-      if (crit) { fxCritBoom(p.x, p.y); fxFloat(p.x, p.y - 24, '💥 치명타!', '#ffd34d', true); fxBanner('💥 치명타!', 'crit', 650); }
+      if (crit) { fxCritBoom(p.x, p.y); fxFloat(p.x, p.y - 24, TCG.t('cmb.crit'), '#ffd34d', true); fxBanner(TCG.t('cmb.crit'), 'crit', 650); }
       else fxParticles(p.x, p.y, 6, '#ffb0b0');
       fxFloat(p.x, p.y, '-' + dmg, crit ? '#ffd34d' : '#ff9a9a', true);
     }
@@ -975,7 +975,7 @@
       var confd = e.confused > 0;
       var intentTxt = charmed ? '💤 매혹' : (confd ? '💤 혼란' : (e.intent ? (e.intent.type === 'aoe' ? '💥' + e.intent.dmg : '⚔️' + e.intent.dmg) : ''));
       return '<div class="unit enemy' + (dead ? ' dead' : '') + (tgt ? ' targetable' : '') + ((charmed || confd) ? ' charmed' : '') + (e.boss ? ' is-boss' : '') + (e.mid ? ' is-mid' : '') + '" data-side="enemy" data-idx="' + idx + '">' +
-        (e.mid ? '<div class="u-tag mid">중간보스</div>' : (e.boss ? '<div class="u-tag boss">적장</div>' : '')) +
+        (e.mid ? '<div class="u-tag mid">' + TCG.t('cmb.tagMid') + '</div>' : (e.boss ? '<div class="u-tag boss">' + TCG.t('cmb.tagBoss') + '</div>' : '')) +
         (dead ? '' : '<div class="u-intent">' + intentTxt + '</div>') +
         (e.block > 0 ? '<div class="u-block">🛡' + e.block + '</div>' : '') +
         (charmed ? '<div class="u-charm">💗' + e.charmed + '</div>' : '') +
@@ -1005,10 +1005,10 @@
     renderItemBar();
     document.getElementById('endTurnBtn').disabled = (c.phase === 'enemy' || c.busy);
     var hint = document.getElementById('combatHint');
-    if (c.phase === 'enemy') hint.textContent = '적이 행동 중…';
-    else if (c.targeting) hint.textContent = '대상을 선택하세요';
-    else if (c.sel) hint.textContent = '공격 행동을 선택하세요';
-    else hint.textContent = '가운데 카드를 선택해 공격하거나, 턴을 종료하세요';
+    if (c.phase === 'enemy') hint.textContent = TCG.t('cmb.hintEnemy');
+    else if (c.targeting) hint.textContent = TCG.t('cmb.hintTarget');
+    else if (c.sel) hint.textContent = TCG.t('cmb.hintAction');
+    else hint.textContent = TCG.t('cmb.hintIdle');
   }
 
   function defenseOf(h) { return 3 + Math.floor(effAtk(h) / 3); }
