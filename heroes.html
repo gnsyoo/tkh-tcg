@@ -13,8 +13,8 @@
   gtag('config', 'G-RZW78R7430');
 </script>
 <title>삼국 영웅전 · 목업</title>
-<link rel="stylesheet" href="css/common.css?v=1.5.14">
-<link rel="stylesheet" href="css/heroes.css?v=1.5.14">
+<link rel="stylesheet" href="css/common.css?v=1.5.15">
+<link rel="stylesheet" href="css/heroes.css?v=1.5.15">
 </head>
 <body>
   <main class="hw-main" id="hwMain">
@@ -254,34 +254,57 @@
   </div>
 
   <!-- 수집한 장수 목록 -->
-  <div class="overlay" id="rosterModal" hidden>
-    <div class="modal" style="max-width:680px;">
-      <h2 style="text-align:center;">👥 수집한 장수 <span id="rosterTitleCount" style="color:var(--gold);font-size:13px;"></span></h2>
-      <p class="screen-sub">장수를 탭하면 상세 정보와 무기 장착을 할 수 있습니다.</p>
+  <div class="wr-pop" id="rosterModal" hidden>
+    <div class="wr-pop-scrim" data-close></div>
+    <div class="wr-pop-panel">
+      <div class="wr-pop-head">
+        <img src="assets/img/heroes/ic-general.png?v=1.5.15" alt="">
+        <span class="wr-pop-title">수집한 장수 <span class="cnt" id="rosterTitleCount"></span></span>
+        <button class="wr-pop-x" id="rosterClose" data-close>✕</button>
+      </div>
       <div class="sort-bar" id="rosterSort"><span class="sort-label">정렬</span><button class="sort-btn" data-sort="acquire">습득순</button><button class="sort-btn" data-sort="rarity">등급</button><button class="sort-btn" data-sort="atk">공격력</button></div>
-      <div class="party-bar roster-grid" id="rosterGrid"></div>
-      <div style="text-align:center;margin-top:12px;"><button class="btn primary" id="rosterClose">닫기</button></div>
+      <div class="wr-pop-body"><div class="party-bar roster-grid" id="rosterGrid"></div></div>
     </div>
   </div>
 
   <!-- 출진 덱 편성(진형) -->
-  <div class="overlay" id="formationModal" hidden>
-    <div class="modal" style="max-width:680px;">
-      <h2 style="text-align:center;">🀄 출진 덱 편성 <span id="formationTitle" style="color:var(--gold);font-size:13px;"></span></h2>
-      <p class="screen-sub">카드를 탭해 <b>출진 덱</b>에 넣고 빼세요 (최소 10장·최대 30장). 수집 카드가 10장 미만이면 자동으로 모두 편성됩니다. <b>🗡 장비</b> 버튼으로 무기를 장착합니다.</p>
+  <div class="wr-pop" id="formationModal" hidden>
+    <div class="wr-pop-scrim" data-close></div>
+    <div class="wr-pop-panel">
+      <div class="wr-pop-head">
+        <img src="assets/img/heroes/ped-jinhyeong.png?v=1.5.15" alt="">
+        <span class="wr-pop-title">출진 덱 편성 <span class="cnt" id="formationTitle"></span></span>
+        <button class="wr-pop-x" id="formationClose" data-close>✕</button>
+      </div>
+      <div class="wr-pop-hint">카드를 탭해 <b>출진 덱</b>에 넣고 빼세요 (최소 10장·최대 30장). <b>🗡 장비</b> 버튼으로 무기를 장착합니다.</div>
       <div class="sort-bar" id="formationSort"><span class="sort-label">정렬</span><button class="sort-btn" data-sort="acquire">습득순</button><button class="sort-btn" data-sort="rarity">등급</button><button class="sort-btn" data-sort="atk">공격력</button></div>
-      <div class="party-bar roster-grid" id="formationGrid"></div>
-      <div style="text-align:center;margin-top:12px;"><button class="btn primary" id="formationClose">닫기</button></div>
+      <div class="wr-pop-body"><div class="party-bar roster-grid" id="formationGrid"></div></div>
     </div>
   </div>
 
   <!-- 장비 보유 현황 -->
-  <div class="overlay" id="gearModal" hidden>
-    <div class="modal" style="max-width:560px;">
-      <h2 style="text-align:center;">🗡️ 장비 보유 현황</h2>
-      <p class="screen-sub">보유한 무기와 착용 중인 장수를 보여줍니다</p>
-      <div class="gear-list" id="gearList"></div>
-      <div style="text-align:center;margin-top:12px;"><button class="btn primary" id="gearClose">닫기</button></div>
+  <div class="wr-pop" id="gearModal" hidden>
+    <div class="wr-pop-scrim" data-close></div>
+    <div class="wr-pop-panel">
+      <div class="wr-pop-head">
+        <img src="assets/img/heroes/ic-swords.png?v=1.5.15" alt="">
+        <span class="wr-pop-title">장비 보유 현황 <span class="cnt" id="gearTitleCount"></span></span>
+        <button class="wr-pop-x" id="gearClose" data-close>✕</button>
+      </div>
+      <div class="wr-pop-body"><div class="gear-list" id="gearList"></div></div>
+    </div>
+  </div>
+
+  <!-- 추가 능력(유물) -->
+  <div class="wr-pop" id="relicModal" hidden>
+    <div class="wr-pop-scrim" data-close></div>
+    <div class="wr-pop-panel">
+      <div class="wr-pop-head">
+        <img src="assets/img/heroes/ic-gear.png?v=1.5.15" alt="">
+        <span class="wr-pop-title">추가 능력 · 유물 <span class="cnt" id="relicTitleCount"></span></span>
+        <button class="wr-pop-x" id="relicClose" data-close>✕</button>
+      </div>
+      <div class="wr-pop-body" id="relicBody"></div>
     </div>
   </div>
 
@@ -297,10 +320,10 @@
     </div>
   </div>
 
-  <script src="js/util.js?v=1.5.14"></script>
-  <script src="js/heroes_data.js?v=1.5.14"></script>
-  <script src="js/i18n_data.js?v=1.5.14"></script>
-  <script src="js/heroes.js?v=1.5.14"></script>
-  <script src="js/i18n.js?v=1.5.14"></script>
+  <script src="js/util.js?v=1.5.15"></script>
+  <script src="js/heroes_data.js?v=1.5.15"></script>
+  <script src="js/i18n_data.js?v=1.5.15"></script>
+  <script src="js/heroes.js?v=1.5.15"></script>
+  <script src="js/i18n.js?v=1.5.15"></script>
 </body>
 </html>

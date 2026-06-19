@@ -295,10 +295,12 @@
     var hpPct = Math.max(0, Math.min(100, Math.round(hp / maxHp * 100)));
     var mpPct = Math.max(0, Math.min(100, Math.round(mp / Math.max(1, maxMp) * 100)));
     // 메인 전역 칩 (해금/진행/평정)
+    var lockSvg = '<svg class="wr-lock" width="11" height="11" viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 018 0v3" stroke-width="2"/></svg>';
     var chips = HW_STAGES.map(function (x, i) {
-      var cl = i < m ? 'done' : (i === m ? 'current' : 'locked');
-      return '<div class="wr-camp ' + cl + '">' + (i < m ? '✔' : (i === m ? (i + 1) : '')) + '</div>';
-    }).join('');
+      var cl = i < m ? 'done' : (i === m ? 'current' : (i === m + 1 ? 'next' : 'locked'));
+      var inner = i < m ? '✔' : (i === m ? (i + 1) : lockSvg);
+      return '<div class="wr-camp ' + cl + '">' + inner + '</div>';
+    }).join('<span class="wr-camp-link"></span>');
     // 스테이지 타임라인 (11)
     var rows = '';
     for (var i = 0; i < SUB_COUNT; i++) {
@@ -364,24 +366,29 @@
   function sectionHead(t) { return '<div style="text-align:left;font-size:12px;color:var(--gold);font-weight:800;margin:12px 2px 5px">' + t + '</div>'; }
   function showRelicsInfo() {
     var rs = run.relics || [];
-    var hpBonus = lordMaxHp() - HW_LORD.hp, mpBonus = lordMaxMp() - HW_LORD.mp, evadePct = Math.round(lordEvade() * 100);
+    var inRun = {}; rs.forEach(function (r) { inRun[r.id] = true; });
+    var evadePct = Math.round(lordEvade() * 100);
     var critPct = Math.round((BASE_CRIT + relicSum('crit')) * 100);
-    document.getElementById('heroModalBody').innerHTML =
-      '<h2>✨ 추가 능력</h2>' +
-      sectionHead('🏺 유물 효과 <span style="color:var(--ink-dim);font-weight:600">' + rs.length + '개</span>') +
-      (rs.length
-        ? '<div style="text-align:left;font-size:13px;line-height:1.5">' + rs.map(function (r) {
-            return '<div style="background:rgba(0,0,0,.25);border-radius:8px;padding:8px 10px;margin-bottom:6px"><b>' + r.emoji + ' ' + r.name + '</b><br><span style="color:var(--ink-dim)">' + r.desc + '</span></div>';
-          }).join('') + '</div>'
-        : '<p style="color:var(--ink-dim);font-size:13px;text-align:left;margin:2px 2px 8px">아직 획득한 유물이 없습니다. 메인 적장을 격파하면 유물을 얻습니다.</p>') +
-      sectionHead('🛡 적용된 주공 능력치') +
-      statRow('❤ 최대 HP', lordMaxHp(), hpBonus) +
-      statRow('💧 최대 MP', lordMaxMp(), mpBonus) +
-      statRow('🍃 회피율', evadePct + '%', 0) +
-      statRow('💥 치명타 확률', critPct + '%', 0) +
-      '<button class="btn primary" id="heroModalClose" style="margin-top:14px">닫기</button>';
-    var modal = document.getElementById('heroModal'); modal.hidden = false;
-    document.getElementById('heroModalClose').addEventListener('click', function () { modal.hidden = true; });
+    // 주공 적용 능력치 요약(핸드오프)
+    var sum = '<div class="wr-relic-sum"><div class="rs-h">👑 주공 적용 능력치</div><div class="rs-grid">' +
+      '<div class="rs-cell"><span>❤️</span><small>최대 HP</small><b style="color:#7ef0b5">' + lordMaxHp() + '</b></div>' +
+      '<div class="rs-cell"><span>🔷</span><small>최대 MP</small><b style="color:#9fd4ff">' + lordMaxMp() + '</b></div>' +
+      '<div class="rs-cell"><span>💨</span><small>회피율</small><b style="color:var(--ink)">' + evadePct + '%</b></div>' +
+      '<div class="rs-cell"><span>🎯</span><small>치명타 확률</small><b style="color:#ffb37e">' + critPct + '%</b></div>' +
+      '</div></div>';
+    // 유물 목록 — 이번 모험 보유(✦) / 미보유(🔒)
+    var list = HW_RELICS.map(function (r) {
+      var on = !!inRun[r.id];
+      return '<div class="wr-relic-row' + (on ? '' : ' off') + '">' +
+        '<div class="rr-ico">' + r.emoji + '</div>' +
+        '<div class="rr-info"><div class="rr-name">' + r.name + '</div><div class="rr-desc">' + r.desc + '</div></div>' +
+        '<span class="rr-chk" style="color:' + (on ? 'var(--gold)' : 'var(--ink-dim)') + '">' + (on ? '✦' : '🔒') + '</span>' +
+        '</div>';
+    }).join('');
+    if (!rs.length) list = '<div class="wr-relic-empty">아직 획득한 유물이 없습니다.<br>메인 적장을 격파하거나 보물 발견 이벤트로 유물을 얻습니다.</div>' + list;
+    document.getElementById('relicTitleCount').textContent = rs.length + '/' + HW_RELICS.length;
+    document.getElementById('relicBody').innerHTML = sum + list;
+    document.getElementById('relicModal').hidden = false;
   }
   document.getElementById('mapTrack').addEventListener('click', function (e) {
     var btn = e.target.closest('[data-act]');
@@ -559,6 +566,8 @@
       }).join('');
     }
     document.getElementById('gearList').innerHTML = html;
+    var ownedKinds = {}; inv.forEach(function (id) { ownedKinds[id] = true; });
+    document.getElementById('gearTitleCount').textContent = Object.keys(ownedKinds).length + '/' + HW_WEAPONS.length;
     document.getElementById('gearModal').hidden = false;
   }
   var _rb = document.getElementById('rosterBtn'); if (_rb) _rb.addEventListener('click', openRoster);
@@ -576,12 +585,11 @@
     var card = e.target.closest('.deck-pick'); if (!card) return;
     toggleDeck(card.dataset.uid); // 카드 본문 탭 → 출진 덱에 넣고 빼기
   });
-  document.getElementById('formationClose').addEventListener('click', function () { document.getElementById('formationModal').hidden = true; });
-  document.getElementById('formationModal').addEventListener('click', function (e) { if (e.target.id === 'formationModal') e.currentTarget.hidden = true; });
-  document.getElementById('rosterClose').addEventListener('click', function () { document.getElementById('rosterModal').hidden = true; });
-  document.getElementById('gearClose').addEventListener('click', function () { document.getElementById('gearModal').hidden = true; });
-  document.getElementById('rosterModal').addEventListener('click', function (e) { if (e.target.id === 'rosterModal') e.currentTarget.hidden = true; });
-  document.getElementById('gearModal').addEventListener('click', function (e) { if (e.target.id === 'gearModal') e.currentTarget.hidden = true; });
+  // 대기실 팝업(장수·진형·장비·추가능력) 닫기 — ✕ 버튼/바깥(scrim) 모두 data-close로 처리
+  ['rosterModal', 'formationModal', 'gearModal', 'relicModal'].forEach(function (id) {
+    var modal = document.getElementById(id);
+    modal.addEventListener('click', function (e) { if (e.target.closest('[data-close]')) { TCG.sfx('tap'); modal.hidden = true; } });
+  });
 
   /* ---------- 컬렉션(도감): 전체 카탈로그 + 수집 여부 + 획득 경로 ---------- */
   function midBossInfoByHid(hid) {
