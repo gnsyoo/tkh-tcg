@@ -114,7 +114,8 @@
         relics: run.relics.map(function (r) { return r.id; }),
         weapons: run.weapons.slice(), items: (run.items || []).slice(), sorties: run.sorties || 0,
         treasureMain: (run.treasureMain != null ? run.treasureMain : -1),
-        lordHp: run.lordHp, lordMp: run.lordMp, mode: run.mode || 'normal'
+        lordHp: run.lordHp, lordMp: run.lordMp, mode: run.mode || 'normal',
+        shop: run.shop || null, shopStamp: (run.shopStamp != null ? run.shopStamp : -1), shopRerolls: run.shopRerolls || 0
       }));
     } catch (e) {}
   }
@@ -147,6 +148,9 @@
       treasureMain: (typeof d.treasureMain === 'number') ? d.treasureMain : -1,
       deck: Array.isArray(d.deck) ? d.deck.slice() : [],
       tavern: (d.tavern && Array.isArray(d.tavern.items)) ? d.tavern : null,
+      shop: Array.isArray(d.shop) ? d.shop : null, // 상점 진열 유지(새로고침/스테이지 진행 때만 갱신)
+      shopStamp: (typeof d.shopStamp === 'number') ? d.shopStamp : -1,
+      shopRerolls: d.shopRerolls || 0,
       stageShopped: false, combat: null
     };
     run.lordHp = (typeof d.lordHp === 'number') ? Math.min(d.lordHp, lordMaxHp()) : lordMaxHp();
