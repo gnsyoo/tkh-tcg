@@ -166,6 +166,7 @@
   font-family: inherit; transition: background .12s;
 }
 .ss-row:hover { background: rgba(240,195,60,.1); }
+.ss-row[hidden] { display: none; } /* .ss-row의 display:flex가 hidden 속성을 덮어쓰지 않도록(관리자 메뉴 숨김) */
 .ss-row.danger { color: #e08a7e; }
 .ss-row.danger:hover { background: rgba(224,72,63,.12); }
 .ss-ic { font-size: 17px; width: 22px; text-align: center; flex: none; }
