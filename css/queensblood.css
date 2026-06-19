@@ -279,7 +279,15 @@
 .deck-modal { max-width: 720px; }
 /* 덱 구성이 전체 페이지일 때는 페이지가 스크롤되도록 그리드 자체 높이 제한 해제 */
 .codex-page .deck-grid { max-height: none; overflow: visible; }
-.codex-page .deck-actions { position: sticky; bottom: 0; background: linear-gradient(0deg, rgba(20,13,11,0.96), rgba(20,13,11,0.6)); padding: 10px 0; }
+/* 하단 액션 바를 페이지 맨 아래에 고정(스크롤 영역과 분리 — 인물화가 버튼 위로 겹치지 않음) */
+.codex-page > .deck-foot {
+  flex: none; z-index: 2;
+  display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+  padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
+  background: var(--panel-solid, #2a1a14);
+  border-top: 1px solid rgba(240,195,60,0.25);
+  box-shadow: 0 -6px 18px rgba(0,0,0,0.45);
+}
 .deck-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(82px, 1fr));
