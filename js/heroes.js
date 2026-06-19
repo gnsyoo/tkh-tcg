@@ -1706,15 +1706,16 @@
       { kind: 'upgrade', cost: 28, sold: false }
     ];
   }
-  var SHOP_REROLL_COST = 50;
+  function rerollCost() { return (run.shopRerolls || 0) * 30; } // 첫 새로고침 무료, 이후 30·60·90… 30씩 증가
   function showShop() {
-    if (!run.shop || run.shopStamp !== tavernStamp()) { genShop(); run.shopStamp = tavernStamp(); }
+    if (!run.shop || run.shopStamp !== tavernStamp()) { genShop(); run.shopStamp = tavernStamp(); run.shopRerolls = 0; } // 스테이지 진행 시 진열 갱신 + 새로고침 비용 초기화
     renderShop();
     show('shopScreen');
   }
   function rerollShop() {
-    if (run.gold < SHOP_REROLL_COST) { TCG.toast('금화가 부족합니다 (새로고침 ' + SHOP_REROLL_COST + ')'); return; }
-    TCG.sfx('tap'); run.gold -= SHOP_REROLL_COST; genShop(); run.shopStamp = tavernStamp();
+    var cost = rerollCost();
+    if (run.gold < cost) { TCG.toast('금화가 부족합니다 (새로고침 ' + cost + ')'); return; }
+    TCG.sfx('tap'); run.gold -= cost; run.shopRerolls = (run.shopRerolls || 0) + 1; genShop(); // 새로고침은 같은 스테이지 내 — 스탬프 유지
     updateTop(); saveRun(); renderShop();
   }
   /* ---------- 주막(TAVERN) — 장수 1~4장 판매(스테이지 진행 시 갱신) ---------- */
@@ -1787,7 +1788,9 @@
   }
   function renderShop() {
     document.getElementById('shopGold').textContent = run.gold;
-    var rr = document.getElementById('shopReroll'); if (rr) rr.disabled = run.gold < SHOP_REROLL_COST;
+    var cost = rerollCost();
+    var lbl = document.getElementById('rerollLabel'); if (lbl) lbl.textContent = cost === 0 ? '새로고침 무료' : ('새로고침 ' + cost);
+    var rr = document.getElementById('shopReroll'); if (rr) rr.disabled = cost > 0 && run.gold < cost;
     // 섹션: 장비 / 소모품 / 상단 서비스
     var secs = [
       { icon: '🗡️', title: '장비', kinds: ['weapon'] },
