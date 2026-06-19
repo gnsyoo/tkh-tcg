@@ -158,6 +158,9 @@ a { color: inherit; text-decoration: none; }
   box-shadow: var(--shadow);
   max-width: 540px;
   width: 100%;
+  max-height: calc(100vh - 36px); /* 오버레이 상하 패딩(18px) 제외 — 화면 밖으로 넘치지 않게 */
+  max-height: calc(100dvh - 36px); /* 모바일 동적 뷰포트 대응(지원 시 우선) */
+  overflow-y: auto;
   padding: 22px;
   text-align: center;
 }
