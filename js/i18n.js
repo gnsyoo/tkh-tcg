@@ -232,6 +232,13 @@
 
     /* 도감 / 덱·장비 모달(영웅전·대장전 공용) */
     uiRelics: { ko: '유물', en: 'Relics', ja: '遺物', zh: '遗物', zhTW: '遺物' },
+    uiItems: { ko: '소모품', en: 'Items', ja: '消耗品', zh: '消耗品', zhTW: '消耗品' },
+    uiColItemSub: { ko: '획득한 소모품은 밝게, 아직 못 모은 소모품은 어둡게 표시됩니다 — 상점에서 구매', en: 'Obtained items are bright; the rest are dimmed — bought at the shop', ja: '入手した消耗品は明るく、未入手は暗く表示 — 商店で購入', zh: '已获得消耗品高亮，未获得的变暗 — 在商店购买', zhTW: '已獲得消耗品高亮，未獲得的變暗 — 在商店購買' },
+    diffConfirmTitle: { ko: '⚔️ 새 게임 시작', en: '⚔️ Start New Game', ja: '⚔️ 新しいゲーム', zh: '⚔️ 开始新游戏', zhTW: '⚔️ 開始新遊戲' },
+    diffStart: { ko: '시작', en: 'Start', ja: '開始', zh: '开始', zhTW: '開始' },
+    adminRow: { ko: '관리자 모드', en: 'Admin Mode', ja: '管理者モード', zh: '管理员模式', zhTW: '管理員模式' },
+    adminTitle: { ko: '🔐 관리자 모드', en: '🔐 Admin Mode', ja: '🔐 管理者モード', zh: '🔐 管理员模式', zhTW: '🔐 管理員模式' },
+    adminSub: { ko: '암호를 입력하세요', en: 'Enter the passcode', ja: 'パスコードを入力', zh: '请输入密码', zhTW: '請輸入密碼' },
     uiClose: { ko: '닫기', en: 'Close', ja: '閉じる', zh: '关闭', zhTW: '關閉' },
     uiBack: { ko: '← 이전', en: '← Back', ja: '← 戻る', zh: '← 返回', zhTW: '← 返回' },
     uiSort: { ko: '정렬', en: 'Sort', ja: '並び替え', zh: '排序', zhTW: '排序' },

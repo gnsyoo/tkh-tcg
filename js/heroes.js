@@ -82,18 +82,27 @@
   var collectedHeroes = loadCollected('hw_collected_heroes');
   var collectedWeapons = loadCollected('hw_collected_weapons');
   var collectedRelics = loadCollected('hw_collected_relics');
+  var collectedItems = loadCollected('hw_collected_items'); // 소모품 도감(획득한 종류)
+  function recordItem(id) { // 소모품 획득 시 도감에 1회 기록
+    if (HW_CONS_BY_ID[id] && collectedItems.indexOf(id) === -1) {
+      collectedItems.push(id);
+      try { localStorage.setItem('hw_collected_items', JSON.stringify(collectedItems)); } catch (e) {}
+    }
+  }
   function syncCollection() {
     var changed = false;
     if (run) {
       run.party.forEach(function (h) { if (collectedHeroes.indexOf(h.def.id) === -1) { collectedHeroes.push(h.def.id); changed = true; } });
       (run.weapons || []).forEach(function (id) { if (collectedWeapons.indexOf(id) === -1) { collectedWeapons.push(id); changed = true; } });
       (run.relics || []).forEach(function (r) { if (r && collectedRelics.indexOf(r.id) === -1) { collectedRelics.push(r.id); changed = true; } });
+      (run.items || []).forEach(function (id) { if (id && collectedItems.indexOf(id) === -1) { collectedItems.push(id); changed = true; } });
     }
     if (changed) {
       try {
         localStorage.setItem('hw_collected_heroes', JSON.stringify(collectedHeroes));
         localStorage.setItem('hw_collected_weapons', JSON.stringify(collectedWeapons));
         localStorage.setItem('hw_collected_relics', JSON.stringify(collectedRelics));
+        localStorage.setItem('hw_collected_items', JSON.stringify(collectedItems));
       } catch (e) {}
     }
   }
@@ -628,17 +637,32 @@
     }).join('');
     document.getElementById('relicColDetail').innerHTML = '👆 유물을 선택하면 <b>효과·획득 경로</b>가 표시됩니다';
   }
+  function renderItemCodex() {
+    var t = document.getElementById('itemColTitle'); if (t) t.textContent = '(' + collectedItems.length + ' / ' + HW_CONSUMABLES.length + ')';
+    var list = document.getElementById('itemColList'); if (!list) return;
+    list.innerHTML = HW_CONSUMABLES.map(function (c) {
+      var got = collectedItems.indexOf(c.id) !== -1;
+      return '<div class="gear-row col-item-pick' + (got ? '' : ' locked') + '" data-id="' + c.id + '">' +
+        '<div class="gear-emoji">' + c.emoji + '</div>' +
+        '<div class="gear-info">' +
+          '<div class="gear-name">' + c.name + (got ? '' : ' 🔒') + '</div>' +
+          '<div class="gear-desc">' + c.desc + '</div>' +
+        '</div></div>';
+    }).join('');
+  }
   function showCodexTab(tab) {
     document.getElementById('codexHeroPanel').hidden = tab !== 'hero';
     document.getElementById('codexWeaponPanel').hidden = tab !== 'weapon';
     document.getElementById('codexRelicPanel').hidden = tab !== 'relic';
+    var ip = document.getElementById('codexItemPanel'); if (ip) ip.hidden = tab !== 'item';
     document.getElementById('codexTabHero').classList.toggle('active', tab === 'hero');
     document.getElementById('codexTabWeapon').classList.toggle('active', tab === 'weapon');
     document.getElementById('codexTabRelic').classList.toggle('active', tab === 'relic');
+    var it = document.getElementById('codexTabItem'); if (it) it.classList.toggle('active', tab === 'item');
   }
   function openCodex(tab) {
     TCG.sfx('tap'); syncCollection();
-    renderHeroCodex(); renderWeaponCodex(); renderRelicCodex();
+    renderHeroCodex(); renderWeaponCodex(); renderRelicCodex(); renderItemCodex();
     showCodexTab(tab || 'hero');
     document.getElementById('codexModal').hidden = false;
   }
@@ -646,6 +670,7 @@
   document.getElementById('codexTabHero').addEventListener('click', function () { TCG.sfx('tap'); showCodexTab('hero'); });
   document.getElementById('codexTabWeapon').addEventListener('click', function () { TCG.sfx('tap'); showCodexTab('weapon'); });
   document.getElementById('codexTabRelic').addEventListener('click', function () { TCG.sfx('tap'); showCodexTab('relic'); });
+  (function () { var t = document.getElementById('codexTabItem'); if (t) t.addEventListener('click', function () { TCG.sfx('tap'); showCodexTab('item'); }); })();
   function showCodexDetail(html) {
     document.getElementById('codexDetailBody').innerHTML = html;
     document.getElementById('codexDetailModal').hidden = false;
@@ -685,6 +710,18 @@
     var dm = document.getElementById('codexDetailModal');
     document.getElementById('codexDetailClose').addEventListener('click', function () { dm.hidden = true; });
     dm.addEventListener('click', function (e) { if (e.target === dm) dm.hidden = true; });
+  })();
+  (function () {
+    var list = document.getElementById('itemColList'); if (!list) return;
+    list.addEventListener('click', function (e) {
+      var c = e.target.closest('.col-item-pick'); if (!c) return;
+      var it = HW_CONS_BY_ID[c.dataset.id]; if (!it) return;
+      var got = collectedItems.indexOf(it.id) !== -1;
+      showCodexDetail(
+        '<b>' + it.emoji + ' ' + it.name + '</b> · ' + (got ? '<span class="cd-got">보유 중</span>' : '<span class="cd-no">미보유</span>') +
+        '<br><span class="cd-sub">' + it.desc + '</span>' +
+        '<br><span class="cd-path">획득 경로: 상점에서 구매</span>');
+    });
   })();
   var codexOnBack = null; // 홈→도감 진입 시, 도감을 닫으면 영웅전 정상 진입을 지연 실행
   document.getElementById('codexBack').addEventListener('click', function () {
@@ -1077,13 +1114,13 @@
     bar.innerHTML = slots;
   }
   function applyItem(it) {
-    var c = run.combat, L = c.lord;
-    if (it.kind === 'hp') { if (L.hp >= L.maxHp) { TCG.toast('HP가 가득 찼습니다'); return false; } L.hp = Math.min(L.maxHp, L.hp + it.val); fxSupport(lordEl(), '+' + it.val, '#7ef0b5'); logMsg('🧪 회복약 — 주공 HP +' + it.val); }
-    else if (it.kind === 'mp') { if (L.mp >= L.maxMp) { TCG.toast('MP가 가득 찼습니다'); return false; } L.mp = Math.min(L.maxMp, L.mp + it.val); fxSupport(lordEl(), '💧+' + it.val, '#9fd2ff'); logMsg('💧 마력약 — 주공 MP +' + it.val); }
-    else if (it.kind === 'cure_poison') { var n = 0; if (c.cstat) Object.keys(c.cstat).forEach(function (u) { if (c.cstat[u].poison > 0) { c.cstat[u].poison = 0; n++; } }); if (!n) { TCG.toast('중독된 카드가 없습니다'); return false; } logMsg('🌿 해독초 — 중독 ' + n + '장 해제'); }
-    else if (it.kind === 'cure_confuse') { var m = 0; if (c.cstat) Object.keys(c.cstat).forEach(function (u) { if (c.cstat[u].stun > 0) { c.cstat[u].stun = 0; c.cstat[u].cause = ''; m++; } }); if (!m) { TCG.toast('혼란·매혹된 카드가 없습니다'); return false; } logMsg('🔔 안신향 — 혼란/매혹 ' + m + '장 해제'); }
-    else if (it.kind === 'atk') { c.tempAtk = { val: it.val, turns: it.turns }; fxSupport(lordEl(), '⚔+' + it.val, '#ffd86b'); logMsg('🍷 전투주 — ' + it.turns + '턴간 전군 공격력 +' + it.val); }
-    else if (it.kind === 'shield') { L.block += it.val; fxSupport(lordEl(), '🛡+' + it.val, '#9fd2ff', 'shield'); logMsg('🛡️ 철벽부 — 주공 방어막 +' + it.val); }
+    var c = run.combat, L = c.lord, tag = it.emoji + ' ' + it.name + ' — ';
+    if (it.kind === 'hp') { if (L.hp >= L.maxHp) { TCG.toast('HP가 가득 찼습니다'); return false; } L.hp = Math.min(L.maxHp, L.hp + it.val); fxSupport(lordEl(), '+' + it.val, '#7ef0b5'); logMsg(tag + '주공 HP +' + it.val); }
+    else if (it.kind === 'mp') { if (L.mp >= L.maxMp) { TCG.toast('MP가 가득 찼습니다'); return false; } L.mp = Math.min(L.maxMp, L.mp + it.val); fxSupport(lordEl(), '💧+' + it.val, '#9fd2ff'); logMsg(tag + '주공 MP +' + it.val); }
+    else if (it.kind === 'cure_poison') { var n = 0; if (c.cstat) Object.keys(c.cstat).forEach(function (u) { if (c.cstat[u].poison > 0) { c.cstat[u].poison = 0; n++; } }); if (!n) { TCG.toast('중독된 카드가 없습니다'); return false; } logMsg(tag + '중독 ' + n + '장 해제'); }
+    else if (it.kind === 'cure_confuse') { var m = 0; if (c.cstat) Object.keys(c.cstat).forEach(function (u) { if (c.cstat[u].stun > 0) { c.cstat[u].stun = 0; c.cstat[u].cause = ''; m++; } }); if (!m) { TCG.toast('혼란·매혹된 카드가 없습니다'); return false; } logMsg(tag + '혼란/매혹 ' + m + '장 해제'); }
+    else if (it.kind === 'atk') { c.tempAtk = { val: it.val, turns: it.turns }; fxSupport(lordEl(), '⚔+' + it.val, '#ffd86b'); logMsg(tag + it.turns + '턴간 전군 공격력 +' + it.val); }
+    else if (it.kind === 'shield') { L.block += it.val; fxSupport(lordEl(), '🛡+' + it.val, '#9fd2ff', 'shield'); logMsg(tag + '주공 방어막 +' + it.val); }
     else return false;
     return true;
   }
@@ -1629,14 +1666,17 @@
   function showShop() {
     // 상점은 장수 외 품목만 판매(장수는 주막에서) — 무기 2 · 소모품 2 · 두강주 · 무기 강화
     var wpns = TCG.shuffle(HW_WEAPONS.filter(function (w) { return !w.exclusive; }));
+    // 소모품은 서로 다른 종류로, 이미 보유한 종류는 제외해 진열(중복 습득 방지)
+    var owned = run.items || [];
+    var consPool = TCG.shuffle(HW_CONSUMABLES.filter(function (cc) { return owned.indexOf(cc.id) === -1; }));
+    var cons = consPool.slice(0, 2);
     run.shop = [
       { kind: 'weapon', wid: wpns[0].id, cost: weaponCost(wpns[0]), sold: false },
-      { kind: 'weapon', wid: wpns[1].id, cost: weaponCost(wpns[1]), sold: false },
-      { kind: 'item', cid: TCG.pick(HW_CONSUMABLES).id, cost: 22, sold: false }, // 소모성 아이템(랜덤)
-      { kind: 'item', cid: TCG.pick(HW_CONSUMABLES).id, cost: 22, sold: false },
-      { kind: 'dujiu', cost: 18, sold: false },   // 두강주: MP 20 회복
-      { kind: 'upgrade', cost: 28, sold: false }
+      { kind: 'weapon', wid: wpns[1].id, cost: weaponCost(wpns[1]), sold: false }
     ];
+    cons.forEach(function (cc) { run.shop.push({ kind: 'item', cid: cc.id, cost: 22, sold: false }); });
+    run.shop.push({ kind: 'dujiu', cost: 18, sold: false });   // 두강주: MP 20 회복
+    run.shop.push({ kind: 'upgrade', cost: 28, sold: false });
     renderShop();
     show('shopScreen');
   }
@@ -1733,8 +1773,9 @@
       run.weapons.push(it.wid); TCG.toast('보물 구입: ' + HW_WEAPON_BY_ID[it.wid].name);
     } else if (it.kind === 'item') {
       if (!run.items) run.items = [];
+      if (run.items.indexOf(it.cid) !== -1) { TCG.toast('이미 보유한 소모품입니다'); return; } // 같은 종류 중복 소지 불가
       if (run.items.length >= HW_ITEM_MAX) { TCG.toast('소모품이 가득 찼습니다 (최대 ' + HW_ITEM_MAX + '개)'); return; }
-      run.items.push(it.cid); TCG.toast('소모품 구입: ' + HW_CONS_BY_ID[it.cid].name);
+      run.items.push(it.cid); recordItem(it.cid); TCG.toast('소모품 구입: ' + HW_CONS_BY_ID[it.cid].name);
     } else if (it.kind === 'dujiu') {
       if (typeof run.lordMp !== 'number') run.lordMp = lordMaxMp();
       run.lordMp = Math.min(lordMaxMp(), run.lordMp + 20); TCG.toast('두강주 — 주공 MP 20 회복');

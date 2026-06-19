@@ -836,15 +836,27 @@
     }).join('');
     document.getElementById('relicColDetail').innerHTML = '👆 유물을 선택하면 <b>효과·획득 경로</b>가 표시됩니다';
   }
+  function renderItemCodex() {
+    var col = lsArr('hw_collected_items');
+    var t = document.getElementById('itemColTitle'); if (t) t.textContent = '(' + col.length + ' / ' + HW_CONSUMABLES.length + ')';
+    var list = document.getElementById('itemColList'); if (!list) return;
+    list.innerHTML = HW_CONSUMABLES.map(function (c) {
+      var got = col.indexOf(c.id) !== -1;
+      return '<div class="gear-row col-item-pick' + (got ? '' : ' locked') + '" data-id="' + c.id + '"><div class="gear-emoji">' + c.emoji + '</div><div class="gear-info">' +
+        '<div class="gear-name">' + c.name + (got ? '' : ' 🔒') + '</div><div class="gear-desc">' + c.desc + '</div></div></div>';
+    }).join('');
+  }
   function showCodexTab(tab) {
     document.getElementById('codexHeroPanel').hidden = tab !== 'hero';
     document.getElementById('codexWeaponPanel').hidden = tab !== 'weapon';
     document.getElementById('codexRelicPanel').hidden = tab !== 'relic';
+    var ip = document.getElementById('codexItemPanel'); if (ip) ip.hidden = tab !== 'item';
     document.getElementById('codexTabHero').classList.toggle('active', tab === 'hero');
     document.getElementById('codexTabWeapon').classList.toggle('active', tab === 'weapon');
     document.getElementById('codexTabRelic').classList.toggle('active', tab === 'relic');
+    var it = document.getElementById('codexTabItem'); if (it) it.classList.toggle('active', tab === 'item');
   }
-  function openCodex(tab) { TCG.sfx('tap'); renderHeroCodex(); renderWeaponCodex(); renderRelicCodex(); showCodexTab(tab || 'hero'); document.getElementById('codexModal').hidden = false; }
+  function openCodex(tab) { TCG.sfx('tap'); renderHeroCodex(); renderWeaponCodex(); renderRelicCodex(); renderItemCodex(); showCodexTab(tab || 'hero'); document.getElementById('codexModal').hidden = false; }
   document.getElementById('rosterBtn').addEventListener('click', openRoster);
   document.getElementById('rosterSort').addEventListener('click', function (e) { var b = e.target.closest('.sort-btn'); if (!b) return; TCG.sfx('tap'); applySortClick(rosterSort, b.dataset.sort); renderRosterGrid(); });
   document.getElementById('heroColSort').addEventListener('click', function (e) { var b = e.target.closest('.sort-btn'); if (!b) return; TCG.sfx('tap'); applySortClick(codexSort, b.dataset.sort); renderHeroCodex(); });
@@ -857,6 +869,19 @@
   document.getElementById('codexTabHero').addEventListener('click', function () { TCG.sfx('tap'); showCodexTab('hero'); });
   document.getElementById('codexTabWeapon').addEventListener('click', function () { TCG.sfx('tap'); showCodexTab('weapon'); });
   document.getElementById('codexTabRelic').addEventListener('click', function () { TCG.sfx('tap'); showCodexTab('relic'); });
+  (function () { var t = document.getElementById('codexTabItem'); if (t) t.addEventListener('click', function () { TCG.sfx('tap'); showCodexTab('item'); }); })();
+  (function () {
+    var list = document.getElementById('itemColList'); if (!list) return;
+    list.addEventListener('click', function (e) {
+      var c = e.target.closest('.col-item-pick'); if (!c) return;
+      var it = HW_CONS_BY_ID[c.dataset.id]; if (!it) return;
+      var got = lsArr('hw_collected_items').indexOf(it.id) !== -1;
+      showCodexDetail(
+        '<b>' + it.emoji + ' ' + it.name + '</b> · ' + (got ? '<span class="cd-got">보유 중</span>' : '<span class="cd-no">미보유</span>') +
+        '<br><span class="cd-sub">' + it.desc + '</span>' +
+        '<br><span class="cd-path">획득 경로: 상점에서 구매</span>');
+    });
+  })();
   function showCodexDetail(html) {
     document.getElementById('codexDetailBody').innerHTML = html;
     document.getElementById('codexDetailModal').hidden = false;

@@ -180,6 +180,17 @@
 .ss-langs { padding: 2px 12px 8px; }
 .ss-langs .lang-bar { margin-top: 0; }
 
+/* 관리자 암호 숫자 패드 */
+.pin-display { text-align: center; font-size: 24px; letter-spacing: 8px; min-height: 30px; color: var(--gold); margin: 8px 0 12px; font-weight: 800; }
+.pin-pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.pin-key {
+  padding: 14px 0; font-size: 18px; font-weight: 800; border-radius: 12px;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(245,197,66,0.3); color: var(--ink);
+  cursor: pointer; transition: all .12s; font-family: inherit;
+}
+.pin-key:hover { border-color: var(--gold); background: rgba(245,197,66,0.14); }
+.pin-key:active { transform: scale(.96); }
+
 /* ── 공통(모달/버전/언어) ── */
 .ver-badge {
   font-size: 12px; color: var(--ink-dim);
