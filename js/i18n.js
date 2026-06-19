@@ -204,7 +204,22 @@
     qbEndNo: { ko: '계속하기', en: 'Keep playing', ja: '続ける', zh: '继续', zhTW: '繼續' },
     qbAgain: { ko: '다시 하기', en: 'Play Again', ja: 'もう一度', zh: '再来一局', zhTW: '再來一局' },
     qbRulesTitle: { ko: '📜 게임 규칙', en: '📜 Rules', ja: '📜 ゲームルール', zh: '📜 游戏规则', zhTW: '📜 遊戲規則' },
-    qbConfirm: { ko: '확인', en: 'OK', ja: 'OK', zh: '确定', zhTW: '確定' }
+    qbConfirm: { ko: '확인', en: 'OK', ja: 'OK', zh: '确定', zhTW: '確定' },
+
+    /* 도감 / 덱·장비 모달(영웅전·대장전 공용) */
+    uiRelics: { ko: '유물', en: 'Relics', ja: '遺物', zh: '遗物', zhTW: '遺物' },
+    uiClose: { ko: '닫기', en: 'Close', ja: '閉じる', zh: '关闭', zhTW: '關閉' },
+    uiSort: { ko: '정렬', en: 'Sort', ja: '並び替え', zh: '排序', zhTW: '排序' },
+    uiSortRarity: { ko: '등급', en: 'Rarity', ja: 'レア度', zh: '稀有度', zhTW: '稀有度' },
+    uiSortAtk: { ko: '공격력', en: 'ATK', ja: '攻撃力', zh: '攻击力', zhTW: '攻擊力' },
+    uiSortAcquire: { ko: '습득순', en: 'Acquired', ja: '入手順', zh: '获得顺序', zhTW: '獲得順序' },
+    uiColHeroSub: { ko: '수집한 장수는 밝게, 아직 못 모은 장수는 어둡게 표시됩니다', en: 'Collected officers are bright; the rest are dimmed', ja: '集めた武将は明るく、未入手は暗く表示', zh: '已收集武将高亮，未获得的变暗', zhTW: '已收集武將高亮，未獲得的變暗' },
+    uiColWeaponSub: { ko: '수집한 장비는 밝게, 아직 못 모은 장비는 어둡게 표시됩니다', en: 'Collected gear is bright; the rest are dimmed', ja: '集めた装備は明るく、未入手は暗く表示', zh: '已收集装备高亮，未获得的变暗', zhTW: '已收集裝備高亮，未獲得的變暗' },
+    uiColRelicSub: { ko: '획득한 유물은 밝게, 아직 못 모은 유물은 어둡게 표시됩니다 — 메인 적장 격파·보물 발견 이벤트로 획득', en: 'Obtained relics are bright; the rest are dimmed — from defeating main commanders or treasure events', ja: '入手した遺物は明るく、未入手は暗く表示 — 敵将撃破・宝物イベントで入手', zh: '已获得遗物高亮，未获得的变暗 — 通过击破主敌将或宝物事件获得', zhTW: '已獲得遺物高亮，未獲得的變暗 — 透過擊破主敵將或寶物事件獲得' },
+    uiDeckEditTitle: { ko: '⚔️ 출진 덱 편성', en: '⚔️ Deck Formation', ja: '⚔️ 出陣デッキ編成', zh: '⚔️ 出阵卡组编成', zhTW: '⚔️ 出陣牌組編成' },
+    uiDeckEditSub: { ko: '삼국 영웅전과 <b>공유</b>하는 출진 덱입니다. 카드를 탭해 넣고 빼세요 (최소 10장·최대 30장). 무기 장착은 영웅전에서 합니다.', en: 'This sortie deck is <b>shared</b> with Heroes. Tap cards to add/remove (10–30). Equip weapons in Heroes.', ja: '英雄伝と<b>共有</b>する出陣デッキです。カードをタップで出し入れ（10〜30枚）。武器装備は英雄伝で。', zh: '与英雄传<b>共享</b>的出阵卡组。点击卡牌增减（10~30张）。武器装备在英雄传中进行。', zhTW: '與英雄傳<b>共享</b>的出陣牌組。點擊卡牌增減（10~30張）。武器裝備在英雄傳中進行。' },
+    uiGearTitle2: { ko: '🗡️ 장착 장비', en: '🗡️ Equipped Gear', ja: '🗡️ 装備中の武器', zh: '🗡️ 已装备', zhTW: '🗡️ 已裝備' },
+    uiGearSub: { ko: '덱 장수들이 장착한 무기입니다', en: 'Weapons equipped by your deck officers', ja: 'デッキの武将が装備中の武器', zh: '卡组武将所装备的武器', zhTW: '牌組武將所裝備的武器' }
   };
 
   function get(lang, key) {

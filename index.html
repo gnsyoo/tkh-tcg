@@ -13,8 +13,8 @@
   gtag('config', 'G-RZW78R7430');
 </script>
 <title>삼국지 카드 게임</title>
-<link rel="stylesheet" href="css/common.css?v=1.4.12">
-<link rel="stylesheet" href="css/home.css?v=1.4.12">
+<link rel="stylesheet" href="css/common.css?v=1.4.13">
+<link rel="stylesheet" href="css/home.css?v=1.4.13">
 </head>
 <body class="home-body">
   <div class="home-wrap">
@@ -42,7 +42,7 @@
     </section>
 
     <footer class="home-version">
-      <span class="ver-badge" id="verBadge">v1.4.12 · 2026.06.19</span>
+      <span class="ver-badge" id="verBadge">v1.4.13 · 2026.06.19</span>
       <button class="btn ghost ver-btn" id="guideBtn" data-i18n="footGuide">📖 게임 가이드</button>
       <button class="btn ghost ver-btn" id="changelogBtn" data-i18n="footChangelog">📜 변경 내역</button>
       <button class="btn ghost ver-btn" id="creditsBtn" data-i18n="footCredits">🎬 만든이</button>
@@ -59,10 +59,11 @@
   <!-- 변경 내역 팝업 -->
   <div class="overlay" id="changelogModal" hidden>
     <div class="modal" style="max-width:560px;text-align:left;">
-      <h2 style="text-align:center;">📜 변경 내역 <span style="color:var(--gold);font-size:14px;">v1.4.12</span></h2>
+      <h2 style="text-align:center;">📜 변경 내역 <span style="color:var(--gold);font-size:14px;">v1.4.13</span></h2>
       <div class="changelog-list">
         <h4>📅 2026.06.19</h4>
         <ul>
+          <li><b>다국어 — 인게임 문구(5차: 도감·덱/장비 모달)</b> — 도감 탭(장수·장비·유물)·설명·정렬(등급·공격력·습득순)·닫기, 대장전 <b>덱 편성·장착 장비</b> 모달을 5개 언어 적용. (HB 규칙 본문·전투 로그는 순차 진행)</li>
           <li><b>보물 이벤트 확률 복원</b> — 테스트용 100% → <b>약 10%</b>로 되돌림(메인 전역당 최대 1회).</li>
           <li><b>다국어 — 인게임 문구(4차: 히어로즈 블러드)</b> — 턴 표시·승패 결과·패스·덱 구성·게임 종료 확인 등 HB 화면 문구 5개 언어 적용. (규칙 본문·전투 로그는 순차 진행)</li>
           <li><b>다국어 — 인게임 문구(3차: 전투 동적·대장전)</b> — 전투 힌트·배너(출진/적장/라운드/치명타)·적 태그(적장·중간보스) 및 <b>대장전</b> 화면(선택·전투·결과·보스의 턴) 5개 언어 적용. (전투 로그·HB 상세는 순차 진행)</li>
@@ -171,6 +172,6 @@
       wire('creditsBtn', 'creditsModal', 'creditsClose');
     })();
   </script>
-  <script src="js/i18n.js?v=1.4.12"></script>
+  <script src="js/i18n.js?v=1.4.13"></script>
 </body>
 </html>
