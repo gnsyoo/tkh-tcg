@@ -344,7 +344,7 @@
           '<button data-act="relic"><img src="' + A + 'ic-gear.png" alt="">' + TCG.t('camp.bonus') + '</button>' +
         '</div>' +
       '</div>' +
-      '<div class="wr-timeline"><div class="wr-line"></div>' + rows + '</div>' +
+      '<div class="wr-timeline"><div class="wr-inner"><div class="wr-line"></div>' + rows + '</div></div>' +
       '<div class="wr-actions">' +
         '<button class="wr-act primary" data-act="battle"><img src="' + A + 'ped-chuljin.png" alt="">' + TCG.t('camp.battle') + '</button>' +
         '<button class="wr-act" data-act="formation"><img src="' + A + 'ped-jinhyeong.png" alt="">' + TCG.t('camp.formation') + '</button>' +
