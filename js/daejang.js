@@ -204,7 +204,7 @@
   }
 
   function renderSelect() {
-    document.getElementById('deckPill').textContent = '출진 덱 ' + activeDeckUids().length;
+    var dpl = document.getElementById('deckPill'); if (dpl) dpl.textContent = '출진 덱 ' + activeDeckUids().length;
     var rc = document.getElementById('rosterCount'); if (rc) rc.textContent = party.length; // 장수 버튼 카운트(0 표시 버그 수정)
     var dp = document.getElementById('diffPill'); if (dp) dp.textContent = '난이도 ' + TCG.diffLabel(diff);
     var ls = document.getElementById('raidLordStatus');

@@ -78,7 +78,7 @@ HTML_FILES.forEach(function (f) {
   const p = path.join(ROOT, 'index.html');
   if (!fs.existsSync(p)) return;
   let html = fs.readFileSync(p, 'utf8');
-  html = html.replace(/(<span class="ver-badge" id="verBadge">)[^<]*(<\/span>)/,
+  html = html.replace(/(<span class="[^"]*\bver-badge\b[^"]*" id="verBadge">)[^<]*(<\/span>)/,
     '$1v' + next + ' · ' + date + '$2');
   html = html.replace(/(📜 변경 내역 <span style="color:var\(--gold\);font-size:14px;">)v[0-9.]*(<\/span>)/,
     '$1v' + next + '$2');

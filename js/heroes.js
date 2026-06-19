@@ -65,10 +65,11 @@
     });
   }
   function updateTop() {
-    document.getElementById('goldPill').textContent = '💰 ' + run.gold;
+    var gp = document.getElementById('goldPill'); if (gp) gp.textContent = '💰 ' + run.gold;
     var st = HW_STAGES[run.mainStage];
     var md = HW_MODES[run.mode] || HW_MODES.normal;
-    document.getElementById('floorPill').textContent = st
+    var fp = document.getElementById('floorPill');
+    if (fp) fp.textContent = st
       ? (md.emoji + ' ' + (run.mainStage + 1) + '/' + HW_STAGES.length + ' ' + st.name + ' · ' + (run.subStage + 1) + '/' + SUB_COUNT)
       : '천하통일';
     var dp = document.getElementById('diffPill'); if (dp) dp.textContent = md.emoji + ' ' + md.label;
@@ -1913,20 +1914,27 @@
 
   /* ---------- boot ---------- */
   TCG.initFloatMenu();
-  document.getElementById('guideBtn').addEventListener('click', function () { TCG.sfx('tap'); document.getElementById('guideModal').hidden = false; });
-  document.getElementById('guideClose').addEventListener('click', function () { document.getElementById('guideModal').hidden = true; });
-  document.getElementById('guideModal').addEventListener('click', function (e) { if (e.target.id === 'guideModal') e.currentTarget.hidden = true; });
+  // 게임 가이드/소리/대사/데이터 초기화는 홈 화면 설정으로 이동 — 인게임에는 홈 버튼만 노출(요소 없으면 안전하게 건너뜀)
+  var _guideBtn = document.getElementById('guideBtn');
+  if (_guideBtn) {
+    _guideBtn.addEventListener('click', function () { TCG.sfx('tap'); document.getElementById('guideModal').hidden = false; });
+    document.getElementById('guideClose').addEventListener('click', function () { document.getElementById('guideModal').hidden = true; });
+    document.getElementById('guideModal').addEventListener('click', function (e) { if (e.target.id === 'guideModal') e.currentTarget.hidden = true; });
+  }
   // 데이터 초기화: 영웅전·대장전 진행 + 컬렉션 + 모드 해금 전부 삭제 후 새로고침
   function resetAllData() {
     ['hw_save', 'hw_raid_cleared', 'hw_mode_unlocked', 'hw_collected_heroes', 'hw_collected_weapons', 'hw_grant_heroes', 'hw_bonus_gold']
       .forEach(function (k) { try { localStorage.removeItem(k); } catch (e) {} });
   }
-  document.getElementById('resetBtn').addEventListener('click', function () { TCG.sfx('tap'); document.getElementById('resetConfirm').hidden = false; });
-  document.getElementById('resetConfirmNo').addEventListener('click', function () { document.getElementById('resetConfirm').hidden = true; });
-  document.getElementById('resetConfirm').addEventListener('click', function (e) { if (e.target.id === 'resetConfirm') e.currentTarget.hidden = true; });
-  document.getElementById('resetConfirmYes').addEventListener('click', function () {
-    resetAllData(); TCG.toast('데이터를 초기화했습니다'); location.reload();
-  });
+  var _resetBtn = document.getElementById('resetBtn');
+  if (_resetBtn) {
+    _resetBtn.addEventListener('click', function () { TCG.sfx('tap'); document.getElementById('resetConfirm').hidden = false; });
+    document.getElementById('resetConfirmNo').addEventListener('click', function () { document.getElementById('resetConfirm').hidden = true; });
+    document.getElementById('resetConfirm').addEventListener('click', function (e) { if (e.target.id === 'resetConfirm') e.currentTarget.hidden = true; });
+    document.getElementById('resetConfirmYes').addEventListener('click', function () {
+      resetAllData(); TCG.toast('데이터를 초기화했습니다'); location.reload();
+    });
+  }
   var muteBtn = document.getElementById('muteBtn');
   if (muteBtn) {
     muteBtn.textContent = TCG.isMuted() ? '🔇 소리' : '🔊 소리';

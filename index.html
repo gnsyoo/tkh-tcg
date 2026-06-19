@@ -13,56 +13,121 @@
   gtag('config', 'G-RZW78R7430');
 </script>
 <title>삼국지 카드 게임</title>
-<link rel="stylesheet" href="css/common.css?v=1.4.13">
-<link rel="stylesheet" href="css/home.css?v=1.4.13">
+<link rel="stylesheet" href="css/common.css?v=1.4.14">
+<link rel="stylesheet" href="css/home.css?v=1.4.14">
 </head>
 <body class="home-body">
-  <div class="home-wrap">
-    <section class="games-grid">
-      <a class="game-card heroes" id="cardHeroes" href="heroes.html">
-        <h3 data-i18n="heroesTitle">삼국 영웅전</h3>
-        <p class="game-tag" data-i18n="heroesTag">난세 평정 · 천하통일</p>
-        <p class="game-desc" data-i18n="heroesDesc">장수를 모집해 부대를 꾸리고 진군 경로를 헤쳐가는 턴제 전투. 황건적과 군벌을 격파하고 동탁·여포 등 보스를 토벌하세요.</p>
-        <span class="play-pill" data-i18n="heroesPill">출진 ▶</span>
+  <div class="home-app">
+    <div class="home-texture"></div>
+
+    <!-- 키 비주얼 -->
+    <header class="kv">
+      <img class="kv-img" src="assets/img/home/hero-keyvisual.png?v=1.4.14" alt="">
+      <div class="kv-fade"></div>
+      <div class="kv-glow"></div>
+      <span class="ver-badge kv-ver" id="verBadge">v1.4.14 · 2026.06.19</span>
+    </header>
+
+    <!-- 모드 카드 -->
+    <section class="modes">
+      <a class="mode-card heroes" id="cardHeroes" href="heroes.html">
+        <span class="mode-glow"></span>
+        <div class="mc-head">
+          <span class="mc-icon"><img src="assets/img/home/icon-heroes.png?v=1.4.14" alt=""></span>
+          <div class="mc-meta">
+            <div class="mc-tag" data-i18n="heroesTag">난세 평정 · 천하통일</div>
+            <div class="mc-title" data-i18n="heroesTitle">삼국 영웅전</div>
+          </div>
+        </div>
+        <p class="mc-desc" data-i18n="heroesDesc">장수를 모집해 부대를 꾸리고 진군 경로를 헤쳐가는 턴제 전투. 황건적과 군벌을 격파하고 동탁·여포 등 보스를 토벌하세요.</p>
+        <div class="mc-btn-row"><img class="mc-btn" src="assets/img/home/btn-chuljin.png?v=1.4.14" alt="출진"></div>
       </a>
 
-      <a class="game-card raid" id="cardRaid" href="daejang.html">
-        <h3 data-i18n="raidTitle">삼국 대장전</h3>
-        <p class="game-tag" data-i18n="raidTag">레이드 보스전</p>
-        <p class="game-desc" data-i18n="raidDesc">삼국 영웅전의 <b>덱을 공유</b>해 거대 HP의 적장(레이드 보스)에 도전. <b>보스를 격파하면 그 적장을 전용 장수로 획득</b>하며, 이 장수들은 오직 대장전에서만 얻을 수 있습니다.</p>
-        <span class="play-pill" data-i18n="raidPill">토벌 ▶</span>
+      <a class="mode-card raid" id="cardRaid" href="daejang.html">
+        <span class="mode-glow"></span>
+        <div class="mc-head">
+          <span class="mc-icon"><img src="assets/img/home/icon-raid.png?v=1.4.14" alt=""></span>
+          <div class="mc-meta">
+            <div class="mc-tag"><span data-i18n="raidTag">레이드 보스전</span> <span class="mc-badge">RAID</span></div>
+            <div class="mc-title" data-i18n="raidTitle">삼국 대장전</div>
+          </div>
+        </div>
+        <p class="mc-desc" data-i18n="raidDesc">삼국 영웅전의 <b>덱을 공유</b>해 거대 HP의 적장(레이드 보스)에 도전. <b>보스를 격파하면 그 적장을 전용 장수로 획득</b>하며, 이 장수들은 오직 대장전에서만 얻을 수 있습니다.</p>
+        <div class="mc-btn-row"><img class="mc-btn" src="assets/img/home/btn-tobeol.png?v=1.4.14" alt="토벌"></div>
       </a>
 
-      <a class="game-card queens" id="cardQueens" href="queensblood.html">
-        <h3 data-i18n="queensTitle">히어로즈 블러드</h3>
-        <p class="game-tag" data-i18n="queensTag">보드 카드 대전</p>
-        <p class="game-desc" data-i18n="queensDesc">진영(3×5·4×5 선택)에 장수 카드를 배치해 영역을 넓히고, <b>배치한 카드의 무력 총합</b>이 높은 쪽이 승리하는 전략 카드 대전. 덱 빌더(장수 카드 69종)로 15장 덱을 짜고, 대전 결과는 영웅전 <b>골드로 정산</b>됩니다.</p>
-        <span class="play-pill" data-i18n="queensPill">대전 ▶</span>
+      <a class="mode-card queens" id="cardQueens" href="queensblood.html">
+        <span class="mode-glow"></span>
+        <div class="mc-head">
+          <span class="mc-icon"><img src="assets/img/home/icon-board.png?v=1.4.14" alt=""></span>
+          <div class="mc-meta">
+            <div class="mc-tag" data-i18n="queensTag">보드 카드 대전</div>
+            <div class="mc-title" data-i18n="queensTitle">히어로즈 블러드</div>
+          </div>
+        </div>
+        <p class="mc-desc" data-i18n="queensDesc">진영(3×5·4×5 선택)에 장수 카드를 배치해 영역을 넓히고, <b>배치한 카드의 무력 총합</b>이 높은 쪽이 승리하는 전략 카드 대전. 덱 빌더(장수 카드 69종)로 15장 덱을 짜고, 대전 결과는 영웅전 <b>골드로 정산</b>됩니다.</p>
+        <div class="mc-btn-row"><img class="mc-btn" src="assets/img/home/btn-daejeon.png?v=1.4.14" alt="대전"></div>
       </a>
     </section>
 
-    <footer class="home-version">
-      <span class="ver-badge" id="verBadge">v1.4.13 · 2026.06.19</span>
-      <button class="btn ghost ver-btn" id="guideBtn" data-i18n="footGuide">📖 게임 가이드</button>
-      <button class="btn ghost ver-btn" id="changelogBtn" data-i18n="footChangelog">📜 변경 내역</button>
-      <button class="btn ghost ver-btn" id="creditsBtn" data-i18n="footCredits">🎬 만든이</button>
-      <div class="lang-bar" id="langBar">
-        <button class="lang-btn" data-lang="ko">한국어</button>
-        <button class="lang-btn" data-lang="en">EN</button>
-        <button class="lang-btn" data-lang="ja">日本語</button>
-        <button class="lang-btn" data-lang="zh">简体</button>
-        <button class="lang-btn" data-lang="zhTW">繁體</button>
+    <!-- 하단 탭바 -->
+    <nav class="tabbar">
+      <button class="tab" id="tabCodex"><span class="tab-tile"><img src="assets/img/home/tab-codex.png?v=1.4.14" alt=""></span><span class="tab-label" data-i18n="tabCodex">도감</span></button>
+      <button class="tab" id="tabShop"><span class="tab-tile"><img src="assets/img/home/tab-shop.png?v=1.4.14" alt=""></span><span class="tab-label" data-i18n="tabShop">상점</span></button>
+      <button class="tab" id="tabTavern"><span class="tab-tile"><img src="assets/img/home/tab-tavern.png?v=1.4.14" alt=""></span><span class="tab-label" data-i18n="tabTavern">주막</span></button>
+      <button class="tab" id="tabSettings"><span class="tab-tile"><img src="assets/img/home/tab-settings.png?v=1.4.14" alt=""></span><span class="tab-label" data-i18n="tabSettings">설정</span></button>
+    </nav>
+
+    <!-- 설정 바텀시트 -->
+    <div class="ss-backdrop" id="ssBackdrop" hidden></div>
+    <div class="settings-sheet" id="settingsSheet" hidden>
+      <div class="ss-handle"></div>
+      <div class="ss-head">
+        <span class="ss-head-ic">⚙️</span>
+        <span class="ss-head-title" data-i18n="setTitle">설정</span>
+        <button class="ss-close" id="ssClose" aria-label="닫기">✕</button>
       </div>
-    </footer>
+      <div class="ss-list">
+        <button class="ss-row" id="setGuide"><span class="ss-ic">📖</span><span class="ss-label" data-i18n="footGuide">📖 게임 가이드</span></button>
+        <button class="ss-row" id="setSound"><span class="ss-ic">🔊</span><span class="ss-label" data-i18n="setSound">소리 설정</span><span class="ss-state" id="setSoundState">ON</span></button>
+        <button class="ss-row" id="setLang"><span class="ss-ic">🌐</span><span class="ss-label" data-i18n="setLang">언어 설정</span><span class="ss-state gold" id="setLangState">한국어</span><span class="ss-caret">▾</span></button>
+        <div class="ss-langs" id="ssLangs" hidden>
+          <div class="lang-bar" id="langBar">
+            <button class="lang-btn" data-lang="ko">한국어</button>
+            <button class="lang-btn" data-lang="en">EN</button>
+            <button class="lang-btn" data-lang="ja">日本語</button>
+            <button class="lang-btn" data-lang="zh">简体</button>
+            <button class="lang-btn" data-lang="zhTW">繁體</button>
+          </div>
+        </div>
+        <button class="ss-row" id="setDialogue"><span class="ss-ic">💬</span><span class="ss-label" data-i18n="setDialogue">대사 설정</span><span class="ss-state" id="setDialogueState">켜짐</span></button>
+        <button class="ss-row" id="setChangelog"><span class="ss-ic">📜</span><span class="ss-label" data-i18n="footChangelog">📜 변경 내역</span></button>
+        <button class="ss-row" id="setCredits"><span class="ss-ic">🎬</span><span class="ss-label" data-i18n="footCredits">🎬 만든이</span></button>
+        <button class="ss-row danger" id="setReset"><span class="ss-ic">🗑️</span><span class="ss-label" data-i18n="uiReset">🗑️ 데이터 초기화</span></button>
+      </div>
+    </div>
+
+    <!-- 데이터 초기화 확인 -->
+    <div class="overlay" id="resetConfirm" hidden style="z-index:130;">
+      <div class="modal">
+        <h2 data-i18n="resetQ">🗑️ 데이터를 초기화할까요?</h2>
+        <p data-i18n="resetBody">삼국 영웅전·삼국 대장전의 모든 진행과 장수/장비 컬렉션, 모드 해금 기록이 <b>모두 삭제</b>됩니다. 되돌릴 수 없습니다.</p>
+        <div style="display:flex;gap:10px;justify-content:center;margin-top:8px;">
+          <button class="btn primary" id="resetConfirmYes" data-i18n="resetYes">초기화</button>
+          <button class="btn ghost" id="resetConfirmNo" data-i18n="resetNo">취소</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- 변경 내역 팝업 -->
   <div class="overlay" id="changelogModal" hidden>
     <div class="modal" style="max-width:560px;text-align:left;">
-      <h2 style="text-align:center;">📜 변경 내역 <span style="color:var(--gold);font-size:14px;">v1.4.13</span></h2>
+      <h2 style="text-align:center;">📜 변경 내역 <span style="color:var(--gold);font-size:14px;">v1.4.14</span></h2>
       <div class="changelog-list">
         <h4>📅 2026.06.19</h4>
         <ul>
+          <li><b>홈 화면 리디자인(다크 로그라이크)</b> — 첫 화면을 영웅전 비주얼로 통일: <b>키 비주얼</b>·게임별 글로우(영웅전 적색·대장전 보라·블러드 금색)·일러스트 아이콘/버튼·하단 <b>탭바</b>(도감·상점·주막·설정). 흩어져 있던 설정을 <b>설정 바텀시트</b>로 통합(게임 가이드·소리·언어·대사·변경 내역·만든이·데이터 초기화). 영웅전·대장전 우상단 메뉴는 <b>홈 버튼</b>으로 교체(소리·대사·초기화는 홈에서 전체 적용).</li>
           <li><b>다국어 — 인게임 문구(5차: 도감·덱/장비 모달)</b> — 도감 탭(장수·장비·유물)·설명·정렬(등급·공격력·습득순)·닫기, 대장전 <b>덱 편성·장착 장비</b> 모달을 5개 언어 적용. (HB 규칙 본문·전투 로그는 순차 진행)</li>
           <li><b>보물 이벤트 확률 복원</b> — 테스트용 100% → <b>약 10%</b>로 되돌림(메인 전역당 최대 1회).</li>
           <li><b>다국어 — 인게임 문구(4차: 히어로즈 블러드)</b> — 턴 표시·승패 결과·패스·덱 구성·게임 종료 확인 등 HB 화면 문구 5개 언어 적용. (규칙 본문·전투 로그는 순차 진행)</li>
@@ -157,21 +222,108 @@
     </div>
   </div>
 
+  <script src="js/util.js?v=1.4.14"></script>
   <script>
     // 난이도 선택 제거 — 기본 상(hard) 고정
     try { localStorage.setItem('tcg_difficulty', 'hard'); } catch (e) {}
     (function () {
-      function wire(btnId, modalId, closeId) {
-        var modal = document.getElementById(modalId);
-        document.getElementById(btnId).addEventListener('click', function () { modal.hidden = false; });
-        document.getElementById(closeId).addEventListener('click', function () { modal.hidden = true; });
+      var $ = function (id) { return document.getElementById(id); };
+      // 홈 전용 동적 문구(이 페이지는 i18n_data.js를 로드하지 않으므로 직접 등록)
+      window.__UI_I18N__ = window.__UI_I18N__ || {};
+      (function (T) {
+        T.homeTabSoon = { ko: '준비 중입니다', en: 'Coming soon', ja: '準備中です', zh: '敬请期待', zhTW: '敬請期待' };
+        T.dialogueOn = { ko: '켜짐', en: 'On', ja: 'オン', zh: '开', zhTW: '開' };
+        T.dialogueOff = { ko: '꺼짐', en: 'Off', ja: 'オフ', zh: '关', zhTW: '關' };
+        T.resetDone = { ko: '데이터를 초기화했습니다', en: 'Data has been reset', ja: 'データを初期化しました', zh: '已重置数据', zhTW: '已重置資料' };
+      })(window.__UI_I18N__);
+      function wire(modalId, closeId) {
+        var modal = $(modalId); if (!modal) return;
+        var close = $(closeId); if (close) close.addEventListener('click', function () { modal.hidden = true; });
         modal.addEventListener('click', function (e) { if (e.target === modal) modal.hidden = true; });
       }
-      wire('changelogBtn', 'changelogModal', 'changelogClose');
-      wire('guideBtn', 'guideModal', 'guideClose');
-      wire('creditsBtn', 'creditsModal', 'creditsClose');
+      wire('changelogModal', 'changelogClose');
+      wire('guideModal', 'guideClose');
+      wire('creditsModal', 'creditsClose');
+      function openModal(id) { var m = $(id); if (m) m.hidden = false; }
+
+      /* ── 설정 바텀시트 ── */
+      var sheet = $('settingsSheet'), backdrop = $('ssBackdrop');
+      function openSheet() {
+        backdrop.hidden = false; sheet.hidden = false;
+        requestAnimationFrame(function () { sheet.classList.add('open'); backdrop.classList.add('open'); });
+        if (window.TCG) TCG.sfx('tap');
+      }
+      function closeSheet() {
+        sheet.classList.remove('open'); backdrop.classList.remove('open');
+        var langs = $('ssLangs'); if (langs) langs.hidden = true;
+        setTimeout(function () { sheet.hidden = true; backdrop.hidden = true; }, 240);
+      }
+      $('tabSettings').addEventListener('click', openSheet);
+      $('ssClose').addEventListener('click', closeSheet);
+      backdrop.addEventListener('click', closeSheet);
+
+      /* ── 미구현 탭(도감·상점·주막) ── */
+      ['tabCodex', 'tabShop', 'tabTavern'].forEach(function (id) {
+        var b = $(id); if (!b) return;
+        b.addEventListener('click', function () {
+          if (window.TCG) { TCG.sfx('tap'); TCG.toast(TCG.t('homeTabSoon')); }
+        });
+      });
+
+      /* ── 설정 항목 ── */
+      $('setGuide').addEventListener('click', function () { closeSheet(); openModal('guideModal'); });
+      $('setChangelog').addEventListener('click', function () { closeSheet(); openModal('changelogModal'); });
+      $('setCredits').addEventListener('click', function () { closeSheet(); openModal('creditsModal'); });
+
+      // 소리 설정 (전역 — 모든 게임 공유)
+      var soundState = $('setSoundState');
+      function refreshSound() { soundState.textContent = (window.TCG && TCG.isMuted()) ? 'OFF' : 'ON'; soundState.classList.toggle('off', window.TCG && TCG.isMuted()); }
+      refreshSound();
+      $('setSound').addEventListener('click', function () {
+        if (!window.TCG) return;
+        TCG.toggleMute(); TCG.audioResume(); refreshSound(); if (!TCG.isMuted()) TCG.sfx('tap');
+      });
+
+      // 대사 설정 (전역)
+      var dlgState = $('setDialogueState');
+      function get(k) { return (window.TCG && TCG.t) ? TCG.t(k) : k; }
+      function refreshDlg() {
+        var on = !window.TCG || TCG.isDialogueOn();
+        dlgState.textContent = get(on ? 'dialogueOn' : 'dialogueOff');
+        dlgState.classList.toggle('off', !on);
+      }
+      $('setDialogue').addEventListener('click', function () {
+        if (!window.TCG) return;
+        TCG.toggleDialogue(); refreshDlg(); TCG.sfx('tap');
+      });
+
+      // 언어 설정 — 칩 펼침 + 현재 언어 라벨
+      var LANG_LABEL = { ko: '한국어', en: 'EN', ja: '日本語', zh: '简体', zhTW: '繁體' };
+      var langState = $('setLangState'), ssLangs = $('ssLangs');
+      function curLang() { try { var l = localStorage.getItem('tcg_lang'); return LANG_LABEL[l] ? l : 'ko'; } catch (e) { return 'ko'; } }
+      function refreshLangLabel() { langState.textContent = LANG_LABEL[curLang()] || '한국어'; }
+      refreshLangLabel(); refreshDlg();
+      $('setLang').addEventListener('click', function (e) {
+        if (e.target.closest('#ssLangs')) return;
+        ssLangs.hidden = !ssLangs.hidden;
+      });
+      // 언어 선택 시 라벨/대사 라벨 갱신 (i18n.js가 langBar 클릭을 처리해 즉시 적용)
+      $('langBar').addEventListener('click', function () { setTimeout(function () { refreshLangLabel(); refreshDlg(); }, 0); });
+
+      // 데이터 초기화 (전역)
+      var RESET_KEYS = ['hw_save', 'hw_raid_cleared', 'hw_mode_unlocked', 'hw_collected_heroes',
+        'hw_collected_weapons', 'hw_collected_relics', 'hw_grant_heroes', 'hw_grant_relics',
+        'hw_bonus_gold', 'hw_treasure_relic', 'qb_winstreak'];
+      $('setReset').addEventListener('click', function () { closeSheet(); $('resetConfirm').hidden = false; });
+      $('resetConfirmNo').addEventListener('click', function () { $('resetConfirm').hidden = true; });
+      $('resetConfirm').addEventListener('click', function (e) { if (e.target.id === 'resetConfirm') e.currentTarget.hidden = true; });
+      $('resetConfirmYes').addEventListener('click', function () {
+        RESET_KEYS.forEach(function (k) { try { localStorage.removeItem(k); } catch (e) {} });
+        if (window.TCG) TCG.toast(TCG.t('resetDone'));
+        $('resetConfirm').hidden = true;
+      });
     })();
   </script>
-  <script src="js/i18n.js?v=1.4.13"></script>
+  <script src="js/i18n.js?v=1.4.14"></script>
 </body>
 </html>

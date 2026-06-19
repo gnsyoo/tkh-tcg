@@ -135,6 +135,26 @@
     footChangelog: { ko: '📜 변경 내역', en: '📜 Changelog', ja: '📜 変更履歴', zh: '📜 更新记录', zhTW: '📜 更新記錄' },
     footCredits: { ko: '🎬 만든이', en: '🎬 Credits', ja: '🎬 制作', zh: '🎬 制作人员', zhTW: '🎬 製作人員' },
 
+    /* 홈 — 하단 탭바 + 설정 바텀시트 */
+    tabCodex: { ko: '도감', en: 'Codex', ja: '図鑑', zh: '图鉴', zhTW: '圖鑑' },
+    tabShop: { ko: '상점', en: 'Shop', ja: '商店', zh: '商店', zhTW: '商店' },
+    tabTavern: { ko: '주막', en: 'Tavern', ja: '酒場', zh: '酒馆', zhTW: '酒館' },
+    tabSettings: { ko: '설정', en: 'Settings', ja: '設定', zh: '设置', zhTW: '設定' },
+    setTitle: { ko: '설정', en: 'Settings', ja: '設定', zh: '设置', zhTW: '設定' },
+    setSound: { ko: '소리 설정', en: 'Sound', ja: 'サウンド設定', zh: '声音设置', zhTW: '聲音設定' },
+    setLang: { ko: '언어 설정', en: 'Language', ja: '言語設定', zh: '语言设置', zhTW: '語言設定' },
+    setDialogue: { ko: '대사 설정', en: 'Dialogue', ja: 'セリフ設定', zh: '台词设置', zhTW: '台詞設定' },
+    resetQ: { ko: '🗑️ 데이터를 초기화할까요?', en: '🗑️ Reset all data?', ja: '🗑️ データを初期化しますか？', zh: '🗑️ 要重置所有数据吗？', zhTW: '🗑️ 要重置所有資料嗎？' },
+    resetBody: {
+      ko: '삼국 영웅전·삼국 대장전의 모든 진행과 장수/장비 컬렉션, 모드 해금 기록이 <b>모두 삭제</b>됩니다. 되돌릴 수 없습니다.',
+      en: 'All progress in Heroes & Raid, your officer/gear collection, and unlock records will be <b>permanently deleted</b>. This cannot be undone.',
+      ja: '英雄伝・大将戦のすべての進行、武将/装備コレクション、モード解放記録が<b>すべて削除</b>されます。元に戻せません。',
+      zh: '英雄传·大将战的所有进度、武将/装备收藏与模式解锁记录将<b>全部删除</b>，无法恢复。',
+      zhTW: '英雄傳·大將戰的所有進度、武將/裝備收藏與模式解鎖記錄將<b>全部刪除</b>，無法復原。'
+    },
+    resetYes: { ko: '초기화', en: 'Reset', ja: '初期化', zh: '重置', zhTW: '重置' },
+    resetNo: { ko: '취소', en: 'Cancel', ja: 'キャンセル', zh: '取消', zhTW: '取消' },
+
     guideTitle: { ko: '📖 게임 가이드', en: '📖 Game Guide', ja: '📖 ゲームガイド', zh: '📖 游戏指南', zhTW: '📖 遊戲指南' },
     guideSub: {
       ko: '처음이어도 괜찮아요 — 핵심만 짧게 정리했습니다.',
