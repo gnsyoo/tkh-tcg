@@ -123,6 +123,14 @@
   border-radius: 999px; padding: 5px 12px;
 }
 .ver-btn { font-size: 12px; padding: 6px 14px; }
+.lang-bar { width: 100%; display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-top: 4px; }
+.lang-btn {
+  font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 999px; cursor: pointer;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.14); color: var(--ink-dim);
+  transition: all .15s;
+}
+.lang-btn:hover { border-color: var(--gold); color: var(--ink); }
+.lang-btn.active { background: var(--gold); border-color: var(--gold); color: #3a2600; }
 .changelog-list { max-height: calc(100dvh - 200px); overflow-y: auto; padding-right: 6px; }
 .changelog-list h4 {
   margin: 14px 0 6px; font-size: 13px; color: var(--gold);
