@@ -13,8 +13,8 @@
   gtag('config', 'G-RZW78R7430');
 </script>
 <title>히어로즈 블러드 · 목업</title>
-<link rel="stylesheet" href="css/common.css?v=1.5.6">
-<link rel="stylesheet" href="css/queensblood.css?v=1.5.6">
+<link rel="stylesheet" href="css/common.css?v=1.5.7">
+<link rel="stylesheet" href="css/queensblood.css?v=1.5.7">
 </head>
 <body>
   <div class="float-menu" id="floatMenu">
@@ -96,10 +96,13 @@
     </div>
   </div>
 
-  <div class="overlay" id="deckModal" hidden>
-    <div class="modal deck-modal">
-      <h2 style="text-align:center;"><span data-i18n="qbDeckTitle">🃏 덱 구성</span> <span id="deckCount" style="color:var(--gold);font-size:16px;">0/15</span></h2>
-      <p style="text-align:center;">카드 풀에서 15장을 골라 덱을 만들고 판 크기를 정한 뒤 시작하세요. 카드를 탭하여 추가/제거합니다.<br><small style="color:var(--ink-dim);">카드 우하단 격자(<span style="color:var(--gold);">■</span>=카드 위치, <span style="color:var(--you);">■</span>=강화되는 영역)는 강화 패턴입니다.</small></p>
+  <div class="codex-page" id="deckModal" hidden>
+    <div class="codex-page-bar">
+      <button class="codex-back" id="deckClose" data-i18n="uiBack">← 이전</button>
+      <span class="codex-page-title"><span data-i18n="qbDeckTitle">🃏 덱 구성</span> <span id="deckCount" style="color:var(--gold);font-size:13px;">0/15</span></span>
+    </div>
+    <div class="codex-page-body">
+      <p style="text-align:center;margin-top:0;">카드 풀에서 15장을 골라 덱을 만들고 판 크기를 정한 뒤 시작하세요. 카드를 탭하여 추가/제거합니다.<br><small style="color:var(--ink-dim);">카드 우하단 격자(<span style="color:var(--gold);">■</span>=카드 위치, <span style="color:var(--you);">■</span>=강화되는 영역)는 강화 패턴입니다.</small></p>
       <div class="board-size-sel" id="boardSizeSel">
         <span class="bss-label" data-i18n="qbBoardSize">판 크기</span>
         <button class="bss-btn" data-rows="3">3 × 5</button>
@@ -110,7 +113,6 @@
         <button class="btn ghost" id="deckDefault" data-i18n="qbDefaultDeck">기본덱</button>
         <button class="btn ghost" id="deckSave" data-i18n="qbSave">저장</button>
         <button class="btn primary" id="deckStart" data-i18n="qbStartDeck">이 덱으로 시작</button>
-        <button class="btn ghost" id="deckClose" data-i18n="qbClose">닫기</button>
       </div>
     </div>
   </div>
@@ -147,10 +149,10 @@
     </div>
   </div>
 
-  <script src="js/util.js?v=1.5.6"></script>
-  <script src="js/qb_data.js?v=1.5.6"></script>
-  <script src="js/i18n_data.js?v=1.5.6"></script>
-  <script src="js/queensblood.js?v=1.5.6"></script>
-  <script src="js/i18n.js?v=1.5.6"></script>
+  <script src="js/util.js?v=1.5.7"></script>
+  <script src="js/qb_data.js?v=1.5.7"></script>
+  <script src="js/i18n_data.js?v=1.5.7"></script>
+  <script src="js/queensblood.js?v=1.5.7"></script>
+  <script src="js/i18n.js?v=1.5.7"></script>
 </body>
 </html>

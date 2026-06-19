@@ -785,7 +785,7 @@
     });
   }
   var diffPillEl = document.getElementById('diffPill'); if (diffPillEl) diffPillEl.textContent = '난이도 ' + TCG.diffLabel(diff);
-  newGame();            // 배경 보드 준비
-  openDeckBuilder();    // 진입 시 덱 구성 화면부터 보여주고 시작
+  newGame();            // 진입 시 바로 대전 시작
+  if (/[?&]deck=1/.test(location.search)) openDeckBuilder(); // 홈 '덱 구성'으로 진입 시 덱 구성 페이지 표시
   (function () { var t = treasureChallenge(); if (t) TCG.toast('🏺 보물 도전 — 승리 시 ' + t.emoji + ' ' + t.name + ' 획득!'); })();
 })();

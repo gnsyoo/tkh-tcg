@@ -91,7 +91,8 @@
 .mc-desc { position: relative; margin: 0; padding: 0 16px; font-size: 12px; line-height: 1.65; color: var(--ink-dim); }
 .mc-desc b { font-weight: 800; color: #e6d8c4; }
 .mc-btn-row { position: relative; padding: 12px 16px 16px; display: flex; justify-content: flex-end; }
-.mode-card.heroes .mc-btn-row { justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.mode-card.heroes .mc-btn-row,
+.mode-card.queens .mc-btn-row { justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
 .mc-btn { height: 58px; width: auto; display: block; filter: drop-shadow(0 4px 8px rgba(0,0,0,.4)); transition: transform .15s ease; }
 .mode-card:hover .mc-btn { transform: translateX(2px) scale(1.03); }
 

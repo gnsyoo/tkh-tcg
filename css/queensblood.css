@@ -277,6 +277,9 @@
 
 /* Deck builder */
 .deck-modal { max-width: 720px; }
+/* 덱 구성이 전체 페이지일 때는 페이지가 스크롤되도록 그리드 자체 높이 제한 해제 */
+.codex-page .deck-grid { max-height: none; overflow: visible; }
+.codex-page .deck-actions { position: sticky; bottom: 0; background: linear-gradient(0deg, rgba(20,13,11,0.96), rgba(20,13,11,0.6)); padding: 10px 0; }
 .deck-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(82px, 1fr));
