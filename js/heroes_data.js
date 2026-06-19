@@ -245,8 +245,32 @@ var HW_WEAPONS = [
   { id:'chituma',  name:'적토마',     emoji:'🐎', desc:'적 공격 회피 확률 +10%',     effect:{ evade:0.10 } },
   { id:'dilu',     name:'적로',       emoji:'🐎', desc:'적 공격 회피 확률 +7%',      effect:{ evade:0.07 } },
   { id:'jueying',  name:'절영',       emoji:'🐴', desc:'적 공격 회피 확률 +7%',      effect:{ evade:0.07 } },
-  { id:'zhaohuang',name:'조황비전',   emoji:'🐎', desc:'적 공격 회피 확률 +7%',      effect:{ evade:0.07 } }
+  { id:'zhaohuang',name:'조황비전',   emoji:'🐎', desc:'적 공격 회피 확률 +7%',      effect:{ evade:0.07 } },
+  // ---- 추가 장비 2차 (총 50종) ----
+  { id:'wugou',    name:'오구도',     emoji:'⚔️', desc:'장착 장수 공격력 +8',        effect:{ atk:8 } },
+  { id:'yanyuefu', name:'언월부',     emoji:'🪓', desc:'장착 장수 공격력 +9',        effect:{ atk:9 } },
+  { id:'shemaoqiang',name:'사모창',   emoji:'🔱', desc:'공격력 +6, 치명타 +8%',     effect:{ atk:6, crit:0.08 } },
+  { id:'huyadao',  name:'호아도',     emoji:'🗡️', desc:'공격력 +7, 독 +2',           effect:{ atk:7, poison:2 } },
+  { id:'jifengdao',name:'질풍도',     emoji:'🗡️', desc:'공격력 +2, 기본 공격 2회',  effect:{ atk:2, doubleStrike:true } },
+  { id:'hanshuangjian',name:'한상검', emoji:'🔪', desc:'치명타 확률 +13%',           effect:{ crit:0.13 } },
+  { id:'duwubiao', name:'독무표창',   emoji:'🎯', desc:'공격 시 적에게 독 +5',        effect:{ poison:5 } },
+  { id:'yingyanggong',name:'응양궁',  emoji:'🏹', desc:'기본 공격 2회 + 치명타 +6%', effect:{ doubleStrike:true, crit:0.06 } },
+  { id:'polangchui',name:'파랑추',    emoji:'🔨', desc:'공격력 +6, 치명타 +5%',     effect:{ atk:6, crit:0.05 } },
+  { id:'wangujian',name:'완고검',     emoji:'🗡️', desc:'공격력 +4, 주공 최대 HP +25', effect:{ atk:4, lordHp:25 } },
+  { id:'xuanwujia',name:'현무갑',     emoji:'🛡️', desc:'주공 최대 HP +70',           effect:{ lordHp:70 } },
+  { id:'zhuquefu', name:'주작부',     emoji:'🔥', desc:'공격력 +5, 독 +3',           effect:{ atk:5, poison:3 } },
+  { id:'baihuyao', name:'백호요대',   emoji:'🥋', desc:'주공 HP +40, 치명타 +6%',   effect:{ lordHp:40, crit:0.06 } },
+  { id:'qinglongpei',name:'청룡패',   emoji:'🟦', desc:'주공 최대 HP +35, MP +10',  effect:{ lordHp:35, lordMp:10 } },
+  { id:'wenshujia',name:'문서갑',     emoji:'📘', desc:'주공 최대 MP +35',           effect:{ lordMp:35 } },
+  { id:'leigongbian',name:'뇌공편',   emoji:'⚡', desc:'공격력 +5, 치명타 +9%',     effect:{ atk:5, crit:0.09 } },
+  { id:'yinyangjing',name:'음양경',   emoji:'☯️', desc:'주공 HP +25, MP +25',        effect:{ lordHp:25, lordMp:25 } },
+  { id:'huxindao', name:'호심도',     emoji:'🗡️', desc:'공격력 +3, 주공 최대 HP +30', effect:{ atk:3, lordHp:30 } },
+  { id:'jinpaojia',name:'금포갑',     emoji:'🧥', desc:'주공 최대 HP +50, MP +10',  effect:{ lordHp:50, lordMp:10 } },
+  { id:'chiyandao',name:'적염도',     emoji:'🔥', desc:'공격력 +7, 치명타 +7%',     effect:{ atk:7, crit:0.07 } },
+  { id:'baiyinqiang',name:'백은창',   emoji:'🔱', desc:'공격력 +8, 회피 +7%',       effect:{ atk:8, evade:0.07 } }
 ];
+// 적장(보스)은 중간보스보다 강하게 — 전용 배수(중간보스 hpMult 2.05 / atkMult 1.22보다 높음)
+var HW_BOSS_MULT = { hpMult:2.7, atkMult:1.55 };
 var HW_WEAPON_BY_ID = {};
 HW_WEAPONS.forEach(function (w) { HW_WEAPON_BY_ID[w.id] = w; });
 
@@ -273,58 +297,14 @@ var HW_DIFF = {
   hard:   { eHp:1.10, eAtk:1.01, gold:0.9, smart:true, startGold:40 }
 };
 
-/* 소모성 아이템 — 전투 중 턴당 1개 사용, 최대 5칸 소지. 같은 종류는 중복 소지 불가. 저잣거리에서 랜덤 구매 (총 50종) */
+/* 소모성 아이템 — 전투 중 턴당 1개 사용, 최대 5칸 소지. 저잣거리에서 랜덤 구매 */
 var HW_CONSUMABLES = [
   { id:'potion_hp',  emoji:'🧪', name:'회복약',   kind:'hp',           val:45, desc:'주공 HP 45 회복' },
   { id:'potion_mp',  emoji:'💧', name:'마력약',   kind:'mp',           val:20, desc:'주공 MP 20 회복' },
   { id:'antidote',   emoji:'🌿', name:'해독초',   kind:'cure_poison',          desc:'아군 카드 중독 모두 해제' },
   { id:'incense',    emoji:'🔔', name:'안신향',   kind:'cure_confuse',         desc:'아군 카드 혼란·매혹 해제' },
   { id:'warwine',    emoji:'🍷', name:'전투주',   kind:'atk', val:5, turns:2,  desc:'2턴간 전군 공격력 +5' },
-  { id:'ironcharm',  emoji:'🛡️', name:'철벽부',   kind:'shield', val:8,        desc:'주공 방어막 +8' },
-  { id:'herb_tea',     emoji:'🍵', name:'약차',     kind:'hp', val:20,           desc:'주공 HP 20 회복' },
-  { id:'tonic_soup',   emoji:'🍲', name:'보양탕',   kind:'hp', val:60,           desc:'주공 HP 60 회복' },
-  { id:'elixir',       emoji:'🏺', name:'선단',     kind:'hp', val:80,           desc:'주공 HP 80 회복' },
-  { id:'royal_jelly',  emoji:'🍯', name:'봉밀',     kind:'hp', val:30,           desc:'주공 HP 30 회복' },
-  { id:'ginseng',      emoji:'🥕', name:'인삼',     kind:'hp', val:50,           desc:'주공 HP 50 회복' },
-  { id:'fairy_peach',  emoji:'🍑', name:'선도',     kind:'hp', val:100,          desc:'주공 HP 100 회복' },
-  { id:'ration_cake',  emoji:'🍡', name:'군량떡',   kind:'hp', val:25,           desc:'주공 HP 25 회복' },
-  { id:'roast_meat',   emoji:'🍖', name:'구운고기', kind:'hp', val:35,           desc:'주공 HP 35 회복' },
-  { id:'rice_gruel',   emoji:'🥣', name:'죽',       kind:'hp', val:40,           desc:'주공 HP 40 회복' },
-  { id:'spring_water', emoji:'⛲', name:'감천수',   kind:'hp', val:55,           desc:'주공 HP 55 회복' },
-  { id:'phoenix_herb', emoji:'🪶', name:'봉황초',   kind:'hp', val:70,           desc:'주공 HP 70 회복' },
-  { id:'mountain_yam', emoji:'🌾', name:'산약',     kind:'hp', val:65,           desc:'주공 HP 65 회복' },
-  { id:'mana_dew',     emoji:'🌫️', name:'영로수',   kind:'mp', val:15,           desc:'주공 MP 15 회복' },
-  { id:'vigor_pill',   emoji:'💊', name:'활력단',   kind:'mp', val:30,           desc:'주공 MP 30 회복' },
-  { id:'spirit_tea',   emoji:'🫖', name:'정신차',   kind:'mp', val:25,           desc:'주공 MP 25 회복' },
-  { id:'lotus_heart',  emoji:'🪷', name:'연심',     kind:'mp', val:10,           desc:'주공 MP 10 회복' },
-  { id:'jade_cup',     emoji:'🏆', name:'옥배',     kind:'mp', val:40,           desc:'주공 MP 40 회복' },
-  { id:'lucky_coin',   emoji:'🪙', name:'행운전',   kind:'mp', val:22,           desc:'주공 MP 22 회복' },
-  { id:'energy_pill',  emoji:'⚡', name:'기력단',   kind:'mp', val:35,           desc:'주공 MP 35 회복' },
-  { id:'sea_pearl',    emoji:'🦪', name:'해주',     kind:'mp', val:28,           desc:'주공 MP 28 회복' },
-  { id:'star_sand',    emoji:'✴️', name:'성사',     kind:'mp', val:18,           desc:'주공 MP 18 회복' },
-  { id:'strong_wine',  emoji:'🍶', name:'백주',     kind:'atk', val:3, turns:1,  desc:'1턴간 전군 공격력 +3' },
-  { id:'hero_wine',    emoji:'🍾', name:'영웅주',   kind:'atk', val:8, turns:2,  desc:'2턴간 전군 공격력 +8' },
-  { id:'dragon_wine',  emoji:'🐉', name:'용린주',   kind:'atk', val:10, turns:3, desc:'3턴간 전군 공격력 +10' },
-  { id:'war_drum',     emoji:'🥁', name:'전고',     kind:'atk', val:6, turns:2,  desc:'2턴간 전군 공격력 +6' },
-  { id:'banner_charm', emoji:'🚩', name:'군기부',   kind:'atk', val:4, turns:3,  desc:'3턴간 전군 공격력 +4' },
-  { id:'tiger_wine',   emoji:'🐯', name:'호골주',   kind:'atk', val:7, turns:2,  desc:'2턴간 전군 공격력 +7' },
-  { id:'blood_wine',   emoji:'🩸', name:'혈주',     kind:'atk', val:9, turns:1,  desc:'1턴간 전군 공격력 +9' },
-  { id:'thunder_charm',emoji:'🌩️', name:'뇌부',     kind:'atk', val:6, turns:3,  desc:'3턴간 전군 공격력 +6' },
-  { id:'iron_wall',    emoji:'🧱', name:'철벽',     kind:'shield', val:12,       desc:'주공 방어막 +12' },
-  { id:'turtle_charm', emoji:'🐢', name:'귀갑부',   kind:'shield', val:16,       desc:'주공 방어막 +16' },
-  { id:'great_shield', emoji:'🪨', name:'대순',     kind:'shield', val:20,       desc:'주공 방어막 +20' },
-  { id:'leather_armor',emoji:'🥋', name:'가죽갑',   kind:'shield', val:5,        desc:'주공 방어막 +5' },
-  { id:'bronze_charm', emoji:'🔰', name:'청동부',   kind:'shield', val:10,       desc:'주공 방어막 +10' },
-  { id:'stone_charm',  emoji:'🗿', name:'석부',     kind:'shield', val:14,       desc:'주공 방어막 +14' },
-  { id:'silk_robe',    emoji:'🧣', name:'비단갑',   kind:'shield', val:6,        desc:'주공 방어막 +6' },
-  { id:'guardian_charm',emoji:'✨', name:'수호부',  kind:'shield', val:18,       desc:'주공 방어막 +18' },
-  { id:'cure_root',    emoji:'🪴', name:'약뿌리',   kind:'cure_poison',          desc:'아군 카드 중독 모두 해제' },
-  { id:'cure_sprout',  emoji:'🌱', name:'영약초',   kind:'cure_poison',          desc:'아군 카드 중독 모두 해제' },
-  { id:'cure_balm',    emoji:'💚', name:'만응고',   kind:'cure_poison',          desc:'아군 카드 중독 모두 해제' },
-  { id:'cure_clover',  emoji:'🍀', name:'청심초',   kind:'cure_poison',          desc:'아군 카드 중독 모두 해제' },
-  { id:'calm_bell',    emoji:'🛎️', name:'진정령',   kind:'cure_confuse',         desc:'아군 카드 혼란·매혹 해제' },
-  { id:'clear_mind',   emoji:'🧘', name:'명상향',   kind:'cure_confuse',         desc:'아군 카드 혼란·매혹 해제' },
-  { id:'deep_incense', emoji:'🕯️', name:'침향',     kind:'cure_confuse',         desc:'아군 카드 혼란·매혹 해제' },
+  { id:'ironcharm',  emoji:'🛡️', name:'철벽부',   kind:'shield', val:8,        desc:'주공 방어막 +8' }
 ];
 var HW_CONS_BY_ID = {}; HW_CONSUMABLES.forEach(function (c) { HW_CONS_BY_ID[c.id] = c; });
 var HW_ITEM_MAX = 5; // 소모성 아이템 소지 최대 칸
