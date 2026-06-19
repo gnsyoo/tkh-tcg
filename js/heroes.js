@@ -44,7 +44,7 @@
   function lordMaxHp() { return HW_LORD.hp + run.party.reduce(function (s, h) { return s + wpnVal(h, 'lordHp'); }, 0) + relicSum('maxHp'); }
   function lordMaxMp() { return HW_LORD.mp + run.party.reduce(function (s, h) { return s + wpnVal(h, 'lordMp'); }, 0) + relicSum('maxMp'); }
   function lordEvade() { return Math.min(0.3, run.party.reduce(function (s, h) { return s + wpnVal(h, 'evade'); }, 0)); } // 회피(무기 합산, 최대 30%)
-  function skillMp(sk) { var m = 2 + (sk.cost || 1); return (sk.type === 'buff' && sk.scope === 'army') ? m * 5 : m + 3; } // 모든 스킬 +3, 전군 버프는 현재의 5배
+  function skillMp(sk) { var m = 2 + (sk.cost || 1); var base = (sk.type === 'buff' && sk.scope === 'army') ? m * 5 : m + 3; return Math.max(1, base - 1); } // 전반 -1(전군 버프 포함)
   function ownedHeroIds() { return run.party.map(function (h) { return h.def.id; }); } // 중복 수집 방지
   // 보유 무기 중 아직 장착되지 않은 복사본들(중복 보유 허용 — 장수마다 1개씩 나눠 장착 가능)
   function freeWeaponIds() {
@@ -264,25 +264,42 @@
     }
     TCG.toast((HW_BY_ID[id].emoji || '🎖') + ' ' + reason + ' — ' + HW_BY_ID[id].name + (already ? ' 합류!' : ' 획득!'));
   }
-  // 장수 컬렉션 100% 완료 → 자웅일대검 지급(다른 경로로는 획득 불가)
+  // 장수 컬렉션 100% 완료 → 전국옥새 지급(다른 경로로는 획득 불가)
   function checkCollectionReward() {
     if (!run) return;
     syncCollection();
     var allHeroes = HW_HEROES.every(function (d) { return collectedHeroes.indexOf(d.id) !== -1; });
     if (!allHeroes) return;
-    if (collectedWeapons.indexOf('cixiong') === -1) {
-      collectedWeapons.push('cixiong');
+    if (collectedWeapons.indexOf('yuxi') === -1) {
+      collectedWeapons.push('yuxi');
       try { localStorage.setItem('hw_collected_weapons', JSON.stringify(collectedWeapons)); } catch (e) {}
     }
-    if ((run.weapons || []).indexOf('cixiong') === -1) {
-      run.weapons.push('cixiong');
-      TCG.toast('🌟 장수 컬렉션 완료 보상 — 자웅일대검 획득!');
+    if ((run.weapons || []).indexOf('yuxi') === -1) {
+      run.weapons.push('yuxi');
+      TCG.toast('🌟 장수 컬렉션 완료 보상 — 전국옥새 획득!');
     }
+  }
+  // 히어로즈 블러드 20연승 등으로 해금된 장비를 현재 모험에 영입(hw_grant_weapons → run.weapons)
+  function applyPendingWeapons() {
+    try {
+      var raw = localStorage.getItem('hw_grant_weapons');
+      var list = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(list) || !list.length) return;
+      list.forEach(function (id) {
+        if (!HW_WEAPON_BY_ID[id]) return;
+        if (collectedWeapons.indexOf(id) === -1) collectedWeapons.push(id);
+        if (!run.weapons) run.weapons = [];
+        if (run.weapons.indexOf(id) === -1) { run.weapons.push(id); TCG.toast('🗡️ 특별 장비 획득: ' + HW_WEAPON_BY_ID[id].name); }
+      });
+      localStorage.setItem('hw_grant_weapons', '[]');
+      localStorage.setItem('hw_collected_weapons', JSON.stringify(collectedWeapons));
+    } catch (e) {}
   }
   function showMap() {
     applyBonusGold();
     applyPendingGrants();
     applyPendingRelics();
+    applyPendingWeapons();
     checkCollectionReward();
     updateTop();
     var mt = document.getElementById('mapTitle');
@@ -626,6 +643,7 @@
   }
   function weaponPath(w) {
     if (w.exclusive === 'collection') return '📕 장수 컬렉션 100% 완료 보상';
+    if (w.exclusive === 'qb20') return '🃏 히어로즈 블러드 20연승 보상';
     return '💎 보물상자(출진 5·10회) · 🏪 상점';
   }
   function relicPath(r) {
@@ -650,8 +668,8 @@
     return '<div class="gear-row ' + pickClass + (got ? '' : ' locked') + '" data-id="' + it.id + '">' +
       '<div class="gear-emoji">' + it.emoji + '</div>' +
       '<div class="gear-info">' +
-        '<div class="gear-name">' + (got ? it.name : '???') + '</div>' +
-        '<div class="gear-desc">' + (got ? it.desc : '미발견 — 획득하면 정보가 공개됩니다') + '</div>' +
+        '<div class="gear-name">' + it.name + '</div>' +
+        '<div class="gear-desc">' + it.desc + '</div>' +
       '</div>' +
       '<span class="col-mark" style="color:' + (got ? 'var(--gold)' : 'var(--ink-dim)') + '">' + (got ? '✦' : '🔒') + '</span>' +
       '</div>';
@@ -2038,7 +2056,7 @@
   })();
   // 데이터 초기화: 영웅전·대장전 진행 + 컬렉션 + 모드 해금 전부 삭제 후 새로고침
   function resetAllData() {
-    ['hw_save', 'hw_raid_cleared', 'hw_mode_unlocked', 'hw_collected_heroes', 'hw_collected_weapons', 'hw_grant_heroes', 'hw_bonus_gold']
+    ['hw_save', 'hw_raid_cleared', 'hw_mode_unlocked', 'hw_collected_heroes', 'hw_collected_weapons', 'hw_grant_heroes', 'hw_grant_weapons', 'hw_bonus_gold']
       .forEach(function (k) { try { localStorage.removeItem(k); } catch (e) {} });
   }
   var _resetBtn = document.getElementById('resetBtn');

@@ -325,7 +325,7 @@
   // 연승 보상: 3연승=제갈량(영웅전 전용 장수), 10연승=천자의 밀서(유물, 1회).
   // win=true 연승 누적, 아니면 0으로 초기화. 반환: { oracle, edict } — 이번에 획득한 보상 플래그.
   function updateWinStreak(win) {
-    var res = { oracle: false, diaochan: false, edict: false };
+    var res = { oracle: false, diaochan: false, edict: false, cixiong: false };
     try {
       var n = parseInt(localStorage.getItem('qb_winstreak') || '0', 10) || 0;
       n = win ? n + 1 : 0;
@@ -334,6 +334,8 @@
       var hasD = Array.isArray(collected) && collected.indexOf('diaochan') !== -1;
       var relicsCol = JSON.parse(localStorage.getItem('hw_collected_relics') || '[]');
       var hasE = Array.isArray(relicsCol) && relicsCol.indexOf('edict') !== -1;
+      var weaponsCol = JSON.parse(localStorage.getItem('hw_collected_weapons') || '[]');
+      var hasCx = Array.isArray(weaponsCol) && weaponsCol.indexOf('cixiong') !== -1;
       if (win && n >= 3 && !hasO) { // 3연승 → 제갈량
         var grants = JSON.parse(localStorage.getItem('hw_grant_heroes') || '[]');
         if (!Array.isArray(grants)) grants = [];
@@ -367,6 +369,17 @@
         localStorage.setItem('qb_winstreak', '0'); // 보상 후 초기화
         res.edict = true; return res;
       }
+      if (win && n >= 20 && hasE && !hasCx) { // 20연승 → 자웅일대검(장비, 1회)
+        var gw = JSON.parse(localStorage.getItem('hw_grant_weapons') || '[]');
+        if (!Array.isArray(gw)) gw = [];
+        if (gw.indexOf('cixiong') === -1) gw.push('cixiong');
+        localStorage.setItem('hw_grant_weapons', JSON.stringify(gw));
+        if (Array.isArray(weaponsCol) && weaponsCol.indexOf('cixiong') === -1) {
+          weaponsCol.push('cixiong'); localStorage.setItem('hw_collected_weapons', JSON.stringify(weaponsCol));
+        }
+        localStorage.setItem('qb_winstreak', '0'); // 보상 후 초기화
+        res.cixiong = true; return res;
+      }
       localStorage.setItem('qb_winstreak', String(n));
     } catch (e) {}
     return res;
@@ -375,6 +388,7 @@
   function hasOracle() { try { var c = JSON.parse(localStorage.getItem('hw_collected_heroes') || '[]'); return Array.isArray(c) && c.indexOf('oracle') !== -1; } catch (e) { return false; } }
   function hasDiaochan() { try { var c = JSON.parse(localStorage.getItem('hw_collected_heroes') || '[]'); return Array.isArray(c) && c.indexOf('diaochan') !== -1; } catch (e) { return false; } }
   function hasEdict() { try { var c = JSON.parse(localStorage.getItem('hw_collected_relics') || '[]'); return Array.isArray(c) && c.indexOf('edict') !== -1; } catch (e) { return false; } }
+  function hasCixiong() { try { var c = JSON.parse(localStorage.getItem('hw_collected_weapons') || '[]'); return Array.isArray(c) && c.indexOf('cixiong') !== -1; } catch (e) { return false; } }
   // 영웅전 보물 이벤트 도전 모드(?treasure=1): 승리 시 지정 유물을 영웅전으로 지급
   function treasureChallenge() {
     if (!/[?&]treasure=1/.test(location.search)) return null;
@@ -401,8 +415,9 @@
       var owned = hasOracle();
       var hadDiaochan = hasDiaochan();
       var hadEdict = hasEdict();
+      var hadCixiong = hasCixiong();
       var streakRes = updateWinStreak(true);
-      var gotOracle = streakRes.oracle, gotDiaochan = streakRes.diaochan, gotEdict = streakRes.edict;
+      var gotOracle = streakRes.oracle, gotDiaochan = streakRes.diaochan, gotEdict = streakRes.edict, gotCixiong = streakRes.cixiong;
       var streak = gotOracle ? 3 : curStreak();
       text = '배치한 카드 무력 총합에서 앞섰습니다. (연승 ' + streakNow + ')';
       goldHtml = '<div class="end-gold gain">' +
@@ -428,6 +443,13 @@
             '<span class="eg-val"><b>천자의 밀서</b>(유물) 획득! 골드 보상 +20%</span></div>';
         } else {
           goldHtml += '<div class="streak-note">🔥 10연승 시 <b>천자의 밀서</b>(골드 +20% 유물) 획득 (' + streakNow + '/10)</div>';
+        }
+      } else if (!hadCixiong) { // 천자의 밀서 보유 후 — 20연승 시 자웅일대검(장비)
+        if (gotCixiong) {
+          goldHtml += '<div class="end-gold gain"><span class="eg-label">🌟 20연승 달성</span>' +
+            '<span class="eg-val"><b>자웅일대검</b>(장비) 획득! 삼국 영웅전에서 사용합니다</span></div>';
+        } else {
+          goldHtml += '<div class="streak-note">🔥 20연승 시 <b>자웅일대검</b>(장비) 획득 (' + streakNow + '/20)</div>';
         }
       }
       TCG.sfx('win');

@@ -123,7 +123,7 @@
   function effAtk(h) { var c = combat; return h.atk + wpnVal(h, 'atk') + (c ? (c.atkBuff || 0) + ((c.tempAtk && c.tempAtk.turns > 0) ? c.tempAtk.val : 0) + ((c.cardBuff && h.uid && c.cardBuff[h.uid]) ? c.cardBuff[h.uid] : 0) : 0); }
   function lordMaxHp() { return HW_LORD.hp + party.reduce(function (s, h) { return s + wpnVal(h, 'lordHp'); }, 0) + relicSum('maxHp'); }
   function lordMaxMp() { return HW_LORD.mp + party.reduce(function (s, h) { return s + wpnVal(h, 'lordMp'); }, 0) + relicSum('maxMp'); }
-  function skillMp(sk) { var m = 2 + (sk.cost || 1); return (sk.type === 'buff' && sk.scope === 'army') ? m * 5 : m + 3; } // 모든 스킬 +3, 전군 버프는 현재의 5배
+  function skillMp(sk) { var m = 2 + (sk.cost || 1); var base = (sk.type === 'buff' && sk.scope === 'army') ? m * 5 : m + 3; return Math.max(1, base - 1); } // 전반 -1(전군 버프 포함)
   var BASE_CRIT = 0.01;
   function critChance(h) { return Math.min(0.5, BASE_CRIT + wpnVal(h, 'crit') + relicSum('crit')); } // 치명타 확률 최대 50%(유물 합산)
   function rollCrit(c) { return Math.random() < c; }
@@ -724,7 +724,7 @@
     }
     return '⚔️ 전투 보상 영입 · 🏮 주막 영입';
   }
-  function weaponPath(w) { return w.exclusive === 'collection' ? '📕 장수 컬렉션 100% 완료 보상' : '💎 보물상자(출진 5·10회) · 🏪 상점'; }
+  function weaponPath(w) { return w.exclusive === 'collection' ? '📕 장수 컬렉션 100% 완료 보상' : (w.exclusive === 'qb20' ? '🃏 히어로즈 블러드 20연승 보상' : '💎 보물상자(출진 5·10회) · 🏪 상점'); }
   function relicPath(r) { return r.exclusive === 'qb' ? '🃏 히어로즈 블러드 10연승 보상 (1회)' : '👑 영웅전 메인 적장 격파 보상 · 💎 보물 발견 이벤트(메인 전역당 ~10% 등장)'; }
   /* ---------- 정렬(도감·출진 덱 편성) ---------- */
   function rarityRank(r) { return ({ C: 0, R: 1, SR: 2, SSR: 3 })[r] || 0; }
@@ -824,8 +824,8 @@
   function codexListRow(it, got, pickClass) {
     return '<div class="gear-row ' + pickClass + (got ? '' : ' locked') + '" data-id="' + it.id + '">' +
       '<div class="gear-emoji">' + it.emoji + '</div>' +
-      '<div class="gear-info"><div class="gear-name">' + (got ? it.name : '???') + '</div>' +
-        '<div class="gear-desc">' + (got ? it.desc : '미발견 — 획득하면 정보가 공개됩니다') + '</div></div>' +
+      '<div class="gear-info"><div class="gear-name">' + it.name + '</div>' +
+        '<div class="gear-desc">' + it.desc + '</div></div>' +
       '<span class="col-mark" style="color:' + (got ? 'var(--gold)' : 'var(--ink-dim)') + '">' + (got ? '✦' : '🔒') + '</span></div>';
   }
   function renderWeaponCodex() {
