@@ -1494,8 +1494,8 @@
     if (c.sub === SUB_COUNT - 1 && c.main === 0 && c.lord.hp >= c.lord.maxHp) {
       unlockSpecialHero('lubu', '화웅을 풀 HP로 격파', true);
     }
-    // 주공 HP는 모험 내내 유지 — 승리 시 일부만 회복(로그라이크 소모전)
-    var heal = Math.round(c.lord.maxHp * 0.115) + relicSum('winHeal'); // 카드 방어 제거 보정(승리 회복↑)
+    // 주공 HP는 모험 내내 유지 — 전투 후 기본 회복 없음(로그라이크 소모전). 군량미(유물) 보유 시에만 회복.
+    var heal = relicSum('winHeal'); // 기본 패시브 회복 제거 — 유물 효과만 적용
     run.lordHp = Math.min(c.lord.maxHp, c.lord.hp + heal);
     run.lordMp = Math.min(c.lord.maxMp, c.lord.mp + relicSum('winMp')); // MP는 남은 대로 유지 + 옥천수(유물) 회복
     // gold + reward cadence
