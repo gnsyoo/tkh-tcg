@@ -2058,6 +2058,10 @@
   var modeParam = (location.search.match(/[?&]mode=(normal|hard|extreme)/) || [])[1];
   var goParam = (location.search.match(/[?&]go=(codex|shop|tavern)/) || [])[1];
   var adminParam = /[?&]admin=1\b/.test(location.search);
+  // 진입 파라미터는 일회성 — 처리 후 URL에서 제거해 새로고침 시 새 게임/딥링크가 재실행되지 않게 함(저장된 모험 유지)
+  if (modeParam || goParam || adminParam) {
+    try { history.replaceState(null, '', location.pathname); } catch (e) {}
+  }
   if (adminParam) {
     // 관리자: 모든 장수 영입 + 모든 장비/유물 보유 + 컬렉션 전체 해금, 극악·마지막 전역 출진 1, 금화 10000
     TCG.audioResume(); newRun('extreme');
