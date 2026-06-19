@@ -148,7 +148,17 @@
     creditsTitle: { ko: '🎬 만든이', en: '🎬 Credits', ja: '🎬 制作', zh: '🎬 制作人员', zhTW: '🎬 製作人員' },
     creditsSub: { ko: '⚔️ 삼국지 카드 게임', en: '⚔️ Three Kingdoms Card Game', ja: '⚔️ 三国志カードゲーム', zh: '⚔️ 三国志卡牌游戏', zhTW: '⚔️ 三國志卡牌遊戲' },
 
-    close: { ko: '닫기', en: 'Close', ja: '閉じる', zh: '关闭', zhTW: '關閉' }
+    close: { ko: '닫기', en: 'Close', ja: '閉じる', zh: '关闭', zhTW: '關閉' },
+
+    /* 인게임 공통 UI(정적 HTML) */
+    langLabel: { ko: '🌐 언어', en: '🌐 Language', ja: '🌐 言語', zh: '🌐 语言', zhTW: '🌐 語言' },
+    uiSound: { ko: '🔊 소리', en: '🔊 Sound', ja: '🔊 サウンド', zh: '🔊 声音', zhTW: '🔊 聲音' },
+    uiDialogue: { ko: '💬 대사 켜짐', en: '💬 Dialogue On', ja: '💬 セリフ ON', zh: '💬 台词开', zhTW: '💬 台詞開' },
+    uiReset: { ko: '🗑️ 데이터 초기화', en: '🗑️ Reset Data', ja: '🗑️ データ初期化', zh: '🗑️ 重置数据', zhTW: '🗑️ 重置資料' },
+    uiToMenu: { ko: '← 메뉴로', en: '← Menu', ja: '← メニューへ', zh: '← 返回菜单', zhTW: '← 返回選單' },
+    uiToHeroes: { ko: '🗺️ 영웅전', en: '🗺️ Heroes', ja: '🗺️ 英雄伝', zh: '🗺️ 英雄传', zhTW: '🗺️ 英雄傳' },
+    qbDeck: { ko: '🃏 덱 구성', en: '🃏 Deck', ja: '🃏 デッキ編成', zh: '🃏 卡组', zhTW: '🃏 牌組' },
+    qbRules: { ko: '📜 규칙', en: '📜 Rules', ja: '📜 ルール', zh: '📜 规则', zhTW: '📜 規則' }
   };
 
   function get(lang, key) {
@@ -178,7 +188,13 @@
     var bar = document.getElementById('langBar');
     if (bar) bar.addEventListener('click', function (e) {
       var b = e.target.closest('.lang-btn'); if (!b) return;
-      applyLang(b.getAttribute('data-lang'));
+      var lang = b.getAttribute('data-lang');
+      // 인게임 페이지는 데이터 현지화가 로드시 1회 적용되므로, 언어 변경 시 새로고침해 재적용
+      if (window.__GAME_PAGE__ && lang !== savedLang()) {
+        try { localStorage.setItem('tcg_lang', lang); } catch (e2) {}
+        location.reload(); return;
+      }
+      applyLang(lang);
     });
     applyLang(savedLang());
   }

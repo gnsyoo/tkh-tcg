@@ -13,19 +13,27 @@
   gtag('config', 'G-RZW78R7430');
 </script>
 <title>히어로즈 블러드 · 목업</title>
-<link rel="stylesheet" href="css/common.css?v=1.4.5">
-<link rel="stylesheet" href="css/queensblood.css?v=1.4.5">
+<link rel="stylesheet" href="css/common.css?v=1.4.6">
+<link rel="stylesheet" href="css/queensblood.css?v=1.4.6">
 </head>
 <body>
   <div class="float-menu" id="floatMenu">
     <button class="fm-toggle" id="fmToggle" title="메뉴" aria-label="메뉴">☰</button>
     <div class="fm-panel" id="fmPanel" hidden>
-      <div class="fm-title">히어로즈 블러드</div>
+      <div class="fm-title" data-i18n="queensTitle">히어로즈 블러드</div>
       <div class="fm-actions">
-        <button class="btn ghost" id="deckBtn">🃏 덱 구성</button>
-        <button class="btn ghost" id="rulesBtn">📜 규칙</button>
+        <button class="btn ghost" id="deckBtn" data-i18n="qbDeck">🃏 덱 구성</button>
+        <button class="btn ghost" id="rulesBtn" data-i18n="qbRules">📜 규칙</button>
         <button class="btn ghost" id="muteBtn">🔊 소리</button>
-        <a class="btn ghost" href="index.html">← 메뉴로</a>
+        <a class="btn ghost" href="index.html" data-i18n="uiToMenu">← 메뉴로</a>
+      </div>
+      <div class="lang-label" data-i18n="langLabel">🌐 언어</div>
+      <div class="lang-bar" id="langBar">
+        <button class="lang-btn" data-lang="ko">한국어</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="ja">日本語</button>
+        <button class="lang-btn" data-lang="zh">简体</button>
+        <button class="lang-btn" data-lang="zhTW">繁體</button>
       </div>
     </div>
   </div>
@@ -139,8 +147,10 @@
     </div>
   </div>
 
-  <script src="js/util.js?v=1.4.5"></script>
-  <script src="js/qb_data.js?v=1.4.5"></script>
-  <script src="js/queensblood.js?v=1.4.5"></script>
+  <script src="js/util.js?v=1.4.6"></script>
+  <script src="js/qb_data.js?v=1.4.6"></script>
+  <script src="js/i18n_data.js?v=1.4.6"></script>
+  <script src="js/queensblood.js?v=1.4.6"></script>
+  <script src="js/i18n.js?v=1.4.6"></script>
 </body>
 </html>
