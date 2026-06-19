@@ -439,8 +439,8 @@
       }
       // 보물 도전 결과창은 '영웅전으로 돌아가기'(자동 이어하기)만 노출
       goldHtml += '<div style="margin-top:10px;text-align:center"><a class="btn primary" href="heroes.html?resume=1">🗺️ 영웅전으로 돌아가기</a></div>';
-      if (endActions) endActions.hidden = true;
-    } else if (endActions) { endActions.hidden = false; }
+      if (endActions) endActions.style.display = 'none'; // 인라인 display:flex 때문에 hidden 속성만으론 안 숨겨짐
+    } else if (endActions) { endActions.style.display = 'flex'; }
     document.getElementById('endTitle').textContent = title;
     document.getElementById('endText').textContent = text;
     document.getElementById('endScore').innerHTML =
