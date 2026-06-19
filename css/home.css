@@ -91,8 +91,20 @@
 .mc-desc { position: relative; margin: 0; padding: 0 16px; font-size: 12px; line-height: 1.65; color: var(--ink-dim); }
 .mc-desc b { font-weight: 800; color: #e6d8c4; }
 .mc-btn-row { position: relative; padding: 12px 16px 16px; display: flex; justify-content: flex-end; }
+.mode-card.heroes .mc-btn-row { justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
 .mc-btn { height: 58px; width: auto; display: block; filter: drop-shadow(0 4px 8px rgba(0,0,0,.4)); transition: transform .15s ease; }
 .mode-card:hover .mc-btn { transform: translateX(2px) scale(1.03); }
+
+/* 난이도 선택(출진 앞) */
+.mc-diff { display: flex; gap: 6px; flex-wrap: wrap; }
+.mc-diff-btn {
+  font-size: 11px; font-weight: 700; padding: 5px 10px; border-radius: 999px; cursor: pointer;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(245,197,66,0.35); color: var(--ink-dim);
+  white-space: nowrap; transition: all .15s; user-select: none;
+}
+.mc-diff-btn:hover { border-color: var(--gold); color: var(--ink); background: rgba(245,197,66,0.14); }
+.mc-diff-btn.locked { opacity: .45; cursor: not-allowed; border-style: dashed; }
+.mc-diff-btn.locked:hover { border-color: rgba(245,197,66,0.35); color: var(--ink-dim); background: rgba(255,255,255,0.05); }
 
 /* ── 하단 탭바 ── */
 .tabbar {

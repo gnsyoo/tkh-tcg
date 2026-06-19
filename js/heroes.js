@@ -168,7 +168,7 @@
       if (d.exclusive && collectedHeroes.indexOf(d.id) !== -1 && startIds.indexOf(d.id) === -1) startIds.push(d.id);
     });
     run = { party: startIds.map(mkHero), deck: [], gold: DCFG.startGold, mainStage: 0, subStage: 0, relics: [], weapons: [], items: [], sorties: 0, treasureMain: -1, stageShopped: false, combat: null };
-    run.mode = (HW_MODES[mode] && isModeUnlocked(mode)) ? mode : 'normal';
+    run.mode = (HW_MODES[mode] && isModeUnlocked(mode)) ? mode : unlockedMode(); // 미지정 시 최고 해금 난이도(노멀→하드→극악 자동 진행)
     run.lordHp = lordMaxHp(); // 주공 HP는 모험 내내 유지(스테이지마다 일부 회복)
     run.lordMp = lordMaxMp(); // 주공 MP도 모험 내내 유지(전투 시작 시 10% 회복)
     syncDeck();
@@ -2001,39 +2001,27 @@
   });
   document.getElementById('newRunBtn').addEventListener('click', function () { startNew('normal'); }); // 호환
   renderModeSel();
-  var multiMode = HW_MODE_ORDER.filter(isModeUnlocked).length > 1;
-  function normalBoot() {
-    if (saved && /[?&]resume=1/.test(location.search)) {
-      // 보물 도전 등에서 복귀 — 시작 모달 없이 자동 이어하기
-      TCG.audioResume(); resumeRun(saved);
-    } else if (saved) {
-      var sst = HW_STAGES[Math.min(saved.mainStage || 0, HW_STAGES.length - 1)];
-      var smd = HW_MODES[saved.mode] || HW_MODES.normal;
-      document.getElementById('continueBtn').hidden = false;
-      document.getElementById('startText').textContent =
-        '진행 중: ' + smd.emoji + smd.label + ' · ' + ((saved.mainStage || 0) + 1) + '. ' + (sst ? sst.name : '') + ' 서브 ' + ((saved.subStage || 0) + 1) + '/' + SUB_COUNT + ' · 장수 ' + saved.party.length + '명';
-      document.getElementById('startModal').hidden = false;
-    } else if (multiMode) {
-      // 저장은 없지만 상위 모드가 해금됨 → 모드 선택 화면
-      document.getElementById('continueBtn').hidden = true;
-      document.getElementById('startText').textContent = '도전할 모드를 선택하세요.';
-      document.getElementById('startModal').hidden = false;
-    } else {
-      newRun('normal'); // 첫 플레이(노멀만 해금) → 바로 시작
-    }
-  }
-  // 홈 화면 하단 탭에서 진입: ?go=codex|shop|tavern
-  var goParam = (location.search.match(/[?&]go=(codex|shop|tavern)/) || [])[1];
-  if (goParam === 'shop' || goParam === 'tavern') {
-    // 상점·주막은 진행 중 모험이 필요 — 저장이 있으면 이어하기, 없으면 새 모험 시작
+  function autoEnter() {
+    // 시작 모달 없이: 이어하기가 있으면 자동 이어하기, 없으면 자동 새 게임(최고 해금 난이도)
     TCG.audioResume();
-    if (saved) resumeRun(saved); else newRun('normal');
+    if (saved) resumeRun(saved); else newRun();
+  }
+  // 홈 화면 진입 파라미터: ?mode=난이도(새 게임) · ?go=codex|shop|tavern · ?resume=1
+  var modeParam = (location.search.match(/[?&]mode=(normal|hard|extreme)/) || [])[1];
+  var goParam = (location.search.match(/[?&]go=(codex|shop|tavern)/) || [])[1];
+  if (modeParam) {
+    // 홈 난이도 선택 → 해당 난이도로 새 게임
+    TCG.audioResume(); newRun(modeParam);
+  } else if (goParam === 'shop' || goParam === 'tavern') {
+    // 상점·주막은 진행 중 모험이 필요 — 이어하기(없으면 새 게임) 후 진입
+    TCG.audioResume();
+    if (saved) resumeRun(saved); else newRun();
     if (goParam === 'shop') showShop(); else showTavern();
   } else if (goParam === 'codex') {
-    // 도감은 모험과 무관하게 열람 — 시작 모달 없이 바로 도감, 닫으면 정상 진입
-    codexOnBack = normalBoot;
+    // 도감은 모험과 무관하게 열람 — 닫으면 자동 진입
+    codexOnBack = autoEnter;
     openCodex('hero');
   } else {
-    normalBoot();
+    autoEnter();
   }
 })();
