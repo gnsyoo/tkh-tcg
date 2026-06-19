@@ -314,7 +314,7 @@
     var html =
       '<div class="main-chips">' + chips + '</div>' +
       '<div class="main-banner' + (isBoss ? ' boss' : '') + '"><span class="mb-no">' + (m + 1) + '</span>' +
-        '<div class="mb-title"><b>' + st.name + '</b><small>' + TCG.t('map.subInfo', { year: st.year, n: s + 1, max: SUB_COUNT }) + (isBoss ? TCG.t('map.bossTag') : '') + '</small></div></div>' +
+        '<div class="mb-title"><b>' + st.name + '</b>' + ((st.regions && st.regions[s]) ? '<span class="mb-region">📍 ' + st.regions[s] + '</span>' : '') + '<small>' + TCG.t('map.subInfo', { year: st.year, n: s + 1, max: SUB_COUNT }) + (isBoss ? TCG.t('map.bossTag') : '') + '</small></div></div>' +
       '<p class="cs-desc">' + st.desc + '</p>' +
       '<div class="sub-dots">' + dots + '</div>' +
       '<div class="cs-actions">' +
@@ -784,8 +784,10 @@
       fxBanner(TCG.t('cmb.bannerBoss', { name: HW_COMMANDERS[st.boss].name }), 'boss', 1500); shake('big');
       logMsg(TCG.t('cmb.bannerBoss', { name: HW_COMMANDERS[st.boss].name }));
     } else {
-      fxBanner(TCG.t('cmb.bannerSortie', { stage: st.name, n: s + 1, max: SUB_COUNT }), 'round', 1000);
-      logMsg(TCG.t('cmb.bannerSortie', { stage: st.name, n: s + 1, max: SUB_COUNT }));
+      var region = (st.regions && st.regions[s]) ? st.regions[s] : '';
+      var sortieTxt = TCG.t('cmb.bannerSortie', { stage: st.name, n: s + 1, max: SUB_COUNT }) + (region ? ' — ' + region : '');
+      fxBanner(sortieTxt, 'round', 1000);
+      logMsg(sortieTxt);
     }
     beginRound();
     // 보스/중간보스 등장 대사 — 카드 아래 말풍선 2초
@@ -1112,7 +1114,7 @@
     var atkSel = tgt && c.pending.kind === 'attack', skSel = tgt && c.pending.kind === 'skill';
     bar.hidden = false;
     bar.innerHTML =
-      '<button class="act-btn' + (atkSel ? ' chosen' : '') + '" data-act="attack">' + TCG.t('cmb.attack') + '<small>' + TCG.t('cmb.dmg') + ' ' + effAtk(h) + (hasWpnFlag(h, 'doubleStrike') ? ' ×2' : '') + (wpnVal(h, 'poison') ? ' ☠' + wpnVal(h, 'poison') : '') + (critPct > 1 ? ' 💥' + critPct + '%' : '') + '</small></button>' +
+      '<button class="act-btn' + (atkSel ? ' chosen' : '') + '" data-act="attack">' + TCG.t('cmb.attack') + '<small>' + TCG.t('cmb.dmg') + ' ' + effAtk(h) + (hasWpnFlag(h, 'tripleStrike') ? ' ×3' : (hasWpnFlag(h, 'doubleStrike') ? ' ×2' : '')) + (wpnVal(h, 'poison') ? ' ☠' + wpnVal(h, 'poison') : '') + (critPct > 1 ? ' 💥' + critPct + '%' : '') + '</small></button>' +
       '<button class="act-btn skill' + (skSel ? ' chosen' : '') + '" data-act="skill"' + (canSkill ? '' : ' disabled') + '>' + sk.name + '<small>' + mpLabel + ' · ' + sk.desc + '</small></button>' +
       '<button class="act-btn cancel" data-act="cancel">' + TCG.t('cmb.cancel') + '</button>';
   }
@@ -1187,7 +1189,7 @@
   function doAttack(h, enemy) {
     var c = run.combat;
     var dmg = effAtk(h);
-    var hits = hasWpnFlag(h, 'doubleStrike') ? 2 : 1;
+    var hits = hasWpnFlag(h, 'tripleStrike') ? 3 : (hasWpnFlag(h, 'doubleStrike') ? 2 : 1);
     c.busy = true; // 다회 공격은 타격마다 끊어서 연출
     var total = 0, anyCrit = false, k = 0;
     function step() {

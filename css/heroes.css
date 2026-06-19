@@ -108,6 +108,7 @@
 .main-banner .mb-title { display: flex; flex-direction: column; line-height: 1.2; }
 .main-banner .mb-title b { font-size: 18px; }
 .main-banner .mb-title small { font-size: 11px; color: var(--ink-dim); }
+.main-banner .mb-region { font-size: 12px; font-weight: 700; color: var(--gold); margin: 1px 0; }
 /* 출진 경로 — 스테이지 맵 노드 */
 .sub-dots {
   display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
