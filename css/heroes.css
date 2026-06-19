@@ -836,7 +836,7 @@
 .mode-btn.mode-extreme { border-color: rgba(232,83,107,0.45); }
 
 /* ===== 대기실(waitroom) — 다크 로그라이크 리디자인 ===== */
-#mapScreen.waitroom:not([hidden]) { display: flex; flex-direction: column; height: calc(100dvh - 40px); padding: 0; }
+#mapScreen.waitroom:not([hidden]) { display: flex; flex-direction: column; height: 100dvh; margin: -12px -12px -28px; padding: 0; }
 .waitroom .map-track { display: flex; flex-direction: column; flex: 1; min-height: 0; }
 
 /* 헤더(홈·가이드 + 재화·장수·장비 칩) */
