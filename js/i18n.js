@@ -233,6 +233,7 @@
     /* 도감 / 덱·장비 모달(영웅전·대장전 공용) */
     uiRelics: { ko: '유물', en: 'Relics', ja: '遺物', zh: '遗物', zhTW: '遺物' },
     uiClose: { ko: '닫기', en: 'Close', ja: '閉じる', zh: '关闭', zhTW: '關閉' },
+    uiBack: { ko: '← 이전', en: '← Back', ja: '← 戻る', zh: '← 返回', zhTW: '← 返回' },
     uiSort: { ko: '정렬', en: 'Sort', ja: '並び替え', zh: '排序', zhTW: '排序' },
     uiSortRarity: { ko: '등급', en: 'Rarity', ja: 'レア度', zh: '稀有度', zhTW: '稀有度' },
     uiSortAtk: { ko: '공격력', en: 'ATK', ja: '攻撃力', zh: '攻击力', zhTW: '攻擊力' },

@@ -13,8 +13,8 @@
   gtag('config', 'G-RZW78R7430');
 </script>
 <title>삼국 영웅전 · 목업</title>
-<link rel="stylesheet" href="css/common.css?v=1.4.18">
-<link rel="stylesheet" href="css/heroes.css?v=1.4.18">
+<link rel="stylesheet" href="css/common.css?v=1.4.19">
+<link rel="stylesheet" href="css/heroes.css?v=1.4.19">
 </head>
 <body>
   <a class="home-btn" id="homeBtn" href="index.html" title="홈" aria-label="홈">🏠</a>
@@ -159,9 +159,13 @@
     </div>
   </div>
 
-  <!-- 도감(장수/장비 탭) -->
-  <div class="overlay" id="codexModal" hidden>
-    <div class="modal" style="max-width:700px;">
+  <!-- 도감(장수/장비 탭) — 전체 페이지 -->
+  <div class="codex-page" id="codexModal" hidden>
+    <div class="codex-page-bar">
+      <button class="codex-back" id="codexBack" data-i18n="uiBack">← 이전</button>
+      <span class="codex-page-title" data-i18n="uiCodexBtn">📖 도감</span>
+    </div>
+    <div class="codex-page-body">
       <div class="codex-tabs">
         <button class="codex-tab active" id="codexTabHero" data-tab="hero">📕 <span data-i18n="uiOfficers">장수</span> <span id="heroColTitle" style="color:var(--gold);font-size:11px;"></span></button>
         <button class="codex-tab" id="codexTabWeapon" data-tab="weapon">🗡️ <span data-i18n="uiGear">장비</span> <span id="weaponColTitle" style="color:var(--gold);font-size:11px;"></span></button>
@@ -183,7 +187,6 @@
         <div class="col-weapon-list" id="relicColList"></div>
         <div class="col-detail" id="relicColDetail"></div>
       </div>
-      <div style="text-align:center;margin-top:12px;"><button class="btn primary" id="codexClose" data-i18n="uiClose">닫기</button></div>
     </div>
   </div>
 
@@ -295,10 +298,10 @@
     </div>
   </div>
 
-  <script src="js/util.js?v=1.4.18"></script>
-  <script src="js/heroes_data.js?v=1.4.18"></script>
-  <script src="js/i18n_data.js?v=1.4.18"></script>
-  <script src="js/heroes.js?v=1.4.18"></script>
-  <script src="js/i18n.js?v=1.4.18"></script>
+  <script src="js/util.js?v=1.4.19"></script>
+  <script src="js/heroes_data.js?v=1.4.19"></script>
+  <script src="js/i18n_data.js?v=1.4.19"></script>
+  <script src="js/heroes.js?v=1.4.19"></script>
+  <script src="js/i18n.js?v=1.4.19"></script>
 </body>
 </html>

@@ -889,10 +889,12 @@
       '<br><span class="cd-path">획득 경로: ' + weaponPath(w) + '</span>';
     TCG.sfx('tap');
   });
-  [['rosterClose', 'rosterModal'], ['gearClose', 'gearModal'], ['codexClose', 'codexModal']].forEach(function (p) {
+  [['rosterClose', 'rosterModal'], ['gearClose', 'gearModal']].forEach(function (p) {
     document.getElementById(p[0]).addEventListener('click', function () { document.getElementById(p[1]).hidden = true; });
     document.getElementById(p[1]).addEventListener('click', function (e) { if (e.target.id === p[1]) e.currentTarget.hidden = true; });
   });
+  // 도감은 전체 페이지 — 상단 '이전' 버튼으로 이전 화면 복귀
+  document.getElementById('codexBack').addEventListener('click', function () { TCG.sfx('tap'); document.getElementById('codexModal').hidden = true; });
   document.getElementById('bossModal').addEventListener('click', function (e) { if (e.target.id === 'bossModal') e.currentTarget.hidden = true; });
 
   /* ---------- boot ---------- */

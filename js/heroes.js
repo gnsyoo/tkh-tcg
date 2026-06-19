@@ -679,8 +679,7 @@
       '<br><span class="cd-path">획득 경로: ' + weaponPath(w) + '</span>';
     TCG.sfx('tap');
   });
-  document.getElementById('codexClose').addEventListener('click', function () { document.getElementById('codexModal').hidden = true; });
-  document.getElementById('codexModal').addEventListener('click', function (e) { if (e.target.id === 'codexModal') e.currentTarget.hidden = true; });
+  document.getElementById('codexBack').addEventListener('click', function () { TCG.sfx('tap'); document.getElementById('codexModal').hidden = true; });
   document.getElementById('restParty').addEventListener('click', onMiniClick);
   function onMiniClick(e) {
     var m = e.target.closest('.mini-hero'); if (!m) return;
