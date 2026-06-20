@@ -242,10 +242,10 @@ var HW_WEAPONS = [
   { id:'liutao',   name:'육도삼략',   emoji:'📚', desc:'주공 최대 MP +13, 치명타 +8%', effect:{ lordMp:13, crit:0.08 } },
   { id:'dunjia',   name:'둔갑천서',   emoji:'📗', desc:'주공 HP +20, MP +10, 치명타 +10%', effect:{ lordHp:20, lordMp:10, crit:0.10 } },
   // ---- 명마(회피) ----
-  { id:'chituma',  name:'적토마',     emoji:'🐎', desc:'적 공격 회피 확률 +10%',     effect:{ evade:0.10 } },
-  { id:'dilu',     name:'적로',       emoji:'🐎', desc:'적 공격 회피 확률 +7%',      effect:{ evade:0.07 } },
-  { id:'jueying',  name:'절영',       emoji:'🐴', desc:'적 공격 회피 확률 +7%',      effect:{ evade:0.07 } },
-  { id:'zhaohuang',name:'조황비전',   emoji:'🐎', desc:'적 공격 회피 확률 +7%',      effect:{ evade:0.07 } },
+  { id:'chituma',  name:'적토마',     emoji:'🐎', desc:'적 공격 회피 확률 +5%',      effect:{ evade:0.05 } },
+  { id:'dilu',     name:'적로',       emoji:'🐎', desc:'적 공격 회피 확률 +3.5%',    effect:{ evade:0.035 } },
+  { id:'jueying',  name:'절영',       emoji:'🐴', desc:'적 공격 회피 확률 +3.5%',    effect:{ evade:0.035 } },
+  { id:'zhaohuang',name:'조황비전',   emoji:'🐎', desc:'적 공격 회피 확률 +3.5%',    effect:{ evade:0.035 } },
   // ---- 추가 장비 2차 (총 50종) ----
   { id:'wugou',    name:'오구도',     emoji:'⚔️', desc:'장착 장수 공격력 +8',        effect:{ atk:8 } },
   { id:'yanyuefu', name:'언월부',     emoji:'🪓', desc:'장착 장수 공격력 +9',        effect:{ atk:9 } },
@@ -267,7 +267,7 @@ var HW_WEAPONS = [
   { id:'huxindao', name:'호심도',     emoji:'🗡️', desc:'공격력 +3, 주공 최대 HP +15', effect:{ atk:3, lordHp:15 } },
   { id:'jinpaojia',name:'금포갑',     emoji:'🧥', desc:'주공 최대 HP +25, MP +5',   effect:{ lordHp:25, lordMp:5 } },
   { id:'chiyandao',name:'적염도',     emoji:'🔥', desc:'공격력 +7, 치명타 +7%',     effect:{ atk:7, crit:0.07 } },
-  { id:'baiyinqiang',name:'백은창',   emoji:'🔱', desc:'공격력 +8, 회피 +7%',       effect:{ atk:8, evade:0.07 } }
+  { id:'baiyinqiang',name:'백은창',   emoji:'🔱', desc:'공격력 +8, 회피 +3.5%',     effect:{ atk:8, evade:0.035 } }
 ];
 // 적장(보스)은 중간보스보다 강하게 — 전용 배수(중간보스 hpMult 2.05 / atkMult 1.22보다 높음)
 var HW_BOSS_MULT = { hpMult:2.7, atkMult:1.55 };

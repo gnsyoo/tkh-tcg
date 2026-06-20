@@ -43,7 +43,7 @@
   function effAtk(h) { var c = run.combat; return h.atk + wpnVal(h, 'atk') + (c ? (c.atkBuff || 0) + ((c.tempAtk && c.tempAtk.turns > 0) ? c.tempAtk.val : 0) + ((c.cardBuff && h.uid && c.cardBuff[h.uid]) ? c.cardBuff[h.uid] : 0) : 0); }
   function lordMaxHp() { return HW_LORD.hp + run.party.reduce(function (s, h) { return s + wpnVal(h, 'lordHp'); }, 0) + relicSum('maxHp'); }
   function lordMaxMp() { return HW_LORD.mp + run.party.reduce(function (s, h) { return s + wpnVal(h, 'lordMp'); }, 0) + relicSum('maxMp'); }
-  function lordEvade() { return Math.min(0.3, run.party.reduce(function (s, h) { return s + wpnVal(h, 'evade'); }, 0)); } // 회피(무기 합산, 최대 30%)
+  function lordEvade() { return Math.min(0.2, run.party.reduce(function (s, h) { return s + wpnVal(h, 'evade'); }, 0)); } // 회피(무기 합산, 최대 20%)
   function skillMp(sk) { var m = 2 + (sk.cost || 1); var base = (sk.type === 'buff' && sk.scope === 'army') ? m * 5 : m + 3; return Math.max(1, base - 1); } // 전반 -1(전군 버프 포함)
   function ownedHeroIds() { return run.party.map(function (h) { return h.def.id; }); } // 중복 수집 방지
   // 보유 무기 중 아직 장착되지 않은 복사본들(중복 보유 허용 — 장수마다 1개씩 나눠 장착 가능)

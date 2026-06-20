@@ -633,11 +633,15 @@
     bossPhase();
   });
 
+  function lordEvade() { return Math.min(0.2, party.reduce(function (s, h) { return s + wpnVal(h, 'evade'); }, 0)); } // 회피(무기 합산, 최대 20%)
   function dmgLord(dmg, crit) {
-    var L = combat.lord, d = dmg, blocked = 0;
+    var L = combat.lord;
+    if (Math.random() < lordEvade()) { fxSupport(lordEl(), '회피!', '#8effb0'); return true; } // 회피 — 피해 무효
+    var d = dmg, blocked = 0;
     if (L.block > 0) { var ab = Math.min(L.block, d); L.block -= ab; d -= ab; blocked = ab; }
     L.hp = Math.max(0, L.hp - d);
     fxHitLord(d, blocked, crit);
+    return false;
   }
   // 보스가 2종 스킬 중 하나를 시전(주공 대상). 사용 시 true.
   function bossCast(b, sk) {
@@ -645,9 +649,9 @@
     b.mp = Math.max(0, b.mp - skillMp(sk));
     fxBanner('👹 ' + b.name + ' 「' + sk.name + '」', 'boss', 1000);
     TCG.sfx(sk.type === 'heal' || sk.type === 'shield' ? 'heal' : 'skill');
-    if (sk.type === 'strike') { var crit = rollCrit(BASE_CRIT); var d = b.atk + Math.round(sk.val * 0.5); if (crit) d *= 2; shake('big'); dmgLord(d, crit); logMsg(b.name + ' 「' + sk.name + '」 주공 ' + d + ' 피해' + (crit ? ' (치명타!)' : '')); }
-    else if (sk.type === 'aoe') { var d2 = Math.round(sk.val * 0.6) + Math.round(b.atk * 0.3); shake('big'); dmgLord(d2, false); logMsg(b.name + ' 「' + sk.name + '」 주공 ' + d2 + ' 피해'); }
-    else if (sk.type === 'multi') { var tot = 0; for (var i = 0; i < sk.val; i++) { if (c.lord.hp <= 0) break; var dd = Math.max(1, Math.round(b.atk * 0.5)); dmgLord(dd, false); tot += dd; } shake('sm'); logMsg(b.name + ' 「' + sk.name + '」 ' + sk.val + '연타 ' + tot + ' 피해'); }
+    if (sk.type === 'strike') { var crit = rollCrit(BASE_CRIT); var d = b.atk + Math.round(sk.val * 0.5); if (crit) d *= 2; shake('big'); var ev = dmgLord(d, crit); logMsg(ev ? (b.name + ' 「' + sk.name + '」 회피!') : (b.name + ' 「' + sk.name + '」 주공 ' + d + ' 피해' + (crit ? ' (치명타!)' : ''))); }
+    else if (sk.type === 'aoe') { var d2 = Math.round(sk.val * 0.6) + Math.round(b.atk * 0.3); shake('big'); var ev2 = dmgLord(d2, false); logMsg(ev2 ? (b.name + ' 「' + sk.name + '」 회피!') : (b.name + ' 「' + sk.name + '」 주공 ' + d2 + ' 피해')); }
+    else if (sk.type === 'multi') { var tot = 0; for (var i = 0; i < sk.val; i++) { if (c.lord.hp <= 0) break; var dd = Math.max(1, Math.round(b.atk * 0.5)); if (!dmgLord(dd, false)) tot += dd; } shake('sm'); logMsg(b.name + ' 「' + sk.name + '」 ' + sk.val + '연타 ' + tot + ' 피해'); }
     else if (sk.type === 'heal') { b.hp = Math.min(b.maxHp, b.hp + sk.val); fxSupport(bossEl(), '+' + sk.val, '#7ef0b5'); logMsg(b.name + ' 「' + sk.name + '」 ' + sk.val + ' 회복'); }
     else if (sk.type === 'shield') { b.block += sk.val; fxSupport(bossEl(), '🛡+' + sk.val, '#9fd2ff'); logMsg(b.name + ' 「' + sk.name + '」 방어막 +' + sk.val); }
     else if (sk.type === 'confuse' || sk.type === 'charm') { // 주공 행동 불가(공격 스킬 봉쇄). 카드는 방어만 가능
@@ -659,9 +663,9 @@
         var su = TCG.pick(pool), st = sk.val || 1, sh = heroByUid(su);
         c.cstat[su] = { stun: st };
         fxSupport(lordEl(), '💫 카드 봉쇄', '#c79bff'); logMsg(b.name + ' 「' + sk.name + '」 — ' + (sh ? sh.def.name : '카드') + ' ' + st + '턴 행동 불가!');
-      } else { var dc = Math.max(1, Math.round(b.atk * 0.5)); dmgLord(dc, false); logMsg(b.name + ' 「' + sk.name + '」 주공 ' + dc + ' 피해'); }
+      } else { var dc = Math.max(1, Math.round(b.atk * 0.5)); var evc = dmgLord(dc, false); logMsg(evc ? (b.name + ' 「' + sk.name + '」 회피!') : (b.name + ' 「' + sk.name + '」 주공 ' + dc + ' 피해')); }
     }
-    else { var d3 = Math.max(1, Math.round(b.atk * 0.5)); dmgLord(d3, false); logMsg(b.name + ' 「' + sk.name + '」 주공 ' + d3 + ' 피해'); }
+    else { var d3 = Math.max(1, Math.round(b.atk * 0.5)); var ev3 = dmgLord(d3, false); logMsg(ev3 ? (b.name + ' 「' + sk.name + '」 회피!') : (b.name + ' 「' + sk.name + '」 주공 ' + d3 + ' 피해')); }
     return true;
   }
   function addsAttackLord() { // 졸병도 주공을 공격
@@ -669,8 +673,8 @@
     (c.adds || []).forEach(function (a) {
       if (a.hp > 0 && c.lord.hp > 0) {
         var crit = rollCrit(BASE_CRIT), dmg = crit ? a.atk * 2 : a.atk;
-        TCG.sfx('hit'); dmgLord(dmg, crit);
-        logMsg(a.name + ' → 주공 ' + dmg + ' 피해' + (crit ? ' (치명타!)' : ''));
+        TCG.sfx('hit'); var evA = dmgLord(dmg, crit);
+        logMsg(evA ? (a.name + ' → 주공 회피!') : (a.name + ' → 주공 ' + dmg + ' 피해' + (crit ? ' (치명타!)' : '')));
       }
     });
   }
@@ -691,8 +695,8 @@
         if (!usedSkill) {
           var intent = b.intent, crit = rollCrit(BASE_CRIT), dmg = crit ? intent.dmg * 2 : intent.dmg;
           TCG.sfx('hit'); shake(crit || intent.type === 'aoe' ? 'big' : 'sm');
-          dmgLord(dmg, crit);
-          logMsg(b.name + ' → 주공 ' + dmg + ' 피해' + (crit ? ' (치명타!)' : ''));
+          var evB = dmgLord(dmg, crit);
+          logMsg(evB ? (b.name + ' → 주공 회피!') : (b.name + ' → 주공 ' + dmg + ' 피해' + (crit ? ' (치명타!)' : '')));
         }
       }
       addsAttackLord();
