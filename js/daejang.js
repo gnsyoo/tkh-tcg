@@ -578,7 +578,12 @@
     c.busy = true; // 다회 공격은 타격마다 끊어서 연출
     var total = 0, anyCrit = false, k = 0;
     function step() {
-      if (k >= hits || t.hp <= 0) { return done(); }
+      if (k >= hits) { return done(); }
+      if (t.hp <= 0) { // 현재 대상이 죽으면 남은 타격은 다른 살아있는 적에게
+        var pool = enemyIdxList().filter(function (ei) { var e = enemyByIdx(ei); return e && e.hp > 0; });
+        if (!pool.length) { return done(); } // 남은 적이 없으면 종료
+        ti = pool[0]; t = enemyByIdx(ti);
+      }
       k++;
       TCG.sfx('attack');
       var crit = rollCrit(critChance(h)); var hd = crit ? dmg * 2 : dmg;

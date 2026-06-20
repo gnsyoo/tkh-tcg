@@ -1341,15 +1341,20 @@
     var dmg = effAtk(h);
     var hits = hasWpnFlag(h, 'tripleStrike') ? 3 : (hasWpnFlag(h, 'doubleStrike') ? 2 : 1);
     c.busy = true; // 다회 공격은 타격마다 끊어서 연출
-    var total = 0, anyCrit = false, k = 0;
+    var total = 0, anyCrit = false, k = 0, tgt = enemy;
     function step() {
-      if (k >= hits || enemy.hp <= 0) { return done(); }
+      if (k >= hits) { return done(); }
+      if (tgt.hp <= 0) { // 현재 대상이 죽으면 남은 타격은 다른 살아있는 적에게
+        var pool = living(c.enemies);
+        if (!pool.length) { return done(); } // 남은 적이 없으면 종료
+        tgt = TCG.pick(pool);
+      }
       k++;
       TCG.sfx('attack');
       var crit = rollCrit(critChance(h)); // 치명타: 공격력 2배
       var hitDmg = crit ? dmg * 2 : dmg;
       if (crit) anyCrit = true;
-      dmgEnemy(enemy, hitDmg, enemyEl(c.enemies.indexOf(enemy)), crit ? 'crit' : null);
+      dmgEnemy(tgt, hitDmg, enemyEl(c.enemies.indexOf(tgt)), crit ? 'crit' : null);
       if (!crit) shake('sm');
       total += hitDmg;
       renderCombat();
@@ -1357,7 +1362,7 @@
     }
     function done() {
       var pv = wpnVal(h, 'poison');
-      if (pv && enemy.hp > 0) { enemy.poison = (enemy.poison || 0) + pv; logMsg(enemy.name + '에 독 +' + pv); }
+      if (pv && tgt.hp > 0) { tgt.poison = (tgt.poison || 0) + pv; logMsg(tgt.name + '에 독 +' + pv); }
       var ls = relicSum('lifesteal');
       if (ls) { c.lord.hp = Math.min(c.lord.maxHp, c.lord.hp + ls); fxSupport(lordEl(), '+' + ls, '#7ef0b5'); }
       logMsg(h.def.name + ' → ' + enemy.name + ' ' + total + ' 피해' + (anyCrit ? ' (치명타!)' : ''));
