@@ -1,0 +1,15 @@
+{
+  "name": "tkh-tcg",
+  "version": "1.8.6",
+  "private": true,
+  "description": "삼국 영웅전 / 대장전 / 히어로즈 블러드 — 카드 게임 목업 (Capacitor Android wrapper)",
+  "scripts": {
+    "build:www": "node scripts/build-www.js",
+    "sync": "npm run build:www && cap sync android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.4.1",
+    "@capacitor/cli": "^8.4.1",
+    "@capacitor/core": "^8.4.1"
+  }
+}

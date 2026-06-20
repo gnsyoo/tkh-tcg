@@ -1,0 +1,8 @@
+{
+  "appId": "com.gnsyoo.tkhtcg",
+  "appName": "삼국 영웅전",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": true
+  }
+}
