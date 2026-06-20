@@ -24,7 +24,7 @@ const { execFileSync } = require('child_process');
 
 const ROOT = path.resolve(__dirname, '..');
 const VFILE = path.join(ROOT, 'version.json');
-const HTML_FILES = ['index.html', 'heroes.html', 'daejang.html', 'queensblood.html'];
+const HTML_FILES = ['index.html', 'heroes.html', 'daejang.html', 'herosblood.html'];
 const MINOR_ROLLOVER = 20; // 마이너가 이 값에 도달하면 미들로 올림
 
 function readVersion() {

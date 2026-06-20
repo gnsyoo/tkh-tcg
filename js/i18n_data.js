@@ -1,7 +1,7 @@
 /* 인게임 데이터 현지화 레이어 — 데이터 파일은 수정하지 않고, 시작 시 선택 언어로
  * 표시 필드(이름·병종·스킬·스테이지·유물·장비·소모품·모드)를 덮어씁니다.
  * 효과 기반 설명(스킬/장비/유물/소모품)은 구조에서 자동 생성하여 번역 분량을 줄였습니다.
- * 반드시 heroes_data.js 이후, 게임 스크립트(heroes.js/daejang.js/queensblood.js) 이전에 로드.
+ * 반드시 heroes_data.js 이후, 게임 스크립트(heroes.js/daejang.js/herosblood.js) 이전에 로드.
  */
 (function () {
   window.__GAME_PAGE__ = true; // 인게임 페이지 표시(언어 전환 시 새로고침 트리거)

@@ -1623,6 +1623,18 @@
 
   function winCombat() {
     var c = run.combat;
+    // 적장(보스) 격파 시 마지막 대사를 먼저 보여준 뒤 보상 처리
+    if (!c.bossDeathShown && c.sub === SUB_COUNT - 1) {
+      c.bossDeathShown = true;
+      var bossKey = (HW_STAGES[c.main] || {}).boss;
+      var dq = bossKey && HW_BOSS_DEATH[bossKey];
+      if (dq && TCG.isDialogueOn()) {
+        var bidx = -1; for (var bi = 0; bi < c.enemies.length; bi++) { if (c.enemies[bi].boss) { bidx = bi; break; } }
+        if (bidx >= 0) fxQuote(enemyEl(bidx), dq, 2400);
+        setTimeout(winCombat, 2300);
+        return;
+      }
+    }
     TCG.sfx('win');
     // 여포: 어떤 전역이든 적장(보스)을 주공 풀 HP로 격파하면 획득
     if (c.sub === SUB_COUNT - 1 && c.lord.hp >= c.lord.maxHp) {
@@ -1645,11 +1657,11 @@
     // 출진 5회·10회 뒤 보물상자(무기) 개봉
     if (run.sorties === 5 || run.sorties === 10) { showReward('weapon', gold); return; }
     if (isBoss && c.main === HW_STAGES.length - 1) { victory(); return; } // 최종 적장 격파
-    if (isBoss) { showReward('relic', gold); return; }      // 메인 적장 처치 → 유물
+    if (isBoss) { showRelicPick(gold); return; }            // 메인 적장 처치 → 유물(대기실 팝업)
     if (isMid) { grantMidBoss(c.main, c.sub); showReward('hero', gold); return; } // 중간보스 격파 → 중간보스 카드 습득 + 장수 영입
     // (일반 출진은 장수 영입 보상을 주지 않고 골드 보상으로 처리 — 장수 영입은 중간보스·주막·특수 경로로만)
     // 보물 발견 이벤트 — 메인 전역당 최대 1회, 약 10% 확률로 등장(히어로즈 블러드 승리 시 유물 획득)
-    var TREASURE_CHANCE = 0.10;
+    var TREASURE_CHANCE = 1.0; // ⚠️ 임시 테스트: 보물 발견 100% (원래 0.10)
     if (run.treasureMain !== run.mainStage && Math.random() < TREASURE_CHANCE) {
       run.treasureMain = run.mainStage;
       showTreasure(); return;
@@ -1691,6 +1703,33 @@
       TCG.toast(mb.name + ' 카드는 ' + (idx === 0 ? '노멀' : '하드') + ' 난이도 격파 시 영입할 수 있습니다');
     }
   }
+
+  /* ---------- 적장 격파 유물 보상 — 대기실 팝업 ---------- */
+  function showRelicPick(gold) {
+    var owned = run.relics.map(function (r) { return r.id; });
+    var avail = TCG.shuffle(HW_RELICS.filter(function (r) { return !r.exclusive && owned.indexOf(r.id) === -1; })).slice(0, 3);
+    advanceStage(); // 먼저 대기실로 이동(전역 평정 → 다음 전역)
+    var pop = document.getElementById('relicPickPopup'); if (!pop) { if (gold) showGoldPopup(gold); return; }
+    if (!avail.length) { if (gold) showGoldPopup(gold); return; } // 모든 유물 보유 → 골드 팝업만
+    var sub = document.getElementById('relicPickSub');
+    if (sub) sub.textContent = '획득할 유물을 선택하세요' + (gold ? ' · 💰+' + gold : '');
+    document.getElementById('relicPickBody').innerHTML = avail.map(function (r) {
+      return '<div class="reward-card" data-relic="' + r.id + '">' +
+        '<div class="rc-emoji">' + r.emoji + '</div>' +
+        '<div class="rc-name">' + r.name + '</div>' +
+        '<div class="rc-skill">' + r.desc + '</div></div>';
+    }).join('');
+    pop.hidden = false;
+  }
+  (function () {
+    var body = document.getElementById('relicPickBody'); if (!body) return;
+    body.addEventListener('click', function (e) {
+      var card = e.target.closest('.reward-card'); if (!card) return;
+      var r = HW_RELICS.find(function (x) { return x.id === card.dataset.relic; }); if (!r) return;
+      TCG.sfx('reward'); run.relics.push(r); saveRun(); TCG.toast('유물 획득: ' + r.name);
+      document.getElementById('relicPickPopup').hidden = true;
+    });
+  })();
 
   /* ---------- REWARD ---------- */
   function showReward(mode, gold) {
@@ -2001,7 +2040,7 @@
     document.getElementById('treasurePopup').hidden = true;
     if (act === 'challenge' && pendingTreasureRelic) {
       try { localStorage.setItem('hw_treasure_relic', JSON.stringify({ id: pendingTreasureRelic.id, name: pendingTreasureRelic.name, emoji: pendingTreasureRelic.emoji })); } catch (e2) {}
-      location.href = 'queensblood.html?treasure=1'; // 진행은 advanceStage에서 이미 저장됨
+      location.href = 'herosblood.html?treasure=1'; // 진행은 advanceStage에서 이미 저장됨
       return;
     }
     pendingTreasureRelic = null; // 그냥 떠나기/계속 — 대기실 유지

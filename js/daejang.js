@@ -740,7 +740,14 @@
     try { var g = parseInt(lsGet('hw_bonus_gold') || '0', 10) || 0; lsSet('hw_bonus_gold', String(g + n)); } catch (e) {}
   }
   function winRaid() {
-    var c = combat; if (c.over) return; c.over = true;
+    var c = combat; if (!c || c.over) return;
+    // 레이드 보스 마지막 대사 후 결과 표시
+    if (!c.deathShown) {
+      c.deathShown = true;
+      var dq = HW_BOSS_DEATH[(HW_RAID.bosses[c.raidIdx] || {}).key];
+      if (dq && TCG.isDialogueOn()) { fxQuote(bossEl(), dq, 2400); setTimeout(winRaid, 2300); return; }
+    }
+    c.over = true;
     TCG.sfx('win');
     var b = HW_RAID.bosses[c.raidIdx], rew = HW_BY_ID[b.reward];
     var firstClear = !isCleared(b.key); // 골드 보상은 첫 격파 시 1회

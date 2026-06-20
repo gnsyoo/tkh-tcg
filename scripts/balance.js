@@ -78,7 +78,7 @@ function qbGame(E, byId, youIds, foeIds) {
 }
 function runQB() {
   const s = sandbox('normal');
-  load(s, ['js/util.js', 'js/qb_data.js', 'js/queensblood.js']);
+  load(s, ['js/util.js', 'js/qb_data.js', 'js/herosblood.js']);
   const E = s.window.__QB__, byId = s.QB_BY_ID;
   const decks = { player: s.QB_DECK_PLAYER, aiN: s.QB_DECK_AI_NORMAL, aiH: s.QB_DECK_AI_HARD };
 

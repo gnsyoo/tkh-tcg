@@ -41,9 +41,9 @@ const heroesDoc = gameDoc(
   [util, read('js/heroes_data.js'), read('js/heroes.js')].join('\n;\n')
 );
 const qbDoc = gameDoc(
-  read('css/queensblood.css'),
-  bodyOf(read('queensblood.html')),
-  [util, read('js/qb_data.js'), read('js/queensblood.js')].join('\n;\n')
+  read('css/herosblood.css'),
+  bodyOf(read('herosblood.html')),
+  [util, read('js/qb_data.js'), read('js/herosblood.js')].join('\n;\n')
 );
 
 const homeBody = bodyOf(read('index.html'))

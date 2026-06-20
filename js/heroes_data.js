@@ -369,6 +369,18 @@ var HW_COMMANDERS = {
     skills:[ { name:'삼국 통일', type:'aoe', val:20, cost:3 }, { name:'천하 제압', type:'confuse', val:2, cost:3 } ] }
 };
 
+/* 보스 격파(영웅전 적장·대장전 레이드) 시 출력되는 마지막 대사 */
+var HW_BOSS_DEATH = {
+  cmd_huaxiong:  '으윽… 사수관이… 이렇게 뚫리다니… 분하다…',
+  cmd_yuanshao:  '사세삼공의 명문이… 여기서 저무는가… 하늘이 무심하구나…',
+  cmd_xiahoudun: '이 한 몸… 끝내 막지 못했구나… 승상, 부디…',
+  cmd_caocao:    '천하가… 결국 나를 저버리는가… 크큭… 재미있군…',
+  cmd_xiahouyuan:'질풍도… 끝내 멎는구나… 정군산이여…',
+  cmd_luxun:     '타오르던 불길도… 끝내 사그라드는가…',
+  cmd_simayi:    '참고 또 참았건만… 인내의 끝이 여기였나…',
+  cmd_simayan:   '통일의 대업마저… 한낱 봄날의 꿈이었단 말인가…'
+};
+
 /* 보스(스테이지·레이드) — 난이도별 스킬 사용 확률·마나, 격파 시 영웅전 적립 골드.
  * 보스는 매 공격 시 skillChance 확률로 대응 장수(`hero`)의 원래 스킬을 사용(MP 소모). */
 var HW_BOSS = {
