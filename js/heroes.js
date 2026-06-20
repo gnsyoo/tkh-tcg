@@ -1671,12 +1671,14 @@
     run.sorties = (run.sorties || 0) + 1; // 누적 출진 횟수
     updateTop();
     run.pendingGold = gold; run.pendingBoss = isBoss;
-    if (c.sub === 4) run.pendingCamp = true; // 5스테이지(5번째 출진) 클리어 후 캠프 — 보상 처리 후 캠프로 이동
+    if (c.sub === 8) run.pendingCamp = true; // 9스테이지(9번째 출진) 클리어 후 캠프 — 보상 처리 후 캠프로 이동
     // 출진 5회·10회 뒤 보물상자(무기) 개봉
-    if (run.sorties === 5 || run.sorties === 10) { showReward('weapon', gold); return; }
+    if (run.sorties === 5 || run.sorties === 10) { showWeaponPick(gold); return; }
     if (isBoss && c.main === HW_STAGES.length - 1) { victory(); return; } // 최종 적장 격파
     if (isBoss) { showRelicPick(gold); return; }            // 메인 적장 처치 → 유물(대기실 팝업)
     if (isMid) { grantMidBoss(c.main, c.sub); showHeroPick(gold); return; } // 중간보스 격파 → 중간보스 카드 습득 + 장수 영입(대기실 팝업)
+    // 9스테이지 클리어 → 캠프(현재 스테이지에서 정비, 선택 시 다음 스테이지로)
+    if (run.pendingCamp) { run.pendingCamp = false; showCamp(); showGoldPopup(gold); return; }
     // (일반 출진은 장수 영입 보상을 주지 않고 골드 보상으로 처리 — 장수 영입은 중간보스·주막·특수 경로로만)
     // 보물 발견 이벤트 — 메인 전역당 최대 1회, 약 10% 확률로 등장(히어로즈 블러드 승리 시 유물 획득)
     var TREASURE_CHANCE = 0.10; // 보물 발견 확률 10%
@@ -1784,6 +1786,35 @@
         if (sub) sub.textContent = '파티가 가득 찼습니다 — ' + HW_BY_ID[id].name + ' 와(과) 교체할 영웅을 선택하세요';
         body.innerHTML = '<div class="party-bar">' + run.party.map(miniHero).join('') + '</div>';
       }
+    });
+  })();
+
+  /* ---------- 보물상자(무기) 보상 — 대기실 팝업 ---------- */
+  function showWeaponPick(gold) {
+    var ownW = run.weapons || [];
+    var wpool = TCG.shuffle(HW_WEAPONS.filter(function (w) { return !w.exclusive && ownW.indexOf(w.id) === -1; })).slice(0, 3);
+    if (run.pendingCamp) { run.pendingCamp = false; showCamp(); } else advanceStage();
+    var pop = document.getElementById('weaponPickPopup');
+    if (!pop || !wpool.length) { if (gold) showGoldPopup(gold); return; } // 팝업 없음/획득 가능 장비 없음 → 골드 팝업만
+    var sub = document.getElementById('weaponPickSub');
+    if (sub) sub.textContent = '획득할 보물(무기/보패)을 선택하세요' + (gold ? ' · 💰+' + gold : '');
+    document.getElementById('weaponPickBody').innerHTML = wpool.map(function (w) {
+      return '<div class="reward-card" data-weapon="' + w.id + '">' +
+        '<div class="rc-emoji">' + w.emoji + '</div>' +
+        '<div class="rc-name">' + w.name + '</div>' +
+        '<div class="rc-skill">' + w.desc + '</div></div>';
+    }).join('');
+    pop.hidden = false;
+  }
+  (function () {
+    var pop = document.getElementById('weaponPickPopup'); if (!pop) return;
+    document.getElementById('weaponPickBody').addEventListener('click', function (e) {
+      var card = e.target.closest('.reward-card'); if (!card || !card.dataset.weapon) return;
+      var w = HW_WEAPON_BY_ID[card.dataset.weapon]; if (!w) return;
+      TCG.sfx('reward');
+      if (run.weapons.indexOf(w.id) === -1) run.weapons.push(w.id); // 중복 획득 방지
+      saveRun(); TCG.toast('보물 획득: ' + w.name);
+      pop.hidden = true;
     });
   })();
 

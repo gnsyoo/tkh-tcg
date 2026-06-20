@@ -1333,7 +1333,7 @@ button.wr-chip:hover { box-shadow: inset 0 0 0 1px var(--gold); }
 /* ===== 도감 — 탭/정렬 상단 고정, 목록 영역만 스크롤 ===== */
 .codex-page-body { overflow: hidden; display: flex; flex-direction: column; }
 .codex-page-body > .codex-tabs { flex: none; }
-#codexHeroPanel, #codexWeaponPanel, #codexRelicPanel { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+#codexHeroPanel:not([hidden]), #codexWeaponPanel:not([hidden]), #codexRelicPanel:not([hidden]) { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 #codexHeroPanel > .sort-bar { flex: none; }
 #codexHeroPanel > .col-grid,
 #codexWeaponPanel > .col-weapon-list,
