@@ -808,7 +808,7 @@
       var atkx = boss ? HW_BOSS_MULT.atkMult : (mid ? (HW_MID.atkMult * 1.2) : 1);
       var hp = Math.round(d.hp * hpM * hpx);
       var atk = Math.max(1, Math.round(d.atk * atkM * (boss ? md.bossAtkMult : 1) * atkx)); // 적장은 전용 배수로 중간보스보다 강하게
-      var e = { def: d, name: (mid ? '⚜ ' + d.name : d.name), emoji: d.emoji, face: (mid && d.hid) ? d.hid : null, maxHp: hp, hp: hp,
+      var e = { def: d, name: (mid ? '⚜ ' + d.name : d.name), emoji: d.emoji, face: (d.hid || d.hero || d.id || null), maxHp: hp, hp: hp,
         atk: atk, aoe: !!d.aoe, boss: !!boss, mid: !!mid, quote: d.quote || null, crit: (boss ? md.bossCrit : BASE_CRIT), block: 0, intent: null };
       if (boss && d.hero && HW_BY_ID[d.hero]) { // 적장은 대응 장수의 원래 스킬 + MP 보유
         var bc = HW_BOSS[diff] || HW_BOSS.normal;

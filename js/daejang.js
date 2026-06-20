@@ -173,7 +173,7 @@
   }
   function raidBossHp(cmd) { return Math.round(cmd.hp * HW_RAID.hpMult * 1.1); } // HP +10%
   // 하후돈(레이드 3번째)부터 보스 양옆에 등장하는 졸병 1~2기
-  var RAID_ADD_TYPES = [ { name: '적 보병', emoji: '🪖' }, { name: '적 궁병', emoji: '🏹' }, { name: '적 창병', emoji: '🛡️' } ];
+  var RAID_ADD_TYPES = [ { id: 'foe_inf', name: '적 보병', emoji: '🪖' }, { id: 'foe_arc', name: '적 궁병', emoji: '🏹' }, { id: 'foe_spr', name: '적 창병', emoji: '🛡️' } ];
   function makeRaidAdds(idx, bossHp, bossAtk) {
     if (idx < 2) return [];
     var count = 1 + ((Math.random() < (idx >= 4 ? 0.8 : 0.45)) ? 1 : 0); // 한두 명
@@ -181,7 +181,7 @@
     var adds = [];
     for (var i = 0; i < count; i++) {
       var t = RAID_ADD_TYPES[Math.floor(Math.random() * RAID_ADD_TYPES.length)];
-      adds.push({ name: t.name, emoji: t.emoji, maxHp: hp, hp: hp, atk: atk, block: 0, poison: 0 });
+      adds.push({ id: t.id, name: t.name, emoji: t.emoji, maxHp: hp, hp: hp, atk: atk, block: 0, poison: 0 });
     }
     return adds;
   }
@@ -396,7 +396,7 @@
         (adead ? '' : '<div class="u-intent">⚔️' + a.atk + '</div>') +
         (a.block > 0 ? '<div class="u-block">🛡' + a.block + '</div>' : '') +
         (a.poison > 0 ? '<div class="u-poison">☠' + a.poison + '</div>' : '') +
-        TCG.portrait(a.emoji, 'add' + i, '', a.name) +
+        TCG.portrait(a.emoji, a.id || ('add' + i), '', a.name) +
         '<div class="u-name">' + a.name + '</div>' +
         '<div class="u-hp-text">❤ ' + Math.max(0, a.hp) + ' / ' + a.maxHp + '</div>' +
         '<div class="hpbar foe"><i style="width:' + apct + '%"></i></div></div>';
