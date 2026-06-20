@@ -301,7 +301,7 @@
   border-radius: 9px;
   background: linear-gradient(165deg, #241f47, #1a1638);
   border: 1px solid rgba(255,255,255,0.1);
-  padding: 5px;
+  padding: 5px 5px 22px;
   cursor: pointer;
   transition: transform 0.1s, border-color 0.12s, box-shadow 0.12s;
   text-align: center;
@@ -433,7 +433,7 @@
 .qb-main.hb .hand-card.selected { box-shadow: 0 0 0 2px #f0c33c, inset 0 0 0 1px rgba(240,195,60,.4); }
 .qb-main.hb .hand-card .hc-power { color: #3a2608; background: linear-gradient(180deg,#e7b53a,#bd8a22); }
 .qb-main.hb .hand-card .rank-pips .rp { background: #e6cf6a; box-shadow: 0 0 3px rgba(230,207,106,.6); }
-.qb-main.hb .hand-card .hc-ab { color: #e2b06a; }
+.qb-main.hb .hand-card .hc-ab { color: #e2b06a; margin-bottom: 9px; }
 .qb-main.hb .hand-card .hc-enh i.c { background: #f0c33c; } .qb-main.hb .hand-card .hc-enh i.e { background: #7bd88f; }
 /* 강화 패턴 색 구분: 카드 위치=금색, 강화 영역=녹색 (덱 구성·손패 공통) */
 .hand-card .hc-enh i.c, .deck-card .hc-enh i.c { background: #f0c33c; }
