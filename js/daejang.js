@@ -408,27 +408,31 @@
     var tgt = c.targeting && !dead;
     var intentTxt = (b.confused > 0) ? '💤 혼란' : (b.charmed > 0) ? '💤 매혹' : (b.intent ? (b.intent.type === 'aoe' ? '💥' + b.intent.dmg : '⚔️' + b.intent.dmg) : '');
     var pct = Math.max(0, Math.round(b.hp / b.maxHp * 100));
+    var bossStatuses = (b.charmed > 0 ? '<span class="u-st charm">💗 매혹 ' + b.charmed + '</span>' : '') +
+      (b.confused > 0 ? '<span class="u-st charm">💫 혼란 ' + b.confused + '</span>' : '') +
+      (b.poison > 0 ? '<span class="u-st pois">☠ 중독 ' + b.poison + '</span>' : '');
     var bossHtml =
       '<div class="unit enemy raid-boss-unit' + (dead ? ' dead' : '') + (tgt ? ' targetable' : '') + (charmed ? ' charmed' : '') + '" data-side="enemy" data-idx="0">' +
+        '<div class="u-tag boss">' + TCG.t('cmb.tagBoss') + '</div>' +
         (dead ? '' : '<div class="u-intent">' + intentTxt + '</div>') +
         (b.block > 0 ? '<div class="u-block">🛡' + b.block + '</div>' : '') +
-        (charmed ? '<div class="u-charm">💗' + b.charmed + '</div>' : '') +
-        (b.poison > 0 ? '<div class="u-poison">☠' + b.poison + '</div>' : '') +
         bossFace(b.def, '') +
         '<div class="u-name">' + b.name + '</div>' +
-        '<div class="u-hp-text">❤ ' + Math.max(0, b.hp) + ' / ' + b.maxHp + '</div>' +
-        (b.maxMp ? '<div class="u-mp-text">💧 ' + Math.max(0, b.mp) + ' / ' + b.maxMp + '</div>' : '') +
-        '<div class="hpbar foe"><i style="width:' + pct + '%"></i></div></div>';
+        '<div class="hpbar foe"><i style="width:' + pct + '%"></i></div>' +
+        '<div class="u-stat"><span class="u-hp-text">♥ ' + Math.max(0, b.hp) + '/' + b.maxHp + '</span>' +
+          (b.maxMp ? '<span class="u-mp-text">◈ ' + Math.max(0, b.mp) + '/' + b.maxMp + '</span>' : '') + '</div>' +
+        (bossStatuses ? '<div class="u-statuses">' + bossStatuses + '</div>' : '') + '</div>';
     var addsHtml = (c.adds || []).map(function (a, i) {
       var adead = a.hp <= 0, atgt = c.targeting && !adead, apct = Math.max(0, Math.round(a.hp / a.maxHp * 100));
+      var aStatuses = (a.poison > 0 ? '<span class="u-st pois">☠ 중독 ' + a.poison + '</span>' : '');
       return '<div class="unit enemy raid-add' + (adead ? ' dead' : '') + (atgt ? ' targetable' : '') + '" data-side="enemy" data-idx="' + (i + 1) + '">' +
         (adead ? '' : '<div class="u-intent">⚔️' + a.atk + '</div>') +
         (a.block > 0 ? '<div class="u-block">🛡' + a.block + '</div>' : '') +
-        (a.poison > 0 ? '<div class="u-poison">☠' + a.poison + '</div>' : '') +
         TCG.portrait(a.emoji, a.id || ('add' + i), '', a.name) +
         '<div class="u-name">' + a.name + '</div>' +
-        '<div class="u-hp-text">❤ ' + Math.max(0, a.hp) + ' / ' + a.maxHp + '</div>' +
-        '<div class="hpbar foe"><i style="width:' + apct + '%"></i></div></div>';
+        '<div class="hpbar foe"><i style="width:' + apct + '%"></i></div>' +
+        '<div class="u-stat"><span class="u-hp-text">♥ ' + Math.max(0, a.hp) + '/' + a.maxHp + '</span></div>' +
+        (aStatuses ? '<div class="u-statuses">' + aStatuses + '</div>' : '') + '</div>';
     }).join('');
     document.getElementById('enemyRow').innerHTML = bossHtml + addsHtml;
 

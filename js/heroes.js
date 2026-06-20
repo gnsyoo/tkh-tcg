@@ -1079,17 +1079,19 @@
       var charmed = e.charmed > 0;
       var confd = e.confused > 0;
       var intentTxt = charmed ? '💤 매혹' : (confd ? '💤 혼란' : (e.intent ? (e.intent.type === 'aoe' ? '💥' + e.intent.dmg : '⚔️' + e.intent.dmg) : ''));
+      var statuses = (charmed ? '<span class="u-st charm">💗 매혹 ' + e.charmed + '</span>' : '') +
+        (confd ? '<span class="u-st charm">💫 혼란 ' + e.confused + '</span>' : '') +
+        (e.poison > 0 ? '<span class="u-st pois">☠ 중독 ' + e.poison + '</span>' : '');
       return '<div class="unit enemy' + (dead ? ' dead' : '') + (tgt ? ' targetable' : '') + ((charmed || confd) ? ' charmed' : '') + (e.boss ? ' is-boss' : '') + (e.mid ? ' is-mid' : '') + '" data-side="enemy" data-idx="' + idx + '">' +
         (e.mid ? '<div class="u-tag mid">' + TCG.t('cmb.tagMid') + '</div>' : (e.boss ? '<div class="u-tag boss">' + TCG.t('cmb.tagBoss') + '</div>' : '')) +
         (dead ? '' : '<div class="u-intent">' + intentTxt + '</div>') +
         (e.block > 0 ? '<div class="u-block">🛡' + e.block + '</div>' : '') +
-        (charmed ? '<div class="u-charm">💗' + e.charmed + '</div>' : '') +
-        (e.poison > 0 ? '<div class="u-poison">☠' + e.poison + '</div>' : '') +
         TCG.portrait(e.emoji, e.face || e.name) +
         '<div class="u-name">' + e.name + '</div>' +
-        '<div class="u-hp-text">❤ ' + Math.max(0, e.hp) + '/' + e.maxHp + '</div>' +
-        (e.maxMp ? '<div class="u-mp-text">💧 ' + Math.max(0, e.mp) + '/' + e.maxMp + '</div>' : '') +
-        hpBar({ hp: Math.max(0, e.hp), maxHp: e.maxHp }, true) + '</div>';
+        hpBar({ hp: Math.max(0, e.hp), maxHp: e.maxHp }, true) +
+        '<div class="u-stat"><span class="u-hp-text">♥ ' + Math.max(0, e.hp) + '/' + e.maxHp + '</span>' +
+          (e.maxMp ? '<span class="u-mp-text">◈ ' + Math.max(0, e.mp) + '/' + e.maxMp + '</span>' : '') + '</div>' +
+        (statuses ? '<div class="u-statuses">' + statuses + '</div>' : '') + '</div>';
     }).join('');
 
     // 주공(나) 상태 바 — 적의 공격 대상

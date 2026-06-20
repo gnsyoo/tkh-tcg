@@ -1099,19 +1099,36 @@ button.wr-chip:hover { box-shadow: inset 0 0 0 1px var(--gold); }
 
 /* ===== 전투 화면 — 핸드오프 다크 로그라이크 리스킨 ===== */
 /* 적 유닛 카드 (보라 → 따뜻한 다크 레드) */
-.enemy-row { gap: 12px; align-items: flex-end; }
+#combatScreen .enemy-row { gap: 12px; align-items: flex-end; min-height: 176px; padding: 14px 14px 6px; }
 #combatScreen .unit { background: linear-gradient(168deg,#2a1620,#1a0d10); border: none; box-shadow: inset 0 0 0 1px rgba(240,195,60,.14); border-radius: 13px; }
 #combatScreen .unit.enemy { box-shadow: inset 0 0 0 1px rgba(224,72,63,.3); }
 #combatScreen .unit.is-mid { width: clamp(92px,24vw,112px); box-shadow: inset 0 0 0 1.5px #9b5de5, 0 0 14px rgba(155,93,229,.35); }
 #combatScreen .unit.is-boss { width: clamp(98px,27vw,122px); box-shadow: inset 0 0 0 1.5px #f0c33c, 0 0 16px rgba(224,72,63,.42); }
-#combatScreen .unit.is-boss .portrait { height: 54px; }
-#combatScreen .unit.is-boss .portrait .p-emoji { font-size: 40px; }
+/* 핸드오프: 등급별 인물화 크기 차등 (보스가 더 솟아 보이게 바닥 정렬) */
+#combatScreen .unit .portrait { height: 52px; }
+#combatScreen .unit .portrait .p-emoji { font-size: 36px; }
+#combatScreen .unit.is-mid .portrait { height: 66px; }
+#combatScreen .unit.is-mid .portrait .p-emoji { font-size: 46px; }
+#combatScreen .unit.is-boss .portrait { height: 80px; }
+#combatScreen .unit.is-boss .portrait .p-emoji { font-size: 54px; }
+#combatScreen .unit.raid-boss-unit { box-shadow: inset 0 0 0 1.5px #f0c33c, 0 0 16px rgba(224,72,63,.42); }
+#combatScreen .unit.raid-boss-unit .portrait { height: 84px; }
+#combatScreen .unit.raid-boss-unit .portrait .p-emoji { font-size: 56px; }
+/* 핸드오프: 등급 배지는 좌상단(의도 배지와 겹치지 않게) */
+#combatScreen .unit .u-tag { top: 5px; left: 5px; transform: none; font-size: 7px; padding: 1px 5px; border-radius: 4px; }
 .unit .u-tag.boss { background: #f0c33c; color: #2a1402; }
 .unit .u-tag.mid { background: #9b5de5; color: #fff; }
 .unit .u-intent { background: rgba(8,4,3,.85); border: none; box-shadow: inset 0 0 0 1px rgba(224,72,63,.5); color: #ffd0a0; }
 .unit .hpbar { height: 7px; box-shadow: inset 0 0 0 1px rgba(224,72,63,.3); }
 .hpbar.foe > i { background: linear-gradient(90deg,#e0483f,#ff7a5a); }
-.unit .u-hp-text { color: #ffb3aa; font-weight: 700; }
+/* 핸드오프: HP/MP 한 줄(♥ · ◈) + 상태이상 배지 줄 */
+#combatScreen .unit .u-stat { display: flex; align-items: center; justify-content: center; gap: 7px; margin-top: 3px; }
+#combatScreen .unit .u-hp-text { font-size: 9px; color: #ffb3aa; font-weight: 700; margin: 0; font-variant-numeric: tabular-nums; }
+#combatScreen .unit .u-mp-text { font-size: 9px; color: #9fd4ff; font-weight: 700; margin: 0; font-variant-numeric: tabular-nums; }
+#combatScreen .unit .u-statuses { display: flex; flex-wrap: wrap; justify-content: center; gap: 3px; margin-top: 3px; }
+#combatScreen .unit .u-st { display: flex; align-items: center; gap: 2px; font-size: 8px; font-weight: 800; border-radius: 5px; padding: 1px 5px; white-space: nowrap; }
+#combatScreen .unit .u-st.charm { color: #e8d4ff; background: rgba(124,77,196,.28); box-shadow: inset 0 0 0 1px rgba(155,93,229,.55); }
+#combatScreen .unit .u-st.pois { color: #bff0c4; background: rgba(60,150,80,.25); box-shadow: inset 0 0 0 1px rgba(91,184,122,.55); }
 
 /* 주공(나) 상태 — 보라 카드 제거, 금테 👑 + 빨강/파랑 바 */
 .lord { background: none; border: none; box-shadow: none; padding: 8px 2px 4px; gap: 11px; }
