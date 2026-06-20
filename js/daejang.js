@@ -410,7 +410,7 @@
     var d = spawn('fx-quote', r.left - lr.left + r.width / 2, r.top - lr.top + r.height + 8, ms || 2000);
     if (d) d.textContent = text;
   }
-  function bossEl() { return document.querySelector('#enemyRow .unit'); }
+  function bossEl() { return document.querySelector('#enemyRow .raid-boss-unit') || document.querySelector('#enemyRow .unit'); }
   function lordEl() { return document.querySelector('#lordBar .lord-art'); }
   function fxHitBoss(dmg, crit) { var p = rectOf(bossEl()); if (!p) return; fxSlash(p.x, p.y); fxBurst(p.x, p.y, crit ? '#ffd34d' : '#fff'); fxParticles(p.x, p.y, crit ? 10 : 7, crit ? '#ffe89a' : '#ffc6c6'); if (crit) fxFloat(p.x, p.y - 16, TCG.t('cmb.crit'), '#ffd34d', true); fxFloat(p.x, p.y, '-' + dmg, crit ? '#ffd34d' : '#ff9a9a', true); }
   function fxHitLord(dmg, blocked, crit) { var p = rectOf(lordEl()); if (!p) return; if (blocked) fxFloat(p.x, p.y - 14, '🛡' + blocked, '#9fd2ff'); if (dmg > 0) { fxSlash(p.x, p.y); fxBurst(p.x, p.y, crit ? '#ffd34d' : '#ff6b6b'); fxParticles(p.x, p.y, 6, '#ffb0b0'); if (crit) fxFloat(p.x, p.y - 16, TCG.t('cmb.crit'), '#ffd34d', true); fxFloat(p.x, p.y, '-' + dmg, crit ? '#ffd34d' : '#ff9a9a', true); } }
@@ -445,7 +445,7 @@
         '<div class="u-stat"><span class="u-hp-text">♥ ' + Math.max(0, b.hp) + '/' + b.maxHp + '</span>' +
           (b.maxMp ? '<span class="u-mp-text">◈ ' + Math.max(0, b.mp) + '/' + b.maxMp + '</span>' : '') + '</div>' +
         (bossStatuses ? '<div class="u-statuses">' + bossStatuses + '</div>' : '') + '</div>';
-    var addsHtml = (c.adds || []).map(function (a, i) {
+    var addHtmls = (c.adds || []).map(function (a, i) {
       var adead = a.hp <= 0, atgt = c.targeting && !adead, apct = Math.max(0, Math.round(a.hp / a.maxHp * 100));
       var aStatuses = (a.poison > 0 ? '<span class="u-st pois">☠ 중독 ' + a.poison + '</span>' : '');
       return '<div class="unit enemy raid-add' + (adead ? ' dead' : '') + (atgt ? ' targetable' : '') + '" data-side="enemy" data-idx="' + (i + 1) + '">' +
@@ -456,8 +456,10 @@
         '<div class="hpbar foe"><i style="width:' + apct + '%"></i></div>' +
         '<div class="u-stat"><span class="u-hp-text">♥ ' + Math.max(0, a.hp) + '/' + a.maxHp + '</span></div>' +
         (aStatuses ? '<div class="u-statuses">' + aStatuses + '</div>' : '') + '</div>';
-    }).join('');
-    document.getElementById('enemyRow').innerHTML = bossHtml + addsHtml;
+    });
+    // 보스를 가운데(3명) / 오른쪽(2명)에 배치 — 졸병 절반을 보스 앞에 둠 (data-idx는 유지되어 타겟팅 정상)
+    var beforeN = Math.ceil(addHtmls.length / 2);
+    document.getElementById('enemyRow').innerHTML = addHtmls.slice(0, beforeN).join('') + bossHtml + addHtmls.slice(beforeN).join('');
 
     var L = c.lord;
     var hp = Math.max(0, Math.round(L.hp / L.maxHp * 100)), mp = Math.max(0, Math.round(L.mp / Math.max(1, L.maxMp) * 100));
@@ -563,7 +565,7 @@
 
   function enemyByIdx(i) { return i === 0 ? combat.boss : (combat.adds || [])[i - 1]; }
   function enemyIdxList() { var l = [0]; (combat.adds || []).forEach(function (_, i) { l.push(i + 1); }); return l; }
-  function enemyElByIdx(i) { var els = document.querySelectorAll('#enemyRow .unit'); return (els && els[i]) ? els[i] : bossEl(); }
+  function enemyElByIdx(i) { return document.querySelector('#enemyRow .unit[data-idx="' + i + '"]') || bossEl(); }
   function fxHitEnemyEl(el, dmg, crit) { var p = rectOf(el); if (!p) return; fxSlash(p.x, p.y); fxBurst(p.x, p.y, crit ? '#ffd34d' : '#fff'); fxParticles(p.x, p.y, crit ? 10 : 7, crit ? '#ffe89a' : '#ffc6c6'); if (crit) fxFloat(p.x, p.y - 16, TCG.t('cmb.crit'), '#ffd34d', true); fxFloat(p.x, p.y, '-' + dmg, crit ? '#ffd34d' : '#ff9a9a', true); }
   function dmgTarget(i, dmg, crit) {
     var t = enemyByIdx(i); if (!t) return;

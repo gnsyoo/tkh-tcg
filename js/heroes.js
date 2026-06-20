@@ -842,8 +842,8 @@
     var out = [];
     if (isBoss) {
       out.push(inst(TCG.pick(HW_ENEMIES.basic)));
+      out.push(inst(HW_COMMANDERS[st.boss], true)); // 적장 — 3명일 때 가운데 배치
       out.push(inst(TCG.pick(HW_ENEMIES.basic)));
-      out.push(inst(HW_COMMANDERS[st.boss], true)); // 적장
     } else if (isMid) {
       var mbIdx = (sub === 9) ? 1 : 0; // 5출전=0 · 10출전=1
       var mbSet = HW_MID_BOSSES[main] || HW_MID_BOSSES[HW_MID_BOSSES.length - 1];
@@ -890,10 +890,12 @@
       logMsg(sortieTxt);
     }
     beginRound();
-    // 보스/중간보스 등장 대사 — 카드 아래 말풍선 2초
-    var lead = enemies[enemies.length - 1];
-    if (lead && lead.quote && (lead.boss || lead.mid)) {
-      setTimeout(function () { fxQuote(enemyEl(enemies.length - 1), lead.quote, 5000); }, isBoss ? 1100 : 700);
+    // 보스/중간보스 등장 대사 — 카드 아래 말풍선 2초 (보스 위치가 가운데여도 동작)
+    var lead = null;
+    for (var li = 0; li < enemies.length; li++) { if (enemies[li].boss || enemies[li].mid) { lead = enemies[li]; break; } }
+    if (lead && lead.quote) {
+      var leadIdx = enemies.indexOf(lead);
+      setTimeout(function () { fxQuote(enemyEl(leadIdx), lead.quote, 5000); }, isBoss ? 1100 : 700);
     }
   }
 
