@@ -13,8 +13,8 @@
   gtag('config', 'G-RZW78R7430');
 </script>
 <title>삼국 대장전 · 목업</title>
-<link rel="stylesheet" href="css/common.css?v=1.7.16">
-<link rel="stylesheet" href="css/heroes.css?v=1.7.16">
+<link rel="stylesheet" href="css/common.css?v=1.7.17">
+<link rel="stylesheet" href="css/heroes.css?v=1.7.17">
 </head>
 <body>
   <main class="hw-main" id="hwMain">
@@ -22,17 +22,17 @@
     <section class="screen waitroom raid-waitroom" id="selectScreen">
       <div class="wr-top">
         <a class="wr-icbtn" href="index.html" title="홈" aria-label="홈"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 11.5L12 4l9 7.5" stroke="#f0c33c" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 10v9h13v-9" stroke="#f0c33c" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 19v-5h4v5" stroke="#f0c33c" stroke-width="1.7" stroke-linejoin="round"/></svg></a>
-        <div class="wr-chip gold"><img src="assets/img/heroes/coin-gold2.png?v=1.7.16" alt=""><b id="raidGold">0</b></div>
+        <div class="wr-chip gold"><img src="assets/img/heroes/coin-gold2.png?v=1.7.17" alt=""><b id="raidGold">0</b></div>
         <span class="wr-spacer"></span>
-        <div class="wr-chip"><img src="assets/img/heroes/ic-general.png?v=1.7.16" alt=""><b id="rosterCount">0</b></div>
-        <div class="wr-chip"><img src="assets/img/heroes/ic-swords.png?v=1.7.16" alt=""><b id="raidGear">0</b></div>
+        <div class="wr-chip"><img src="assets/img/heroes/ic-general.png?v=1.7.17" alt=""><b id="rosterCount">0</b></div>
+        <div class="wr-chip"><img src="assets/img/heroes/ic-swords.png?v=1.7.17" alt=""><b id="raidGear">0</b></div>
       </div>
       <div class="wr-banner raid"><span class="wr-bno">👹</span><div class="wr-btitle"><b>대장전 · 레이드</b><small data-i18n="uiRaidSub">영웅전 덱으로 거대 보스에 도전 — 보스 카드를 탭하면 정보를 봅니다.</small></div></div>
       <div class="raid-lord" id="raidLordStatus"></div>
       <div class="raid-collect">
-        <button class="raid-cbtn" id="rosterBtn"><img src="assets/img/heroes/ic-general.png?v=1.7.16" alt=""><span data-i18n="uiOfficers">장수</span></button>
-        <button class="raid-cbtn" id="gearBtn"><img src="assets/img/heroes/ic-swords.png?v=1.7.16" alt=""><span data-i18n="uiGear">장비</span></button>
-        <button class="raid-cbtn" id="codexBtn"><img src="assets/img/heroes/ped-codex.png?v=1.7.16" alt=""><span>도감</span></button>
+        <button class="raid-cbtn" id="rosterBtn"><img src="assets/img/heroes/ic-general.png?v=1.7.17" alt=""><span data-i18n="uiOfficers">장수</span></button>
+        <button class="raid-cbtn" id="gearBtn"><img src="assets/img/heroes/ic-swords.png?v=1.7.17" alt=""><span data-i18n="uiGear">장비</span></button>
+        <button class="raid-cbtn" id="codexBtn"><img src="assets/img/heroes/ped-codex.png?v=1.7.17" alt=""><span>도감</span></button>
       </div>
       <div class="raid-list" id="raidList"></div>
     </section>
@@ -69,7 +69,7 @@
     <div class="wr-pop-scrim" data-close></div>
     <div class="wr-pop-panel">
       <div class="wr-pop-head">
-        <img src="assets/img/heroes/ic-general.png?v=1.7.16" alt="">
+        <img src="assets/img/heroes/ic-general.png?v=1.7.17" alt="">
         <span class="wr-pop-title"><span data-i18n="uiDeckEditTitle">출진 덱 편성</span> <span class="cnt" id="rosterTitleCount"></span></span>
         <button class="wr-pop-x" data-close>✕</button>
       </div>
@@ -83,7 +83,7 @@
     <div class="wr-pop-scrim" data-close></div>
     <div class="wr-pop-panel">
       <div class="wr-pop-head">
-        <img src="assets/img/heroes/ic-swords.png?v=1.7.16" alt="">
+        <img src="assets/img/heroes/ic-swords.png?v=1.7.17" alt="">
         <span class="wr-pop-title">장비 보유 현황 <span class="cnt" id="gearTitleCount"></span></span>
         <button class="wr-pop-x" data-close>✕</button>
       </div>
@@ -96,7 +96,7 @@
     <div class="wr-pop-scrim" data-close></div>
     <div class="wr-pop-panel">
       <div class="wr-pop-head">
-        <img src="assets/img/heroes/ic-gear.png?v=1.7.16" alt="">
+        <img src="assets/img/heroes/ic-gear.png?v=1.7.17" alt="">
         <span class="wr-pop-title">추가 능력 · 유물 <span class="cnt" id="relicTitleCount"></span></span>
         <button class="wr-pop-x" data-close>✕</button>
       </div>
@@ -108,7 +108,7 @@
   <div class="codex-page" id="codexModal" hidden>
     <div class="codex-page-bar codex-shead">
       <button class="wr-back" id="codexBack" aria-label="뒤로"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="#f0c33c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-      <div class="wr-shead-t"><span data-i18n="uiCodexName">도감</span><img src="assets/img/heroes/ped-codex.png?v=1.7.16" alt=""></div>
+      <div class="wr-shead-t"><span data-i18n="uiCodexName">도감</span><img src="assets/img/heroes/ped-codex.png?v=1.7.17" alt=""></div>
       <span class="wr-goldchip codex-pctchip"><span class="pctlbl" data-i18n="uiCollRate">수집률</span> <b id="codexPct">0%</b></span>
     </div>
     <div class="codex-page-body">
@@ -166,10 +166,10 @@
     </div>
   </div>
 
-  <script src="js/util.js?v=1.7.16"></script>
-  <script src="js/heroes_data.js?v=1.7.16"></script>
-  <script src="js/i18n_data.js?v=1.7.16"></script>
-  <script src="js/daejang.js?v=1.7.16"></script>
-  <script src="js/i18n.js?v=1.7.16"></script>
+  <script src="js/util.js?v=1.7.17"></script>
+  <script src="js/heroes_data.js?v=1.7.17"></script>
+  <script src="js/i18n_data.js?v=1.7.17"></script>
+  <script src="js/daejang.js?v=1.7.17"></script>
+  <script src="js/i18n.js?v=1.7.17"></script>
 </body>
 </html>
