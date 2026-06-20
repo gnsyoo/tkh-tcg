@@ -353,6 +353,11 @@
 .ci-ab { margin-top: 12px; padding: 9px 12px; border-radius: 8px; background: rgba(0,0,0,0.28); font-size: 13px; line-height: 1.5; }
 .ci-enh-wrap { margin-top: 12px; display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--ink-dim); }
 .ci-enh-wrap small { color: var(--ink-dim); opacity: 0.8; }
+/* 카드 정보 팝업의 강화 영역 격자 — 보드/손패 글리프 스타일이 미적용이므로 별도 지정 */
+.ci-enh-wrap .hc-enh { display: grid; grid-template-columns: repeat(3, 13px); grid-template-rows: repeat(3, 13px); gap: 2px; flex: none; }
+.ci-enh-wrap .hc-enh i { width: 13px; height: 13px; border-radius: 2px; background: rgba(255,255,255,0.14); }
+.ci-enh-wrap .hc-enh i.c { background: #f0c33c; box-shadow: 0 0 4px rgba(240,195,60,0.5); }
+.ci-enh-wrap .hc-enh i.e { background: #7bd88f; box-shadow: 0 0 4px rgba(123,216,143,0.6); }
 
 /* ===== 속성 효과 delta 배지(핸드오프) ===== */
 .tile-card .tc-delta {
