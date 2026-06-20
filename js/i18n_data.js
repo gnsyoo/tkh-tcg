@@ -11,6 +11,7 @@
 
   /* ===== 동적 UI 문구 사전(TCG.t) — 모든 언어 공통 등록(ko 포함) ===== */
   window.__UI_I18N__ = Object.assign(window.__UI_I18N__ || {}, {
+    'uiItemConfirm': { ko: '이 소모품을 사용할까요? (턴당 1개)', en: 'Use this item? (one per turn)', ja: 'このアイテムを使いますか？（毎ターン1個）', zh: '使用该消耗品吗？（每回合1个）', zhTW: '使用此消耗品嗎？（每回合1個）' },
     // 지도 / 대기실 (영웅전)
     'map.title': { ko: '📜 연대기', en: '📜 Chronicle', ja: '📜 年代記', zh: '📜 编年史', zhTW: '📜 編年史' },
     'map.sub': { ko: '다음 목적지를 선택하세요', en: 'Choose your next destination', ja: '次の目的地を選びましょう', zh: '请选择下一个目的地', zhTW: '請選擇下一個目的地' },

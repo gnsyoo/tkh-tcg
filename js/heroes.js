@@ -1171,14 +1171,36 @@
     else return false;
     return true;
   }
+  var pendingItemIdx = -1;
+  function askItemConfirm(idx, it) {
+    pendingItemIdx = idx;
+    document.getElementById('itemConfirmBody').innerHTML =
+      '<div style="font-size:46px;line-height:1;margin-bottom:6px">' + it.emoji + '</div>' +
+      '<h2 style="margin-bottom:6px">' + it.name + '</h2>' +
+      '<p style="color:var(--ink-dim)">' + it.desc + '</p>' +
+      '<p style="font-size:12px;color:var(--ink-dim);margin-top:8px">' + TCG.t('uiItemConfirm') + '</p>';
+    document.getElementById('itemConfirm').hidden = false;
+  }
   document.getElementById('itemBar').addEventListener('click', function (e) {
     var b = e.target.closest('.item-slot'); if (!b || !b.dataset.i) return;
     var c = run.combat; if (!c || c.phase === 'enemy' || c.targeting || c.busy) return;
     if (c.itemUsed) { TCG.toast('이번 턴에는 이미 아이템을 사용했습니다'); return; }
     var idx = parseInt(b.dataset.i, 10), it = HW_CONS_BY_ID[run.items[idx]]; if (!it) return;
-    if (!applyItem(it)) return;
-    run.items.splice(idx, 1); c.itemUsed = true; TCG.sfx('heal'); saveRun(); renderCombat();
+    TCG.sfx('tap'); askItemConfirm(idx, it); // 아이콘만 보고 잘못 누르는 것 방지 — 확인 후 사용
   });
+  (function () {
+    var modal = document.getElementById('itemConfirm'); if (!modal) return;
+    function close() { modal.hidden = true; pendingItemIdx = -1; }
+    document.getElementById('itemConfirmNo').addEventListener('click', function () { TCG.sfx('tap'); close(); });
+    modal.addEventListener('click', function (e) { if (e.target === modal) close(); });
+    document.getElementById('itemConfirmYes').addEventListener('click', function () {
+      var c = run.combat; modal.hidden = true;
+      if (pendingItemIdx < 0 || !c || c.phase === 'enemy' || c.targeting || c.busy || c.itemUsed) { pendingItemIdx = -1; return; }
+      var it = HW_CONS_BY_ID[run.items[pendingItemIdx]]; if (!it) { pendingItemIdx = -1; return; }
+      if (!applyItem(it)) { pendingItemIdx = -1; return; } // 사용 불가(HP 가득 등)면 소모하지 않음
+      run.items.splice(pendingItemIdx, 1); c.itemUsed = true; pendingItemIdx = -1; TCG.sfx('heal'); saveRun(); renderCombat();
+    });
+  })();
   function renderActionBar() {
     var c = run.combat;
     var bar = document.getElementById('actionBar');
