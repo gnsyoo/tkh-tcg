@@ -63,24 +63,28 @@
       (bonus ? ' <span style="color:#8effb0;font-weight:700">(아이템 +' + bonus + ')</span>' : '') + '</b></div>';
   }
   function dSectionHead(t) { return '<div style="text-align:left;font-size:12px;color:var(--gold);font-weight:800;margin:12px 2px 5px">' + t + '</div>'; }
-  function showRelicsInfo() { // 추가 능력 상세 팝업 — 유물 효과 + 아이템(장비)으로 적용되는 주공 능력치
-    var hpBonus = lordMaxHp() - HW_LORD.hp, mpBonus = lordMaxMp() - HW_LORD.mp;
+  function showRelicsInfo() { // 추가 능력 — 영웅전과 동일(wr-pop relicModal)
+    var rs = relics || [];
+    var inRun = {}; rs.forEach(function (r) { inRun[r.id] = true; });
+    var evadePct = Math.round(lordEvade() * 100);
     var critPct = Math.round((BASE_CRIT + relicSum('crit')) * 100);
-    document.getElementById('bossModalBody').innerHTML =
-      '<h2 style="text-align:center;">✨ 추가 능력</h2>' +
-      dSectionHead('🏺 유물 효과 <span style="color:var(--ink-dim);font-weight:600">' + relics.length + '개</span>') +
-      (relics.length
-        ? '<div style="text-align:left;font-size:13px;line-height:1.5">' + relics.map(function (r) {
-            return '<div style="background:rgba(0,0,0,.25);border-radius:8px;padding:8px 10px;margin-bottom:6px"><b>' + r.emoji + ' ' + r.name + '</b><br><span style="color:var(--ink-dim)">' + r.desc + '</span></div>';
-          }).join('') + '</div>'
-        : '<p style="color:var(--ink-dim);font-size:13px;text-align:left;margin:2px 2px 8px">적용된 유물이 없습니다. 영웅전에서 유물을 획득하세요.</p>') +
-      dSectionHead('🛡 적용된 주공 능력치') +
-      dStatRow('❤ 최대 HP', lordMaxHp(), hpBonus) +
-      dStatRow('💧 최대 MP', lordMaxMp(), mpBonus) +
-      dStatRow('💥 치명타 확률', critPct + '%', 0) +
-      '<div style="text-align:center;margin-top:14px;"><button class="btn primary" id="relicInfoClose">닫기</button></div>';
-    var m = document.getElementById('bossModal'); m.hidden = false;
-    document.getElementById('relicInfoClose').addEventListener('click', function () { m.hidden = true; });
+    var sum = '<div class="wr-relic-sum"><div class="rs-h">👑 주공 적용 능력치</div><div class="rs-grid">' +
+      '<div class="rs-cell"><span>❤️</span><small>최대 HP</small><b style="color:#7ef0b5">' + lordMaxHp() + '</b></div>' +
+      '<div class="rs-cell"><span>🔷</span><small>최대 MP</small><b style="color:#9fd4ff">' + lordMaxMp() + '</b></div>' +
+      '<div class="rs-cell"><span>💨</span><small>회피율</small><b style="color:var(--ink)">' + evadePct + '%</b></div>' +
+      '<div class="rs-cell"><span>🎯</span><small>치명타 확률</small><b style="color:#ffb37e">' + critPct + '%</b></div>' +
+      '</div></div>';
+    var list = HW_RELICS.map(function (r) {
+      var on = !!inRun[r.id];
+      return '<div class="wr-relic-row' + (on ? '' : ' off') + '">' +
+        '<div class="rr-ico">' + r.emoji + '</div>' +
+        '<div class="rr-info"><div class="rr-name">' + r.name + '</div><div class="rr-desc">' + r.desc + '</div></div>' +
+        '<span class="rr-chk" style="color:' + (on ? 'var(--gold)' : 'var(--ink-dim)') + '">' + (on ? '✦' : '🔒') + '</span></div>';
+    }).join('');
+    if (!rs.length) list = '<div class="wr-relic-empty">아직 보유한 유물이 없습니다.<br>영웅전에서 유물을 획득하면 대장전에도 적용됩니다.</div>' + list;
+    var tc = document.getElementById('relicTitleCount'); if (tc) tc.textContent = rs.length + '/' + HW_RELICS.length;
+    document.getElementById('relicBody').innerHTML = sum + list;
+    document.getElementById('relicModal').hidden = false;
   }
   document.getElementById('raidLordStatus').addEventListener('click', function (e) {
     if (e.target.closest('.relic-pick')) { TCG.sfx('tap'); showRelicsInfo(); }
@@ -228,20 +232,25 @@
   }
 
   function renderSelect() {
-    var dpl = document.getElementById('deckPill'); if (dpl) dpl.textContent = '출진 덱 ' + activeDeckUids().length;
-    var rc = document.getElementById('rosterCount'); if (rc) rc.textContent = party.length; // 장수 버튼 카운트(0 표시 버그 수정)
-    var dp = document.getElementById('diffPill'); if (dp) dp.textContent = '난이도 ' + TCG.diffLabel(diff);
+    // 헤더 칩 — 금화 / 장수 수 / 장비 수(영웅전과 공유: hw_save)
+    var goldEl = document.getElementById('raidGold'); if (goldEl) goldEl.textContent = SAVE.gold || 0;
+    var rc = document.getElementById('rosterCount'); if (rc) rc.textContent = party.length;
+    var gearEl = document.getElementById('raidGear'); if (gearEl) gearEl.textContent = (SAVE.weapons || []).length;
+    // 주공 상태 — 👑 + HP/MP 바 + ✨추가 능력
     var ls = document.getElementById('raidLordStatus');
     if (ls) {
       var mhp = lordMaxHp(), mmp = lordMaxMp();
       var lhp = (typeof SAVE.lordHp === 'number') ? Math.min(SAVE.lordHp, mhp) : mhp;
       var lmp = (typeof SAVE.lordMp === 'number') ? Math.min(SAVE.lordMp, mmp) : mmp;
+      var hpPct = Math.max(0, Math.min(100, Math.round(lhp / mhp * 100)));
+      var mpPct = Math.max(0, Math.min(100, Math.round(lmp / Math.max(1, mmp) * 100)));
       ls.innerHTML =
-        '<div class="map-lord-status">' +
-          '<span class="mls hp">❤ ' + lhp + ' / ' + mhp + '</span>' +
-          '<span class="mls mp">💧 ' + lmp + ' / ' + mmp + '</span>' +
-          '<span class="mls relic relic-pick" title="탭하면 추가 능력 상세">✨ 추가 능력</span>' +
-        '</div>';
+        '<div class="rl-av">👑</div>' +
+        '<div class="rl-bars">' +
+          '<div class="rl-bar"><span class="rl-l hp">HP</span><div class="rl-track"><i class="hp" style="width:' + hpPct + '%"></i></div><span class="rl-v">' + lhp + '/' + mhp + '</span></div>' +
+          '<div class="rl-bar"><span class="rl-l mp">MP</span><div class="rl-track"><i class="mp" style="width:' + mpPct + '%"></i></div><span class="rl-v">' + lmp + '/' + mmp + '</span></div>' +
+        '</div>' +
+        '<button class="rl-relic relic-pick" title="추가 능력"><span class="rl-rico">✨</span><span class="rl-rl">추가 능력</span></button>';
     }
     var html = HW_RAID.bosses.map(function (b, i) {
       var cmd = HW_COMMANDERS[b.key];
@@ -251,17 +260,26 @@
       // 순차 진행: 첫 보스이거나 이전 보스를 격파해야 도전 가능
       var unlocked = (i === 0) || isCleared(HW_RAID.bosses[i - 1].key);
       var hp = Math.round(cmd.hp * HW_RAID.hpMult);
-      var badge = done ? '<span class="raid-clear">✔ 격파</span>' : (unlocked ? '' : '<span class="raid-lock">🔒</span>');
+      var rc2 = rarBg(rew.rarity);
+      var face = unlocked ? bossFace(cmd, 'rc-art') : TCG.portrait('❓', b.key, 'rc-art');
+      var lockov = unlocked ? '' : '<div class="rc-lockov">🔒</div>';
+      var clearedBadge = done ? '<span class="rc-cleared">✔ 격파</span>' : '';
       var btn = unlocked
-        ? '<button class="camp-btn primary raid-go" data-i="' + i + '">⚔️ ' + (done ? '재도전' : '도전') + '</button>'
-        : '<button class="camp-btn raid-go" data-i="' + i + '" disabled>🔒 이전 보스 격파 필요</button>';
+        ? '<button class="raid-go rc-go primary" data-i="' + i + '">⚔️ ' + (done ? '재도전' : '도전') + '</button>'
+        : '<button class="raid-go rc-go locked" data-i="' + i + '" disabled>🔒 이전 보스 격파 필요</button>';
       return '<div class="raid-card' + (done ? ' done' : '') + (unlocked ? '' : ' locked') + '" data-i="' + i + '">' +
-        '<div class="raid-boss">' + (unlocked ? bossFace(cmd, 'raid-art') : TCG.portrait('❓', b.key, 'raid-art')) +
-          '<div class="raid-bossinfo"><b>' + (unlocked ? cmd.name : '???') + '</b><small>' + b.title + ' · ❤ ' + hp + (cmd.aoe ? ' · 광역' : '') + '</small></div>' +
-          badge +
-        '</div>' +
-        '<div class="raid-reward' + (got ? '' : ' locked') + '">🎁 보상 장수: <b>' + (unlocked ? rew.name : '???') + '</b> <span class="rar-' + rew.rarity + '">' + rew.rarity + '</span>' + (got ? ' <span class="raid-owned">보유</span>' : '') + '</div>' +
-        btn +
+        '<div class="rc-row">' +
+          '<div class="rc-face">' + face + lockov + '</div>' +
+          '<div class="rc-info">' +
+            '<div class="rc-name"><b>' + (unlocked ? cmd.name : '???') + '</b>' + clearedBadge + '</div>' +
+            '<div class="rc-title">' + b.title + '</div>' +
+            '<div class="rc-meta"><span class="rc-hp">❤ ' + hp + '</span>' +
+              '<span class="rc-rew">🎁 ' + (unlocked ? rew.name : '???') + '</span>' +
+              '<span class="rc-rar" style="background:' + rc2 + '">' + rew.rarity + '</span>' +
+              (got ? '<span class="raid-owned">보유</span>' : '') + (cmd.aoe ? '<span class="rc-aoe">광역</span>' : '') +
+            '</div>' +
+          '</div>' +
+        '</div>' + btn +
         '</div>';
     }).join('');
     document.getElementById('raidList').innerHTML = html;
@@ -818,15 +836,16 @@
   function renderRosterGrid() {
     var inDeck = {}; deck.forEach(function (u) { inDeck[u] = true; });
     var rt = document.getElementById('rosterTitleCount'); if (rt) rt.textContent = '· 출진 덱 ' + deck.length + ' / ' + MAX_DECK + ' (최소 ' + deckMin() + ')';
-    document.getElementById('rosterCount').textContent = party.length;
+    var rcEl = document.getElementById('rosterCount'); if (rcEl) rcEl.textContent = party.length;
     document.getElementById('rosterGrid').innerHTML = sortPartyList(party, rosterSort).map(function (h) {
       var ws = heroWpns(h).map(function (w) { return w.emoji; }).join('');
       var on = !!inDeck[h.uid];
-      return '<div class="col-card deck-pick' + (on ? ' in-deck' : '') + '" data-uid="' + h.uid + '">' +
+      return '<div class="mini-hero deck-pick' + (on ? ' in-deck' : '') + '" data-uid="' + h.uid + '">' +
+        '<span class="mh-rar rar-' + h.def.rarity + '">' + h.def.rarity + '</span>' +
         '<span class="deck-check">' + (on ? '✓' : '+') + '</span>' +
         TCG.portrait(h.def.emoji, h.def.id, '', h.def.name) +
-        '<div class="col-name">' + h.def.name + '</div>' +
-        '<div class="col-rar rar-' + h.def.rarity + '">' + h.def.rarity + ' · ⚔' + effAtk(h) + (ws ? ' ' + ws : '') + '</div></div>';
+        '<div class="mh-name">' + h.def.name + '</div>' +
+        '<div class="mh-stats">⚔' + effAtk(h) + (ws ? ' <span class="mh-wpn">' + ws + '</span>' : '') + '</div></div>';
     }).join('') || '<p class="screen-sub">장수가 없습니다</p>';
     paintSortBar('rosterSort', rosterSort);
   }
@@ -849,14 +868,32 @@
   }
   function openGear() {
     TCG.sfx('tap');
-    var map = {};
-    party.forEach(function (h) { heroWpns(h).forEach(function (w) { (map[w.id] = map[w.id] || { w: w, who: [] }).who.push(h.def.name); }); });
-    var keys = Object.keys(map);
-    document.getElementById('gearList').innerHTML = keys.length ? keys.map(function (id) {
-      var e = map[id];
-      return '<div class="gear-row"><div class="gear-emoji">' + e.w.emoji + '</div><div class="gear-info">' +
-        '<div class="gear-name">' + e.w.name + '</div><div class="gear-desc">' + e.w.desc + ' · 착용: ' + e.who.join(', ') + '</div></div></div>';
-    }).join('') : '<p class="screen-sub">장착한 장비가 없습니다</p>';
+    var inv = SAVE.weapons || [];
+    var html;
+    if (!inv.length) {
+      html = '<div class="gear-empty">보유한 장비가 없습니다.<br>삼국 영웅전에서 무기를 얻으세요.</div>';
+    } else {
+      html = HW_WEAPONS.map(function (w) {
+        var owned = inv.filter(function (id) { return id === w.id; }).length;
+        if (!owned) return '';
+        var wearers = [];
+        party.forEach(function (h) { heroWpnIds(h).forEach(function (id) { if (id === w.id) wearers.push(h.def.name); }); });
+        var free = owned - wearers.length;
+        var wearTxt = wearers.length
+          ? '<span class="gear-on">착용: ' + wearers.join(', ') + '</span>' + (free > 0 ? ' <span class="gear-free">· 미장착 ' + free + '</span>' : '')
+          : '<span class="gear-free">미장착</span>';
+        return '<div class="gear-row">' +
+          '<div class="gear-emoji">' + w.emoji + '</div>' +
+          '<div class="gear-info">' +
+            '<div class="gear-name">' + w.name + ' <span class="gear-own">×' + owned + '</span></div>' +
+            '<div class="gear-desc">' + w.desc + '</div>' +
+            '<div class="gear-wear">' + wearTxt + '</div>' +
+          '</div></div>';
+      }).join('');
+    }
+    document.getElementById('gearList').innerHTML = html;
+    var ownedKinds = {}; inv.forEach(function (id) { ownedKinds[id] = true; });
+    var gt = document.getElementById('gearTitleCount'); if (gt) gt.textContent = Object.keys(ownedKinds).length + '/' + HW_WEAPONS.length;
     document.getElementById('gearModal').hidden = false;
   }
   function renderHeroCodex() {
@@ -979,10 +1016,13 @@
     var dm = document.getElementById('codexDetailModal');
     dm.addEventListener('click', function (e) { if (e.target === dm || e.target.closest('[data-close]')) dm.hidden = true; });
   })();
-  [['rosterClose', 'rosterModal'], ['gearClose', 'gearModal']].forEach(function (p) {
-    document.getElementById(p[0]).addEventListener('click', function () { document.getElementById(p[1]).hidden = true; });
-    document.getElementById(p[1]).addEventListener('click', function (e) { if (e.target.id === p[1]) e.currentTarget.hidden = true; });
+  // 대기실 팝업(장수·장비·추가능력) 닫기 — ✕ 버튼/바깥(scrim) 모두 data-close (영웅전과 동일)
+  ['rosterModal', 'gearModal', 'relicModal'].forEach(function (id) {
+    var modal = document.getElementById(id); if (!modal) return;
+    modal.addEventListener('click', function (e) { if (e.target.closest('[data-close]')) { TCG.sfx('tap'); modal.hidden = true; } });
   });
+  var _rg = document.getElementById('raidGuide');
+  if (_rg) _rg.addEventListener('click', function () { TCG.sfx('tap'); TCG.toast('영웅전 덱으로 거대 보스(적장)에 도전 — 격파하면 그 적장을 전용 장수로 획득합니다. 보스 카드를 탭하면 정보를 봅니다.'); });
   // 도감은 전체 페이지 — 상단 '이전' 버튼으로 이전 화면 복귀
   document.getElementById('codexBack').addEventListener('click', function () { TCG.sfx('tap'); document.getElementById('codexModal').hidden = true; });
   document.getElementById('bossModal').addEventListener('click', function (e) { if (e.target.id === 'bossModal') e.currentTarget.hidden = true; });

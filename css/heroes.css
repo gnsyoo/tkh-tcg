@@ -1218,3 +1218,58 @@ button.wr-chip:hover { box-shadow: inset 0 0 0 1px var(--gold); }
 #combatScreen .combat-card .cc-art .p-emoji { font-size: 48px; }
 #combatScreen .combat-card .cc-name { margin-top: 4px; }
 #combatScreen .combat-card .cc-skill { flex: 1; }
+
+/* ===== 삼국 대장전 대기실 — 레이드 보라 테마(핸드오프) ===== */
+#selectScreen.raid-waitroom:not([hidden]) { display: flex; flex-direction: column; height: 100dvh; margin: -12px -12px -28px; padding: 0; background: linear-gradient(180deg,#140d0b 0%,#1a1020 52%,#241430 100%); }
+.raid-waitroom .wr-top { padding: 13px 13px 10px; }
+.raid-waitroom .wr-icbtn, .raid-waitroom .wr-chip { background: rgba(48,30,42,.78); }
+.raid-waitroom .wr-banner.raid { display: flex; align-items: center; gap: 12px; margin: 0 14px 10px; padding: 12px 14px; border-radius: 14px; background: linear-gradient(100deg,#3a1f4e 0%,#2a1738 60%,#221230 100%); box-shadow: inset 0 0 0 1px rgba(155,93,229,.3), 0 8px 24px rgba(0,0,0,.4); }
+.raid-waitroom .wr-banner.raid .wr-bno { flex: none; width: auto; height: auto; background: none; box-shadow: none; border-radius: 0; font-size: 30px; line-height: 1; filter: drop-shadow(0 2px 4px rgba(0,0,0,.5)); color: inherit; }
+.raid-waitroom .wr-banner.raid .wr-btitle b { font-size: 17px; font-weight: 900; color: #f3e9da; }
+.raid-waitroom .wr-banner.raid .wr-btitle small { display: block; font-size: 10.5px; color: #c8b6e0; margin-top: 2px; line-height: 1.45; }
+/* 주공 상태 바 */
+.raid-lord { display: flex; align-items: center; gap: 10px; margin: 0 14px 10px; padding: 9px 12px; border-radius: 13px; background: rgba(28,18,36,.7); box-shadow: inset 0 0 0 1px rgba(240,195,60,.16); }
+.raid-lord .rl-av { flex: none; width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; background: radial-gradient(circle at 50% 30%,rgba(240,195,60,.25),transparent 70%),rgba(0,0,0,.4); box-shadow: inset 0 0 0 1.5px rgba(240,195,60,.5); }
+.raid-lord .rl-bars { flex: 1; min-width: 0; }
+.raid-lord .rl-bar { display: flex; align-items: center; gap: 6px; }
+.raid-lord .rl-bar + .rl-bar { margin-top: 5px; }
+.raid-lord .rl-l { font-size: 9px; font-weight: 800; width: 20px; flex: none; }
+.raid-lord .rl-l.hp { color: #e0483f; }
+.raid-lord .rl-l.mp { color: #4f9bff; }
+.raid-lord .rl-track { flex: 1; height: 9px; border-radius: 5px; background: rgba(0,0,0,.5); overflow: hidden; }
+.raid-lord .rl-track > i { display: block; height: 100%; }
+.raid-lord .rl-track > i.hp { background: linear-gradient(90deg,#b5302a,#e0483f); }
+.raid-lord .rl-track > i.mp { background: linear-gradient(90deg,#2f6fd8,#4f9bff); }
+.raid-lord .rl-v { font-size: 10px; font-weight: 700; color: #f3e9da; flex: none; width: 62px; text-align: right; font-variant-numeric: tabular-nums; }
+.raid-lord .rl-relic { flex: none; display: flex; flex-direction: column; align-items: center; gap: 1px; border: none; border-radius: 10px; background: rgba(240,195,60,.12); box-shadow: inset 0 0 0 1px rgba(240,195,60,.3); color: #f0c33c; padding: 6px 9px; cursor: pointer; font-family: inherit; }
+.raid-lord .rl-relic .rl-rico { font-size: 15px; }
+.raid-lord .rl-relic .rl-rl { font-size: 8px; font-weight: 700; }
+/* 컬렉션 버튼 */
+.raid-collect { display: flex; gap: 7px; padding: 0 14px 8px; }
+.raid-collect .raid-cbtn { flex: 1; border: none; display: flex; align-items: center; justify-content: center; gap: 5px; background: rgba(48,30,42,.74); border-radius: 9px; padding: 8px 0; box-shadow: inset 0 0 0 1px rgba(240,195,60,.25); cursor: pointer; color: #f3e9da; font-size: 11px; font-weight: 700; font-family: inherit; }
+.raid-collect .raid-cbtn img { height: 16px; width: auto; display: block; }
+.raid-collect .raid-cbtn img[src*="ped-codex"] { height: 22px; }
+/* 레이드 보스 목록 */
+.raid-waitroom .raid-list { flex: 1; min-height: 0; overflow-y: auto; padding: 2px 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+.raid-waitroom .raid-card { position: relative; border-radius: 14px; padding: 11px; cursor: pointer; background: rgba(36,24,42,.66); box-shadow: inset 0 0 0 1px rgba(155,93,229,.25), 0 4px 14px rgba(0,0,0,.4); }
+.raid-waitroom .raid-card.locked { opacity: .62; }
+.raid-waitroom .raid-card.done { box-shadow: inset 0 0 0 1px rgba(91,184,122,.4), 0 4px 14px rgba(0,0,0,.4); }
+.raid-card .rc-row { display: flex; align-items: center; gap: 11px; }
+.raid-card .rc-face { flex: none; width: 54px; height: 54px; border-radius: 12px; overflow: hidden; position: relative; background: radial-gradient(circle at 50% 30%,rgba(155,93,229,.2),transparent 70%),#160d1e; box-shadow: inset 0 0 0 1.5px rgba(155,93,229,.5); }
+.raid-card .rc-face .portrait { width: 100%; height: 100%; }
+.raid-card .rc-face .portrait .p-emoji { font-size: 30px; }
+.raid-card .rc-lockov { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 22px; background: rgba(8,5,12,.66); }
+.raid-card .rc-info { flex: 1; min-width: 0; }
+.raid-card .rc-name { display: flex; align-items: center; gap: 6px; }
+.raid-card .rc-name b { font-size: 15px; font-weight: 900; color: #f3e9da; }
+.raid-card .rc-cleared { font-size: 8px; font-weight: 800; color: #06201d; background: #5bb87a; border-radius: 5px; padding: 1px 6px; }
+.raid-card .rc-title { font-size: 10px; color: #c8b6e0; margin-top: 3px; line-height: 1.4; }
+.raid-card .rc-meta { display: flex; align-items: center; gap: 8px; margin-top: 5px; font-size: 10px; font-weight: 700; flex-wrap: wrap; }
+.raid-card .rc-hp { color: #ff8a7e; }
+.raid-card .rc-rew { color: #c8b6e0; }
+.raid-card .rc-rar { font-size: 8px; font-weight: 800; color: #140d0b; border-radius: 4px; padding: 1px 5px; }
+.raid-card .rc-aoe { font-size: 8px; font-weight: 800; color: #ffd0a0; background: rgba(224,72,63,.2); border-radius: 4px; padding: 1px 5px; }
+.raid-card .raid-owned { font-size: 8px; font-weight: 800; color: #7ef0b5; background: rgba(91,184,122,.18); border-radius: 4px; padding: 1px 5px; }
+.raid-card .rc-go { width: 100%; margin-top: 9px; border: none; border-radius: 10px; font-size: 12px; font-weight: 800; padding: 9px 0; cursor: pointer; font-family: inherit; }
+.raid-card .rc-go.primary { background: linear-gradient(180deg,#9b5de5,#6f3fb0); color: #fff; box-shadow: 0 3px 0 #4a2878; }
+.raid-card .rc-go.locked { background: rgba(255,255,255,.06); color: #8a7560; cursor: not-allowed; box-shadow: none; }
