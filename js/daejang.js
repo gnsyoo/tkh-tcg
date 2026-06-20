@@ -519,6 +519,15 @@
     if (sk.type === 'strike' || sk.type === 'multi') { c.targeting = true; c.pendKind = 'skill'; renderCombat(); }
     else doSkill(h, true);
   });
+  // 행동 선택 창 바깥(창·카드·대상 지정 클릭 외)을 클릭하면 닫기
+  document.addEventListener('click', function (e) {
+    var c = combat; if (!c || !c.sel || c.busy) return;
+    var bar = document.getElementById('actionBar'); if (!bar || bar.hidden) return;
+    if (e.target.closest('#actionBar')) return;               // 창 내부
+    if (e.target.closest('.combat-card')) return;             // 카드 선택은 별도 처리
+    if (c.targeting && e.target.closest('#enemyRow')) return; // 대상 지정 클릭
+    c.sel = null; c.targeting = false; renderCombat();
+  });
   function executeOn() {
     var c = combat, h = heroByUid(c.sel.uid); if (!h) return;
     if (c.pendKind === 'attack') doAttack(h); else doSkill(h, true);

@@ -1269,6 +1269,15 @@
     if (sk.type === 'strike' || sk.type === 'charm' || sk.type === 'confuse') beginTarget('enemy', 'skill'); // 단일 적 대상
     else doSkill(h, null); // aoe(전체)·multi(무작위)·heal/shield/buff(주공) 자동 처리
   });
+  // 행동 선택 창 바깥(창·카드·대상 지정 클릭 외)을 클릭하면 닫기
+  document.addEventListener('click', function (e) {
+    var c = run.combat; if (!c || !c.sel || c.busy) return;
+    var bar = document.getElementById('actionBar'); if (!bar || bar.hidden) return;
+    if (e.target.closest('#actionBar')) return;               // 창 내부
+    if (e.target.closest('.combat-card')) return;             // 카드 선택은 별도 처리
+    if (c.targeting && e.target.closest('#enemyRow')) return; // 대상 지정 클릭
+    c.sel = null; c.targeting = false; c.pending = null; renderCombat();
+  });
   function beginTarget(side, kind) {
     var c = run.combat;
     c.targeting = true; c.pending = { side: side, kind: kind };
