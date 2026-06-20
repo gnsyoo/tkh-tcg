@@ -1307,7 +1307,7 @@ button.wr-chip:hover { box-shadow: inset 0 0 0 1px var(--gold); }
 .bi2-go { width: 100%; margin-top: 14px; border: none; border-radius: 12px; font-size: 14px; font-weight: 800; padding: 12px 0; cursor: pointer; color: #fff; background: linear-gradient(180deg,#9b5de5,#6f3fb0); box-shadow: 0 3px 0 #4a2878; font-family: inherit; }
 
 /* ===== 캠프 스테이지(모닥불) — 5스테이지 클리어 후 ===== */
-.camp-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: calc(100dvh - 40px); text-align: center; overflow-y: auto; }
+.camp-screen:not([hidden]) { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: calc(100dvh - 40px); text-align: center; overflow-y: auto; }
 .camp-fire { font-size: 72px; line-height: 1; animation: campFlicker 1.6s ease-in-out infinite; }
 @keyframes campFlicker { 0%,100% { transform: translateY(0) scale(1); filter: drop-shadow(0 0 16px rgba(255,140,40,.5)); } 50% { transform: translateY(-2px) scale(1.05); filter: drop-shadow(0 0 26px rgba(255,170,60,.72)); } }
 .camp-title { font-size: 22px; font-weight: 900; color: var(--gold); margin: 4px 0 0; }
