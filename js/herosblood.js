@@ -57,15 +57,20 @@
     var cell = b[r][c];
     cell.card = { def: def, owner: owner };
     cell.owner = owner;
-    // enhancement: grant pawns to empty, neutral-or-own tiles
+    // enhancement: 빈 칸 점령/강화. 상대가 점령한 '빈' 칸은 빼앗을 수 있음(카드 놓인 칸은 불가)
     def.enh.forEach(function (off) {
       var t = offCell(r, c, off, owner);
       if (!t) return;
       var tc = b[t[0]][t[1]];
-      if (tc.card) return;
+      if (tc.card) return; // 카드가 놓인 칸은 점령 불가
       if (tc.owner === null || tc.owner === owner) {
+        // 빈 중립 칸 / 내 칸 → 폰 +1 (최대 3)
         tc.owner = owner;
         tc.rank = Math.min(3, tc.rank + 1);
+      } else {
+        // 상대가 점령한 빈 칸 → 빼앗아 내 폰 1로 초기화(상대 폰 덮어쓰기)
+        tc.owner = owner;
+        tc.rank = 1;
       }
     });
   }
