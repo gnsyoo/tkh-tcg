@@ -1156,6 +1156,9 @@
     for (var j = 0; j < Math.min(c.used.length, 5); j++) usedStack += '<div class="pile-card used" style="--i:' + j + '"></div>';
     document.getElementById('usedPile').innerHTML =
       usedStack + '<div class="pile-label">사용한 카드 <b>' + c.used.length + '</b></div>';
+    // 핸드오프: 뽑을/사용 카드 수는 하단 액션 바에 숫자로 표시
+    var dcEl = document.getElementById('drawCount'); if (dcEl) dcEl.textContent = c.draw.length;
+    var ucEl = document.getElementById('usedCount'); if (ucEl) ucEl.textContent = c.used.length;
   }
 
   function renderItemBar() {
@@ -1227,8 +1230,11 @@
     var atkSel = tgt && c.pending.kind === 'attack', skSel = tgt && c.pending.kind === 'skill';
     bar.hidden = false;
     bar.innerHTML =
-      '<button class="act-btn' + (atkSel ? ' chosen' : '') + '" data-act="attack">' + TCG.t('cmb.attack') + '<small>' + TCG.t('cmb.dmg') + ' ' + effAtk(h) + (hasWpnFlag(h, 'tripleStrike') ? ' ×3' : (hasWpnFlag(h, 'doubleStrike') ? ' ×2' : '')) + (wpnVal(h, 'poison') ? ' ☠' + wpnVal(h, 'poison') : '') + (critPct > 1 ? ' 💥' + critPct + '%' : '') + '</small></button>' +
-      '<button class="act-btn skill' + (skSel ? ' chosen' : '') + '" data-act="skill"' + (canSkill ? '' : ' disabled') + '>' + sk.name + '<small>' + mpLabel + ' · ' + sk.desc + '</small></button>' +
+      '<div class="ab-title">' + h.def.name + ' — ' + TCG.t('cmb.chooseAction') + '</div>' +
+      '<div class="ab-row">' +
+        '<button class="act-btn' + (atkSel ? ' chosen' : '') + '" data-act="attack">⚔ ' + TCG.t('cmb.attack') + '<small>' + TCG.t('cmb.dmg') + ' ' + effAtk(h) + (hasWpnFlag(h, 'tripleStrike') ? ' ×3' : (hasWpnFlag(h, 'doubleStrike') ? ' ×2' : '')) + (wpnVal(h, 'poison') ? ' ☠' + wpnVal(h, 'poison') : '') + (critPct > 1 ? ' 💥' + critPct + '%' : '') + ' · 💧0</small></button>' +
+        '<button class="act-btn skill' + (skSel ? ' chosen' : '') + '" data-act="skill"' + (canSkill ? '' : ' disabled') + '>✦ ' + sk.name + '<small>' + mpLabel + ' · ' + sk.desc + '</small></button>' +
+      '</div>' +
       '<button class="act-btn cancel" data-act="cancel">' + TCG.t('cmb.cancel') + '</button>';
   }
 

@@ -465,6 +465,8 @@
     document.getElementById('centerCards').innerHTML = cardsHtml ? '<div class="center-inner">' + cardsHtml + '</div>' : '<div class="center-empty">카드 없음</div>';
     var us = ''; for (var j = 0; j < Math.min(c.used.length, 5); j++) us += '<div class="pile-card used" style="--i:' + j + '"></div>';
     document.getElementById('usedPile').innerHTML = us + '<div class="pile-label">사용한 카드 <b>' + c.used.length + '</b></div>';
+    var dcEl = document.getElementById('drawCount'); if (dcEl) dcEl.textContent = c.draw.length;
+    var ucEl = document.getElementById('usedCount'); if (ucEl) ucEl.textContent = c.used.length;
   }
   function renderActionBar() {
     var c = combat, bar = document.getElementById('actionBar');
@@ -480,8 +482,11 @@
     var atkSel = c.targeting && c.pendKind === 'attack', skSel = c.targeting && c.pendKind === 'skill';
     bar.hidden = false;
     bar.innerHTML =
-      '<button class="act-btn' + (atkSel ? ' chosen' : '') + '" data-act="attack">기본 공격<small>피해 ' + effAtk(h) + (hasWpnFlag(h, 'doubleStrike') ? ' ×2' : '') + (wpnVal(h, 'poison') ? ' ☠' + wpnVal(h, 'poison') : '') + (critPct > 1 ? ' 💥' + critPct + '%' : '') + '</small></button>' +
-      '<button class="act-btn skill' + (skSel ? ' chosen' : '') + '" data-act="skill"' + (canSkill ? '' : ' disabled') + '>' + sk.name + '<small>' + mpLabel + ' · ' + skDesc + '</small></button>' +
+      '<div class="ab-title">' + h.def.name + ' — ' + TCG.t('cmb.chooseAction') + '</div>' +
+      '<div class="ab-row">' +
+        '<button class="act-btn' + (atkSel ? ' chosen' : '') + '" data-act="attack">⚔ 기본 공격<small>피해 ' + effAtk(h) + (hasWpnFlag(h, 'doubleStrike') ? ' ×2' : '') + (wpnVal(h, 'poison') ? ' ☠' + wpnVal(h, 'poison') : '') + (critPct > 1 ? ' 💥' + critPct + '%' : '') + ' · 💧0</small></button>' +
+        '<button class="act-btn skill' + (skSel ? ' chosen' : '') + '" data-act="skill"' + (canSkill ? '' : ' disabled') + '>✦ ' + sk.name + '<small>' + mpLabel + ' · ' + skDesc + '</small></button>' +
+      '</div>' +
       '<button class="act-btn cancel" data-act="cancel">취소</button>';
   }
 
