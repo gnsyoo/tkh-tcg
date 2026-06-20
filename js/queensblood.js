@@ -486,8 +486,20 @@
     } else if (endActions) { endActions.style.display = 'flex'; }
     document.getElementById('endTitle').textContent = title;
     document.getElementById('endText').textContent = text;
+    // 레인별 막대(핸드오프 정산) + 총 무력
+    var laneBars = s.lanes.map(function (L, i) {
+      var max = Math.max(1, L.you, L.foe);
+      var yw = Math.round(L.you / max * 100), fw = Math.round(L.foe / max * 100);
+      var tag = (L.you > L.foe) ? '<span class="lb-tag you">승</span>'
+              : (L.foe > L.you) ? '<span class="lb-tag foe">패</span>' : '<span class="lb-tag">−</span>';
+      return '<div class="lb-row"><span class="lb-no">레인 ' + (i + 1) + '</span>' +
+        '<span class="lb-y">' + L.you + '</span>' +
+        '<span class="lb-bar"><i class="y" style="width:' + yw + '%"></i><i class="f" style="width:' + fw + '%"></i></span>' +
+        '<span class="lb-f">' + L.foe + '</span>' + tag + '</div>';
+    }).join('');
     document.getElementById('endScore').innerHTML =
-      '<span class="e-you">' + s.you + '</span><span class="e-colon">:</span><span class="e-foe">' + s.foe + '</span>';
+      '<div class="lb-wrap">' + laneBars + '</div>' +
+      '<div class="e-total"><span class="e-you">' + s.you + '</span><span class="e-colon">:</span><span class="e-foe">' + s.foe + '</span><span class="e-tl">총 무력</span></div>';
     document.getElementById('endGold').innerHTML = goldHtml;
     document.getElementById('endModal').hidden = false;
     render();
@@ -510,11 +522,25 @@
 
   function renderScore() {
     var s = scoreOf(state.board);
-    var html = '<div class="score-total">' +
-      '<span class="you-pts">' + s.you + '</span>' +
-      '<span class="vs">총 무력 (배치 카드 합산)</span>' +
-      '<span class="foe-pts">' + s.foe + '</span></div>';
-    document.getElementById('scoreboard').innerHTML = html;
+    var y = document.getElementById('hbTotalYou'); if (y) y.textContent = s.you;
+    var f = document.getElementById('hbTotalFoe'); if (f) f.textContent = s.foe;
+    var cc = document.getElementById('hbCols'); if (cc) cc.textContent = ROWS; // 레인 수 = 보드 크기(N×5)
+    var g = document.getElementById('hbGold');
+    if (g) { try { var sv = JSON.parse(localStorage.getItem('hw_save') || 'null'); g.textContent = (sv && typeof sv.gold === 'number') ? sv.gold : 0; } catch (e) { g.textContent = 0; } }
+    renderSizeSel();
+  }
+  function boardHasCards() {
+    for (var r = 0; r < ROWS; r++) for (var c = 0; c < COLS; c++) if (state.board[r][c].card) return true;
+    return false;
+  }
+  function renderSizeSel() {
+    var sel = document.getElementById('hbSizeSel'); if (!sel) return;
+    var locked = boardHasCards();
+    sel.querySelectorAll('.hb-seg').forEach(function (b) {
+      var rws = parseInt(b.dataset.rows, 10);
+      b.classList.toggle('active', rws === ROWS);
+      b.classList.toggle('locked', locked && rws !== ROWS);
+    });
   }
 
   function pips(rank, ownerCls) {
@@ -523,17 +549,17 @@
     return h + '</div>';
   }
 
+  // 핸드오프 전치 렌더: 디스플레이 = ROWS개 레인(열) × COLS(5)행, 당신=아래/상대=위
   function renderBoard() {
-    var s = scoreOf(state.board);
+    var g = effGrid(state.board);
     var selDef = (state.turn === 'you' && state.selected >= 0 && !state.busy && !state.over)
       ? state.you.hand[state.selected] : null;
-
+    boardEl.style.gridTemplateColumns = 'repeat(' + ROWS + ', 1fr)';
     var html = '';
-    for (var r = 0; r < ROWS; r++) {
-      var lane = s.lanes[r];
-      var youLead = lane.you > lane.foe, foeLead = lane.foe > lane.you;
-      html += '<div class="lane-score you" style="' + (youLead ? 'text-shadow:0 0 8px var(--you)' : 'opacity:.5') + '">' + lane.you + '</div>';
-      for (var c = 0; c < COLS; c++) {
+    for (var d = 0; d < COLS; d++) {           // 디스플레이 행: 0=위(상대 진영) … COLS-1=아래(내 진영)
+      var ic = (COLS - 1) - d;                  // 내부 열(당신=0 → 아래)
+      for (var lane = 0; lane < ROWS; lane++) { // 디스플레이 열 = 레인 = 내부 행
+        var r = lane, c = ic;
         var cell = state.board[r][c];
         var cls = 'tile';
         if (cell.owner === 'you') cls += ' own-you';
@@ -543,22 +569,16 @@
         html += '<div class="' + cls + '" data-r="' + r + '" data-c="' + c + '">';
         html += pips(cell.rank);
         if (cell.card) {
-          var g = effGrid(state.board);
-          var eff = g[r][c];
-          var base = cell.card.def.power;
-          var delta = eff - base;
+          var eff = g[r][c], base = cell.card.def.power, delta = eff - base;
           var pwCls = delta > 0 ? ' buffed' : (delta < 0 ? ' debuffed' : '');
           var deltaBadge = delta !== 0
-            ? '<span class="tc-delta ' + (delta > 0 ? 'up' : 'down') + '">' + (delta > 0 ? '+' + delta : delta) + '</span>'
-            : '';
+            ? '<span class="tc-delta ' + (delta > 0 ? 'up' : 'down') + '">' + (delta > 0 ? '+' + delta : delta) + '</span>' : '';
           html += '<div class="tile-card ' + cell.card.owner + '">' +
             TCG.portrait(cell.card.def.emoji, cell.card.def.id, 'tp', cell.card.def.name) +
-            deltaBadge +
-            '<span class="pw' + pwCls + '">' + eff + '</span></div>';
+            deltaBadge + '<span class="pw' + pwCls + '">' + eff + '</span></div>';
         }
         html += '</div>';
       }
-      html += '<div class="lane-score foe" style="' + (foeLead ? 'text-shadow:0 0 8px var(--foe)' : 'opacity:.5') + '">' + lane.foe + '</div>';
     }
     boardEl.innerHTML = html;
   }
@@ -660,11 +680,21 @@
   }
 
   function renderStrips() {
-    document.getElementById('foeDeck').textContent = state.foe.deck.length;
-    document.getElementById('foeHand').textContent = state.foe.hand.length;
-    document.getElementById('youDeck').textContent = state.you.deck.length;
-    document.getElementById('foePass').hidden = !state.foe.lastPass;
-    document.getElementById('youPass').hidden = !state.you.lastPass;
+    var s = scoreOf(state.board);
+    var fh = document.getElementById('foeHand'); if (fh) fh.textContent = state.foe.hand.length;
+    var foeL = document.getElementById('foeLanes'), youL = document.getElementById('youLanes');
+    if (foeL && youL) {
+      foeL.style.gridTemplateColumns = 'repeat(' + ROWS + ', 1fr)';
+      youL.style.gridTemplateColumns = 'repeat(' + ROWS + ', 1fr)';
+      var fhtml = '', yhtml = '';
+      for (var lane = 0; lane < ROWS; lane++) {
+        var L = s.lanes[lane];
+        var youWin = L.you > L.foe && L.you > 0, foeWin = L.foe > L.you && L.foe > 0;
+        fhtml += '<span class="hb-lane foe' + (foeWin ? ' win' : '') + '">' + L.foe + '</span>';
+        yhtml += '<span class="hb-lane you' + (youWin ? ' win' : '') + '">' + L.you + '</span>';
+      }
+      foeL.innerHTML = fhtml; youL.innerHTML = yhtml;
+    }
   }
 
   /* ---------- input ---------- */
@@ -714,6 +744,17 @@
   document.getElementById('passBtn').addEventListener('click', function () {
     if (state.over || state.busy || state.awaitingEnd || state.turn !== 'you') return;
     doPass(false);
+  });
+
+  // 대전 화면 보드 크기 선택 — 첫 배치 전에만 변경 가능, 변경 시 새 판
+  var hbSizeSelEl = document.getElementById('hbSizeSel');
+  if (hbSizeSelEl) hbSizeSelEl.addEventListener('click', function (e) {
+    var b = e.target.closest('.hb-seg'); if (!b) return;
+    var rws = parseInt(b.dataset.rows, 10);
+    if (rws === ROWS) return;
+    if (boardHasCards()) { TCG.toast('보드에 카드를 놓은 뒤에는 크기를 바꿀 수 없습니다'); return; }
+    ROWS = rws; lsSet('qb_rows', String(rws)); TCG.sfx('tap');
+    newGame();
   });
 
   document.getElementById('confirmEndYes').addEventListener('click', function () {
