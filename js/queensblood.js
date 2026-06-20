@@ -593,7 +593,10 @@
     if (!boardEl) return;
     var base = fittedW;
     if (!base) { var wrap = boardEl.parentNode; base = (wrap && wrap.clientWidth) ? wrap.clientWidth : 360; }
-    boardEl.style.width = Math.round(base * userZoom) + 'px';
+    var bw = Math.round(base * userZoom);
+    boardEl.style.width = bw + 'px';
+    // 레인 점수 줄을 보드와 같은 너비로 — 칸과 가로 정렬
+    ['foeLanes', 'youLanes'].forEach(function (id) { var el = document.getElementById(id); if (el) el.style.width = bw + 'px'; });
   }
   // 보드 너비를 가용 높이에 맞춰 줄여(줌 1.0 기준 fittedW), 이후 사용자 배율 적용
   function fitBoard() {
@@ -601,12 +604,12 @@
     if (!wrap || !wrap.clientWidth) return;
     var availW = wrap.clientWidth;
     var availH = wrap.clientHeight || 0;
-    // 윈도우(뷰포트) 기준으로 가용 높이를 한 번 더 산출 — 손패 공간을 확보하고 더 작은 값을 사용
+    // 뷰포트 기준 가용 높이 — 보드 아래의 모든 요소(내 레인·메시지·손패·CTA) 높이를 빼서 잘림 방지
     if (typeof window !== 'undefined' && window.innerHeight && wrap.getBoundingClientRect) {
       var top = wrap.getBoundingClientRect().top;
-      var hand = document.getElementById('hand');
-      var handH = (hand && hand.offsetHeight) ? hand.offsetHeight : 150;
-      var winAvail = window.innerHeight - top - handH - 14;
+      var belowH = 0, sib = wrap.nextElementSibling;
+      while (sib) { belowH += sib.offsetHeight || 0; sib = sib.nextElementSibling; }
+      var winAvail = window.innerHeight - top - belowH - 12;
       if (winAvail > 60 && (!availH || winAvail < availH)) availH = winAvail;
     }
     if (!availH || availH < 60) { fittedW = availW; applyZoom(); return; }
@@ -643,11 +646,12 @@
   }
 
   function enhGlyph(def) {
-    // 3x3 mini-grid, center = card; forward = right column
+    // 3x3 mini-grid, center = card. 전치 보드에 맞춤: 전방(적 방향)=위쪽, 측면=좌우
     var set = {};
     def.enh.forEach(function (o) {
       var dr = o[0], dc = o[1];
-      if (dr >= -1 && dr <= 1 && dc >= 0 && dc <= 1) set[(dr + 1) + ',' + (dc + 1)] = 'e';
+      var gr = 1 - dc, gc = 1 + dr; // dc(전방)→위, dr(측면)→좌우
+      if (gr >= 0 && gr <= 2 && gc >= 0 && gc <= 2) set[gr + ',' + gc] = 'e';
     });
     var h = '<div class="hc-enh">';
     for (var rr = 0; rr < 3; rr++) for (var cc = 0; cc < 3; cc++) {
