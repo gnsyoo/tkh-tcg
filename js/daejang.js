@@ -300,25 +300,30 @@
   });
   function showBossInfo(i) {
     var b = HW_RAID.bosses[i], cmd = HW_COMMANDERS[b.key], rew = HW_BY_ID[b.reward];
-    var hp = raidBossHp(cmd);
-    var atk = raidBossAtk(cmd, i);
+    var hp = raidBossHp(cmd), atk = raidBossAtk(cmd, i);
     var got = collected(b.reward), done = isCleared(b.key);
     var skills = raidBossSkills(b);
     var skillsHtml = skills.map(function (s) {
-      return '<div class="bi-skill"><b>「' + s.name + '」</b> <span class="bi-kind">' + skillKindLabel(s.type) + '</span>' +
-        (s.type === 'heal' ? ' · 회복 ' + s.val : s.type === 'shield' ? ' · 방어막 ' + s.val : (s.type === 'confuse' || s.type === 'charm') ? ' · 주공 ' + (s.val || 1) + '턴 행동 불가' : s.type === 'cardstun' ? ' · 카드 1장 ' + (s.val || 1) + '턴 행동 불가' : ' · 위력 ' + s.val) + '</div>';
+      var d = (s.type === 'heal' ? '회복 ' + s.val : s.type === 'shield' ? '방어막 ' + s.val : (s.type === 'confuse' || s.type === 'charm') ? '주공 ' + (s.val || 1) + '턴 행동 불가' : s.type === 'cardstun' ? '카드 1장 ' + (s.val || 1) + '턴 행동 불가' : '위력 ' + s.val);
+      return '<div class="bi2-skill"><b>「' + s.name + '」</b> <span>' + d + '</span></div>';
     }).join('');
     document.getElementById('bossModalBody').innerHTML =
-      bossFace(cmd, 'bi-portrait') +
-      '<h2>' + cmd.name + ' <span class="rar-SSR" style="font-size:13px;">레이드</span></h2>' +
-      '<p class="bi-title">' + b.title + (done ? ' · <span class="cd-got">격파함</span>' : '') + '</p>' +
-      '<div class="bi-stat">❤ HP ' + hp + ' · ⚔ 공격 ' + atk + (cmd.aoe ? ' · 💥 광역' : '') + (i >= 2 ? ' · 🪖 졸병 동반' : '') + '</div>' +
-      '<div class="bi-sec">👹 보스 스킬 ' + skills.length + '종</div>' + skillsHtml +
-      '<div class="bi-sec">🎁 격파 보상</div>' +
-      '<div class="bi-skill">전용 장수 <b>' + rew.name + '</b> <span class="rar-' + rew.rarity + '">' + rew.rarity + '</span>' + (got ? ' <span class="raid-owned">보유 중 — 재도전 시 골드</span>' : '') + '</div>' +
-      '<button class="btn primary" id="bossModalClose" style="margin-top:14px;">닫기</button>';
-    var m = document.getElementById('bossModal'); m.hidden = false;
-    document.getElementById('bossModalClose').addEventListener('click', function () { m.hidden = true; });
+      '<div class="bi2-head">' + bossFace(cmd, 'bi2-face') +
+        '<button class="bi2-x" data-bclose aria-label="닫기">✕</button>' +
+        '<span class="bi2-tag">레이드 보스</span></div>' +
+      '<div class="bi2-body">' +
+        '<div class="bi2-name"><b>' + cmd.name + '</b><small>' + b.title + (done ? ' · 격파함' : '') + '</small></div>' +
+        '<div class="bi2-stats">' +
+          '<div class="bi2-stat hp"><div class="lbl">체력</div><div class="val">❤ ' + hp + '</div></div>' +
+          '<div class="bi2-stat atk"><div class="lbl">공격력</div><div class="val">⚔ ' + atk + '</div></div>' +
+        '</div>' +
+        '<div class="bi2-sec purple">👹 보스 스킬' + (cmd.aoe ? ' · 💥 광역' : '') + (i >= 2 ? ' · 🪖 졸병 동반' : '') + '</div>' +
+        '<div class="bi2-skills">' + skillsHtml + '</div>' +
+        '<div class="bi2-sec gold">🎁 격파 보상</div>' +
+        '<div class="bi2-reward">전용 장수 <b>' + rew.name + '</b> <span class="bi2-rar" style="background:' + rarBg(rew.rarity) + '">' + rew.rarity + '</span>' + (got ? '<span class="bi2-owned">보유 중 · 재도전 시 골드</span>' : '') + '</div>' +
+        '<button class="bi2-go" data-bgo="' + i + '">⚔️ ' + (done ? '재도전' : '도전') + '</button>' +
+      '</div>';
+    document.getElementById('bossModal').hidden = false;
     TCG.sfx('tap');
   }
 
@@ -1025,7 +1030,15 @@
   if (_rg) _rg.addEventListener('click', function () { TCG.sfx('tap'); TCG.toast('영웅전 덱으로 거대 보스(적장)에 도전 — 격파하면 그 적장을 전용 장수로 획득합니다. 보스 카드를 탭하면 정보를 봅니다.'); });
   // 도감은 전체 페이지 — 상단 '이전' 버튼으로 이전 화면 복귀
   document.getElementById('codexBack').addEventListener('click', function () { TCG.sfx('tap'); document.getElementById('codexModal').hidden = true; });
-  document.getElementById('bossModal').addEventListener('click', function (e) { if (e.target.id === 'bossModal') e.currentTarget.hidden = true; });
+  document.getElementById('bossModal').addEventListener('click', function (e) {
+    if (e.target.id === 'bossModal' || e.target.closest('[data-bclose]')) { e.currentTarget.hidden = true; return; }
+    var go = e.target.closest('[data-bgo]');
+    if (go) {
+      var bi = parseInt(go.dataset.bgo, 10); e.currentTarget.hidden = true;
+      if (!raidUnlocked(bi)) { TCG.toast('이전 보스를 먼저 격파하세요'); return; }
+      TCG.sfx('tap'); startRaid(bi);
+    }
+  });
 
   /* ---------- boot ---------- */
   TCG.initFloatMenu();
