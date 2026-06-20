@@ -3,7 +3,7 @@
   var COLS = 5;
   function getRows() {
     var v = parseInt(lsGet('qb_rows') || '3', 10);
-    return (v === 3 || v === 4) ? v : 3; // 5×5 제거
+    return (v === 3 || v === 4 || v === 5) ? v : 3; // 3×5 / 4×5 / 5×5
   }
   var ROWS = getRows();
   var diff = TCG.getDifficulty();
@@ -546,9 +546,14 @@
           var g = effGrid(state.board);
           var eff = g[r][c];
           var base = cell.card.def.power;
-          var pwCls = eff > base ? ' buffed' : (eff < base ? ' debuffed' : '');
+          var delta = eff - base;
+          var pwCls = delta > 0 ? ' buffed' : (delta < 0 ? ' debuffed' : '');
+          var deltaBadge = delta !== 0
+            ? '<span class="tc-delta ' + (delta > 0 ? 'up' : 'down') + '">' + (delta > 0 ? '+' + delta : delta) + '</span>'
+            : '';
           html += '<div class="tile-card ' + cell.card.owner + '">' +
             TCG.portrait(cell.card.def.emoji, cell.card.def.id, 'tp', cell.card.def.name) +
+            deltaBadge +
             '<span class="pw' + pwCls + '">' + eff + '</span></div>';
         }
         html += '</div>';
