@@ -507,6 +507,7 @@
   });
   document.getElementById('actionBar').addEventListener('click', function (e) {
     var b = e.target.closest('.act-btn'); if (!b || b.disabled) return;
+    e.stopPropagation(); // 바깥 클릭 닫기 핸들러로 전파 방지(재렌더로 버튼이 분리되어 오작동하는 것 방지)
     var c = combat; if (!c.sel || c.busy) return;
     var act = b.dataset.act;
     if (act === 'cancel') { c.sel = null; c.targeting = false; renderCombat(); return; }
