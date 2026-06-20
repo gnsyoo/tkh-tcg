@@ -1384,8 +1384,8 @@
       living(c.enemies).forEach(function (e) { dmgEnemy(e, aval, enemyEl(c.enemies.indexOf(e)), acrit ? 'crit' : 'aoe'); }); shake('big');
       logMsg(h.def.name + ' 「' + sk.name + '」 전체 ' + aval + ' 피해' + (acrit ? ' (치명타!)' : ''));
     } else if (sk.type === 'multi') {
-      // 다회 공격 스킬은 타격당 기본 공격력의 1/N(반올림) — N=타격 수
-      var perHit = Math.max(1, Math.round(pw / sk.val));
+      // 다회 공격 스킬은 타격당 공격력의 70% × 타수(타격 수)만큼 공격
+      var perHit = Math.max(1, Math.round(pw * 0.7));
       c.busy = true; var mi = 0; // 타격마다 끊어서 연출
       (function mhit() {
         var alive = living(c.enemies);

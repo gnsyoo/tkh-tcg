@@ -606,8 +606,8 @@
     if (sk.type === 'strike') { var sc = rollCrit(critChance(h)); var sd = (pw + sk.val) * (sc ? 2 : 1); dmgTarget(ti, sd, sc); shake('big'); logMsg(h.def.name + ' 「' + sk.name + '」 ' + tName + ' ' + sd + ' 피해' + (sc ? ' (치명타!)' : '')); }
     else if (sk.type === 'aoe') { var ac = rollCrit(critChance(h)); var av = sk.val * (ac ? 2 : 1); enemyIdxList().forEach(function (ei) { var en = enemyByIdx(ei); if (en && en.hp > 0) dmgTarget(ei, av, ac); }); shake('big'); logMsg(h.def.name + ' 「' + sk.name + '」 전체 ' + av + ' 피해' + (ac ? ' (치명타!)' : '')); }
     else if (sk.type === 'multi') {
-      // 다회 공격 스킬은 타격당 기본 공격력의 1/N(반올림) — 선택한 대상 집중
-      var perHit = Math.max(1, Math.round(pw / sk.val));
+      // 다회 공격 스킬은 타격당 공격력의 70% × 타수(타격 수) — 선택한 대상 집중
+      var perHit = Math.max(1, Math.round(pw * 0.7));
       c.busy = true; var mi = 0; // 타격마다 끊어서 연출
       (function mhit() {
         var tt = enemyByIdx(ti);
