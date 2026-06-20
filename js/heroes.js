@@ -1920,39 +1920,43 @@
 
   /* ---------- TREASURE — 히어로즈 블러드 도전 보상 ---------- */
   var pendingTreasureRelic = null;
+  // 보물 발견 — 전투 종료 후 대기실(맵)로 복귀한 뒤 팝업으로 알림
   function showTreasure() {
     var owned = run.relics.map(function (r) { return r.id; });
     var avail = HW_RELICS.filter(function (r) { return !r.exclusive && owned.indexOf(r.id) === -1; });
+    advanceStage(); // 먼저 대기실로 이동(다음 출진으로 진행 저장)
+    var pop = document.getElementById('treasurePopup'); if (!pop) return;
     if (!avail.length) { // 모든 유물 보유 → 추가 골드로 대체
       var gold = Math.round((20 + run.mainStage * 4) * DCFG.gold * (1 + relicSum('goldBonus')));
-      run.gold += gold; updateTop();
-      document.getElementById('eventTitle').textContent = '💎 보물 발견! +💰' + gold;
-      document.getElementById('eventSub').textContent = '모든 유물을 보유 중 — 추가 골드를 얻었습니다.';
-      document.getElementById('eventChoices').innerHTML = '<button class="btn primary" id="evGo">계속</button>';
-      show('eventScreen'); return;
+      run.gold += gold; updateTop(); saveRun();
+      pendingTreasureRelic = null;
+      document.getElementById('treasureTitle').textContent = '💎 보물 발견! +💰' + gold;
+      document.getElementById('treasureSub').textContent = '모든 유물을 보유 중 — 추가 골드를 얻었습니다.';
+      document.getElementById('treasureBody').innerHTML = '';
+      document.getElementById('treasureChoices').innerHTML = '<button class="btn primary" data-tre="close">계속</button>';
+      pop.hidden = false; return;
     }
     var prize = TCG.pick(avail);
-    pendingTreasureRelic = prize;
-    document.getElementById('eventTitle').textContent = '💎 보물 발견!';
-    document.getElementById('eventSub').innerHTML = '🃏 <b>히어로즈 블러드</b>에서 <b>승리</b>하면 이 유물을 획득합니다';
-    document.getElementById('eventChoices').innerHTML =
-      '<div class="reward-card" style="pointer-events:none"><div class="rc-emoji">' + prize.emoji + '</div><div class="rc-name">' + prize.name + '</div><div class="rc-skill">' + prize.desc + '</div></div>' +
-      '<div style="width:100%;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:6px">' +
-        '<button class="btn primary" id="evChallenge">🃏 히어로즈 블러드 도전</button>' +
-        '<button class="btn ghost" id="evSkip">그냥 떠나기</button>' +
-      '</div>';
-    show('eventScreen');
+    pendingTreasureRelic = prize; saveRun();
+    document.getElementById('treasureTitle').textContent = '💎 보물 발견!';
+    document.getElementById('treasureSub').innerHTML = '🃏 <b>히어로즈 블러드</b>에서 <b>승리</b>하면 이 유물을 획득합니다';
+    document.getElementById('treasureBody').innerHTML =
+      '<div class="reward-card" style="pointer-events:none;margin:0 auto"><div class="rc-emoji">' + prize.emoji + '</div><div class="rc-name">' + prize.name + '</div><div class="rc-skill">' + prize.desc + '</div></div>';
+    document.getElementById('treasureChoices').innerHTML =
+      '<button class="btn primary" data-tre="challenge">🃏 히어로즈 블러드 도전</button>' +
+      '<button class="btn ghost" data-tre="skip">그냥 떠나기</button>';
+    pop.hidden = false;
   }
-  document.getElementById('eventChoices').addEventListener('click', function (e) {
-    if (e.target.id === 'evChallenge') {
-      if (pendingTreasureRelic) {
-        try { localStorage.setItem('hw_treasure_relic', JSON.stringify({ id: pendingTreasureRelic.id, name: pendingTreasureRelic.name, emoji: pendingTreasureRelic.emoji })); } catch (e2) {}
-      }
-      advanceStage();              // 진행 상황 저장(다음 출진으로)
-      location.href = 'queensblood.html?treasure=1';
+  document.getElementById('treasureChoices').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-tre]'); if (!b) return;
+    var act = b.dataset.tre;
+    document.getElementById('treasurePopup').hidden = true;
+    if (act === 'challenge' && pendingTreasureRelic) {
+      try { localStorage.setItem('hw_treasure_relic', JSON.stringify({ id: pendingTreasureRelic.id, name: pendingTreasureRelic.name, emoji: pendingTreasureRelic.emoji })); } catch (e2) {}
+      location.href = 'queensblood.html?treasure=1'; // 진행은 advanceStage에서 이미 저장됨
       return;
     }
-    if (e.target.id === 'evSkip' || e.target.id === 'evGo') { pendingTreasureRelic = null; advanceStage(); }
+    pendingTreasureRelic = null; // 그냥 떠나기/계속 — 대기실 유지
   });
 
   /* ---------- end states ---------- */
