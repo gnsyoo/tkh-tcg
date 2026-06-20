@@ -187,19 +187,21 @@
       placeOnBoard(sim, m.def, 'foe', m.r, m.c);
       var s = scoreOf(sim);
       var terrGain = territory(sim, 'foe') - baseTerr;
-      var val = (s.foe - s.you) - (base.foe - base.you) + 0.35 * terrGain;
+      var val = (s.foe - s.you) - (base.foe - base.you) + 0.45 * terrGain;
       if (diff === 'hard') {
         // one-ply: opponent's best reply using their actual hand
+        var youTerr = territory(sim, 'you');
         var reps = legalMovesFor(sim, oppHand, 'you');
         var bestReply = 0;
         reps.forEach(function (rm) {
           var sim2 = cloneBoard(sim);
           placeOnBoard(sim2, rm.def, 'you', rm.r, rm.c);
           var s2 = scoreOf(sim2);
-          var rv = (s2.you - s2.foe);
+          // 점령 규칙 도입 후: 상대가 내(foe) 영역을 빼앗는 강수를 더 경계
+          var rv = (s2.you - s2.foe) + 0.3 * (territory(sim2, 'you') - youTerr);
           if (rv > bestReply) bestReply = rv;
         });
-        val -= 0.55 * bestReply;
+        val -= 0.8 * bestReply;
       }
       // tiny randomness to avoid ties being deterministic
       val += Math.random() * 0.05;
@@ -652,12 +654,14 @@
     window.addEventListener('orientationchange', function () { setTimeout(fitBoard, 120); });
   }
 
-  function enhGlyph(def) {
-    // 3x3 mini-grid, center = card. 전치 보드에 맞춤: 전방(적 방향)=위쪽, 측면=좌우
+  function enhGlyph(def, owner) {
+    // 3x3 mini-grid, center = card. 전치 보드에 맞춤: 측면=좌우(gc), 전방=세로(gr)
+    // 내 카드: 전방(적 방향)=위쪽. 상대 카드: 전방=아래쪽(실제 확장 방향과 일치)
+    var foe = owner === 'foe';
     var set = {};
     def.enh.forEach(function (o) {
       var dr = o[0], dc = o[1];
-      var gr = 1 - dc, gc = 1 + dr; // dc(전방)→위, dr(측면)→좌우
+      var gr = foe ? (1 + dc) : (1 - dc), gc = 1 + dr; // dc(전방)→세로(소유자 방향), dr(측면)→좌우
       if (gr >= 0 && gr <= 2 && gc >= 0 && gc <= 2) set[gr + ',' + gc] = 'e';
     });
     var h = '<div class="hc-enh">';
@@ -746,7 +750,7 @@
           '<div class="ci-pw">⚔ ' + pwTxt + '</div>' +
         '</div></div>' +
       '<div class="ci-ab">' + (def.ab ? '✨ ' + def.ab.txt : '지속 효과 없음') + '</div>' +
-      '<div class="ci-enh-wrap">강화 패턴 ' + enhGlyph(def) + '<small>카드를 놓으면 표시된 칸에 폰 +1</small></div>';
+      '<div class="ci-enh-wrap">강화 패턴 ' + enhGlyph(def, owner) + '<small>카드를 놓으면 표시된 칸에 폰 +1</small></div>';
     document.getElementById('cardModal').hidden = false;
   }
   document.getElementById('cardModalClose').addEventListener('click', function () { document.getElementById('cardModal').hidden = true; });

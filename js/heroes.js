@@ -1661,7 +1661,7 @@
     if (isMid) { grantMidBoss(c.main, c.sub); showReward('hero', gold); return; } // 중간보스 격파 → 중간보스 카드 습득 + 장수 영입
     // (일반 출진은 장수 영입 보상을 주지 않고 골드 보상으로 처리 — 장수 영입은 중간보스·주막·특수 경로로만)
     // 보물 발견 이벤트 — 메인 전역당 최대 1회, 약 10% 확률로 등장(히어로즈 블러드 승리 시 유물 획득)
-    var TREASURE_CHANCE = 1.0; // ⚠️ 임시 테스트: 보물 발견 100% (원래 0.10)
+    var TREASURE_CHANCE = 0.10; // 보물 발견 확률 10%
     if (run.treasureMain !== run.mainStage && Math.random() < TREASURE_CHANCE) {
       run.treasureMain = run.mainStage;
       showTreasure(); return;
