@@ -194,10 +194,10 @@
     if (RAID_EXTRA_SKILLS[b.key]) s.push(RAID_EXTRA_SKILLS[b.key]);
     return s;
   }
-  function raidBossAtk(cmd, idx) { // 공격력 = (기본 × 배수 + 레이드 순번 × 2) × 1.3
-    return Math.round((Math.max(2, Math.round(cmd.atk * HW_RAID.atkMult * DCFG.eAtk)) + (idx + 1) * 2) * 1.3);
+  function raidBossAtk(cmd, idx) { // 공격력 = (기본 × 배수 + 레이드 순번 × 2) × 1.3 × 1.5(상향)
+    return Math.round((Math.max(2, Math.round(cmd.atk * HW_RAID.atkMult * DCFG.eAtk)) + (idx + 1) * 2) * 1.3 * 1.5);
   }
-  function raidBossHp(cmd) { return Math.round(cmd.hp * HW_RAID.hpMult * 1.1); } // HP +10%
+  function raidBossHp(cmd) { return Math.round(cmd.hp * HW_RAID.hpMult * 1.1) + 50; } // HP +10% 후 +50 상향
   // 하후돈(레이드 3번째)부터 보스 양옆에 등장하는 졸병 1~2기
   var RAID_ADD_TYPES = [ { id: 'foe_inf', name: '적 보병', emoji: '🪖' }, { id: 'foe_arc', name: '적 궁병', emoji: '🏹' }, { id: 'foe_spr', name: '적 창병', emoji: '🛡️' } ];
   function makeRaidAdds(idx, bossHp, bossAtk) {
@@ -335,10 +335,10 @@
     var atk = raidBossAtk(cmd, idx);
     var mhp = lordMaxHp(), mmp = lordMaxMp();
     var bc = HW_BOSS[diff] || HW_BOSS.normal;
-    var bmp = Math.max(0, bc.mp - 20) + 10; // 대장전 레이드 보스 MP -20 후 +10
+    var bmp = Math.max(0, bc.mp - 20) + 10 + 10; // 대장전 레이드 보스 MP -20 후 +10, 추가 +10 상향
     combat = {
       raidIdx: idx, boss: { def: cmd, name: cmd.name, emoji: cmd.emoji, maxHp: hp, hp: hp, atk: atk, atk0: atk, aoe: !!cmd.aoe, block: 0, poison: 0, charmed: 0, intent: null,
-        skills: raidBossSkills(b), mp: bmp, maxMp: bmp, skillChance: bc.skillChance },
+        skills: raidBossSkills(b), mp: bmp, maxMp: bmp, skillChance: bc.skillChance * 0.8 }, // 스킬 사용 빈도 약 20% 감소
       adds: makeRaidAdds(idx, hp, atk), tgtIdx: 0,
       round: 0, lord: { hp: mhp, maxHp: mhp, mp: mmp, maxMp: mmp, block: relicSum('startBlock') }, atkBuff: relicSum('startAtk'), lordStun: 0,
       draw: TCG.shuffle(activeDeckUids().slice()), center: [], used: [], cstat: {},
@@ -1026,8 +1026,6 @@
     var modal = document.getElementById(id); if (!modal) return;
     modal.addEventListener('click', function (e) { if (e.target.closest('[data-close]')) { TCG.sfx('tap'); modal.hidden = true; } });
   });
-  var _rg = document.getElementById('raidGuide');
-  if (_rg) _rg.addEventListener('click', function () { TCG.sfx('tap'); TCG.toast('영웅전 덱으로 거대 보스(적장)에 도전 — 격파하면 그 적장을 전용 장수로 획득합니다. 보스 카드를 탭하면 정보를 봅니다.'); });
   // 도감은 전체 페이지 — 상단 '이전' 버튼으로 이전 화면 복귀
   document.getElementById('codexBack').addEventListener('click', function () { TCG.sfx('tap'); document.getElementById('codexModal').hidden = true; });
   document.getElementById('bossModal').addEventListener('click', function (e) {

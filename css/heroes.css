@@ -1305,3 +1305,27 @@ button.wr-chip:hover { box-shadow: inset 0 0 0 1px var(--gold); }
 .bi2-rar { font-size: 9px; font-weight: 800; color: #140d0b; border-radius: 5px; padding: 1px 6px; }
 .bi2-owned { font-size: 9px; font-weight: 800; color: #7ef0b5; background: rgba(91,184,122,.18); border-radius: 5px; padding: 1px 6px; }
 .bi2-go { width: 100%; margin-top: 14px; border: none; border-radius: 12px; font-size: 14px; font-weight: 800; padding: 12px 0; cursor: pointer; color: #fff; background: linear-gradient(180deg,#9b5de5,#6f3fb0); box-shadow: 0 3px 0 #4a2878; font-family: inherit; }
+
+/* ===== 캠프 스테이지(모닥불) — 5스테이지 클리어 후 ===== */
+.camp-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: calc(100dvh - 40px); text-align: center; overflow-y: auto; }
+.camp-fire { font-size: 72px; line-height: 1; animation: campFlicker 1.6s ease-in-out infinite; }
+@keyframes campFlicker { 0%,100% { transform: translateY(0) scale(1); filter: drop-shadow(0 0 16px rgba(255,140,40,.5)); } 50% { transform: translateY(-2px) scale(1.05); filter: drop-shadow(0 0 26px rgba(255,170,60,.72)); } }
+.camp-title { font-size: 22px; font-weight: 900; color: var(--gold); margin: 4px 0 0; }
+.camp-sub { font-size: 13px; color: var(--ink-dim); margin: 0 0 6px; }
+.camp-opts { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; width: 100%; max-width: 420px; }
+.camp-card { flex: 1; min-width: 150px; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 16px 12px; border: none; border-radius: 14px; cursor: pointer; background: linear-gradient(180deg,#2e1d16,#1d120d); box-shadow: inset 0 0 0 1px rgba(240,195,60,.3); color: var(--ink); font-family: inherit; transition: box-shadow .12s, transform .12s; }
+.camp-card:hover { transform: translateY(-2px); box-shadow: inset 0 0 0 1px var(--gold), 0 8px 20px rgba(0,0,0,.45); }
+.camp-card.chosen { box-shadow: inset 0 0 0 2px var(--gold), 0 0 16px rgba(245,197,66,.4); }
+.camp-card .cc-ico { font-size: 30px; line-height: 1; }
+.camp-card b { font-size: 14px; font-weight: 800; }
+.camp-card small { font-size: 11px; color: var(--ink-dim); }
+.camp-screen .party-bar { max-width: 460px; }
+
+/* ===== 도감 — 탭/정렬 상단 고정, 목록 영역만 스크롤 ===== */
+.codex-page-body { overflow: hidden; display: flex; flex-direction: column; }
+.codex-page-body > .codex-tabs { flex: none; }
+#codexHeroPanel, #codexWeaponPanel, #codexRelicPanel { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+#codexHeroPanel > .sort-bar { flex: none; }
+#codexHeroPanel > .col-grid,
+#codexWeaponPanel > .col-weapon-list,
+#codexRelicPanel > .col-weapon-list { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 16px; }
