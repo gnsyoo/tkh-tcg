@@ -814,7 +814,7 @@
       var hp = Math.round(d.hp * hpM * hpx);
       var atk = Math.max(1, Math.round(d.atk * atkM * (boss ? md.bossAtkMult : 1) * atkx * 2)); // 적 공격력 일괄 2배 상향
       var e = { def: d, name: (mid ? '⚜ ' + d.name : d.name), emoji: d.emoji, face: (d.hid || d.hero || d.id || null), maxHp: hp, hp: hp,
-        atk: atk, aoe: !!d.aoe, boss: !!boss, mid: !!mid, quote: d.quote || null, crit: (boss ? md.bossCrit : BASE_CRIT), block: 0, intent: null };
+        atk: atk, aoe: !!d.aoe, boss: !!boss, mid: !!mid, quote: d.quote || null, crit: (boss ? Math.max(0.15, md.bossCrit) : BASE_CRIT), block: 0, intent: null }; // 적장(보스) 치명타 최소 15%
       if (boss && d.hero && HW_BY_ID[d.hero]) { // 적장: 공격 스킬 + 보조(회복/행동불가/사신) 2종 보유
         var bc = HW_BOSS[diff] || HW_BOSS.normal;
         var heroSk = HW_BY_ID[d.hero].skill;
@@ -1089,9 +1089,14 @@
       var cst = HW_STAGES[c.main];
       var tier = c.enemies.some(function (e) { return e.boss; }) ? '적장전' : (c.enemies.some(function (e) { return e.mid; }) ? '정예전' : '전투');
       chd.innerHTML =
+        '<button class="ch-back" id="combatBack" aria-label="이전" title="대기실로"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="#f0c33c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>' +
         '<div class="ch-info"><div class="ch-sub">' + (c.main + 1) + '전역 · ' + (c.sub + 1) + '스테이지</div>' +
         '<div class="ch-name">' + (cst ? cst.name : '') + ' · ' + tier + '</div></div>' +
         '<div class="ch-turn"><span>' + TCG.t('cmb.turnLabel') + '</span><b>' + Math.max(1, c.round) + '</b></div>';
+      var cb = document.getElementById('combatBack');
+      if (cb) cb.onclick = function () {
+        if (window.confirm('대기실로 돌아갑니다. 현재 전투는 포기됩니다. 계속할까요?')) { TCG.sfx('tap'); showMap(); }
+      };
     }
     // enemies (적장은 주공을 공격)
     document.getElementById('enemyRow').innerHTML = c.enemies.map(function (e, idx) {
@@ -1161,8 +1166,10 @@
       var ws = heroWpns(h);
       var wEmoji = ws.map(function (w) { return w.emoji; }).join('');
       var wName = ws.map(function (w) { return w.name; }).join(', ');
-      var badge = (stunned ? '<div class="cc-stun">' + (st.cause === '매혹' ? '💗' : '💫') + '</div>' : '') +
-        (pois ? '<div class="cc-pois">☠' + st.poison + '</div>' : '');
+      var badge = (stunned || pois) ? '<div class="cc-status">' +
+        (stunned ? '<span class="cc-stun">' + (st.cause === '매혹' ? '💗' : '💫') + '</span>' : '') +
+        (pois ? '<span class="cc-pois">☠' + st.poison + '</span>' : '') +
+        '</div>' : '';
       return '<div class="' + cls + '" data-uid="' + uid + '">' + badge +
         TCG.portrait(h.def.emoji, h.def.id, 'cc-art', h.def.name) +
         '<div class="cc-name">' + h.def.name + '</div>' +
@@ -1658,7 +1665,7 @@
     if (run.sorties === 5 || run.sorties === 10) { showReward('weapon', gold); return; }
     if (isBoss && c.main === HW_STAGES.length - 1) { victory(); return; } // 최종 적장 격파
     if (isBoss) { showRelicPick(gold); return; }            // 메인 적장 처치 → 유물(대기실 팝업)
-    if (isMid) { grantMidBoss(c.main, c.sub); showReward('hero', gold); return; } // 중간보스 격파 → 중간보스 카드 습득 + 장수 영입
+    if (isMid) { grantMidBoss(c.main, c.sub); showHeroPick(gold); return; } // 중간보스 격파 → 중간보스 카드 습득 + 장수 영입(대기실 팝업)
     // (일반 출진은 장수 영입 보상을 주지 않고 골드 보상으로 처리 — 장수 영입은 중간보스·주막·특수 경로로만)
     // 보물 발견 이벤트 — 메인 전역당 최대 1회, 약 10% 확률로 등장(히어로즈 블러드 승리 시 유물 획득)
     var TREASURE_CHANCE = 0.10; // 보물 발견 확률 10%
@@ -1728,6 +1735,44 @@
       var r = HW_RELICS.find(function (x) { return x.id === card.dataset.relic; }); if (!r) return;
       TCG.sfx('reward'); run.relics.push(r); saveRun(); TCG.toast('유물 획득: ' + r.name);
       document.getElementById('relicPickPopup').hidden = true;
+    });
+  })();
+
+  /* ---------- 중간보스 격파 영웅 영입 — 대기실 팝업 ---------- */
+  function showHeroPick(gold) {
+    var have = ownedHeroIds();
+    var hpool = TCG.shuffle(HW_HEROES.filter(function (d) { return !d.exclusive && have.indexOf(d.id) === -1; })).slice(0, 3);
+    // 먼저 대기실(또는 5스테이지 후 캠프)로 이동한 뒤 팝업 표시
+    if (run.pendingCamp) { run.pendingCamp = false; showCamp(); } else advanceStage();
+    var pop = document.getElementById('heroPickPopup');
+    if (!pop || !hpool.length) { if (gold) showGoldPopup(gold); return; } // 팝업 없음/영입 가능 영웅 없음 → 골드 팝업만
+    run.heroPickPool = hpool; run.pendingRecruit = null;
+    var sub = document.getElementById('heroPickSub');
+    if (sub) sub.textContent = '영입할 영웅 카드를 선택하세요 (중복 없음)' + (gold ? ' · 💰+' + gold : '');
+    document.getElementById('heroPickBody').innerHTML = hpool.map(function (d) { return heroRewardCard(d); }).join('');
+    pop.hidden = false;
+  }
+  (function () {
+    var pop = document.getElementById('heroPickPopup'); if (!pop) return;
+    var body = document.getElementById('heroPickBody');
+    body.addEventListener('click', function (e) {
+      var mini = e.target.closest('.mini-hero');
+      if (mini && run.pendingRecruit) { // 파티 교체 선택
+        var i = run.party.findIndex(function (x) { return x.uid === mini.dataset.uid; });
+        if (i >= 0) { run.party[i] = mkHero(run.pendingRecruit); run.pendingRecruit = null; saveRun(); TCG.sfx('reward'); TCG.toast('교체 완료'); pop.hidden = true; }
+        return;
+      }
+      var card = e.target.closest('.reward-card'); if (!card || !card.dataset.hero) return;
+      var id = card.dataset.hero;
+      TCG.sfx('reward');
+      if (run.party.length < MAX_PARTY) {
+        run.party.push(mkHero(id)); saveRun(); TCG.toast('영입: ' + HW_BY_ID[id].name); pop.hidden = true;
+      } else { // 파티가 가득 참 → 교체 대상 선택
+        run.pendingRecruit = id;
+        var sub = document.getElementById('heroPickSub');
+        if (sub) sub.textContent = '파티가 가득 찼습니다 — ' + HW_BY_ID[id].name + ' 와(과) 교체할 영웅을 선택하세요';
+        body.innerHTML = '<div class="party-bar">' + run.party.map(miniHero).join('') + '</div>';
+      }
     });
   })();
 

@@ -494,8 +494,10 @@
 /* 아군 카드 상태이상 */
 .combat-card { position: relative; }
 .combat-card.stunned { filter: grayscale(0.55) brightness(0.8); border-color: rgba(199,155,255,0.6); }
-.combat-card .cc-stun { position: absolute; top: 2px; right: 3px; font-size: 14px; z-index: 2; text-shadow: 0 0 6px #000; }
-.combat-card .cc-pois { position: absolute; top: 2px; left: 3px; font-size: 10px; font-weight: 800; color: #b6f06a; z-index: 2; text-shadow: 0 0 5px #000; }
+/* 상태이상 배지 — 카드 오른쪽 상단에 세로로 쌓아 공격력 배지(좌상단)와 겹치지 않게 */
+.combat-card .cc-status { position: absolute; top: 3px; right: 3px; z-index: 4; display: flex; flex-direction: column; gap: 2px; align-items: flex-end; pointer-events: none; }
+.combat-card .cc-status .cc-stun { position: static; font-size: 14px; line-height: 1; text-shadow: 0 0 6px #000; }
+.combat-card .cc-status .cc-pois { position: static; font-size: 10px; font-weight: 800; color: #b6f06a; line-height: 1.3; text-shadow: 0 0 5px #000; background: rgba(8,4,3,.82); border-radius: 999px; padding: 0 5px; }
 
 /* 소모성 아이템 바 */
 .item-bar { display: flex; gap: 6px; justify-content: center; margin: 6px 0 2px; }
@@ -1089,6 +1091,12 @@ button.wr-chip:hover { box-shadow: inset 0 0 0 1px var(--gold); }
 
 /* ===== 전투 상단 헤더(핸드오프) — 전역/스테이지명 + 턴 수 ===== */
 .combat-head { display: flex; align-items: center; gap: 9px; padding: 2px 2px 8px; }
+.combat-head .ch-back {
+  flex: none; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
+  background: var(--panel); border: none; border-radius: 10px; cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgba(240,195,60,.22); -webkit-tap-highlight-color: transparent;
+}
+.combat-head .ch-back:active { transform: scale(.94); }
 .combat-head .ch-info { flex: 1; min-width: 0; }
 .combat-head .ch-sub { font-size: 9px; font-weight: 700; color: var(--gold-soft); letter-spacing: .5px; }
 .combat-head .ch-name { font-size: 14px; font-weight: 800; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
@@ -1163,7 +1171,8 @@ button.wr-chip:hover { box-shadow: inset 0 0 0 1px var(--gold); }
 /* 3더미 보드 → 단일 가로 손패 행 */
 #combatScreen .combat-board { display: block; grid-template-columns: none; min-height: 0; margin: 2px 0; }
 #combatScreen .combat-board .pile { display: none; }
-#combatScreen .hand-row { padding: 6px 2px 4px; }
+/* 손패 영역 — 카드 유무(턴 종료 시 '카드 없음')와 무관하게 높이 유지 */
+#combatScreen .hand-row { padding: 6px 2px 4px; min-height: 176px; box-sizing: border-box; }
 #combatScreen .hand-row .center-inner { margin: 0 auto; gap: 8px; }
 /* 손패 카드 — 더 크게 */
 #combatScreen .combat-card { flex: 0 0 92px; border-radius: 13px; padding: 5px; background: linear-gradient(180deg,#3a2a1f,#241712); box-shadow: inset 0 0 0 1px rgba(240,195,60,.2); border: none; }

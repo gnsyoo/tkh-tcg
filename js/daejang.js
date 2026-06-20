@@ -151,6 +151,7 @@
   function lordMaxMp() { return HW_LORD.mp + party.reduce(function (s, h) { return s + wpnVal(h, 'lordMp'); }, 0) + relicSum('maxMp'); }
   function skillMp(sk) { var m = 2 + (sk.cost || 1); var base = (sk.type === 'buff' && sk.scope === 'army') ? m * 5 : m + 3; return Math.max(1, base - 1); } // 전반 -1(전군 버프 포함)
   var BASE_CRIT = 0.01;
+  var BOSS_CRIT = 0.15; // 대장전 보스 치명타 확률(최소 15%)
   function critChance(h) { return Math.min(0.5, BASE_CRIT + wpnVal(h, 'crit') + relicSum('crit')); } // 치명타 확률 최대 50%(유물 합산)
   function rollCrit(c) { return Math.random() < c; }
   function defenseOf(h) { return 3 + Math.floor(effAtk(h) / 3); }
@@ -422,9 +423,14 @@
     var chd = document.getElementById('combatHead');
     if (chd) {
       chd.innerHTML =
+        '<button class="ch-back" id="combatBack" aria-label="이전" title="대기실로"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="#f0c33c" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>' +
         '<div class="ch-info"><div class="ch-sub">' + TCG.t('cmb.raidLabel') + '</div>' +
         '<div class="ch-name">' + b.name + ' · 토벌전</div></div>' +
         '<div class="ch-turn"><span>' + TCG.t('cmb.turnLabel') + '</span><b>' + Math.max(1, c.round) + '</b></div>';
+      var cb = document.getElementById('combatBack');
+      if (cb) cb.onclick = function () {
+        if (window.confirm('대기실로 돌아갑니다. 현재 전투는 포기됩니다. 계속할까요?')) { TCG.sfx('tap'); combat = null; renderSelect(); }
+      };
     }
     document.getElementById('energyBox').innerHTML = '🎴 가운데 카드를 선택해 <b>공격</b>하거나, 턴을 종료하세요';
     var dead = b.hp <= 0, charmed = b.charmed > 0 || b.confused > 0;
@@ -487,7 +493,7 @@
       var sel = c.sel && c.sel.uid === uid; // 대상 지정 중에도 선택 강조 유지
       var cls = 'combat-card' + (sel ? ' selected' : '') + ((canAct && !stunned) ? '' : ' unplayable') + (stunned ? ' stunned' : '');
       var ws = heroWpns(h), wE = ws.map(function (w) { return w.emoji; }).join(''), wN = ws.map(function (w) { return w.name; }).join(', ');
-      return '<div class="' + cls + '" data-uid="' + uid + '">' + (stunned ? '<div class="cc-stun">💫</div>' : '') + TCG.portrait(h.def.emoji, h.def.id, 'cc-art', h.def.name) +
+      return '<div class="' + cls + '" data-uid="' + uid + '">' + (stunned ? '<div class="cc-status"><span class="cc-stun">💫</span></div>' : '') + TCG.portrait(h.def.emoji, h.def.id, 'cc-art', h.def.name) +
         '<div class="cc-name">' + h.def.name + '</div><div class="cc-atk">⚔' + effAtk(h) + '</div>' +
         (wE ? '<div class="cc-wpn" title="' + wN + '">' + wE + '</div>' : '') + '<div class="cc-skill">' + sk.name + '</div></div>';
     }).join('');
@@ -679,7 +685,7 @@
     b.mp = Math.max(0, b.mp - skillMp(sk));
     fxBanner('👹 ' + b.name + ' 「' + sk.name + '」', 'boss', 1000);
     TCG.sfx(sk.type === 'heal' || sk.type === 'shield' ? 'heal' : 'skill');
-    if (sk.type === 'strike') { var crit = rollCrit(BASE_CRIT); var d = b.atk + Math.round(sk.val * 0.5); if (crit) d *= 2; shake('big'); var ev = dmgLord(d, crit); logMsg(ev ? (b.name + ' 「' + sk.name + '」 회피!') : (b.name + ' 「' + sk.name + '」 주공 ' + d + ' 피해' + (crit ? ' (치명타!)' : ''))); }
+    if (sk.type === 'strike') { var crit = rollCrit(BOSS_CRIT); var d = b.atk + Math.round(sk.val * 0.5); if (crit) d *= 2; shake('big'); var ev = dmgLord(d, crit); logMsg(ev ? (b.name + ' 「' + sk.name + '」 회피!') : (b.name + ' 「' + sk.name + '」 주공 ' + d + ' 피해' + (crit ? ' (치명타!)' : ''))); }
     else if (sk.type === 'aoe') { var d2 = Math.round(sk.val * 0.6) + Math.round(b.atk * 0.3); shake('big'); var ev2 = dmgLord(d2, false); logMsg(ev2 ? (b.name + ' 「' + sk.name + '」 회피!') : (b.name + ' 「' + sk.name + '」 주공 ' + d2 + ' 피해')); }
     else if (sk.type === 'multi') { var tot = 0; for (var i = 0; i < sk.val; i++) { if (c.lord.hp <= 0) break; var dd = Math.max(1, Math.round(b.atk * 0.5)); if (!dmgLord(dd, false)) tot += dd; } shake('sm'); logMsg(b.name + ' 「' + sk.name + '」 ' + sk.val + '연타 ' + tot + ' 피해'); }
     else if (sk.type === 'heal') { b.hp = Math.min(b.maxHp, b.hp + sk.val); fxSupport(bossEl(), '+' + sk.val, '#7ef0b5'); logMsg(b.name + ' 「' + sk.name + '」 ' + sk.val + ' 회복'); }
@@ -723,7 +729,7 @@
         var pick = (b.skills && b.skills.length && Math.random() < (b.skillChance || 0)) ? pickBossSkill(b) : null;
         var usedSkill = pick ? bossCast(b, pick) : false;
         if (!usedSkill) {
-          var intent = b.intent, crit = rollCrit(BASE_CRIT), dmg = crit ? intent.dmg * 2 : intent.dmg;
+          var intent = b.intent, crit = rollCrit(BOSS_CRIT), dmg = crit ? intent.dmg * 2 : intent.dmg;
           TCG.sfx('hit'); shake(crit || intent.type === 'aoe' ? 'big' : 'sm');
           var evB = dmgLord(dmg, crit);
           logMsg(evB ? (b.name + ' → 주공 회피!') : (b.name + ' → 주공 ' + dmg + ' 피해' + (crit ? ' (치명타!)' : '')));
