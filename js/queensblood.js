@@ -555,6 +555,8 @@
     var selDef = (state.turn === 'you' && state.selected >= 0 && !state.busy && !state.over)
       ? state.you.hand[state.selected] : null;
     boardEl.style.gridTemplateColumns = 'repeat(' + ROWS + ', 1fr)';
+    // 칸 세로비율을 열 수에 비례시켜 보드 전체 높이를 3·4·5×5 모두 비슷하게 유지(열이 적을수록 칸을 더 납작하게)
+    boardEl.style.setProperty('--tile-asp', (ROWS * 0.17).toFixed(3));
     var html = '';
     for (var d = 0; d < COLS; d++) {           // 디스플레이 행: 0=위(상대 진영) … COLS-1=아래(내 진영)
       var ic = (COLS - 1) - d;                  // 내부 열(당신=0 → 아래)

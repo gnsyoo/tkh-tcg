@@ -411,7 +411,7 @@
 /* 보드 */
 .qb-main.hb .board-wrap { padding: 0 16px; }
 .qb-main.hb .board { background: rgba(20,13,11,.55); border-radius: 16px; padding: 10px; gap: 5px; box-sizing: border-box; }
-.qb-main.hb .tile { aspect-ratio: 1 / 0.74; border-radius: 9px; background: linear-gradient(160deg,#2e2014,#1f140c); border: 1px solid rgba(240,195,60,.08); }
+.qb-main.hb .tile { aspect-ratio: 1 / var(--tile-asp, 0.74); border-radius: 9px; background: linear-gradient(160deg,#2e2014,#1f140c); border: 1px solid rgba(240,195,60,.08); }
 .qb-main.hb .tile.own-you { border-color: rgba(240,195,60,.4); background: linear-gradient(160deg,#3c2a12,#241808); }
 .qb-main.hb .tile.own-foe { border-color: rgba(224,72,63,.4); background: linear-gradient(160deg,#3a1d1a,#241210); }
 .qb-main.hb .tile.placeable { box-shadow: 0 0 0 2px #f0c33c, 0 0 12px rgba(240,195,60,.6); animation: hbglow 1.4s infinite; }
