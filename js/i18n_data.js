@@ -166,7 +166,7 @@
       lordMp: { en: 'Lord max MP +' + val, ja: '主公の最大MP+' + val, zh: '主公最大MP+' + val, zhTW: '主公最大MP+' + val },
       evade: { en: 'Evade +' + pct(val) + '%', ja: '回避+' + pct(val) + '%', zh: '闪避+' + pct(val) + '%', zhTW: '閃避+' + pct(val) + '%' },
       energy: { en: 'Center card slots +' + val, ja: '中央カード枠+' + val, zh: '中央卡位+' + val, zhTW: '中央卡位+' + val },
-      lifesteal: { en: 'Heal +' + val + ' HP on basic attack', ja: '通常攻撃時HP+' + val + '回復', zh: '普通攻击回复HP+' + val, zhTW: '普通攻擊回復HP+' + val },
+      skillHeal: { en: 'Heal +' + val + ' HP on skill use', ja: 'スキル使用時HP+' + val + '回復', zh: '使用技能回复HP+' + val, zhTW: '使用技能回復HP+' + val },
       startAtk: { en: 'All officers ATK +' + val + ' at battle start', ja: '戦闘開始時 全員の攻撃力+' + val, zh: '战斗开始时全员攻击力+' + val, zhTW: '戰鬥開始時全員攻擊力+' + val },
       startBlock: { en: 'Lord +' + val + ' shield at battle start', ja: '戦闘開始時 主公にシールド+' + val, zh: '战斗开始时主公护盾+' + val, zhTW: '戰鬥開始時主公護盾+' + val },
       startPoison: { en: 'Poison a random enemy at battle start (' + val + ')', ja: '戦闘開始時 ランダムな敵を中毒(' + val + ')', zh: '战斗开始时随机1敌中毒(' + val + ')', zhTW: '戰鬥開始時隨機1敵中毒(' + val + ')' },
@@ -187,7 +187,7 @@
     return parts.join(lang === 'ja' ? '・' : (lang === 'en' ? ', ' : '·'));
   }
   var WEAP_ORDER = ['atk', 'doubleStrike', 'poison', 'crit', 'lordHp', 'lordMp', 'evade'];
-  var RELIC_ORDER = ['energy', 'lifesteal', 'startAtk', 'startBlock', 'startPoison', 'winHeal', 'winMp', 'maxHp', 'maxMp', 'crit', 'goldBonus'];
+  var RELIC_ORDER = ['energy', 'skillHeal', 'startAtk', 'startBlock', 'startPoison', 'winHeal', 'winMp', 'maxHp', 'maxMp', 'crit', 'goldBonus'];
 
   /* ---------- 고유명사: 장비 / 유물 / 소모품 이름 ---------- */
   var WNAME = {

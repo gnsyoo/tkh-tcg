@@ -458,18 +458,24 @@
     var body, isBoss = (sub === SUB_COUNT - 1);
     if (isBoss) {
       var cmd = HW_COMMANDERS[st.boss];
-      var bhp = Math.round(cmd.hp * hpM * HW_BOSS_MULT.hpMult), batk = Math.max(1, Math.round(cmd.atk * atkM * md.bossAtkMult * HW_BOSS_MULT.atkMult));
+      var bhp = Math.round(cmd.hp * hpM * HW_BOSS_MULT.hpMult * 1.3), batk = Math.max(1, Math.round(cmd.atk * atkM * md.bossAtkMult * HW_BOSS_MULT.atkMult * 2 * 1.5));
       var bsk = (cmd.hero && HW_BY_ID[cmd.hero]) ? HW_BY_ID[cmd.hero].skill : null;
+      var bAtkIsSkill = bsk && (bsk.type === 'strike' || bsk.type === 'aoe' || bsk.type === 'multi');
+      var bAtkName = bAtkIsSkill ? bsk.name : '강습';
+      var bAtkDesc = bAtkIsSkill ? bsk.desc : '주공에게 강타';
+      var bPierce = (run.mode === 'hard' || run.mode === 'extreme') ? ' <span style="color:#ff9a7e">(방어 관통)</span>' : '';
       body = TCG.portrait(cmd.emoji, (cmd.hero && HW_BY_ID[cmd.hero]) ? cmd.hero : cmd.name, 'modal-portrait', cmd.name) +
         '<h2>👑 ' + cmd.name + ' <span class="rar-SSR" style="font-size:13px">적장</span></h2>' +
         '<p>' + st.name + ' 최종 보스' + (cmd.aoe ? ' · 💥 광역' : '') + '</p>' +
-        '<div style="background:rgba(0,0,0,.25);border-radius:10px;padding:10px;text-align:left;font-size:13px">' +
-        '❤ HP ' + bhp + ' · ⚔ 공격 ' + batk + (bsk ? '<br><b style="color:var(--gold)">「' + bsk.name + '」</b> ' + bsk.desc : '') +
-        '<br><span style="color:var(--ink-dim)">MP 보유 · 확률로 스킬 시전</span></div>';
+        '<div style="background:rgba(0,0,0,.25);border-radius:10px;padding:10px;text-align:left;font-size:13px;line-height:1.55">' +
+        '❤ HP ' + bhp + ' · ⚔ 공격 ' + batk +
+        '<br>⚔ <b style="color:var(--gold)">공격 스킬</b> 「' + bAtkName + '」 ' + bAtkDesc + bPierce +
+        '<br>✨ <b style="color:var(--gold)">보조 스킬</b> <b>행동 불능 또는 회복</b> 중 하나를 확률로 시전' +
+        '<br><span style="color:var(--ink-dim)">MP를 모아 매 턴 확률로 위 2종 스킬 사용</span></div>';
     } else {
       var idx = (sub === 9) ? 1 : 0, mb = (HW_MID_BOSSES[main] || [])[idx];
       if (!mb) { return; }
-      var mhp = Math.round(mb.hp * hpM * HW_MID.hpMult), matk = Math.max(1, Math.round(mb.atk * atkM * HW_MID.atkMult * 1.2));
+      var mhp = Math.round(mb.hp * hpM * HW_MID.hpMult * 1.3), matk = Math.max(1, Math.round(mb.atk * atkM * HW_MID.atkMult * 1.2 * 2 * 1.5));
       var msk = HW_MID_SKILLS[(main * 2 + idx) % HW_MID_SKILLS.length];
       var mbHero = (mb.hid && HW_BY_ID[mb.hid]) ? HW_BY_ID[mb.hid] : null;
       var recruitTxt = mbHero ? ('<br><span style="color:#d9b3ff">🃏 격파 시 영입 가능 — ' + mbHero.name + ' <span class="rar-' + mbHero.rarity + '">' + mbHero.rarity + '</span> (' + (idx === 0 ? '노멀' : '하드') + ' 난이도)</span>') : '';
@@ -822,24 +828,25 @@
     function inst(d, boss, mid) {
       var hpx = boss ? HW_BOSS_MULT.hpMult : (mid ? HW_MID.hpMult : 1);
       var atkx = boss ? HW_BOSS_MULT.atkMult : (mid ? (HW_MID.atkMult * 1.2) : 1);
-      var hp = Math.round(d.hp * hpM * hpx);
-      var atk = Math.max(1, Math.round(d.atk * atkM * (boss ? md.bossAtkMult : 1) * atkx * 2)); // 적 공격력 일괄 2배 상향
+      var bbHp = (boss || mid) ? 1.3 : 1;   // 보스·중간보스 HP 1.3배 상향
+      var bbAtk = (boss || mid) ? 1.5 : 1;  // 보스·중간보스 공격력 1.5배 상향
+      var hp = Math.round(d.hp * hpM * hpx * bbHp);
+      var atk = Math.max(1, Math.round(d.atk * atkM * (boss ? md.bossAtkMult : 1) * atkx * 2 * bbAtk)); // 적 공격력 일괄 2배 + 보스/중간보스 1.5배
       var e = { def: d, name: (mid ? '⚜ ' + d.name : d.name), emoji: d.emoji, face: (d.hid || d.hero || d.id || null), maxHp: hp, hp: hp,
         atk: atk, aoe: !!d.aoe, boss: !!boss, mid: !!mid, quote: d.quote || null, crit: (boss ? Math.max(0.15, md.bossCrit) : BASE_CRIT), block: 0, intent: null }; // 적장(보스) 치명타 최소 15%
-      if (boss && d.hero && HW_BY_ID[d.hero]) { // 적장: 공격 스킬 + 보조(회복/행동불가/사신) 2종 보유
+      if (boss && d.hero && HW_BY_ID[d.hero]) { // 적장: 공격 스킬 + 보조(행동불능/회복) 2종 보유
         var bc = HW_BOSS[diff] || HW_BOSS.normal;
         var heroSk = HW_BY_ID[d.hero].skill;
         var hardPlus = (run.mode === 'hard' || run.mode === 'extreme'); // 하드 이상: 공격 스킬 방어 관통
         var atkSk;
         if (heroSk.type === 'strike' || heroSk.type === 'aoe' || heroSk.type === 'multi') {
-          atkSk = { name: heroSk.name, type: heroSk.type, val: heroSk.val, desc: heroSk.desc, pierce: hardPlus };
+          atkSk = { name: heroSk.name, type: heroSk.type, val: Math.round(heroSk.val * 1.5), desc: heroSk.desc, pierce: hardPlus }; // 공격 스킬 1.5배
         } else {
           atkSk = { name: '강습', type: 'strike', val: Math.max(6, Math.round(atk * 0.7)), desc: '주공에게 강타', pierce: hardPlus };
         }
         var supPool = [
           { name: '재정비', type: 'heal', val: Math.max(8, Math.round(hp * 0.18)), desc: '보스 HP 회복' },
-          { name: '미혹의 술', type: 'p_charm', desc: '아군 카드 1장 1턴 행동 불능' },
-          { name: '사신 강림', type: 'p_seal', desc: '아군 카드 1장 이번 전투 봉인' }
+          { name: '미혹의 술', type: 'p_charm', desc: '아군 카드 1장 1턴 행동 불능' }
         ];
         e.skills = [atkSk, TCG.pick(supPool)];
         e.skill = atkSk; e.maxMp = bc.mp; e.mp = bc.mp; e.skillChance = bc.skillChance; e.atk0 = atk;
@@ -1383,8 +1390,6 @@
     function done() {
       var pv = wpnVal(h, 'poison');
       if (pv && tgt.hp > 0) { tgt.poison = (tgt.poison || 0) + pv; logMsg(tgt.name + '에 독 +' + pv); }
-      var ls = relicSum('lifesteal');
-      if (ls) { c.lord.hp = Math.min(c.lord.maxHp, c.lord.hp + ls); fxSupport(lordEl(), '+' + ls, '#7ef0b5'); }
       logMsg(h.def.name + ' → ' + enemy.name + ' ' + total + ' 피해' + (anyCrit ? ' (치명타!)' : ''));
       c.busy = false;
       finishPlay();
@@ -1394,6 +1399,8 @@
   function doSkill(h, target) {
     var c = run.combat; var sk = h.def.skill;
     c.lord.mp = Math.max(0, c.lord.mp - skillMp(sk)); // 모든 스킬은 MP 소모(회복 포함)
+    var shl = relicSum('skillHeal'); // 유물: 스킬 사용 시 주공 HP 회복
+    if (shl) { c.lord.hp = Math.min(c.lord.maxHp, c.lord.hp + shl); fxSupport(lordEl(), '+' + shl, '#7ef0b5'); }
     TCG.sfx(sk.type === 'heal' ? 'heal' : 'skill');
     fxBanner('✨ ' + h.def.name + ' 「' + sk.name + '」', 'skill-cast', 1000); // 스킬 발동 강조
     fxFlash('rgba(150,200,255,0.16)');
@@ -1917,20 +1924,30 @@
     TCG.sfx('heal'); TCG.toast('주공 HP·MP 30% 회복'); advanceStage();
   });
   document.getElementById('restTrain').addEventListener('click', function () {
-    run.restMode = 'train';
-    document.getElementById('restTrain').classList.add('chosen');
-    TCG.toast('강화할 장수를 선택하세요');
-    document.getElementById('restParty').innerHTML = run.party.map(miniHero).join('');
+    pickPartyHero('장수 강화', '공격력 +3 할 장수를 선택하세요', function (h) {
+      h.atk += 3; TCG.sfx('tap'); TCG.toast(h.def.name + ' 공격력 +3'); advanceStage();
+    });
   });
-  document.getElementById('restParty').addEventListener('click', function (e) {
-    if (run.restMode !== 'train') return;
-    var m = e.target.closest('.mini-hero'); if (!m) return;
-    var h = run.party.find(function (x) { return x.uid === m.dataset.uid; });
-    if (!h) return;
-    h.atk += 3;
-    TCG.sfx('tap'); TCG.toast(h.def.name + ' 공격력 +3');
-    advanceStage();
-  });
+
+  /* ---------- 장수 선택 팝업(영웅 강화·캠프 훈련 공용) ---------- */
+  var _partyPickCb = null;
+  function pickPartyHero(title, sub, cb) {
+    _partyPickCb = cb;
+    var t = document.getElementById('partyPickTitle'); if (t) t.textContent = title;
+    var s = document.getElementById('partyPickSub'); if (s) s.textContent = sub || '';
+    var body = document.getElementById('partyPickBody'); if (body) body.innerHTML = run.party.map(miniHero).join('');
+    var pop = document.getElementById('partyPickPopup'); if (pop) { pop.hidden = false; TCG.sfx('tap'); }
+  }
+  (function () {
+    var pop = document.getElementById('partyPickPopup'); if (!pop) return;
+    document.getElementById('partyPickBody').addEventListener('click', function (e) {
+      var m = e.target.closest('.mini-hero'); if (!m) return;
+      var h = run.party.find(function (x) { return x.uid === m.dataset.uid; }); if (!h) return;
+      var cb = _partyPickCb; _partyPickCb = null; pop.hidden = true; if (cb) cb(h);
+    });
+    document.getElementById('partyPickCancel').addEventListener('click', function () { _partyPickCb = null; pop.hidden = true; });
+    pop.addEventListener('click', function (e) { if (e.target.id === 'partyPickPopup') { _partyPickCb = null; pop.hidden = true; } });
+  })();
 
   /* ---------- SHOP ---------- */
   function genShop() {
@@ -1946,9 +1963,10 @@
       { kind: 'item', cid: TCG.pick(HW_CONSUMABLES).id, cost: 22, sold: false }, // 소모성 아이템(랜덤)
       { kind: 'item', cid: TCG.pick(HW_CONSUMABLES).id, cost: 22, sold: false },
       { kind: 'heal', cost: 24, sold: false },    // 치료 서비스: 주공 HP 50 회복
-      { kind: 'dujiu', cost: 18, sold: false },   // 두강주: MP 20 회복
-      { kind: 'upgrade', cost: 28, sold: false }
+      { kind: 'dujiu', cost: 18, sold: false }    // 두강주: MP 20 회복
     ];
+    // 영웅 강화 — 약 40% 확률로 진열. 한 번 사용하면 다음 스테이지 클리어까지 비활성(새로고침해도 유지)
+    if (Math.random() < 0.4) run.shop.push({ kind: 'upgrade', cost: 28, sold: (run.upgradeUsedStamp === tavernStamp()) });
   }
   function rerollCost() { return (run.shopRerolls || 0) * 30; } // 첫 새로고침 무료, 이후 30·60·90… 30씩 증가
   function showShop() {
@@ -2024,7 +2042,7 @@
     else if (it.kind === 'item') { var ci = HW_CONS_BY_ID[it.cid]; emoji = ci.emoji; name = ci.name; desc = ci.desc; }
     else if (it.kind === 'heal') { emoji = '❤️‍🩹'; name = '치료 서비스'; desc = '주공 HP 50 회복'; }
     else if (it.kind === 'dujiu') { emoji = '🍶'; name = '두강주'; desc = '주공 MP 20 회복'; }
-    else { emoji = '⚒️'; name = '무기 강화'; desc = '무작위 영웅 공격력 +3'; }
+    else { emoji = '⚒️'; name = '영웅 강화'; desc = '영웅 1명 공격력 +3 (선택)'; }
     return '<div class="wr-good' + (it.sold ? ' sold' : '') + '">' +
       '<div class="wr-good-tile">' + emoji + '</div>' +
       '<div class="wr-good-info"><div class="wr-good-name">' + name + rb + '</div>' +
@@ -2086,7 +2104,12 @@
       if (typeof run.lordMp !== 'number') run.lordMp = lordMaxMp();
       run.lordMp = Math.min(lordMaxMp(), run.lordMp + 20); TCG.toast('두강주 — 주공 MP 20 회복');
     } else {
-      var h = TCG.pick(run.party); h.atk += 3; TCG.toast(h.def.name + ' 공격력 +3');
+      // 영웅 강화 — 장수 선택 팝업. 선택 시 골드 차감·사용 처리(스테이지 단위 비활성 유지)
+      pickPartyHero('영웅 강화', '공격력 +3 할 장수를 선택하세요', function (h) {
+        h.atk += 3; run.gold -= it.cost; it.sold = true; run.upgradeUsedStamp = tavernStamp();
+        TCG.sfx('tap'); TCG.toast(h.def.name + ' 공격력 +3'); updateTop(); saveRun(); renderShop();
+      });
+      return; // 차감·렌더는 선택 콜백에서 처리
     }
     run.gold -= it.cost; it.sold = true; updateTop(); saveRun(); renderShop();
   });

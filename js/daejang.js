@@ -602,7 +602,6 @@
     }
     function done() {
       var pv = wpnVal(h, 'poison'); if (pv && t.hp > 0) { t.poison = (t.poison || 0) + pv; logMsg(t.name + '에 독 +' + pv); }
-      var ls = relicSum('lifesteal'); if (ls && c.lord.hp > 0) { c.lord.hp = Math.min(c.lord.maxHp, c.lord.hp + ls); } // 오추마(유물)
       logMsg(h.def.name + ' → ' + t.name + ' ' + total + ' 피해' + (anyCrit ? ' (치명타!)' : ''));
       c.busy = false;
       finishPlay();
@@ -614,6 +613,7 @@
     var ti = c.tgtIdx || 0; if (!enemyByIdx(ti) || enemyByIdx(ti).hp <= 0) ti = 0;
     var tName = (enemyByIdx(ti) || b).name;
     c.lord.mp = Math.max(0, c.lord.mp - skillMp(sk)); // 모든 스킬 MP 소모(회복 포함)
+    var shl = relicSum('skillHeal'); if (shl && c.lord.hp > 0) { c.lord.hp = Math.min(c.lord.maxHp, c.lord.hp + shl); fxSupport(lordEl(), '+' + shl, '#7ef0b5'); } // 오추마·벽사부적(유물): 스킬 사용 시 회복
     TCG.sfx(sk.type === 'heal' ? 'heal' : 'skill');
     var pw = effAtk(h);
     if (sk.type === 'strike') { var sc = rollCrit(critChance(h)); var sd = (pw + sk.val) * (sc ? 2 : 1); dmgTarget(ti, sd, sc); shake('big'); logMsg(h.def.name + ' 「' + sk.name + '」 ' + tName + ' ' + sd + ' 피해' + (sc ? ' (치명타!)' : '')); }
