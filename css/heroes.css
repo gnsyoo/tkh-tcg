@@ -1081,3 +1081,8 @@ button.wr-chip:hover { box-shadow: inset 0 0 0 1px var(--gold); }
 }
 .codex-pctchip { flex: none; }
 .codex-pctchip .pctlbl { font-size: 11px; font-weight: 600; color: var(--ink-dim); }
+
+/* 도감 본문·대기실 타임라인 등 몰입 영역은 스크롤바를 완전히 숨김(스크롤은 유지) */
+.codex-page-body, .wr-timeline, .col-grid, .col-weapon-list { scrollbar-width: none; }
+.codex-page-body::-webkit-scrollbar, .wr-timeline::-webkit-scrollbar,
+.col-grid::-webkit-scrollbar, .col-weapon-list::-webkit-scrollbar { width: 0; height: 0; display: none; }
