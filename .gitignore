@@ -13,4 +13,6 @@ android/local.properties
 android/app/release/
 *.keystore
 *.jks
+# 단, 고정 디버그 키스토어는 커밋(사이드로드 덮어쓰기 설치용 — 릴리스 키 아님)
+!android/app/debug-fixed.keystore
 .DS_Store
