@@ -750,7 +750,8 @@
           '<div class="ci-pw">⚔ ' + pwTxt + '</div>' +
         '</div></div>' +
       '<div class="ci-ab">' + (def.ab ? '✨ ' + def.ab.txt : '지속 효과 없음') + '</div>' +
-      '<div class="ci-enh-wrap">강화 패턴 ' + enhGlyph(def, owner) + '<small>카드를 놓으면 표시된 칸에 폰 +1</small></div>';
+      '<div class="ci-enh-wrap">강화 영역 ' + enhGlyph(def, owner) +
+        '<small>' + (owner === 'foe' ? '상대 시점 기준 · 표시된 칸으로 점령을 넓힙니다' : '표시된 칸에 폰 +1(점령 확장)') + '</small></div>';
     document.getElementById('cardModal').hidden = false;
   }
   document.getElementById('cardModalClose').addEventListener('click', function () { document.getElementById('cardModal').hidden = true; });
@@ -792,8 +793,8 @@
   /* ---------- deck builder ---------- */
   var builderDeck = null;
   var builderRows = 3;
-  function sortedBuilderCards() { // 레벨(등급) 오름차순, 같은 레벨은 점수(무력) 오름차순
-    return QB_CARDS.slice().sort(function (a, b) { return (a.rank - b.rank) || (a.power - b.power); });
+  function sortedBuilderCards() { // 레벨(등급) 오름차순, 같은 레벨은 점수(무력) 오름차순 (AI 전용 카드는 제외)
+    return QB_CARDS.filter(function (c) { return !c.aiOnly; }).sort(function (a, b) { return (a.rank - b.rank) || (a.power - b.power); });
   }
   function openDeckBuilder() {
     builderDeck = getPlayerDeck().slice();

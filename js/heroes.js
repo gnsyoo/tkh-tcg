@@ -312,7 +312,18 @@
     var msub = document.getElementById('mapSub'); if (msub) msub.textContent = TCG.t('map.sub');
     renderCampaign();
     show('mapScreen');
+    scrollToCurrentStage();
     saveRun();
+  }
+  // 대기실 진입 시 출진 지역 목록을 진행 중(current) 스테이지로 스크롤
+  function scrollToCurrentStage() {
+    if (typeof requestAnimationFrame !== 'function') return;
+    requestAnimationFrame(function () {
+      var tl = document.querySelector('#mapTrack .wr-timeline');
+      var cur = tl && tl.querySelector('.wr-row.current');
+      if (!tl || !cur) return;
+      tl.scrollTop = Math.max(0, cur.offsetTop - (tl.clientHeight - cur.offsetHeight) / 2);
+    });
   }
   function renderCampaign() {
     var m = run.mainStage, s = run.subStage, st = HW_STAGES[m];

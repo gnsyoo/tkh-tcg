@@ -124,6 +124,15 @@ var QB_CARDS = [
   { id: 'yuanshao',   name: '원소',     emoji: '🎌', rank: 3, power: 6, enh: [[-1,0],[1,0],[0,1]],
     ab: { t:'buff', who:'ally', scope:'row', val:2, txt:'같은 줄 아군 +2' } },
   { id: 'simayan',    name: '사마염',   emoji: '👑', rank: 3, power: 7, enh: [[0,1]],
+    ab: { t:'debuff', who:'enemy', scope:'row', val:2, txt:'같은 줄 적 -2' } },
+
+  // ---------- AI 전용 (덱 구성·도감에 노출 안 됨) — 상대 난이도 상향용. 낮은 등급+강한 효과로 항상 전개 가능 ----------
+  { id: 'ai_van',     name: '선봉대장', emoji: '🎌', rank: 1, power: 3, enh: [[0,1],[0,-1],[1,0],[-1,0]], aiOnly: true }, // 사방 점령 확장
+  { id: 'ai_fury',    name: '맹장',     emoji: '🪓', rank: 1, power: 4, enh: [[0,1],[1,0]], aiOnly: true,
+    ab: { t:'debuff', who:'enemy', cells:[[0,1]], val:1, txt:'앞 칸 적 -1' } },
+  { id: 'ai_war',     name: '역전의 명장', emoji: '⚔️', rank: 2, power: 8, enh: [[0,1],[-1,0],[1,0]], aiOnly: true,
+    ab: { t:'buff', who:'ally', scope:'row', val:1, txt:'같은 줄 아군 +1' } },
+  { id: 'ai_seer',    name: '책략가',   emoji: '🪶', rank: 2, power: 5, enh: [[0,1]], aiOnly: true,
     ab: { t:'debuff', who:'enemy', scope:'row', val:2, txt:'같은 줄 적 -2' } }
 ];
 
@@ -141,8 +150,8 @@ var QB_DECK_AI_NORMAL = [
   'knight','golem','spider','wolf','banshee','phoenix',
   'titan','lich','kraken'
 ];
-var QB_DECK_AI_HARD = [
-  'scout','mandragora','imp','cactuar','crow','bee',
-  'knight','mage','cleric','siren','minotaur','spider',
-  'dragon','behemoth','seraph'
+var QB_DECK_AI_HARD = [ // 상대 난이도 상향: 낮은 곡선(전개 보장) + AI 전용 강카드 4장 + 마무리 명장 2장
+  'ai_van','monk','mandragora','ai_fury','bee','imp','fairy',
+  'golem','ai_war','cleric','siren','ai_seer','druid',
+  'behemoth','titan'
 ];
