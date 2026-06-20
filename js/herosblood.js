@@ -534,7 +534,15 @@
     var cc = document.getElementById('hbCols'); if (cc) cc.textContent = ROWS; // 레인 수 = 보드 크기(N×5)
     var g = document.getElementById('hbGold');
     if (g) { try { var sv = JSON.parse(localStorage.getItem('hw_save') || 'null'); g.textContent = (sv && typeof sv.gold === 'number') ? sv.gold : 0; } catch (e) { g.textContent = 0; } }
+    renderStreak();
     renderSizeSel();
+  }
+  // 상단 헤더 연승 칩 — 실제 연승값(qb_winstreak)을 반영
+  function renderStreak() {
+    var el = document.getElementById('hbStreak'); if (!el) return;
+    var n = curStreak();
+    var nEl = document.getElementById('hbStreakN'); if (nEl) nEl.textContent = n;
+    el.classList.toggle('on', n >= 1);
   }
   function boardHasCards() {
     for (var r = 0; r < ROWS; r++) for (var c = 0; c < COLS; c++) if (state.board[r][c].card) return true;

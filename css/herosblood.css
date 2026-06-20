@@ -386,6 +386,13 @@
 .hb-gold { display: flex; align-items: center; gap: 6px; background: rgba(48,30,24,.74); border-radius: 11px; padding: 6px 11px; box-shadow: inset 0 0 0 1px rgba(240,195,60,.18); }
 .hb-gold img { width: 18px; height: 18px; object-fit: contain; }
 .hb-gold b { color: #f0c33c; font-weight: 800; font-size: 14px; font-variant-numeric: tabular-nums; }
+/* 연승 칩 — 골드 칩 옆. 0연승=흐림(회갈), 1연승↑=적색 강조 */
+.hb-streak { display: flex; align-items: center; gap: 4px; flex: none; background: rgba(48,30,24,.74); border-radius: 11px; padding: 6px 9px; box-shadow: inset 0 0 0 1px rgba(240,195,60,.14); }
+.hb-streak .hb-streak-fire { font-size: 14px; line-height: 1; filter: grayscale(1) opacity(.5); }
+.hb-streak b { font-size: 13px; font-weight: 900; color: #8c7a6a; font-variant-numeric: tabular-nums; line-height: 1; }
+.hb-streak.on { box-shadow: inset 0 0 0 1px rgba(224,72,63,.35); }
+.hb-streak.on .hb-streak-fire { filter: none; }
+.hb-streak.on b { color: #ff8a7e; }
 .hb-sp { flex: 1; }
 .hb-deck { display: flex; align-items: center; gap: 6px; border: none; border-radius: 11px; background: rgba(48,30,24,.74); box-shadow: inset 0 0 0 1px rgba(240,195,60,.25); color: #f3e9da; font-weight: 700; font-size: 12px; padding: 6px 11px; cursor: pointer; font-family: inherit; }
 .hb-deck img { height: 17px; width: auto; display: block; }
