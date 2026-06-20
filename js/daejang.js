@@ -396,6 +396,13 @@
   /* ---------- render ---------- */
   function renderCombat() {
     var c = combat, b = c.boss;
+    var chd = document.getElementById('combatHead');
+    if (chd) {
+      chd.innerHTML =
+        '<div class="ch-info"><div class="ch-sub">' + TCG.t('cmb.raidLabel') + '</div>' +
+        '<div class="ch-name">' + b.name + ' · 토벌전</div></div>' +
+        '<div class="ch-turn"><span>' + TCG.t('cmb.turnLabel') + '</span><b>' + Math.max(1, c.round) + '</b></div>';
+    }
     document.getElementById('energyBox').innerHTML = '🎴 가운데 카드를 선택해 <b>공격</b>하거나, 턴을 종료하세요';
     var dead = b.hp <= 0, charmed = b.charmed > 0 || b.confused > 0;
     var tgt = c.targeting && !dead;

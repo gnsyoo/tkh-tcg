@@ -1086,3 +1086,13 @@ button.wr-chip:hover { box-shadow: inset 0 0 0 1px var(--gold); }
 .codex-page-body, .wr-timeline, .col-grid, .col-weapon-list { scrollbar-width: none; }
 .codex-page-body::-webkit-scrollbar, .wr-timeline::-webkit-scrollbar,
 .col-grid::-webkit-scrollbar, .col-weapon-list::-webkit-scrollbar { width: 0; height: 0; display: none; }
+
+/* ===== 전투 상단 헤더(핸드오프) — 전역/스테이지명 + 턴 수 ===== */
+.combat-head { display: flex; align-items: center; gap: 9px; padding: 2px 2px 8px; }
+.combat-head .ch-info { flex: 1; min-width: 0; }
+.combat-head .ch-sub { font-size: 9px; font-weight: 700; color: var(--gold-soft); letter-spacing: .5px; }
+.combat-head .ch-name { font-size: 14px; font-weight: 800; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+.combat-head .ch-turn { flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 42px; padding: 5px 9px; background: var(--panel); border-radius: 10px; box-shadow: inset 0 0 0 1px rgba(240,195,60,.2); }
+.combat-head .ch-turn span { font-size: 8px; font-weight: 800; color: var(--ink-dim); letter-spacing: .8px; }
+.combat-head .ch-turn b { font-size: 16px; font-weight: 900; color: var(--gold); line-height: 1.05; }
+.combat-log-head { font-size: 11px; font-weight: 800; color: var(--gold); letter-spacing: .5px; margin: 0 0 5px 2px; }

@@ -1062,6 +1062,16 @@
 
   function renderCombat() {
     var c = run.combat;
+    // 상단 헤더 — 전역/스테이지명 + 턴 수
+    var chd = document.getElementById('combatHead');
+    if (chd) {
+      var cst = HW_STAGES[c.main];
+      var tier = c.enemies.some(function (e) { return e.boss; }) ? '적장전' : (c.enemies.some(function (e) { return e.mid; }) ? '정예전' : '전투');
+      chd.innerHTML =
+        '<div class="ch-info"><div class="ch-sub">' + (c.main + 1) + '전역 · ' + (c.sub + 1) + '스테이지</div>' +
+        '<div class="ch-name">' + (cst ? cst.name : '') + ' · ' + tier + '</div></div>' +
+        '<div class="ch-turn"><span>' + TCG.t('cmb.turnLabel') + '</span><b>' + Math.max(1, c.round) + '</b></div>';
+    }
     // enemies (적장은 주공을 공격)
     document.getElementById('enemyRow').innerHTML = c.enemies.map(function (e, idx) {
       var dead = e.hp <= 0;

@@ -244,6 +244,7 @@
     adminTitle: { ko: '🔐 관리자 모드', en: '🔐 Admin Mode', ja: '🔐 管理者モード', zh: '🔐 管理员模式', zhTW: '🔐 管理員模式' },
     adminSub: { ko: '암호를 입력하세요', en: 'Enter the passcode', ja: 'パスコードを入力', zh: '请输入密码', zhTW: '請輸入密碼' },
     uiClose: { ko: '닫기', en: 'Close', ja: '閉じる', zh: '关闭', zhTW: '關閉' },
+    cmbLogTitle: { ko: '⚔ 전투 내역', en: '⚔ Battle Log', ja: '⚔ 戦闘ログ', zh: '⚔ 战斗记录', zhTW: '⚔ 戰鬥記錄' },
     uiItemUse: { ko: '사용', en: 'Use', ja: '使用', zh: '使用', zhTW: '使用' },
     uiItemCancel: { ko: '취소', en: 'Cancel', ja: 'キャンセル', zh: '取消', zhTW: '取消' },
     uiItemConfirm: { ko: '이 소모품을 사용할까요? (턴당 1개)', en: 'Use this item? (one per turn)', ja: 'このアイテムを使いますか？（毎ターン1個）', zh: '使用该消耗品吗？（每回合1个）', zhTW: '使用此消耗品嗎？（每回合1個）' },
