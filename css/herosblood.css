@@ -395,10 +395,10 @@
 .hb-streak.on b { color: #ff8a7e; }
 .hb-sp { flex: 1; }
 .hb-deck { display: flex; align-items: center; gap: 6px; border: none; border-radius: 11px; background: rgba(48,30,24,.74); box-shadow: inset 0 0 0 1px rgba(240,195,60,.25); color: #f3e9da; font-weight: 700; font-size: 12px; padding: 6px 11px; cursor: pointer; font-family: inherit; }
-.hb-deck img { height: 17px; width: auto; display: block; }
+.hb-deck img { height: 20px; width: auto; display: block; filter: drop-shadow(0 1px 2px rgba(0,0,0,.5)); }
 /* 배너 */
 .hb-banner { display: flex; align-items: center; gap: 11px; margin: 1px 12px; padding: 6px 13px; border-radius: 12px; background: linear-gradient(100deg,#4a3416 0%,#3a2810 60%,#2c1d0c 100%); box-shadow: inset 0 0 0 1px rgba(240,195,60,.18); }
-.hb-banner .hb-emoji { font-size: 24px; line-height: 1; }
+.hb-banner .hb-emoji { flex: none; width: 40px; height: auto; display: block; filter: drop-shadow(0 2px 4px rgba(0,0,0,.5)); }
 .hb-bt { flex: 1; min-width: 0; }
 .hb-bt b { font-size: 14px; font-weight: 900; color: #f3e9da; }
 .hb-bt small { display: block; font-size: 9.5px; color: #cdb89c; margin-top: 2px; }
