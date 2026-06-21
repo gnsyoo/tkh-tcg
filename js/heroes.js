@@ -2282,12 +2282,18 @@
     document.getElementById('heroModalBody').querySelectorAll('[data-wact]').forEach(function (b) {
       b.addEventListener('click', function () {
         TCG.sfx('tap');
+        var oldMaxHp = lordMaxHp(), oldMaxMp = lordMaxMp(); // 장착 전 주공 최대치
         if (b.dataset.wact === 'unequip') {
           h.weapons.splice(parseInt(b.dataset.slot, 10), 1);
         } else if (h.weapons.length < weaponSlots(h) && h.weapons.indexOf(b.dataset.wid) === -1 && freeWeaponIds().indexOf(b.dataset.wid) !== -1) {
           h.weapons.push(b.dataset.wid); // 장수당 같은 이름 장비는 1개만 장착 가능
         }
+        // 주공 최대 HP/MP 변화량을 현재치에도 반영(대기실 즉시 반영 · 장착/해제 왕복 시 순증가 없음)
+        var dHp = lordMaxHp() - oldMaxHp, dMp = lordMaxMp() - oldMaxMp;
+        if (typeof run.lordHp === 'number') run.lordHp = Math.max(0, Math.min(lordMaxHp(), run.lordHp + dHp));
+        if (typeof run.lordMp === 'number') run.lordMp = Math.max(0, Math.min(lordMaxMp(), run.lordMp + dMp));
         saveRun();
+        renderCampaign(); // 대기실 주공 능력치 바 갱신
         showHeroModal(h); // 다시 렌더
       });
     });

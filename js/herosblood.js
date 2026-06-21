@@ -533,7 +533,14 @@
     var f = document.getElementById('hbTotalFoe'); if (f) f.textContent = s.foe;
     var cc = document.getElementById('hbCols'); if (cc) cc.textContent = ROWS; // 레인 수 = 보드 크기(N×5)
     var g = document.getElementById('hbGold');
-    if (g) { try { var sv = JSON.parse(localStorage.getItem('hw_save') || 'null'); g.textContent = (sv && typeof sv.gold === 'number') ? sv.gold : 0; } catch (e) { g.textContent = 0; } }
+    if (g) {
+      try {
+        var sv = JSON.parse(localStorage.getItem('hw_save') || 'null');
+        var base = (sv && typeof sv.gold === 'number') ? sv.gold : 0;
+        var bonus = parseInt(localStorage.getItem('hw_bonus_gold') || '0', 10) || 0; // 히어로즈 블러드 정산(영웅전 복귀 시 반영) 미리 합산
+        g.textContent = Math.max(0, base + bonus);
+      } catch (e) { g.textContent = 0; }
+    }
     renderStreak();
     renderSizeSel();
   }
