@@ -196,6 +196,33 @@
     window.addEventListener(ev, unlock, { passive: true });
   });
 
+  // 앱이 백그라운드로 가거나 화면이 가려지면 BGM 일시정지(오디오 컨텍스트 suspend),
+  // 복귀하면 재개. 네이티브(앱)는 @capacitor/app appStateChange, 웹은 visibilitychange.
+  function setActive(active) {
+    if (!ctx) return;
+    if (active) { if (isOn()) { try { ctx.resume(); } catch (e) {} } }
+    else { try { ctx.suspend(); } catch (e) {} }
+  }
+  if (typeof document !== 'undefined' && document.addEventListener) {
+    document.addEventListener('visibilitychange', function () { setActive(!document.hidden); });
+  }
+  function regAppState() {
+    try {
+      var App = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App;
+      if (App && App.addListener) {
+        App.addListener('appStateChange', function (s) { setActive(!!(s && s.isActive)); });
+        App.addListener('pause', function () { setActive(false); });
+        App.addListener('resume', function () { setActive(true); });
+        return true;
+      }
+    } catch (e) {}
+    return false;
+  }
+  if (!regAppState()) {
+    if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded', regAppState);
+    window.addEventListener('load', regAppState);
+  }
+
   window.BGMEngine = {
     play: function (key) { if (key && key !== sceneKey) startScene(key); else { ensure(); resume(); } },
     stop: stop,
