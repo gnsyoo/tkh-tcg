@@ -172,7 +172,7 @@
     guideBody: guideBody,
 
     creditsTitle: { ko: '🎬 만든이', en: '🎬 Credits', ja: '🎬 制作', zh: '🎬 制作人员', zhTW: '🎬 製作人員' },
-    creditsSub: { ko: '⚔️ 삼국지 카드 게임', en: '⚔️ Three Kingdoms Card Game', ja: '⚔️ 三国志カードゲーム', zh: '⚔️ 三国志卡牌游戏', zhTW: '⚔️ 三國志卡牌遊戲' },
+    creditsSub: { ko: '⚔️ 삼국 영웅전', en: '⚔️ Three Kingdoms Heroes', ja: '⚔️ 三国英雄伝', zh: '⚔️ 三国英雄传', zhTW: '⚔️ 三國英雄傳' },
 
     close: { ko: '닫기', en: 'Close', ja: '閉じる', zh: '关闭', zhTW: '關閉' },
 
