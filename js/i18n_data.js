@@ -856,6 +856,32 @@
     '위의 총사령관': { ko: '위의 총사령관', en: 'Supreme Commander of Wei', ja: '魏の総司令官', zh: '魏军总司令', zhTW: '魏軍總司令' },
     '진(晉)의 무제': { ko: '진(晉)의 무제', en: 'Emperor Wu of Jin', ja: '晋の武帝', zh: '晋之武帝', zhTW: '晉之武帝' }
   };
+  // 히어로즈 블러드 카드 능력 문구(ab.txt)
+  var ABILITY = {
+    '앞 칸 아군 +1': { en: 'Front ally +1', ja: '前マスの味方 +1', zh: '前格友军 +1', zhTW: '前格友軍 +1' },
+    '앞 칸 아군 +2': { en: 'Front ally +2', ja: '前マスの味方 +2', zh: '前格友军 +2', zhTW: '前格友軍 +2' },
+    '앞 칸 적 -1': { en: 'Front enemy -1', ja: '前マスの敵 -1', zh: '前格敌人 -1', zhTW: '前格敵人 -1' },
+    '앞 칸 적 -2': { en: 'Front enemy -2', ja: '前マスの敵 -2', zh: '前格敌人 -2', zhTW: '前格敵人 -2' },
+    '직선 아군 +1': { en: 'Allies in a line +1', ja: '直線の味方 +1', zh: '直线友军 +1', zhTW: '直線友軍 +1' },
+    '정면 직선 적 -1': { en: 'Enemies straight ahead -1', ja: '正面直線の敵 -1', zh: '正面直线敌人 -1', zhTW: '正面直線敵人 -1' },
+    '같은 줄 아군 +1': { en: 'Same-row allies +1', ja: '同じ列の味方 +1', zh: '同列友军 +1', zhTW: '同列友軍 +1' },
+    '같은 줄 아군 +2': { en: 'Same-row allies +2', ja: '同じ列の味方 +2', zh: '同列友军 +2', zhTW: '同列友軍 +2' },
+    '같은 줄 적 -1': { en: 'Same-row enemies -1', ja: '同じ列の敵 -1', zh: '同列敌人 -1', zhTW: '同列敵人 -1' },
+    '같은 줄 적 -2': { en: 'Same-row enemies -2', ja: '同じ列の敵 -2', zh: '同列敌人 -2', zhTW: '同列敵人 -2' },
+    '상하 아군 +1': { en: 'Vertical allies +1', ja: '上下の味方 +1', zh: '上下友军 +1', zhTW: '上下友軍 +1' },
+    '상하 아군 +2': { en: 'Vertical allies +2', ja: '上下の味方 +2', zh: '上下友军 +2', zhTW: '上下友軍 +2' },
+    '좌우 아군 +1': { en: 'Side allies +1', ja: '左右の味方 +1', zh: '左右友军 +1', zhTW: '左右友軍 +1' },
+    '대각 아군 +1': { en: 'Diagonal allies +1', ja: '斜めの味方 +1', zh: '对角友军 +1', zhTW: '對角友軍 +1' },
+    '인접 아군 +1': { en: 'Adjacent allies +1', ja: '隣接の味方 +1', zh: '相邻友军 +1', zhTW: '相鄰友軍 +1' },
+    '인접 아군 +2': { en: 'Adjacent allies +2', ja: '隣接の味方 +2', zh: '相邻友军 +2', zhTW: '相鄰友軍 +2' },
+    '인접 적 -1': { en: 'Adjacent enemies -1', ja: '隣接の敵 -1', zh: '相邻敌人 -1', zhTW: '相鄰敵人 -1' },
+    '전방 아군 +2': { en: 'Forward allies +2', ja: '前方の味方 +2', zh: '前方友军 +2', zhTW: '前方友軍 +2' },
+    '전방 적 -1': { en: 'Forward enemies -1', ja: '前方の敵 -1', zh: '前方敌人 -1', zhTW: '前方敵人 -1' },
+    '전방 적 -2': { en: 'Forward enemies -2', ja: '前方の敵 -2', zh: '前方敌人 -2', zhTW: '前方敵人 -2' },
+    '사방 아군 +1': { en: 'All-around allies +1', ja: '四方の味方 +1', zh: '四方友军 +1', zhTW: '四方友軍 +1' },
+    '먼 정면 적 -2': { en: 'Far front enemy -2', ja: '正面遠方の敵 -2', zh: '正面远处敌人 -2', zhTW: '正面遠處敵人 -2' },
+    '뒤 칸 아군 +2': { en: 'Rear ally +2', ja: '後ろマスの味方 +2', zh: '后格友军 +2', zhTW: '後格友軍 +2' }
+  };
 
   /* ---------- 적용 ---------- */
   function safe(arr, fn) { if (typeof arr !== 'undefined' && arr) fn(); }
@@ -901,6 +927,6 @@
     Object.keys(HW_MODES).forEach(function (k) { var m = HW_MODES[k]; m.label = pick(MODE, m.label); if (MODE_DESC[k] && MODE_DESC[k][lang]) m.desc = MODE_DESC[k][lang]; });
   }
   if (typeof QB_CARDS !== 'undefined' && QB_CARDS) {
-    QB_CARDS.forEach(function (c) { c.name = NAME[c.name] ? pick(NAME, c.name) : pick(TROOP, c.name); });
+    QB_CARDS.forEach(function (c) { c.name = NAME[c.name] ? pick(NAME, c.name) : pick(TROOP, c.name); if (c.ab && c.ab.txt) c.ab.txt = pick(ABILITY, c.ab.txt); });
   }
 })();
