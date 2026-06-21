@@ -222,7 +222,7 @@
     qbFoe: { ko: '🤖 상대', en: '🤖 Opponent', ja: '🤖 相手', zh: '🤖 对手', zhTW: '🤖 對手' },
     qbYou: { ko: '🧑 당신', en: '🧑 You', ja: '🧑 あなた', zh: '🧑 你', zhTW: '🧑 你' },
     qbPass: { ko: '패스', en: 'Pass', ja: 'パス', zh: '过牌', zhTW: '過牌' },
-    qbDeckTitle: { ko: '🃏 덱 구성', en: '🃏 Deck Build', ja: '🃏 デッキ編成', zh: '🃏 卡组构建', zhTW: '🃏 牌組構建' },
+    qbDeckTitle: { ko: '덱 구성', en: 'Deck Build', ja: 'デッキ編成', zh: '卡组构建', zhTW: '牌組構建' },
     qbDeckBuild: { ko: '덱 구성', en: 'Deck', ja: 'デッキ編成', zh: '卡组', zhTW: '牌組' },
     qbBoardSize: { ko: '판 크기', en: 'Board Size', ja: '盤面サイズ', zh: '棋盘大小', zhTW: '棋盤大小' },
     qbDefaultDeck: { ko: '기본덱', en: 'Default', ja: '基本デッキ', zh: '默认卡组', zhTW: '預設牌組' },

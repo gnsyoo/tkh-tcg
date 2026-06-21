@@ -711,6 +711,121 @@
     extreme: { en: 'Enemy HP ×3 · Commander ATK +100% · Crit 10%', ja: '敵HP3倍・敵将攻撃+100%・敵将クリ10%', zh: '敌HP3倍·敌将攻击+100%·敌将暴击10%', zhTW: '敵HP3倍·敵將攻擊+100%·敵將暴擊10%' }
   };
 
+  var REGION = {
+    '낙양 동문': { ko: '낙양 동문', en: 'Luoyang East Gate', ja: '洛陽東門', zh: '洛阳东门', zhTW: '洛陽東門' },
+    '형양 가도': { ko: '형양 가도', en: 'Xingyang Road', ja: '滎陽街道', zh: '荥阳街道', zhTW: '滎陽街道' },
+    '변수 나루': { ko: '변수 나루', en: 'Bianshui Ford', ja: '汴水の渡し', zh: '汴水渡口', zhTW: '汴水渡口' },
+    '광무 언덕': { ko: '광무 언덕', en: 'Guangwu Hill', ja: '広武の丘', zh: '广武山丘', zhTW: '廣武山丘' },
+    '사수관 초입': { ko: '사수관 초입', en: 'Sishui Pass Entrance', ja: '汜水関入口', zh: '汜水关入口', zhTW: '汜水關入口' },
+    '호뢰관 외성': { ko: '호뢰관 외성', en: 'Hulao Pass Outer Wall', ja: '虎牢関外城', zh: '虎牢关外城', zhTW: '虎牢關外城' },
+    '대곡 협로': { ko: '대곡 협로', en: 'Daigu Pass', ja: '大谷の隘路', zh: '大谷隘路', zhTW: '大谷隘路' },
+    '성고 들판': { ko: '성고 들판', en: 'Chenggao Field', ja: '成皋の野', zh: '成皋原野', zhTW: '成皋原野' },
+    '환원관 고개': { ko: '환원관 고개', en: 'Huanyuan Pass', ja: '轘轅関の峠', zh: '轘辕关山岭', zhTW: '轘轅關山嶺' },
+    '사수관 성벽': { ko: '사수관 성벽', en: 'Sishui Pass Ramparts', ja: '汜水関城壁', zh: '汜水关城墙', zhTW: '汜水關城牆' },
+    '호뢰관 관문': { ko: '호뢰관 관문', en: 'Hulao Pass Gate', ja: '虎牢関関門', zh: '虎牢关关门', zhTW: '虎牢關關門' },
+    '백마 나루': { ko: '백마 나루', en: 'Baima Ford', ja: '白馬の渡し', zh: '白马渡口', zhTW: '白馬渡口' },
+    '연진 도하': { ko: '연진 도하', en: 'Yanjin Crossing', ja: '延津の渡し', zh: '延津渡口', zhTW: '延津渡口' },
+    '관도 들머리': { ko: '관도 들머리', en: 'Guandu Approach', ja: '官渡の入口', zh: '官渡入口', zhTW: '官渡入口' },
+    '양무 평원': { ko: '양무 평원', en: 'Yangwu Plain', ja: '陽武平原', zh: '阳武平原', zhTW: '陽武平原' },
+    '오소 길목': { ko: '오소 길목', en: 'Wuchao Crossroads', ja: '烏巣の辻', zh: '乌巢路口', zhTW: '烏巢路口' },
+    '토산 진지': { ko: '토산 진지', en: 'Tushan Camp', ja: '土山陣地', zh: '土山阵地', zhTW: '土山陣地' },
+    '관도 보루': { ko: '관도 보루', en: 'Guandu Fort', ja: '官渡の砦', zh: '官渡堡垒', zhTW: '官渡堡壘' },
+    '복양 가도': { ko: '복양 가도', en: 'Puyang Road', ja: '濮陽街道', zh: '濮阳街道', zhTW: '濮陽街道' },
+    '여양 외곽': { ko: '여양 외곽', en: 'Liyang Outskirts', ja: '黎陽郊外', zh: '黎阳外围', zhTW: '黎陽外圍' },
+    '오소 곡창': { ko: '오소 곡창', en: 'Wuchao Granary', ja: '烏巣兵糧庫', zh: '乌巢粮仓', zhTW: '烏巢糧倉' },
+    '관도 본영': { ko: '관도 본영', en: 'Guandu Main Camp', ja: '官渡本営', zh: '官渡本营', zhTW: '官渡本營' },
+    '신야 외곽': { ko: '신야 외곽', en: 'Xinye Outskirts', ja: '新野郊外', zh: '新野外围', zhTW: '新野外圍' },
+    '번성 가도': { ko: '번성 가도', en: 'Fancheng Road', ja: '樊城街道', zh: '樊城街道', zhTW: '樊城街道' },
+    '양양 길목': { ko: '양양 길목', en: 'Xiangyang Crossroads', ja: '襄陽の辻', zh: '襄阳路口', zhTW: '襄陽路口' },
+    '당양 비탈': { ko: '당양 비탈', en: 'Dangyang Slope', ja: '当陽の坂', zh: '当阳山坡', zhTW: '當陽山坡' },
+    '장판교 초입': { ko: '장판교 초입', en: 'Changban Bridge Entrance', ja: '長坂橋入口', zh: '长坂桥入口', zhTW: '長坂橋入口' },
+    '경산 숲길': { ko: '경산 숲길', en: 'Jingshan Woods', ja: '荊山の森道', zh: '荆山林道', zhTW: '荊山林道' },
+    '한진 나루': { ko: '한진 나루', en: 'Hanjin Ford', ja: '漢津の渡し', zh: '汉津渡口', zhTW: '漢津渡口' },
+    '적벽 가도': { ko: '적벽 가도', en: 'Chibi Road', ja: '赤壁街道', zh: '赤壁街道', zhTW: '赤壁街道' },
+    '강릉 들판': { ko: '강릉 들판', en: 'Jiangling Field', ja: '江陵の野', zh: '江陵原野', zhTW: '江陵原野' },
+    '장판 언덕': { ko: '장판 언덕', en: 'Changban Hill', ja: '長坂の丘', zh: '长坂山丘', zhTW: '長坂山丘' },
+    '장판교 다리': { ko: '장판교 다리', en: 'Changban Bridge', ja: '長坂橋', zh: '长坂桥', zhTW: '長坂橋' },
+    '오림 나루': { ko: '오림 나루', en: 'Wulin Ford', ja: '烏林の渡し', zh: '乌林渡口', zhTW: '烏林渡口' },
+    '삼강구': { ko: '삼강구', en: 'Sanjiangkou', ja: '三江口', zh: '三江口', zhTW: '三江口' },
+    '적벽 강안': { ko: '적벽 강안', en: 'Chibi Riverbank', ja: '赤壁の岸', zh: '赤壁江岸', zhTW: '赤壁江岸' },
+    '장강 수로': { ko: '장강 수로', en: 'Yangtze Waterway', ja: '長江の水路', zh: '长江水道', zhTW: '長江水道' },
+    '화용 길목': { ko: '화용 길목', en: 'Huarong Crossroads', ja: '華容の辻', zh: '华容路口', zhTW: '華容路口' },
+    '남병산 기슭': { ko: '남병산 기슭', en: 'Mount Nanping Foot', ja: '南屏山の麓', zh: '南屏山麓', zhTW: '南屏山麓' },
+    '이릉 가도': { ko: '이릉 가도', en: 'Yiling Road', ja: '夷陵街道', zh: '夷陵街道', zhTW: '夷陵街道' },
+    '강하 포구': { ko: '강하 포구', en: 'Jiangxia Harbor', ja: '江夏の港', zh: '江夏港口', zhTW: '江夏港口' },
+    '한수 합류': { ko: '한수 합류', en: 'Hanshui Confluence', ja: '漢水合流', zh: '汉水合流', zhTW: '漢水合流' },
+    '오림 본채': { ko: '오림 본채', en: 'Wulin Main Camp', ja: '烏林本営', zh: '乌林大寨', zhTW: '烏林大寨' },
+    '적벽 수채': { ko: '적벽 수채', en: 'Chibi Naval Camp', ja: '赤壁水寨', zh: '赤壁水寨', zhTW: '赤壁水寨' },
+    '양평관 초입': { ko: '양평관 초입', en: 'Yangping Pass Entrance', ja: '陽平関入口', zh: '阳平关入口', zhTW: '陽平關入口' },
+    '면수 강변': { ko: '면수 강변', en: 'Mianshui Riverside', ja: '沔水の川辺', zh: '沔水河畔', zhTW: '沔水河畔' },
+    '한중 가도': { ko: '한중 가도', en: 'Hanzhong Road', ja: '漢中街道', zh: '汉中街道', zhTW: '漢中街道' },
+    '정군산 기슭': { ko: '정군산 기슭', en: 'Mount Dingjun Foot', ja: '定軍山の麓', zh: '定军山麓', zhTW: '定軍山麓' },
+    '주마곡': { ko: '주마곡', en: 'Zhuma Valley', ja: '走馬谷', zh: '走马谷', zhTW: '走馬谷' },
+    '천탕산 비탈': { ko: '천탕산 비탈', en: 'Mount Tiandang Slope', ja: '天蕩山の坂', zh: '天荡山坡', zhTW: '天蕩山坡' },
+    '홍구 들판': { ko: '홍구 들판', en: 'Honggou Field', ja: '鴻溝の野', zh: '鸿沟原野', zhTW: '鴻溝原野' },
+    '면양 평원': { ko: '면양 평원', en: 'Mianyang Plain', ja: '沔陽平原', zh: '沔阳平原', zhTW: '沔陽平原' },
+    '무도 길목': { ko: '무도 길목', en: 'Wudu Crossroads', ja: '武都の辻', zh: '武都路口', zhTW: '武都路口' },
+    '정군산 능선': { ko: '정군산 능선', en: 'Mount Dingjun Ridge', ja: '定軍山の尾根', zh: '定军山脊', zhTW: '定軍山脊' },
+    '정군산 정상': { ko: '정군산 정상', en: 'Mount Dingjun Summit', ja: '定軍山頂', zh: '定军山顶', zhTW: '定軍山頂' },
+    '무현 길목': { ko: '무현 길목', en: 'Wuxian Crossroads', ja: '巫県の辻', zh: '巫县路口', zhTW: '巫縣路口' },
+    '자귀 들머리': { ko: '자귀 들머리', en: 'Zigui Approach', ja: '秭帰の入口', zh: '秭归入口', zhTW: '秭歸入口' },
+    '이도 가도': { ko: '이도 가도', en: 'Yidao Road', ja: '夷道街道', zh: '夷道街道', zhTW: '夷道街道' },
+    '효정 평원': { ko: '효정 평원', en: 'Xiaoting Plain', ja: '猇亭平原', zh: '猇亭平原', zhTW: '猇亭平原' },
+    '효정 진채': { ko: '효정 진채', en: 'Xiaoting Stockade Camp', ja: '猇亭陣寨', zh: '猇亭营寨', zhTW: '猇亭營寨' },
+    '마안산 비탈': { ko: '마안산 비탈', en: "Mount Ma'an Slope", ja: '馬鞍山の坂', zh: '马鞍山坡', zhTW: '馬鞍山坡' },
+    '효정 숲': { ko: '효정 숲', en: 'Xiaoting Woods', ja: '猇亭の森', zh: '猇亭林', zhTW: '猇亭林' },
+    '강북 진지': { ko: '강북 진지', en: 'North-of-River Camp', ja: '江北陣地', zh: '江北阵地', zhTW: '江北陣地' },
+    '강남 진지': { ko: '강남 진지', en: 'South-of-River Camp', ja: '江南陣地', zh: '江南阵地', zhTW: '江南陣地' },
+    '효정 화전': { ko: '효정 화전', en: 'Xiaoting Burned Field', ja: '猇亭焼け野', zh: '猇亭火烧之地', zhTW: '猇亭火燒之地' },
+    '이릉 대채': { ko: '이릉 대채', en: 'Yiling Main Camp', ja: '夷陵大寨', zh: '夷陵大寨', zhTW: '夷陵大寨' },
+    '기산 들머리': { ko: '기산 들머리', en: 'Mount Qi Approach', ja: '祁山の入口', zh: '祁山入口', zhTW: '祁山入口' },
+    '가정 길목': { ko: '가정 길목', en: 'Jieting Crossroads', ja: '街亭の辻', zh: '街亭路口', zhTW: '街亭路口' },
+    '진창 가도': { ko: '진창 가도', en: 'Chencang Road', ja: '陳倉街道', zh: '陈仓街道', zhTW: '陳倉街道' },
+    '위수 강안': { ko: '위수 강안', en: 'Wei River Riverbank', ja: '渭水の岸', zh: '渭水江岸', zhTW: '渭水江岸' },
+    '오장원 들판': { ko: '오장원 들판', en: 'Wuzhang Plains Field', ja: '五丈原の野', zh: '五丈原原野', zhTW: '五丈原原野' },
+    '상규 비탈': { ko: '상규 비탈', en: 'Shanggui Slope', ja: '上邽の坂', zh: '上邽山坡', zhTW: '上邽山坡' },
+    '농서 평원': { ko: '농서 평원', en: 'Longxi Plain', ja: '隴西平原', zh: '陇西平原', zhTW: '隴西平原' },
+    '목문도 협곡': { ko: '목문도 협곡', en: 'Mumendao Gorge', ja: '木門道の峡谷', zh: '木门道峡谷', zhTW: '木門道峽谷' },
+    '검각 길목': { ko: '검각 길목', en: 'Jiange Crossroads', ja: '剣閣の辻', zh: '剑阁路口', zhTW: '劍閣路口' },
+    '오장원 본영': { ko: '오장원 본영', en: 'Wuzhang Plains Main Camp', ja: '五丈原本営', zh: '五丈原本营', zhTW: '五丈原本營' },
+    '위수 진루': { ko: '위수 진루', en: 'Wei River Rampart Tower', ja: '渭水陣楼', zh: '渭水阵楼', zhTW: '渭水陣樓' },
+    '검각 관문': { ko: '검각 관문', en: 'Jiange Pass Gate', ja: '剣閣関門', zh: '剑阁关门', zhTW: '劍閣關門' },
+    '면죽 평원': { ko: '면죽 평원', en: 'Mianzhu Plain', ja: '綿竹平原', zh: '绵竹平原', zhTW: '綿竹平原' },
+    '성도 가도': { ko: '성도 가도', en: 'Chengdu Road', ja: '成都街道', zh: '成都街道', zhTW: '成都街道' },
+    '낙양 외곽': { ko: '낙양 외곽', en: 'Luoyang Outskirts', ja: '洛陽郊外', zh: '洛阳外围', zhTW: '洛陽外圍' },
+    '건업 길목': { ko: '건업 길목', en: 'Jianye Crossroads', ja: '建業の辻', zh: '建业路口', zhTW: '建業路口' },
+    '수춘 진지': { ko: '수춘 진지', en: 'Shouchun Camp', ja: '寿春陣地', zh: '寿春阵地', zhTW: '壽春陣地' },
+    '파릉 강안': { ko: '파릉 강안', en: 'Baling Riverbank', ja: '巴陵の岸', zh: '巴陵江岸', zhTW: '巴陵江岸' },
+    '석두성 밖': { ko: '석두성 밖', en: 'Outside Shitou Fortress', ja: '石頭城外', zh: '石头城外', zhTW: '石頭城外' },
+    '건업 외성': { ko: '건업 외성', en: 'Jianye Outer Wall', ja: '建業外城', zh: '建业外城', zhTW: '建業外城' },
+    '낙양 궁문': { ko: '낙양 궁문', en: 'Luoyang Palace Gate', ja: '洛陽宮門', zh: '洛阳宫门', zhTW: '洛陽宮門' },
+    '천하 통일': { ko: '천하 통일', en: 'Unify the Realm', ja: '天下統一', zh: '天下统一', zhTW: '天下統一' }
+  };
+  var ENEMY = {
+    '황건적 졸개': { ko: '황건적 졸개', en: 'Yellow Turban Grunt', ja: '黄巾賊の雑兵', zh: '黄巾贼喽啰', zhTW: '黃巾賊嘍囉' },
+    '산적': { ko: '산적', en: 'Bandit', ja: '山賊', zh: '山贼', zhTW: '山賊' },
+    '도적': { ko: '도적', en: 'Thief', ja: '盗賊', zh: '盗贼', zhTW: '盜賊' },
+    '굶주린 이리': { ko: '굶주린 이리', en: 'Starving Wolf', ja: '飢えた狼', zh: '饥饿之狼', zhTW: '飢餓之狼' },
+    '반란병': { ko: '반란병', en: 'Rebel Soldier', ja: '反乱兵', zh: '叛乱兵', zhTW: '叛亂兵' },
+    '자객': { ko: '자객', en: 'Assassin', ja: '刺客', zh: '刺客', zhTW: '刺客' },
+    '황건역사': { ko: '황건역사', en: 'Yellow Turban Brute', ja: '黄巾力士', zh: '黄巾力士', zhTW: '黃巾力士' },
+    '노략꾼': { ko: '노략꾼', en: 'Marauder', ja: '略奪者', zh: '劫掠者', zhTW: '劫掠者' },
+    '맹호': { ko: '맹호', en: 'Fierce Tiger', ja: '猛虎', zh: '猛虎', zhTW: '猛虎' },
+    '황건적 두목': { ko: '황건적 두목', en: 'Yellow Turban Chief', ja: '黄巾賊の頭目', zh: '黄巾贼头目', zhTW: '黃巾賊頭目' },
+    '철갑병': { ko: '철갑병', en: 'Iron-armored Soldier', ja: '鉄甲兵', zh: '铁甲兵', zhTW: '鐵甲兵' },
+    '요술사': { ko: '요술사', en: 'Sorcerer', ja: '妖術師', zh: '妖术师', zhTW: '妖術師' },
+    '산적 두목': { ko: '산적 두목', en: 'Bandit Chief', ja: '山賊の頭目', zh: '山贼头目', zhTW: '山賊頭目' },
+    '적장': { ko: '적장', en: 'Enemy Officer', ja: '敵将', zh: '敌将', zhTW: '敵將' },
+    '사술사': { ko: '사술사', en: 'Dark Sorcerer', ja: '邪術師', zh: '邪术师', zhTW: '邪術師' },
+    '이민족 거한': { ko: '이민족 거한', en: 'Barbarian Giant', ja: '異民族の巨漢', zh: '异族巨汉', zhTW: '異族巨漢' },
+    '여포': { ko: '여포', en: 'Lü Bu', ja: '呂布', zh: '吕布', zhTW: '呂布' },
+    '동탁': { ko: '동탁', en: 'Dong Zhuo', ja: '董卓', zh: '董卓', zhTW: '董卓' },
+    '화웅': { ko: '화웅', en: 'Hua Xiong', ja: '華雄', zh: '华雄', zhTW: '華雄' },
+    '원술': { ko: '원술', en: 'Yuan Shu', ja: '袁術', zh: '袁术', zhTW: '袁術' },
+    '장각': { ko: '장각', en: 'Zhang Jue', ja: '張角', zh: '张角', zhTW: '張角' },
+    '남만왕 맹획': { ko: '남만왕 맹획', en: 'Nanman King Meng Huo', ja: '南蛮王 孟獲', zh: '南蛮王 孟获', zhTW: '南蠻王 孟獲' }
+  };
+
   /* ---------- 적용 ---------- */
   function safe(arr, fn) { if (typeof arr !== 'undefined' && arr) fn(); }
   safe(typeof HW_HEROES !== 'undefined' && HW_HEROES, function () {
@@ -728,6 +843,9 @@
   if (typeof HW_MID_BOSSES !== 'undefined' && HW_MID_BOSSES) {
     HW_MID_BOSSES.forEach(function (pair) { pair.forEach(function (mb) { mb.name = pick(NAME, mb.name); }); });
   }
+  if (typeof HW_ENEMIES !== 'undefined' && HW_ENEMIES) {
+    ['basic', 'elite', 'boss'].forEach(function (g) { (HW_ENEMIES[g] || []).forEach(function (e) { e.name = pick(ENEMY, e.name); }); });
+  }
   if (typeof HW_WEAPONS !== 'undefined' && HW_WEAPONS) {
     HW_WEAPONS.forEach(function (w) { var d = effDesc(w.effect || {}, WEAP_ORDER); w.name = pick(WNAME, w.name); if (d) w.desc = d; });
   }
@@ -742,6 +860,7 @@
       var orig = st.name;
       if (STAGE_DESC[orig] && STAGE_DESC[orig][lang]) st.desc = STAGE_DESC[orig][lang];
       st.name = pick(STAGE, orig); st.year = yearStr(st.year);
+      if (st.regions) st.regions = st.regions.map(function (r) { return pick(REGION, r); });
     });
   }
   if (typeof HW_MODES !== 'undefined' && HW_MODES) {
