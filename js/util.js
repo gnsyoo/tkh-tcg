@@ -255,6 +255,28 @@ var TCG = (function () {
     });
   }
 
+  // 안드로이드 하드웨어 뒤로가기 — 열린 모달 닫기 → 이전 페이지 → (루트면) 종료 확인
+  function initBackButton() {
+    if (typeof window === 'undefined') return;
+    if (!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform())) return;
+    var App = window.Capacitor.Plugins && window.Capacitor.Plugins.App;
+    if (!App || !App.addListener) return;
+    App.addListener('backButton', function (info) {
+      // 1) 열려 있는 오버레이/시트가 있으면 가장 위의 것을 닫는다
+      var open = document.querySelectorAll('.overlay:not([hidden]), .codex-page:not([hidden]), .settings-sheet:not([hidden])');
+      if (open.length) {
+        var top = open[open.length - 1];
+        top.hidden = true;
+        if (top.classList && top.classList.contains('settings-sheet')) { var bd = document.getElementById('ssBackdrop'); if (bd) bd.hidden = true; }
+        return;
+      }
+      // 2) 웹 히스토리(페이지 이동)가 있으면 이전 페이지로
+      if (info && info.canGoBack) { window.history.back(); return; }
+      // 3) 더 갈 곳이 없으면 종료 확인
+      if (window.confirm('앱을 종료할까요?')) { try { App.exitApp(); } catch (e) {} }
+    });
+  }
+
   return {
     getDifficulty: getDifficulty,
     diffLabel: diffLabel,
@@ -264,6 +286,13 @@ var TCG = (function () {
     toast: toast, floatText: floatText, delay: delay,
     sfx: sfx, toggleMute: toggleMute, isMuted: isMuted, audioResume: audioResume,
     toggleDialogue: toggleDialogue, isDialogueOn: isDialogueOn,
-    initFloatMenu: initFloatMenu
+    initFloatMenu: initFloatMenu,
+    initBackButton: initBackButton
   };
 })();
+
+// 앱(안드로이드)에서 하드웨어 뒤로가기 처리 등록
+if (typeof document !== 'undefined') {
+  if (document.readyState !== 'loading') TCG.initBackButton();
+  else document.addEventListener('DOMContentLoaded', function () { TCG.initBackButton(); });
+}
