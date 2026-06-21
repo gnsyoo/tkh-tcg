@@ -142,6 +142,8 @@
     tabSettings: { ko: '설정', en: 'Settings', ja: '設定', zh: '设置', zhTW: '設定' },
     setTitle: { ko: '설정', en: 'Settings', ja: '設定', zh: '设置', zhTW: '設定' },
     setSound: { ko: '소리 설정', en: 'Sound', ja: 'サウンド設定', zh: '声音设置', zhTW: '聲音設定' },
+    setSfx: { ko: '효과음(SFX)', en: 'Sound FX', ja: '効果音(SFX)', zh: '音效(SFX)', zhTW: '音效(SFX)' },
+    setBgm: { ko: '배경음(BGM)', en: 'Music (BGM)', ja: 'BGM音量', zh: '背景音乐(BGM)', zhTW: '背景音樂(BGM)' },
     setLang: { ko: '언어 설정', en: 'Language', ja: '言語設定', zh: '语言设置', zhTW: '語言設定' },
     setDialogue: { ko: '대사 설정', en: 'Dialogue', ja: 'セリフ設定', zh: '台词设置', zhTW: '台詞設定' },
     setGuideTxt: { ko: '게임 가이드', en: 'Game Guide', ja: 'ゲームガイド', zh: '游戏指南', zhTW: '遊戲指南' },

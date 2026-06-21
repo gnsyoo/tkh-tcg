@@ -29,10 +29,16 @@
     defeat:  { file: 'defeat.mp3',  vol: 1.0 }
   };
   var SCENE_FADE = 1.4;   // 장면 전환 크로스페이드(초)
-  var MASTER_ON = 0.9;
+  var DEFAULT_VOL = 0.9;  // 기본 BGM 볼륨(0~1)
 
-  var enabled = true;
-  try { enabled = (localStorage.getItem('hb_bgm') !== '0'); } catch (e) {}
+  // 볼륨 단일 소스: localStorage 'hb_bgm_vol'(0~1). 0이면 BGM 오프.
+  var volume = DEFAULT_VOL;
+  try {
+    var _sv = localStorage.getItem('hb_bgm_vol');
+    if (_sv !== null && _sv !== '') volume = Math.max(0, Math.min(1, parseFloat(_sv) || 0));
+    else if (localStorage.getItem('hb_bgm') === '0') volume = 0; // 구버전 on/off 토글 마이그레이션
+  } catch (e) {}
+  function isOn() { return volume > 0.0005; }
 
   var ctx = null, master = null;
   var sceneKey = null;
@@ -46,7 +52,7 @@
     var AC = window.AudioContext || window.webkitAudioContext;
     ctx = new AC();
     master = ctx.createGain();
-    master.gain.value = enabled ? MASTER_ON : 0.0001;
+    master.gain.value = isOn() ? volume : 0.0001;
     master.connect(ctx.destination);
   }
   function resume() { try { if (ctx && ctx.state === 'suspended') ctx.resume(); } catch (e) {} }
@@ -162,7 +168,7 @@
     }
     loadBuffer(key).then(function (buf) {
       var src = ctx.createBufferSource(); src.buffer = buf;
-      var g = ctx.createGain(); g.gain.value = enabled ? meta.vol : 0.0001;
+      var g = ctx.createGain(); g.gain.value = isOn() ? meta.vol : 0.0001;
       src.connect(g); g.connect(master);
       src.start(ctx.currentTime + 0.02);
     }).catch(function () {});
@@ -173,15 +179,16 @@
     voice = null; sceneKey = null;
   }
 
-  function setEnabled(b) {
-    enabled = !!b; ensure();
+  function setVolume(v) {
+    volume = Math.max(0, Math.min(1, isNaN(v) ? 0 : v)); ensure();
     var t = ctx.currentTime;
     master.gain.cancelScheduledValues(t);
     master.gain.setValueAtTime(Math.max(0.0001, master.gain.value), t);
-    master.gain.linearRampToValueAtTime(enabled ? MASTER_ON : 0.0001, t + 0.25);
-    if (enabled) resume();
-    try { localStorage.setItem('hb_bgm', enabled ? '1' : '0'); } catch (e) {}
+    master.gain.linearRampToValueAtTime(isOn() ? volume : 0.0001, t + 0.25);
+    if (isOn()) resume();
+    try { localStorage.setItem('hb_bgm_vol', String(volume)); } catch (e) {}
   }
+  function setEnabled(b) { setVolume(b ? (isOn() ? volume : DEFAULT_VOL) : 0); }
 
   // 자동재생 정책: 첫 사용자 제스처에서 컨텍스트 잠금 해제
   function unlock() { ensure(); resume(); }
@@ -194,7 +201,9 @@
     stop: stop,
     stinger: stinger,
     setEnabled: setEnabled,
-    isEnabled: function () { return enabled; },
+    isEnabled: function () { return isOn(); },
+    setVolume: setVolume,
+    getVolume: function () { return volume; },
     current: function () { return sceneKey; },
     setBase: function (path) { BASE = path; buffers = {}; loading = {}; }
   };

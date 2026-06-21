@@ -180,6 +180,19 @@
 .ss-state.off { background: rgba(255,255,255,.12); color: var(--ink-dim); }
 .ss-state.gold { background: none; color: var(--gold-soft); padding: 0; }
 .ss-caret { font-size: 11px; color: #8a7560; }
+/* BGM 볼륨 슬라이더 행 */
+.ss-row-slider { cursor: default; }
+.ss-row-slider:hover { background: none; }
+.ss-row-slider .ss-label { flex: none; }
+.ss-slider {
+  flex: 1; min-width: 60px; height: 4px; margin: 0 4px;
+  -webkit-appearance: none; appearance: none; background: transparent; cursor: pointer;
+}
+.ss-slider::-webkit-slider-runnable-track { height: 4px; border-radius: 99px; background: rgba(255,255,255,.16); }
+.ss-slider::-moz-range-track { height: 4px; border-radius: 99px; background: rgba(255,255,255,.16); }
+.ss-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 15px; height: 15px; margin-top: -5.5px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 4px rgba(240,195,60,.6); }
+.ss-slider::-moz-range-thumb { width: 15px; height: 15px; border: none; border-radius: 50%; background: var(--gold); box-shadow: 0 0 4px rgba(240,195,60,.6); }
+.ss-state.gold { min-width: 26px; text-align: right; font-variant-numeric: tabular-nums; }
 .ss-langs { padding: 2px 12px 8px; }
 .ss-langs .lang-bar { margin-top: 0; }
 
