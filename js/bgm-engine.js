@@ -29,7 +29,7 @@
     defeat:  { file: 'defeat.mp3',  vol: 1.0 }
   };
   var SCENE_FADE = 1.4;   // 장면 전환 크로스페이드(초)
-  var DEFAULT_VOL = 0.9;  // 기본 BGM 볼륨(0~1)
+  var DEFAULT_VOL = 0.2;  // 기본 BGM 볼륨(0~1)
 
   // 볼륨 단일 소스: localStorage 'hb_bgm_vol'(0~1). 0이면 BGM 오프.
   var volume = DEFAULT_VOL;

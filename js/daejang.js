@@ -230,6 +230,7 @@
   /* ---------- screens ---------- */
   function show(id) {
     ['selectScreen', 'combatScreen'].forEach(function (s) { document.getElementById(s).hidden = (s !== id); });
+    if (window.BGMEngine) BGMEngine.play(id === 'combatScreen' ? 'daejang' : 'heroes_lobby');
   }
 
   function renderSelect() {
