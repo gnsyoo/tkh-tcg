@@ -65,6 +65,7 @@
     ['mapScreen', 'combatScreen', 'rewardScreen', 'restScreen', 'shopScreen', 'tavernScreen', 'eventScreen'].forEach(function (s) {
       document.getElementById(s).hidden = (s !== id);
     });
+    if (window.BGMEngine) BGMEngine.play(id === 'combatScreen' ? 'heroes' : 'heroes_lobby');
   }
   function updateTop() {
     var gp = document.getElementById('goldPill'); if (gp) gp.textContent = '💰 ' + run.gold;
@@ -1661,6 +1662,7 @@
       }
     }
     TCG.sfx('win');
+    if (window.BGMEngine) BGMEngine.stinger('victory');
     // 여포: 어떤 전역이든 적장(보스)을 주공 풀 HP로 격파하면 획득
     if (c.sub === SUB_COUNT - 1 && c.lord.hp >= c.lord.maxHp) {
       unlockSpecialHero('lubu', TCG.t('hx.reasonBossFullHp'), true);
@@ -2188,6 +2190,7 @@
   function gameOver() {
     clearSave();
     TCG.sfx('lose');
+    if (window.BGMEngine) BGMEngine.stinger('defeat');
     var fst = HW_STAGES[Math.min(run.mainStage, HW_STAGES.length - 1)];
     document.getElementById('overTitle').textContent = '💀 ' + TCG.t('hx.lordFallen');
     document.getElementById('overText').textContent = TCG.t('hx.gameOverText', { stage: (fst ? fst.name : ''), n: run.subStage + 1, max: SUB_COUNT });

@@ -755,6 +755,7 @@
     }
     c.over = true;
     TCG.sfx('win');
+    if (window.BGMEngine) BGMEngine.stinger('victory');
     var b = HW_RAID.bosses[c.raidIdx], rew = HW_BY_ID[b.reward];
     var firstClear = !isCleared(b.key); // 골드 보상은 첫 격파 시 1회
     markCleared(b.key);
@@ -782,6 +783,7 @@
   function loseRaid() {
     var c = combat; if (c.over) return; c.over = true;
     TCG.sfx('lose');
+    if (window.BGMEngine) BGMEngine.stinger('defeat');
     document.getElementById('overTitle').textContent = '💀 ' + TCG.t('dx.lordFallen');
     document.getElementById('overText').textContent = TCG.t('dx.defeatedBy', { name: c.boss.name });
     document.getElementById('overReward').innerHTML = '';

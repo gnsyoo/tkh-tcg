@@ -9,7 +9,7 @@ const out = path.join(root, 'www');
 
 // 복사 대상 — 런타임에 필요한 파일/폴더만 (dist·android·scripts·node_modules 제외)
 const HTML = ['index.html', 'heroes.html', 'daejang.html', 'herosblood.html'];
-const DIRS = ['css', 'js', 'assets'];
+const DIRS = ['css', 'js', 'assets', 'bgm'];
 const FILES = ['version.json'];
 
 fs.rmSync(out, { recursive: true, force: true });

@@ -15,14 +15,15 @@
 <title>삼국지 카드 게임</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/common.css?v=1.8.18">
-<link rel="stylesheet" href="css/home.css?v=1.8.18">
-<link rel="stylesheet" href="css/intro.css?v=1.8.18">
+<link rel="stylesheet" href="css/common.css?v=1.8.19">
+<link rel="stylesheet" href="css/home.css?v=1.8.19">
+<link rel="stylesheet" href="css/intro.css?v=1.8.19">
+<script src="js/bgm-engine.js?v=1.8.19"></script>
 </head>
 <body class="home-body">
   <!-- 인트로 / 스플래시 (앱 콜드 스타트 첫 화면) -->
   <div class="intro" id="introScreen" hidden>
-    <img class="intro-kv" src="assets/img/home/intro-keyvisual.png?v=1.8.18" alt="">
+    <img class="intro-kv" src="assets/img/home/intro-keyvisual.png?v=1.8.19" alt="">
     <div class="intro-ov intro-ink"></div>
     <div class="intro-ov intro-goldglow"></div>
     <div class="intro-ov intro-vignette"></div>
@@ -68,12 +69,16 @@
   <script>
   (function () {
     var scr = document.getElementById('introScreen');
-    if (!scr) return;
+    // BGM 마스터 on/off를 소리 설정(tcg_muted)과 동기화
+    function syncBgm() { try { if (window.BGMEngine) BGMEngine.setEnabled(localStorage.getItem('tcg_muted') !== '1'); } catch (e) {} }
+    syncBgm();
+    if (!scr) { if (window.BGMEngine) BGMEngine.play('home'); return; }
     // 앱 콜드 스타트(세션 최초)에만 노출 — 같은 세션 내 페이지 이동/복귀 시엔 건너뜀
     var KEY = 'hw_intro_seen';
-    try { if (sessionStorage.getItem(KEY)) { scr.parentNode.removeChild(scr); return; } } catch (e) {}
+    try { if (sessionStorage.getItem(KEY)) { scr.parentNode.removeChild(scr); if (window.BGMEngine) BGMEngine.play('home'); return; } } catch (e) {}
     try { sessionStorage.setItem(KEY, '1'); } catch (e) {}
     scr.hidden = false;
+    if (window.BGMEngine) BGMEngine.play('intro');
 
     var ver = document.getElementById('introVer');
     function setVer() { var vb = document.getElementById('verBadge'); if (vb && ver) { var m = vb.textContent.match(/[0-9][0-9.]*/); if (m) ver.textContent = 'v' + m[0]; } }
@@ -124,6 +129,7 @@
     function dismiss() {
       if (!ready) return;
       if (window.TCG) { try { TCG.sfx('tap'); } catch (e) {} }
+      if (window.BGMEngine) BGMEngine.play('home');
       scr.classList.add('out');
       setTimeout(function () { if (scr.parentNode) scr.parentNode.removeChild(scr); }, 480);
     }
@@ -146,10 +152,10 @@
 
     <!-- 키 비주얼 -->
     <header class="kv">
-      <img class="kv-img" src="assets/img/home/hero-keyvisual.png?v=1.8.18" alt="">
+      <img class="kv-img" src="assets/img/home/hero-keyvisual.png?v=1.8.19" alt="">
       <div class="kv-fade"></div>
       <div class="kv-glow"></div>
-      <span class="ver-badge kv-ver" id="verBadge">v1.8.18 · 2026.06.21</span>
+      <span class="ver-badge kv-ver" id="verBadge">v1.8.19 · 2026.06.21</span>
     </header>
 
     <!-- 모드 카드 -->
@@ -157,7 +163,7 @@
       <a class="mode-card heroes" id="cardHeroes" href="heroes.html">
         <span class="mode-glow"></span>
         <div class="mc-head">
-          <span class="mc-icon"><img src="assets/img/home/icon-heroes.png?v=1.8.18" alt=""></span>
+          <span class="mc-icon"><img src="assets/img/home/icon-heroes.png?v=1.8.19" alt=""></span>
           <div class="mc-meta">
             <div class="mc-tag" data-i18n="heroesTag">난세 평정 · 천하통일</div>
             <div class="mc-title" data-i18n="heroesTitle">삼국 영웅전</div>
@@ -166,27 +172,27 @@
         <p class="mc-desc" data-i18n="heroesDesc">장수를 모집해 부대를 꾸리고 진군 경로를 헤쳐가는 턴제 전투. 황건적과 군벌을 격파하고 동탁·여포 등 보스를 토벌하세요.</p>
         <div class="mc-btn-row">
           <div class="mc-diff" id="heroesDiff" aria-label="난이도"></div>
-          <img class="mc-btn" src="assets/img/home/btn-chuljin.png?v=1.8.18" alt="출진">
+          <img class="mc-btn" src="assets/img/home/btn-chuljin.png?v=1.8.19" alt="출진">
         </div>
       </a>
 
       <a class="mode-card raid" id="cardRaid" href="daejang.html">
         <span class="mode-glow"></span>
         <div class="mc-head">
-          <span class="mc-icon"><img src="assets/img/home/icon-raid.png?v=1.8.18" alt=""></span>
+          <span class="mc-icon"><img src="assets/img/home/icon-raid.png?v=1.8.19" alt=""></span>
           <div class="mc-meta">
             <div class="mc-tag"><span data-i18n="raidTag">레이드 보스전</span> <span class="mc-badge">RAID</span></div>
             <div class="mc-title" data-i18n="raidTitle">삼국 대장전</div>
           </div>
         </div>
         <p class="mc-desc" data-i18n="raidDesc">삼국 영웅전의 <b>덱을 공유</b>해 거대 HP의 적장(레이드 보스)에 도전. <b>보스를 격파하면 그 적장을 전용 장수로 획득</b>하며, 이 장수들은 오직 대장전에서만 얻을 수 있습니다.</p>
-        <div class="mc-btn-row"><img class="mc-btn" src="assets/img/home/btn-tobeol.png?v=1.8.18" alt="토벌"></div>
+        <div class="mc-btn-row"><img class="mc-btn" src="assets/img/home/btn-tobeol.png?v=1.8.19" alt="토벌"></div>
       </a>
 
       <a class="mode-card queens" id="cardQueens" href="herosblood.html">
         <span class="mode-glow"></span>
         <div class="mc-head">
-          <span class="mc-icon"><img src="assets/img/home/icon-board.png?v=1.8.18" alt=""></span>
+          <span class="mc-icon"><img src="assets/img/home/icon-board.png?v=1.8.19" alt=""></span>
           <div class="mc-meta">
             <div class="mc-tag" data-i18n="queensTag">보드 카드 대전</div>
             <div class="mc-title" data-i18n="queensTitle">히어로즈 블러드</div>
@@ -195,17 +201,17 @@
         <p class="mc-desc" data-i18n="queensDesc">진영(3×5·4×5 선택)에 장수 카드를 배치해 영역을 넓히고, <b>배치한 카드의 무력 총합</b>이 높은 쪽이 승리하는 전략 카드 대전. 덱 빌더(장수 카드 69종)로 15장 덱을 짜고, 대전 결과는 영웅전 <b>골드로 정산</b>됩니다.</p>
         <div class="mc-btn-row">
           <div class="mc-diff" id="queensDeck"></div>
-          <img class="mc-btn" src="assets/img/home/btn-daejeon.png?v=1.8.18" alt="대전">
+          <img class="mc-btn" src="assets/img/home/btn-daejeon.png?v=1.8.19" alt="대전">
         </div>
       </a>
     </section>
 
     <!-- 하단 탭바 -->
     <nav class="tabbar">
-      <button class="tab" id="tabCodex"><span class="tab-tile"><img src="assets/img/home/tab-codex.png?v=1.8.18" alt=""></span><span class="tab-label" data-i18n="tabCodex">도감</span></button>
-      <button class="tab" id="tabShop"><span class="tab-tile"><img src="assets/img/home/tab-shop.png?v=1.8.18" alt=""></span><span class="tab-label" data-i18n="tabShop">상점</span></button>
-      <button class="tab" id="tabTavern"><span class="tab-tile"><img src="assets/img/home/tab-tavern.png?v=1.8.18" alt=""></span><span class="tab-label" data-i18n="tabTavern">주막</span></button>
-      <button class="tab" id="tabSettings"><span class="tab-tile"><img src="assets/img/home/tab-settings.png?v=1.8.18" alt=""></span><span class="tab-label" data-i18n="tabSettings">설정</span></button>
+      <button class="tab" id="tabCodex"><span class="tab-tile"><img src="assets/img/home/tab-codex.png?v=1.8.19" alt=""></span><span class="tab-label" data-i18n="tabCodex">도감</span></button>
+      <button class="tab" id="tabShop"><span class="tab-tile"><img src="assets/img/home/tab-shop.png?v=1.8.19" alt=""></span><span class="tab-label" data-i18n="tabShop">상점</span></button>
+      <button class="tab" id="tabTavern"><span class="tab-tile"><img src="assets/img/home/tab-tavern.png?v=1.8.19" alt=""></span><span class="tab-label" data-i18n="tabTavern">주막</span></button>
+      <button class="tab" id="tabSettings"><span class="tab-tile"><img src="assets/img/home/tab-settings.png?v=1.8.19" alt=""></span><span class="tab-label" data-i18n="tabSettings">설정</span></button>
     </nav>
 
     <!-- 설정 바텀시트 -->
@@ -292,10 +298,11 @@
   <!-- 변경 내역 팝업 -->
   <div class="overlay" id="changelogModal" hidden>
     <div class="modal" style="max-width:560px;text-align:left;">
-      <h2 style="text-align:center;">📜 변경 내역 <span style="color:var(--gold);font-size:14px;">v1.8.18</span></h2>
+      <h2 style="text-align:center;">📜 변경 내역 <span style="color:var(--gold);font-size:14px;">v1.8.19</span></h2>
       <div class="changelog-list">
         <h4>📅 2026.06.20</h4>
         <ul>
+          <li><b>화면별 BGM 추가</b> — 인트로·홈·영웅전 대기실·영웅전 전투·대장전·히어로즈 블러드에 <b>상황별 배경음악</b>을 적용했습니다(크로스페이드 무한 루프, 화면 전환 시 자연스럽게 전환). 전투 승패 정산 시 <b>승리/패배 스팅어</b>가 울리며, 홈 <b>소리 설정</b>으로 BGM도 함께 켜고 끌 수 있습니다.</li>
           <li><b>다국어 — 누락 번역 대거 보강</b> — 인트로 화면, 게임 데이터 관리, 히어로즈 블러드 규칙·배너, 영웅전 게임 가이드·캠프·상점·주막·보상 팝업, 그리고 영웅전·대장전·히어로즈 블러드의 <b>전투 로그·토스트·정보 팝업 등 동적 문구 전반</b>을 5개 언어(한·영·일·중간체·중번체)로 번역 적용했습니다.</li>
           <li><b>인트로(스플래시) 화면 추가</b> — 앱 콜드 스타트 시 풀스크린 키비주얼·먹빛/금 오버레이·명조 타이틀(글로우+sweep)·불티 효과와 로딩바를 표시하고, 완료 후 <b>‘터치하여 시작’</b>으로 홈에 진입합니다(우상단 SKIP으로 즉시 완료). 같은 세션에선 한 번만 표시.</li>
           <li><b>덱 구성 아이콘 통일</b> — 새 ‘덱 편집’ 아이콘을 <b>덱 구성 페이지 상단 제목</b>과 <b>홈 화면 히어로즈 블러드 카드의 ‘덱 구성’ 버튼</b>(🃏 이모지 대체)에도 동일하게 적용했습니다.</li>
@@ -506,8 +513,8 @@
     </div>
   </div>
 
-  <script src="js/util.js?v=1.8.18"></script>
-  <script src="js/heroes_data.js?v=1.8.18"></script>
+  <script src="js/util.js?v=1.8.19"></script>
+  <script src="js/heroes_data.js?v=1.8.19"></script>
   <script>
     // 난이도 선택 제거 — 기본 상(hard) 고정
     try { localStorage.setItem('tcg_difficulty', 'hard'); } catch (e) {}
@@ -607,7 +614,7 @@
       /* ── 히어로즈 블러드 덱 구성(대전 앞) — 덱 구성 페이지로 진입 ── */
       function renderQueensDeck() {
         var el = $('queensDeck'); if (!el) return;
-        el.innerHTML = '<span class="mc-diff-btn" data-act="deck"><img class="mc-deck-ic" src="assets/img/heroes/ic-deck-edit.png?v=1.8.18" alt=""> ' + tt('qbDeckBuild') + '</span>';
+        el.innerHTML = '<span class="mc-diff-btn" data-act="deck"><img class="mc-deck-ic" src="assets/img/heroes/ic-deck-edit.png?v=1.8.19" alt=""> ' + tt('qbDeckBuild') + '</span>';
       }
       renderQueensDeck();
       $('queensDeck').addEventListener('click', function (e) {
@@ -685,6 +692,7 @@
       $('setSound').addEventListener('click', function () {
         if (!window.TCG) return;
         TCG.toggleMute(); TCG.audioResume(); refreshSound(); if (!TCG.isMuted()) TCG.sfx('tap');
+        if (window.BGMEngine) BGMEngine.setEnabled(!TCG.isMuted());
       });
 
       // 대사 설정 (전역)
@@ -780,6 +788,6 @@
       });
     })();
   </script>
-  <script src="js/i18n.js?v=1.8.18"></script>
+  <script src="js/i18n.js?v=1.8.19"></script>
 </body>
 </html>

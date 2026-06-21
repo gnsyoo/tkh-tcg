@@ -460,6 +460,7 @@
         }
       }
       TCG.sfx('win');
+      if (window.BGMEngine) BGMEngine.stinger('victory');
     } else if (s.foe > s.you) {
       title = TCG.t('qb.lose');
       var gl = settleHeroesGold(s.you, false);
@@ -469,11 +470,13 @@
         '<span class="eg-label">💸 ' + TCG.t('qx.loseSettle') + '</span>' +
         '<span class="eg-val">' + TCG.t('qx.heroesGold') + ' <b>' + gl + '</b></span></div>';
       TCG.sfx('lose');
+      if (window.BGMEngine) BGMEngine.stinger('defeat');
     } else {
       title = TCG.t('qb.draw');
       updateWinStreak(false);
       text = TCG.t('qx.resultDraw');
       goldHtml = '<div class="end-gold draw"><span class="eg-val">' + TCG.t('qx.noGoldSettle') + '</span></div>';
+      if (window.BGMEngine) BGMEngine.stinger('defeat');
     }
     var tc = treasureChallenge();
     var endActions = document.getElementById('endActions');
