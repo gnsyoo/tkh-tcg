@@ -159,7 +159,7 @@ var TCG = (function () {
     toastEl.textContent = msg;
     toastEl.classList.add('show');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, ms || 1600);
+    toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, ms || 2000);
   }
 
   function floatText(container, x, y, text, color) {

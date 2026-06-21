@@ -1,10 +1,8 @@
 name: Build Android APK
 
-# main 푸시 시 자동 빌드 + Actions 탭에서 수동 실행(Run workflow) 가능
+# 수동 실행(Run workflow / 요청 시)만 — main 푸시로는 자동 빌드하지 않음(웹 배포는 pages.yml이 담당)
 on:
   workflow_dispatch:
-  push:
-    branches: [ main ]
 
 jobs:
   build:
