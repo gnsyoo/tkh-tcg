@@ -107,7 +107,7 @@
       syncCollection();
       localStorage.setItem('hw_save', JSON.stringify({
         v: 3, diff: diff,
-        party: run.party.map(function (h) { return { id: h.def.id, atk: h.atk, uid: h.uid, weapons: heroWpnIds(h).slice() }; }),
+        party: run.party.map(function (h) { return { id: h.def.id, atk: h.atk, uid: h.uid, weapons: heroWpnIds(h).slice(), train: h.train || 0 }; }),
         deck: (run.deck || []).slice(),
         tavern: run.tavern || null,
         gold: run.gold, mainStage: run.mainStage, subStage: run.subStage,
@@ -136,7 +136,7 @@
         var slots = slotsForRarity(HW_BY_ID[h.id].rarity);
         var ws = Array.isArray(h.weapons) ? h.weapons.slice() : (h.weapon ? [h.weapon] : []); // 구버전 호환
         ws = ws.filter(function (id) { return HW_WEAPON_BY_ID[id]; }).slice(0, slots);
-        return { uid: h.uid || (h.id + '_' + Math.random().toString(36).slice(2, 7)), def: HW_BY_ID[h.id], atk: h.atk, weapons: ws };
+        return { uid: h.uid || (h.id + '_' + Math.random().toString(36).slice(2, 7)), def: HW_BY_ID[h.id], atk: h.atk, weapons: ws, train: h.train || 0 };
       }),
       gold: d.gold || 0,
       mainStage: Math.min(Math.max(0, d.mainStage || 0), HW_STAGES.length - 1),
@@ -1925,17 +1925,23 @@
   });
   document.getElementById('restTrain').addEventListener('click', function () {
     pickPartyHero('장수 강화', '공격력 +3 할 장수를 선택하세요', function (h) {
-      h.atk += 3; TCG.sfx('tap'); TCG.toast(h.def.name + ' 공격력 +3'); advanceStage();
+      h.atk += 3; h.train = (h.train || 0) + 1; TCG.sfx('tap'); TCG.toast(h.def.name + ' 공격력 +3 (강화 ' + h.train + '/' + MAX_TRAIN + ')'); advanceStage();
     });
   });
 
   /* ---------- 장수 선택 팝업(영웅 강화·캠프 훈련 공용) ---------- */
+  var MAX_TRAIN = 10; // 장수당 강화 최대 횟수
   var _partyPickCb = null;
   function pickPartyHero(title, sub, cb) {
     _partyPickCb = cb;
     var t = document.getElementById('partyPickTitle'); if (t) t.textContent = title;
     var s = document.getElementById('partyPickSub'); if (s) s.textContent = sub || '';
-    var body = document.getElementById('partyPickBody'); if (body) body.innerHTML = run.party.map(miniHero).join('');
+    var body = document.getElementById('partyPickBody');
+    if (body) body.innerHTML = run.party.map(function (h) {
+      var n = h.train || 0, maxed = n >= MAX_TRAIN;
+      return '<div class="pp-pick' + (maxed ? ' pp-maxed' : '') + '">' + miniHero(h) +
+        '<div class="pp-train">강화 ' + n + '/' + MAX_TRAIN + (maxed ? ' · MAX' : '') + '</div></div>';
+    }).join('');
     var pop = document.getElementById('partyPickPopup'); if (pop) { pop.hidden = false; TCG.sfx('tap'); }
   }
   (function () {
@@ -1943,6 +1949,7 @@
     document.getElementById('partyPickBody').addEventListener('click', function (e) {
       var m = e.target.closest('.mini-hero'); if (!m) return;
       var h = run.party.find(function (x) { return x.uid === m.dataset.uid; }); if (!h) return;
+      if ((h.train || 0) >= MAX_TRAIN) { TCG.toast(h.def.name + ' 은(는) 최대 강화(' + MAX_TRAIN + '/' + MAX_TRAIN + ')입니다'); return; }
       var cb = _partyPickCb; _partyPickCb = null; pop.hidden = true; if (cb) cb(h);
     });
     document.getElementById('partyPickCancel').addEventListener('click', function () { _partyPickCb = null; pop.hidden = true; });
@@ -1950,6 +1957,7 @@
   })();
 
   /* ---------- SHOP ---------- */
+  var CONS_SELL = 11; // 소모품 판매가 = 구매가(22)의 50%
   function genShop() {
     // 상점은 장수 외 품목만 판매(장수는 주막에서) — 무기 2 · 소모품 2 · 두강주 · 무기 강화
     // 장비는 이미 보유한 종류 제외(중복 획득 방지). 거의 다 보유 시엔 중복 허용으로 진열을 채움
@@ -2065,6 +2073,19 @@
       if (!rows) return '';
       return '<div class="wr-sec"><div class="wr-sec-h"><span>' + sec.icon + ' ' + sec.title + '</span><i></i></div>' + rows + '</div>';
     }).join('');
+    // 보유 소모품 판매(상시) — 구매가의 50%
+    var inv = run.items || [];
+    if (inv.length) {
+      var sellRows = inv.map(function (cid, i) {
+        var ci = HW_CONS_BY_ID[cid]; if (!ci) return '';
+        return '<div class="wr-good">' +
+          '<div class="wr-good-tile">' + ci.emoji + '</div>' +
+          '<div class="wr-good-info"><div class="wr-good-name">' + ci.name + '</div>' +
+          '<div class="wr-good-desc">' + ci.desc + '</div></div>' +
+          '<button class="wr-buy wr-sell" data-sell="' + i + '"><span class="p">💰 +' + CONS_SELL + '</span><span class="s">판매</span></button></div>';
+      }).join('');
+      html += '<div class="wr-sec"><div class="wr-sec-h"><span>🪙 보유 소모품 판매</span><i></i></div>' + sellRows + '</div>';
+    }
     document.getElementById('shopItems').innerHTML = html;
   }
   // 저잣거리 장수 카드 — 탭하면 상세 정보(읽기 전용)
@@ -2086,6 +2107,13 @@
   }
   var _srr = document.getElementById('shopReroll'); if (_srr) _srr.addEventListener('click', rerollShop);
   document.getElementById('shopItems').addEventListener('click', function (e) {
+    var sb = e.target.closest('[data-sell]'); // 보유 소모품 판매(상시)
+    if (sb) {
+      var si = parseInt(sb.dataset.sell, 10), cid = (run.items || [])[si]; if (cid == null) return;
+      var ci = HW_CONS_BY_ID[cid]; run.items.splice(si, 1); run.gold += CONS_SELL;
+      TCG.sfx('tap'); TCG.toast((ci ? ci.name : '소모품') + ' 판매 +' + CONS_SELL); updateTop(); saveRun(); renderShop();
+      return;
+    }
     var b = e.target.closest('.wr-buy'); if (!b || b.disabled) return;
     var it = run.shop[parseInt(b.dataset.i, 10)];
     if (it.sold || run.gold < it.cost) return;
@@ -2106,8 +2134,8 @@
     } else {
       // 영웅 강화 — 장수 선택 팝업. 선택 시 골드 차감·사용 처리(스테이지 단위 비활성 유지)
       pickPartyHero('영웅 강화', '공격력 +3 할 장수를 선택하세요', function (h) {
-        h.atk += 3; run.gold -= it.cost; it.sold = true; run.upgradeUsedStamp = tavernStamp();
-        TCG.sfx('tap'); TCG.toast(h.def.name + ' 공격력 +3'); updateTop(); saveRun(); renderShop();
+        h.atk += 3; h.train = (h.train || 0) + 1; run.gold -= it.cost; it.sold = true; run.upgradeUsedStamp = tavernStamp();
+        TCG.sfx('tap'); TCG.toast(h.def.name + ' 공격력 +3 (강화 ' + h.train + '/' + MAX_TRAIN + ')'); updateTop(); saveRun(); renderShop();
       });
       return; // 차감·렌더는 선택 콜백에서 처리
     }

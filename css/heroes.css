@@ -248,6 +248,12 @@
 
 /* party bar (mini portraits) */
 .party-bar { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 6px; }
+/* 장수 선택 팝업 — 강화 횟수 표시 */
+.pp-pick { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; }
+.pp-pick .pp-train { font-size: 9px; font-weight: 800; color: var(--gold-soft, #e2b06a); }
+.pp-pick.pp-maxed { opacity: 0.5; }
+.pp-pick.pp-maxed .pp-train { color: #ff9a7e; }
+.pp-pick.pp-maxed .mini-hero { filter: grayscale(0.5); }
 .mini-hero {
   width: 76px; background: var(--panel); border: 1px solid rgba(255,255,255,0.1);
   border-radius: 10px; padding: 6px 4px; text-align: center; cursor: pointer; position: relative;
