@@ -9,7 +9,7 @@ var TCG = (function () {
     return d;
   }
   function diffLabel(d) {
-    return { easy: '하 (Easy)', normal: '중 (Normal)', hard: '상 (Hard)' }[d] || d;
+    return { easy: t('df.easy'), normal: t('df.normal'), hard: t('df.hard') }[d] || d;
   }
   // 동적 UI 문구 번역 — window.__UI_I18N__(키→{ko,en,ja,zh,zhTW})에서 현재 언어 문자열을 찾아 {var} 치환
   function t(key, vars) {
@@ -273,7 +273,7 @@ var TCG = (function () {
       // 2) 웹 히스토리(페이지 이동)가 있으면 이전 페이지로
       if (info && info.canGoBack) { window.history.back(); return; }
       // 3) 더 갈 곳이 없으면 종료 확인
-      if (window.confirm('앱을 종료할까요?')) { try { App.exitApp(); } catch (e) {} }
+      if (window.confirm(t('app.exitConfirm'))) { try { App.exitApp(); } catch (e) {} }
     });
   }
 

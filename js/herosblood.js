@@ -266,7 +266,7 @@
     render();
     if (!moves.length) {
       // forced pass
-      TCG.toast((state.turn === 'you' ? '당신은' : '상대는') + ' 놓을 곳이 없어 패스합니다');
+      TCG.toast(state.turn === 'you' ? TCG.t('qx.forcedPassYou') : TCG.t('qx.forcedPassFoe'));
       doPass(true);
       return;
     }
@@ -301,7 +301,7 @@
   function doPass(forced) {
     var who = state.turn;
     state[who].lastPass = true;
-    if (!forced) { TCG.sfx('tap'); TCG.toast((who === 'you' ? '당신' : '상대') + ' 패스'); }
+    if (!forced) { TCG.sfx('tap'); TCG.toast(who === 'you' ? TCG.t('qx.passYou') : TCG.t('qx.passFoe')); }
     // 내가(플레이어) 2번 패스하면 종료 여부를 물어봄. 상대 패스로는 끝나지 않음.
     if (who === 'you') {
       state.youPasses = (state.youPasses || 0) + 1;
@@ -426,37 +426,37 @@
       var streakRes = updateWinStreak(true);
       var gotOracle = streakRes.oracle, gotDiaochan = streakRes.diaochan, gotEdict = streakRes.edict, gotCixiong = streakRes.cixiong;
       var streak = gotOracle ? 3 : curStreak();
-      text = '배치한 카드 무력 총합에서 앞섰습니다. (연승 ' + streakNow + ')';
+      text = TCG.t('qx.resultWin', { n: streakNow });
       goldHtml = '<div class="end-gold gain">' +
-        '<span class="eg-label">🏅 승리 보상</span>' +
-        '<span class="eg-val">삼국 영웅전 골드 <b>+' + gw + '</b>' + (bonus > 0 ? ' <small>(기본 ' + s.you + ' + 연승 ' + streakNow + '×5% +' + bonus + ')</small>' : '') + '</span></div>';
+        '<span class="eg-label">🏅 ' + TCG.t('qx.winReward') + '</span>' +
+        '<span class="eg-val">' + TCG.t('qx.heroesGold') + ' <b>+' + gw + '</b>' + (bonus > 0 ? ' <small>' + TCG.t('qx.bonusBreakdown', { base: s.you, n: streakNow, bonus: bonus }) + '</small>' : '') + '</span></div>';
       if (!owned) { // 제갈량을 이미 보유 중이면 3연승 관련 안내 미노출
         if (gotOracle) {
-          goldHtml += '<div class="end-gold gain"><span class="eg-label">🌟 3연승 달성</span>' +
-            '<span class="eg-val"><b>제갈량</b> 획득! 삼국 영웅전에서 합류합니다</span></div>';
+          goldHtml += '<div class="end-gold gain"><span class="eg-label">🌟 ' + TCG.t('qx.streakReached', { n: 3 }) + '</span>' +
+            '<span class="eg-val">' + TCG.t('qx.gotOracle') + '</span></div>';
         } else if (streak < 3) {
-          goldHtml += '<div class="streak-note">🔥 3연승 시 <b>제갈량</b> 획득 (' + streak + '/3)</div>';
+          goldHtml += '<div class="streak-note">🔥 ' + TCG.t('qx.streakHintOracle', { cur: streak }) + '</div>';
         }
       } else if (!hadDiaochan) { // 제갈량 보유 후 — 5연승 시 초선
         if (gotDiaochan) {
-          goldHtml += '<div class="end-gold gain"><span class="eg-label">🌟 5연승 달성</span>' +
-            '<span class="eg-val"><b>초선</b>(SSR) 획득! 삼국 영웅전에서 합류합니다</span></div>';
+          goldHtml += '<div class="end-gold gain"><span class="eg-label">🌟 ' + TCG.t('qx.streakReached', { n: 5 }) + '</span>' +
+            '<span class="eg-val">' + TCG.t('qx.gotDiaochan') + '</span></div>';
         } else {
-          goldHtml += '<div class="streak-note">🔥 5연승 시 <b>초선</b>(SSR) 획득 (' + curStreak() + '/5)</div>';
+          goldHtml += '<div class="streak-note">🔥 ' + TCG.t('qx.streakHintDiaochan', { cur: curStreak() }) + '</div>';
         }
       } else if (!hadEdict) { // 초선 보유 후 — 10연승 시 천자의 밀서(유물)
         if (gotEdict) {
-          goldHtml += '<div class="end-gold gain"><span class="eg-label">🌟 10연승 달성</span>' +
-            '<span class="eg-val"><b>천자의 밀서</b>(유물) 획득! 골드 보상 +20%</span></div>';
+          goldHtml += '<div class="end-gold gain"><span class="eg-label">🌟 ' + TCG.t('qx.streakReached', { n: 10 }) + '</span>' +
+            '<span class="eg-val">' + TCG.t('qx.gotEdict') + '</span></div>';
         } else {
-          goldHtml += '<div class="streak-note">🔥 10연승 시 <b>천자의 밀서</b>(골드 +20% 유물) 획득 (' + streakNow + '/10)</div>';
+          goldHtml += '<div class="streak-note">🔥 ' + TCG.t('qx.streakHintEdict', { cur: streakNow }) + '</div>';
         }
       } else if (!hadCixiong) { // 천자의 밀서 보유 후 — 20연승 시 자웅일대검(장비)
         if (gotCixiong) {
-          goldHtml += '<div class="end-gold gain"><span class="eg-label">🌟 20연승 달성</span>' +
-            '<span class="eg-val"><b>자웅일대검</b>(장비) 획득! 삼국 영웅전에서 사용합니다</span></div>';
+          goldHtml += '<div class="end-gold gain"><span class="eg-label">🌟 ' + TCG.t('qx.streakReached', { n: 20 }) + '</span>' +
+            '<span class="eg-val">' + TCG.t('qx.gotCixiong') + '</span></div>';
         } else {
-          goldHtml += '<div class="streak-note">🔥 20연승 시 <b>자웅일대검</b>(장비) 획득 (' + streakNow + '/20)</div>';
+          goldHtml += '<div class="streak-note">🔥 ' + TCG.t('qx.streakHintCixiong', { cur: streakNow }) + '</div>';
         }
       }
       TCG.sfx('win');
@@ -464,16 +464,16 @@
       title = TCG.t('qb.lose');
       var gl = settleHeroesGold(s.you, false);
       updateWinStreak(false);
-      text = '상대의 무력 총합이 더 높았습니다. (연승 초기화)';
+      text = TCG.t('qx.resultLose');
       goldHtml = '<div class="end-gold loss">' +
-        '<span class="eg-label">💸 패배 정산</span>' +
-        '<span class="eg-val">삼국 영웅전 골드 <b>' + gl + '</b></span></div>';
+        '<span class="eg-label">💸 ' + TCG.t('qx.loseSettle') + '</span>' +
+        '<span class="eg-val">' + TCG.t('qx.heroesGold') + ' <b>' + gl + '</b></span></div>';
       TCG.sfx('lose');
     } else {
       title = TCG.t('qb.draw');
       updateWinStreak(false);
-      text = '무력 총합이 같습니다.';
-      goldHtml = '<div class="end-gold draw"><span class="eg-val">골드 정산 없음</span></div>';
+      text = TCG.t('qx.resultDraw');
+      goldHtml = '<div class="end-gold draw"><span class="eg-val">' + TCG.t('qx.noGoldSettle') + '</span></div>';
     }
     var tc = treasureChallenge();
     var endActions = document.getElementById('endActions');
@@ -481,14 +481,14 @@
       try { localStorage.removeItem('hw_treasure_relic'); } catch (e) {}
       if (s.you > s.foe) {
         grantTreasureRelic(tc);
-        goldHtml += '<div class="end-gold gain"><span class="eg-label">🏺 보물 도전 성공</span>' +
-          '<span class="eg-val"><b>' + tc.emoji + ' ' + tc.name + '</b> 획득! 영웅전에서 받습니다</span></div>';
+        goldHtml += '<div class="end-gold gain"><span class="eg-label">🏺 ' + TCG.t('qx.treasureWin') + '</span>' +
+          '<span class="eg-val">' + TCG.t('qx.treasureWinDesc', { item: tc.emoji + ' ' + tc.name }) + '</span></div>';
       } else {
-        goldHtml += '<div class="end-gold loss"><span class="eg-label">🏺 보물 도전 실패</span>' +
-          '<span class="eg-val">' + tc.emoji + ' ' + tc.name + '을(를) 놓쳤습니다</span></div>';
+        goldHtml += '<div class="end-gold loss"><span class="eg-label">🏺 ' + TCG.t('qx.treasureLose') + '</span>' +
+          '<span class="eg-val">' + TCG.t('qx.treasureLoseDesc', { item: tc.emoji + ' ' + tc.name }) + '</span></div>';
       }
       // 보물 도전 결과창은 '영웅전으로 돌아가기'(자동 이어하기)만 노출
-      goldHtml += '<div style="margin-top:18px;text-align:center"><a class="btn primary" href="heroes.html?resume=1">🗺️ 영웅전으로 돌아가기</a></div>';
+      goldHtml += '<div style="margin-top:18px;text-align:center"><a class="btn primary" href="heroes.html?resume=1">🗺️ ' + TCG.t('qx.backToHeroes') + '</a></div>';
       if (endActions) endActions.style.display = 'none'; // 인라인 display:flex 때문에 hidden 속성만으론 안 숨겨짐
     } else if (endActions) { endActions.style.display = 'flex'; }
     document.getElementById('endTitle').textContent = title;
@@ -497,16 +497,16 @@
     var laneBars = s.lanes.map(function (L, i) {
       var max = Math.max(1, L.you, L.foe);
       var yw = Math.round(L.you / max * 100), fw = Math.round(L.foe / max * 100);
-      var tag = (L.you > L.foe) ? '<span class="lb-tag you">승</span>'
-              : (L.foe > L.you) ? '<span class="lb-tag foe">패</span>' : '<span class="lb-tag">−</span>';
-      return '<div class="lb-row"><span class="lb-no">레인 ' + (i + 1) + '</span>' +
+      var tag = (L.you > L.foe) ? '<span class="lb-tag you">' + TCG.t('qx.laneWin') + '</span>'
+              : (L.foe > L.you) ? '<span class="lb-tag foe">' + TCG.t('qx.laneLose') + '</span>' : '<span class="lb-tag">−</span>';
+      return '<div class="lb-row"><span class="lb-no">' + TCG.t('qx.laneNo', { n: i + 1 }) + '</span>' +
         '<span class="lb-y">' + L.you + '</span>' +
         '<span class="lb-bar"><i class="y" style="width:' + yw + '%"></i><i class="f" style="width:' + fw + '%"></i></span>' +
         '<span class="lb-f">' + L.foe + '</span>' + tag + '</div>';
     }).join('');
     document.getElementById('endScore').innerHTML =
       '<div class="lb-wrap">' + laneBars + '</div>' +
-      '<div class="e-total"><span class="e-you">' + s.you + '</span><span class="e-colon">:</span><span class="e-foe">' + s.foe + '</span><span class="e-tl">총 무력</span></div>';
+      '<div class="e-total"><span class="e-you">' + s.you + '</span><span class="e-colon">:</span><span class="e-foe">' + s.foe + '</span><span class="e-tl">' + TCG.t('qx.totalMight') + '</span></div>';
     document.getElementById('endGold').innerHTML = goldHtml;
     document.getElementById('endModal').hidden = false;
     render();
@@ -733,7 +733,7 @@
     var card = e.target.closest('.hand-card');
     if (!card) return;
     var i = parseInt(card.dataset.i, 10);
-    if (card.classList.contains('unplayable')) { TCG.toast('놓을 수 있는 칸이 없습니다'); return; }
+    if (card.classList.contains('unplayable')) { TCG.toast(TCG.t('qx.noPlaceable')); return; }
     state.selected = (state.selected === i) ? -1 : i;
     render();
   });
@@ -754,19 +754,19 @@
     TCG.sfx('tap');
     var rp = ''; for (var k = 0; k < def.rank; k++) rp += '<span class="rp"></span>';
     var ownerLabel = owner === 'you'
-      ? '<span class="ci-owner you">🧑 내 카드</span>'
-      : '<span class="ci-owner foe">🤖 상대 카드</span>';
-    var pwTxt = '무력 ' + def.power + ((effPower != null && effPower !== def.power) ? ' → <b class="' + (effPower > def.power ? 'ci-up' : 'ci-down') + '">' + effPower + '</b> (효과 적용)' : '');
+      ? '<span class="ci-owner you">🧑 ' + TCG.t('qx.myCard') + '</span>'
+      : '<span class="ci-owner foe">🤖 ' + TCG.t('qx.foeCard') + '</span>';
+    var pwTxt = TCG.t('qx.mightLabel') + ' ' + def.power + ((effPower != null && effPower !== def.power) ? ' → <b class="' + (effPower > def.power ? 'ci-up' : 'ci-down') + '">' + effPower + '</b> ' + TCG.t('qx.effectApplied') : '');
     document.getElementById('cardModalBody').innerHTML =
       '<div class="ci-head">' + TCG.portrait(def.emoji, def.id, 'ci-art', def.name) +
         '<div class="ci-meta">' +
           '<div class="ci-name">' + def.name + ' ' + ownerLabel + '</div>' +
-          '<div class="ci-rank">등급 <span class="rank-pips">' + rp + '</span> · 레벨 ' + def.rank + ' 이상 칸에 배치</div>' +
+          '<div class="ci-rank">' + TCG.t('qx.rankLabel') + ' <span class="rank-pips">' + rp + '</span> · ' + TCG.t('qx.placeOnLevel', { n: def.rank }) + '</div>' +
           '<div class="ci-pw">⚔ ' + pwTxt + '</div>' +
         '</div></div>' +
-      '<div class="ci-ab">' + (def.ab ? '✨ ' + def.ab.txt : '지속 효과 없음') + '</div>' +
-      '<div class="ci-enh-wrap">강화 영역 ' + enhGlyph(def, owner) +
-        '<small>' + (owner === 'foe' ? '상대 시점 기준 · 표시된 칸으로 점령을 넓힙니다' : '표시된 칸에 폰 +1(점령 확장)') + '</small></div>';
+      '<div class="ci-ab">' + (def.ab ? '✨ ' + def.ab.txt : TCG.t('qx.noPassive')) + '</div>' +
+      '<div class="ci-enh-wrap">' + TCG.t('qx.enhRegion') + ' ' + enhGlyph(def, owner) +
+        '<small>' + (owner === 'foe' ? TCG.t('qx.enhNoteFoe') : TCG.t('qx.enhNoteYou')) + '</small></div>';
     document.getElementById('cardModal').hidden = false;
   }
   document.getElementById('cardModalClose').addEventListener('click', function () { document.getElementById('cardModal').hidden = true; });
@@ -783,7 +783,7 @@
     var b = e.target.closest('.hb-seg'); if (!b) return;
     var rws = parseInt(b.dataset.rows, 10);
     if (rws === ROWS) return;
-    if (boardHasCards()) { TCG.toast('보드에 카드를 놓은 뒤에는 크기를 바꿀 수 없습니다'); return; }
+    if (boardHasCards()) { TCG.toast(TCG.t('qx.sizeLocked')); return; }
     ROWS = rws; lsSet('qb_rows', String(rws)); TCG.sfx('tap');
     newGame();
   });
@@ -840,7 +840,7 @@
     var id = card.dataset.id;
     var i = builderDeck.indexOf(id);
     if (i !== -1) builderDeck.splice(i, 1);
-    else if (builderDeck.length >= DECK_SIZE) { TCG.toast('덱은 ' + DECK_SIZE + '장까지입니다'); return; }
+    else if (builderDeck.length >= DECK_SIZE) { TCG.toast(TCG.t('qx.deckMax', { n: DECK_SIZE })); return; }
     else builderDeck.push(id);
     TCG.sfx('tap');
     renderDeckBuilder();
@@ -856,11 +856,11 @@
     builderDeck = QB_DECK_PLAYER.slice(); renderDeckBuilder();
   });
   document.getElementById('deckSave').addEventListener('click', function () {
-    if (builderDeck.length !== DECK_SIZE) { TCG.toast(DECK_SIZE + '장을 모두 채워주세요 (' + builderDeck.length + '/' + DECK_SIZE + ')'); return; }
-    lsSet('qb_deck', JSON.stringify(builderDeck)); TCG.toast('덱을 저장했습니다');
+    if (builderDeck.length !== DECK_SIZE) { TCG.toast(TCG.t('qx.deckFill', { n: DECK_SIZE, cur: builderDeck.length })); return; }
+    lsSet('qb_deck', JSON.stringify(builderDeck)); TCG.toast(TCG.t('qx.deckSaved'));
   });
   document.getElementById('deckStart').addEventListener('click', function () {
-    if (builderDeck.length !== DECK_SIZE) { TCG.toast(DECK_SIZE + '장을 모두 채워주세요 (' + builderDeck.length + '/' + DECK_SIZE + ')'); return; }
+    if (builderDeck.length !== DECK_SIZE) { TCG.toast(TCG.t('qx.deckFill', { n: DECK_SIZE, cur: builderDeck.length })); return; }
     lsSet('qb_deck', JSON.stringify(builderDeck));
     lsSet('qb_rows', String(builderRows));
     ROWS = builderRows; // 선택한 판 크기 적용
@@ -898,14 +898,14 @@
   TCG.initFloatMenu();
   var muteBtn = document.getElementById('muteBtn');
   if (muteBtn) {
-    muteBtn.textContent = TCG.isMuted() ? '🔇 소리' : '🔊 소리';
+    muteBtn.textContent = (TCG.isMuted() ? '🔇 ' : '🔊 ') + TCG.t('qx.sound');
     muteBtn.addEventListener('click', function () {
-      var m = TCG.toggleMute(); muteBtn.textContent = m ? '🔇 소리' : '🔊 소리';
+      var m = TCG.toggleMute(); muteBtn.textContent = (m ? '🔇 ' : '🔊 ') + TCG.t('qx.sound');
       TCG.audioResume(); if (!m) TCG.sfx('tap');
     });
   }
-  var diffPillEl = document.getElementById('diffPill'); if (diffPillEl) diffPillEl.textContent = '난이도 ' + TCG.diffLabel(diff);
+  var diffPillEl = document.getElementById('diffPill'); if (diffPillEl) diffPillEl.textContent = TCG.t('qx.difficulty', { label: TCG.diffLabel(diff) });
   newGame();            // 진입 시 바로 대전 시작
   if (/[?&]deck=1/.test(location.search)) openDeckBuilder(); // 홈 '덱 구성'으로 진입 시 덱 구성 페이지 표시
-  (function () { var t = treasureChallenge(); if (t) TCG.toast('🏺 보물 도전 — 승리 시 ' + t.emoji + ' ' + t.name + ' 획득!'); })();
+  (function () { var t = treasureChallenge(); if (t) TCG.toast('🏺 ' + TCG.t('qx.treasureIntro', { item: t.emoji + ' ' + t.name })); })();
 })();
