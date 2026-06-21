@@ -156,6 +156,20 @@
   function rollCrit(c) { return Math.random() < c; }
   function defenseOf(h) { return 3 + Math.floor(effAtk(h) / 3); }
   function heroByUid(uid) { return party.find(function (h) { return h.uid === uid; }); }
+  function weaponSlots(h) { return h && h.def ? slotsForRarity(h.def.rarity) : 0; } // 장착 수: C=0·R=1·SR=2·SSR=3
+  function freeWeaponIds() { // 보유 무기 중 어느 장수에게도 장착되지 않은 것
+    var owned = (SAVE.weapons || []).slice();
+    party.forEach(function (h) { heroWpnIds(h).forEach(function (wid) { var i = owned.indexOf(wid); if (i !== -1) owned.splice(i, 1); }); });
+    return owned;
+  }
+  function saveParty() { // 장수 무기 장착 상태를 공유 저장(hw_save가 있을 때만)
+    try {
+      var raw = lsGet('hw_save'); if (!raw) return; var d = JSON.parse(raw); if (!d || !Array.isArray(d.party)) return;
+      var byUid = {}; party.forEach(function (h) { byUid[h.uid] = h; });
+      d.party.forEach(function (ph) { var h = byUid[ph.uid]; if (h) ph.weapons = heroWpnIds(h).slice(); });
+      lsSet('hw_save', JSON.stringify(d));
+    } catch (e) {}
+  }
 
   /* ---------- 대장전 전용 스킬 치환 (보스가 면역인 혼란→계책 / 매혹→구휼) ---------- */
   var RAID_SUB_CONFUSE = { name:TCG.t('dx.skStratagem'), cost:2, type:'buff', val:5, target:'ally', desc:TCG.t('dx.skStratagemDesc') };
@@ -520,7 +534,7 @@
     bar.innerHTML =
       '<div class="ab-title">' + h.def.name + ' — ' + TCG.t('cmb.chooseAction') + '</div>' +
       '<div class="ab-row">' +
-        '<button class="act-btn' + (atkSel ? ' chosen' : '') + '" data-act="attack">⚔ ' + TCG.t('cmb.attack') + '<small>' + TCG.t('cmb.dmg') + ' ' + effAtk(h) + (hasWpnFlag(h, 'doubleStrike') ? ' ×2' : '') + (wpnVal(h, 'poison') ? ' ☠' + wpnVal(h, 'poison') : '') + (critPct > 1 ? ' 💥' + critPct + '%' : '') + ' · 💧0</small></button>' +
+        '<button class="act-btn' + (atkSel ? ' chosen' : '') + '" data-act="attack">⚔ ' + TCG.t('cmb.attack') + '<small>' + TCG.t('cmb.dmg') + ' ' + effAtk(h) + (hasWpnFlag(h, 'tripleStrike') ? ' ×3' : (hasWpnFlag(h, 'doubleStrike') ? ' ×2' : '')) + (wpnVal(h, 'poison') ? ' ☠' + wpnVal(h, 'poison') : '') + (critPct > 1 ? ' 💥' + critPct + '%' : '') + ' · 💧0</small></button>' +
         '<button class="act-btn skill' + (skSel ? ' chosen' : '') + '" data-act="skill"' + (canSkill ? '' : ' disabled') + '>✦ ' + sk.name + '<small>' + mpLabel + ' · ' + skDesc + '</small></button>' +
       '</div>' +
       '<button class="act-btn cancel" data-act="cancel">' + TCG.t('cmb.cancel') + '</button>';
@@ -583,7 +597,7 @@
   function dmgBoss(dmg, crit) { dmgTarget(0, dmg, crit); }
   function doAttack(h) {
     var c = combat, ti = c.tgtIdx || 0; if (!enemyByIdx(ti) || enemyByIdx(ti).hp <= 0) ti = 0;
-    var t = enemyByIdx(ti), dmg = effAtk(h), hits = hasWpnFlag(h, 'doubleStrike') ? 2 : 1;
+    var t = enemyByIdx(ti), dmg = effAtk(h), hits = hasWpnFlag(h, 'tripleStrike') ? 3 : (hasWpnFlag(h, 'doubleStrike') ? 2 : 1);
     c.busy = true; // 다회 공격은 타격마다 끊어서 연출
     var total = 0, anyCrit = false, k = 0;
     function step() {
@@ -873,10 +887,86 @@
         '<span class="deck-check">' + (on ? '✓' : '+') + '</span>' +
         TCG.portrait(h.def.emoji, h.def.id, '', h.def.name) +
         '<div class="mh-name">' + h.def.name + '</div>' +
-        '<div class="mh-stats">⚔' + effAtk(h) + (ws ? ' <span class="mh-wpn">' + ws + '</span>' : '') + '</div></div>';
+        '<div class="mh-stats">⚔' + effAtk(h) + (ws ? ' <span class="mh-wpn">' + ws + '</span>' : '') + '</div>' +
+        '<button class="mh-equip" data-equip="' + h.uid + '">🗡 ' + TCG.t('hx.gear') + '</button>' +
+        '</div>';
     }).join('') || '<p class="screen-sub">' + TCG.t('dx.noOfficers') + '</p>';
     paintSortBar('rosterSort', rosterSort);
   }
+  function refreshRosterIfOpen() { var m = document.getElementById('rosterModal'); if (m && !m.hidden) renderRosterGrid(); }
+  function showHeroModal(h) {
+    var d = h.def;
+    var slots = weaponSlots(h);
+    var equipped = heroWpnIds(h);
+    var free = freeWeaponIds();
+    var totalAtkBonus = wpnVal(h, 'atk');
+    // 무기 장착 영역 (장착 수: C=0 · R=1 · SR=2 · SSR=3)
+    var slotLabel = slots === 0 ? TCG.t('hx.slotNone') : TCG.t('hx.slotCount', { rarity: d.rarity, n: slots });
+    var wpnHtml = '<div class="wpn-box"><div class="wpn-title">🗡️ ' + TCG.t('hx.weapon') + ' (' + slotLabel + ')</div>';
+    if (slots === 0) {
+      wpnHtml += '<div class="wpn-empty">' + TCG.t('hx.cRankNoWeapon') + '</div>';
+    } else {
+      // 장착 슬롯
+      for (var s = 0; s < slots; s++) {
+        var wid = equipped[s];
+        if (wid) {
+          var w = HW_WEAPON_BY_ID[wid];
+          wpnHtml += '<div class="wpn-cur"><span>' + w.emoji + ' <b>' + w.name + '</b> — ' + w.desc + '</span>' +
+            '<button class="btn ghost wpn-act" data-wact="unequip" data-slot="' + s + '">' + TCG.t('hx.unequip') + '</button></div>';
+        } else {
+          wpnHtml += '<div class="wpn-cur none">' + TCG.t('hx.emptySlot') + '</div>';
+        }
+      }
+      // 장착 가능한 무기 목록(빈 슬롯이 있을 때만) — 같은 이름은 한 번만, 이미 장착한 것 제외
+      var seenOpt = {};
+      var equippable = free.filter(function (id) {
+        if (seenOpt[id] || equipped.indexOf(id) !== -1) return false;
+        seenOpt[id] = true;
+        return true;
+      });
+      if (equipped.length < slots) {
+        if (equippable.length) {
+          wpnHtml += '<div class="wpn-list">' + equippable.map(function (id) {
+            var fw = HW_WEAPON_BY_ID[id];
+            return '<button class="wpn-opt" data-wact="equip" data-wid="' + id + '">' + fw.emoji + ' ' + fw.name +
+              '<small>' + fw.desc + '</small></button>';
+          }).join('') + '</div>';
+        } else {
+          wpnHtml += '<div class="wpn-empty">' + TCG.t('hx.noOwnedWeapons') + '</div>';
+        }
+      }
+    }
+    wpnHtml += '</div>';
+    document.getElementById('heroModalBody').innerHTML =
+      TCG.portrait(d.emoji, d.id, 'modal-portrait', d.name) +
+      '<h2>' + d.name + ' <span class="rar-' + d.rarity + '" style="font-size:14px">' + d.rarity + '</span></h2>' +
+      '<p>' + d.cls + ' · ⚔ ' + effAtk(h) + (totalAtkBonus ? ' ' + TCG.t('hx.weaponBonus', { n: totalAtkBonus }) : '') + '</p>' +
+      '<div style="background:rgba(0,0,0,.25);border-radius:10px;padding:10px;text-align:left;font-size:13px">' +
+      '<b style="color:var(--gold)">「' + d.skill.name + '」</b> 💧' + skillMp(d.skill) + '<br>' +
+      '<span style="color:var(--ink-dim)">' + d.skill.desc + '</span></div>' +
+      wpnHtml +
+      '<button class="btn primary" id="heroModalClose" style="margin-top:14px">' + TCG.t('hx.close') + '</button>';
+    var modal = document.getElementById('heroModal');
+    modal.hidden = false;
+    document.getElementById('heroModalClose').addEventListener('click', function () { modal.hidden = true; refreshRosterIfOpen(); });
+    document.getElementById('heroModalBody').querySelectorAll('[data-wact]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        TCG.sfx('tap');
+        if (b.dataset.wact === 'unequip') {
+          h.weapons.splice(parseInt(b.dataset.slot, 10), 1);
+        } else if (h.weapons.length < weaponSlots(h) && h.weapons.indexOf(b.dataset.wid) === -1 && freeWeaponIds().indexOf(b.dataset.wid) !== -1) {
+          h.weapons.push(b.dataset.wid); // 장수당 같은 이름 장비는 1개만 장착 가능
+        }
+        saveParty();
+        renderSelect(); // 대기실 주공 능력치/장비 수 갱신
+        showHeroModal(h); // 다시 렌더
+      });
+    });
+  }
+  (function () {
+    var hm = document.getElementById('heroModal');
+    if (hm) hm.addEventListener('click', function (e) { if (e.target.id === 'heroModal') { e.currentTarget.hidden = true; refreshRosterIfOpen(); } });
+  })();
   function toggleDeck(uid) {
     var i = deck.indexOf(uid);
     if (i >= 0) {
@@ -981,6 +1071,8 @@
   document.getElementById('rosterSort').addEventListener('click', function (e) { var b = e.target.closest('.sort-btn'); if (!b) return; TCG.sfx('tap'); applySortClick(rosterSort, b.dataset.sort); renderRosterGrid(); });
   document.getElementById('heroColSort').addEventListener('click', function (e) { var b = e.target.closest('.sort-btn'); if (!b) return; TCG.sfx('tap'); applySortClick(codexSort, b.dataset.sort); renderHeroCodex(); });
   document.getElementById('rosterGrid').addEventListener('click', function (e) {
+    var eq = e.target.closest('[data-equip]');
+    if (eq) { var h = heroByUid(eq.dataset.equip); if (h) { TCG.sfx('tap'); showHeroModal(h); } return; } // 🗡 장비 버튼 → 상세/장착
     var card = e.target.closest('.deck-pick'); if (!card) return;
     toggleDeck(card.dataset.uid);
   });
