@@ -192,7 +192,7 @@ var HW_ENEMIES = {
 /* 보물 (병법/군용품) */
 var HW_RELICS = [
   { id:'banner', name:'대장군 깃발', emoji:'🚩', desc:'가운데 카드 칸 +1', effect:{ energy:1 } },
-  { id:'fang',   name:'오추마',     emoji:'🐎', desc:'스킬 사용 시 HP 1 회복',  effect:{ skillHeal:1 } },
+  { id:'fang',   name:'오추마',     emoji:'🐎', desc:'스킬 사용 시 HP 5 회복',  effect:{ skillHeal:5 } },
   { id:'drum',   name:'전고(戰鼓)', emoji:'🥁', desc:'전투 시작 시 전원 공격력 +2', effect:{ startAtk:2 } },
   { id:'crest',  name:'방패 진형',  emoji:'🛡️', desc:'전투 시작 시 주공 방어막 +5',  effect:{ startBlock:5 } },
   { id:'chalice',name:'군량미',     emoji:'🍚', desc:'전투 승리 후 주공 HP +20 회복', effect:{ winHeal:20 } },
@@ -204,7 +204,7 @@ var HW_RELICS = [
   { id:'edge',   name:'예기(銳器)', emoji:'🗡️', desc:'치명타 확률 +8%',   effect:{ crit:0.08 } },
   { id:'horn',   name:'호각(號角)', emoji:'📣', desc:'전투 시작 시 전원 공격력 +3', effect:{ startAtk:3 } },
   { id:'rampart',name:'철벽 보루',  emoji:'🧱', desc:'전투 시작 시 주공 방어막 +10', effect:{ startBlock:10 } },
-  { id:'amulet', name:'벽사 부적',  emoji:'🧿', desc:'스킬 사용 시 HP 2 회복', effect:{ skillHeal:2 } },
+  { id:'amulet', name:'벽사 부적',  emoji:'🧿', desc:'스킬 사용 시 HP 5 회복', effect:{ skillHeal:5 } },
   { id:'ration', name:'건량(乾糧)', emoji:'🍙', desc:'전투 승리 후 주공 HP +10 회복', effect:{ winHeal:10 } }
 ];
 
