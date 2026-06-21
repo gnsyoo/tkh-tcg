@@ -346,6 +346,37 @@
   100% { transform: translateX(0); filter: none; }
 }
 
+/* ===== Battlefield backdrop (영웅전·대장전 전투 배경 · 적군 뒤 데코 레이어) ===== */
+.battle-bg { position: absolute; left: 0; right: 0; top: 0; height: 300px; z-index: 0; pointer-events: none; overflow: hidden; }
+.battle-bg > * { position: absolute; }
+.bb-sky { inset: 0; background: linear-gradient(180deg,#26100c 0%,#451811 30%,#3a1714 52%,#241210 100%); }
+.bb-sunglow { top: -120px; left: 50%; width: 420px; height: 420px; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(circle,rgba(236,96,72,.3),rgba(200,60,46,.1) 44%,transparent 62%); }
+.bb-suncore { top: 8px; left: 50%; width: 104px; height: 104px; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(circle,#f2724f 0%,#c2402e 42%,rgba(150,44,32,.2) 64%,transparent 74%); filter: blur(.5px); opacity: .82; }
+.bb-ridge { left: 0; width: 100%; }
+.bb-ridge-far { top: 20px; height: 84px; opacity: .6; }
+.bb-ridge-near { top: 38px; height: 78px; }
+.bb-gate { top: 4px; left: 50%; transform: translateX(-50%); width: 128px; filter: brightness(.17) contrast(1.3) sepia(.5) hue-rotate(-12deg) saturate(2); opacity: .9; }
+.bb-pole { width: 5px; background: linear-gradient(180deg,#5a3414,#2a1808); box-shadow: 0 0 6px rgba(0,0,0,.5); }
+.bb-pole-l { top: 30px; left: 26px; height: 150px; }
+.bb-pole-r { top: 36px; right: 26px; height: 140px; }
+.bb-flag { clip-path: polygon(0 0,100% 0,100% 78%,50% 100%,0 78%); transform-origin: top center; animation: scBanner 4s ease-in-out infinite; }
+.bb-flag-l { top: 30px; left: 31px; width: 32px; height: 48px; background: linear-gradient(180deg,#9a2c24,#5e1812); box-shadow: inset 0 0 0 1px rgba(240,195,60,.3); }
+.bb-flag-r { top: 36px; right: 31px; width: 30px; height: 44px; background: linear-gradient(180deg,#6e3a18,#3a1d0c); box-shadow: inset 0 0 0 1px rgba(240,195,60,.25); animation-duration: 4.6s; animation-delay: .5s; }
+.bb-ember { border-radius: 50%; animation-name: scEmber; animation-timing-function: linear; animation-iteration-count: infinite; }
+.bb-horizon { top: 104px; left: 0; right: 0; height: 2px; background: linear-gradient(90deg,transparent,rgba(236,96,72,.45),transparent); }
+.bb-fade { bottom: 0; left: 0; right: 0; height: 120px; background: linear-gradient(180deg,transparent,#1c0f0c); }
+/* 전투 UI는 배경 위로 */
+#combatScreen > .combat-head,
+#combatScreen > .enemy-row,
+#combatScreen > .combat-mid,
+#combatScreen > .lord-bar,
+#combatScreen > .combat-hint,
+#combatScreen > .combat-board,
+#combatScreen > .item-bar,
+#combatScreen > .combat-foot { position: relative; z-index: 1; }
+@keyframes scEmber  { 0% { opacity: 0; transform: translateY(0) translateX(0); } 12% { opacity: .9; } 88% { opacity: .5; } 100% { opacity: 0; transform: translateY(-150px) translateX(14px); } }
+@keyframes scBanner { 0%,100% { transform: skewX(0deg) scaleY(1); } 50% { transform: skewX(-3deg) scaleY(1.015); } }
+
 /* ===== Combat FX layer (persists across re-renders) ===== */
 #combatScreen { position: relative; }
 .fx-layer {

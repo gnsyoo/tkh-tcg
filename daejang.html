@@ -40,6 +40,25 @@
 
     <!-- Combat -->
     <section class="screen" id="combatScreen" hidden>
+      <!-- ===== battlefield backdrop (decorative · 적군 뒤 전장 배경) ===== -->
+      <div class="battle-bg" aria-hidden="true">
+        <div class="bb-sky"></div>
+        <div class="bb-sunglow"></div>
+        <div class="bb-suncore"></div>
+        <svg class="bb-ridge bb-ridge-far" viewBox="0 0 390 90" preserveAspectRatio="none"><path d="M0 90 L40 30 L84 70 L134 14 L186 64 L236 24 L296 68 L346 30 L390 74 L390 90 Z" fill="#3a160e"/></svg>
+        <svg class="bb-ridge bb-ridge-near" viewBox="0 0 390 90" preserveAspectRatio="none"><path d="M0 90 L58 42 L120 84 L190 32 L252 80 L324 44 L390 84 L390 90 Z" fill="#22100c"/></svg>
+        <img class="bb-gate" src="assets/img/heroes/il-gate.png?v=1.9.9" alt="">
+        <div class="bb-pole bb-pole-l"></div>
+        <div class="bb-flag bb-flag-l"></div>
+        <div class="bb-pole bb-pole-r"></div>
+        <div class="bb-flag bb-flag-r"></div>
+        <span class="bb-ember" style="top:150px;left:18%;width:3px;height:3px;background:#ffb070;box-shadow:0 0 6px 1px rgba(255,150,80,.8);animation-duration:5.5s;"></span>
+        <span class="bb-ember" style="top:160px;left:40%;width:4px;height:4px;background:#ff9a55;box-shadow:0 0 7px 1px rgba(255,140,70,.8);animation-duration:6.8s;animation-delay:1.4s;"></span>
+        <span class="bb-ember" style="top:150px;left:62%;width:3px;height:3px;background:#ffc080;box-shadow:0 0 6px 1px rgba(255,160,90,.8);animation-duration:6.1s;animation-delay:.7s;"></span>
+        <span class="bb-ember" style="top:158px;left:80%;width:3px;height:3px;background:#ffae66;box-shadow:0 0 6px 1px rgba(255,150,80,.8);animation-duration:7.4s;animation-delay:2.1s;"></span>
+        <div class="bb-horizon"></div>
+        <div class="bb-fade"></div>
+      </div>
       <div class="combat-head" id="combatHead"></div>
       <div class="fx-layer" id="fxLayer"></div>
       <div class="enemy-row" id="enemyRow"></div>

@@ -1,0 +1,16 @@
+﻿ID,이름,★,exclusive,효과키,수치,설명
+banner,대장군 깃발,🚩,,energy,1,가운데 카드 칸 +1
+fang,오추마,🐎,,skillHeal,5,스킬 사용 시 HP 5 회복
+drum,전고(戰鼓),🥁,,startAtk,2,전투 시작 시 전원 공격력 +2
+crest,방패 진형,🛡️,,startBlock,5,전투 시작 시 주공 방어막 +5
+chalice,군량미,🍚,,winHeal,20,전투 승리 후 주공 HP +20 회복
+venom,독항아리,☠️,,startPoison,3,전투 시작 시 임의의 적 1명 중독(3)
+spring,옥천수,💧,,winMp,10,전투 승리 시 주공 MP +10 회복
+edict,천자의 밀서,📜,qb,goldBonus,0.2,골드 보상 획득량 +20%
+aegis,현철 갑주,🦾,,maxHp,20,주공 최대 HP +20
+gourd,호리병,🍶,,maxMp,10,주공 최대 MP +10
+edge,예기(銳器),🗡️,,crit,0.08,치명타 확률 +8%
+horn,호각(號角),📣,,startAtk,3,전투 시작 시 전원 공격력 +3
+rampart,철벽 보루,🧱,,startBlock,10,전투 시작 시 주공 방어막 +10
+amulet,벽사 부적,🧿,,skillHeal,5,스킬 사용 시 HP 5 회복
+ration,건량(乾糧),🍙,,winHeal,10,전투 승리 후 주공 HP +10 회복
