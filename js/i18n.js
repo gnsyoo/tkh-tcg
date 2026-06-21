@@ -297,6 +297,7 @@
     hbRule6: { ko: '<b>종료</b> · <b>당신이 패스를 2번</b> 하면 종료 여부를 물어본 뒤, 확인하면 무력 총합으로 정산합니다. (놓을 카드가 없으면 자동으로 패스됩니다)', en: '<b>End</b> · After <b>you pass twice</b>, you\'re asked to end; confirming settles by total might. (You auto-pass if you have no placeable card.)', ja: '<b>終了</b> · <b>あなたが2回パス</b>すると終了確認の後、確定で武力合計を精算します。（置けるカードがなければ自動パス）', zh: '<b>结束</b> · 当<b>你过牌两次</b>后会询问是否结束，确认后按武力总和结算。（无可放置卡牌时自动过牌）', zhTW: '<b>結束</b> · 當<b>你過牌兩次</b>後會詢問是否結束，確認後按武力總和結算。（無可放置卡牌時自動過牌）' },
 
     /* 대장전 — 정적 화면 */
+    djRaidBanner: { ko: '대장전 · 레이드', en: 'Raid Battle', ja: '大将戦 · レイド', zh: '大将战 · 突袭', zhTW: '大將戰 · 突襲' },
     djGearStatus: { ko: '장비 보유 현황', en: 'Gear Owned', ja: '装備の所持状況', zh: '装备持有情况', zhTW: '裝備持有情況' },
     djRelicStatus: { ko: '추가 능력 · 유물', en: 'Bonuses · Relics', ja: '追加能力 · 遺物', zh: '附加能力 · 遗物', zhTW: '附加能力 · 遺物' },
     'hh.campTitle': { ko: '캠프', en: 'Camp', ja: 'キャンプ', zh: '营地', zhTW: '營地' },

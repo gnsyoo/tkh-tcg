@@ -652,7 +652,28 @@
     '동작대 보패': { en: 'Bronze Sparrow Charm', ja: '銅雀台の宝貝', zh: '铜雀台宝贝', zhTW: '銅雀台寶貝' }, '육도삼략': { en: 'Six Teachings', ja: '六韜三略', zh: '六韬三略', zhTW: '六韜三略' },
     '둔갑천서': { en: 'Mystic Tome', ja: '遁甲天書', zh: '遁甲天书', zhTW: '遁甲天書' }, '적토마': { en: 'Red Hare', ja: '赤兎馬', zh: '赤兔马', zhTW: '赤兔馬' },
     '적로': { en: 'Dilu', ja: '的盧', zh: '的卢', zhTW: '的盧' }, '절영': { en: 'Jueying', ja: '絶影', zh: '绝影', zhTW: '絕影' },
-    '조황비전': { en: 'Zhaohuang', ja: '爪黄飛電', zh: '爪黄飞电', zhTW: '爪黃飛電' }
+    '조황비전': { en: 'Zhaohuang', ja: '爪黄飛電', zh: '爪黄飞电', zhTW: '爪黃飛電' },
+    '오구도': { en: 'Wu Hook Saber', ja: '呉鈎刀', zh: '吴钩刀', zhTW: '吳鉤刀' },
+    '언월부': { en: 'Crescent Axe', ja: '偃月斧', zh: '偃月斧', zhTW: '偃月斧' },
+    '사모창': { en: 'Serpent Spear', ja: '蛇矛槍', zh: '蛇矛枪', zhTW: '蛇矛槍' },
+    '호아도': { en: 'Tiger Fang Saber', ja: '虎牙刀', zh: '虎牙刀', zhTW: '虎牙刀' },
+    '질풍도': { en: 'Gale Saber', ja: '疾風刀', zh: '疾风刀', zhTW: '疾風刀' },
+    '한상검': { en: 'Frost Sword', ja: '寒霜剣', zh: '寒霜剑', zhTW: '寒霜劍' },
+    '독무표창': { en: 'Poison Mist Dart', ja: '毒霧鏢', zh: '毒雾镖', zhTW: '毒霧鏢' },
+    '응양궁': { en: 'Soaring Hawk Bow', ja: '鷹揚弓', zh: '鹰扬弓', zhTW: '鷹揚弓' },
+    '파랑추': { en: 'Wave-Breaker Maul', ja: '破浪鎚', zh: '破浪锤', zhTW: '破浪錘' },
+    '완고검': { en: 'Stalwart Sword', ja: '頑固剣', zh: '顽固剑', zhTW: '頑固劍' },
+    '현무갑': { en: 'Black Tortoise Armor', ja: '玄武甲', zh: '玄武甲', zhTW: '玄武甲' },
+    '주작부': { en: 'Vermilion Bird Axe', ja: '朱雀斧', zh: '朱雀斧', zhTW: '朱雀斧' },
+    '백호요대': { en: 'White Tiger Belt', ja: '白虎腰帯', zh: '白虎腰带', zhTW: '白虎腰帶' },
+    '청룡패': { en: 'Azure Dragon Shield', ja: '青龍牌', zh: '青龙牌', zhTW: '青龍牌' },
+    '문서갑': { en: 'Scholar Armor', ja: '文書甲', zh: '文书甲', zhTW: '文書甲' },
+    '뇌공편': { en: "Thunder Lord's Whip", ja: '雷公鞭', zh: '雷公鞭', zhTW: '雷公鞭' },
+    '음양경': { en: 'Yin-Yang Mirror', ja: '陰陽鏡', zh: '阴阳镜', zhTW: '陰陽鏡' },
+    '호심도': { en: 'Heart-Guard Saber', ja: '護心刀', zh: '护心刀', zhTW: '護心刀' },
+    '금포갑': { en: 'Brocade Robe Armor', ja: '錦袍甲', zh: '锦袍甲', zhTW: '錦袍甲' },
+    '적염도': { en: 'Crimson Flame Saber', ja: '赤炎刀', zh: '赤焰刀', zhTW: '赤焰刀' },
+    '백은창': { en: 'Silver Spear', ja: '白銀槍', zh: '白银枪', zhTW: '白銀槍' }
   };
   var RNAME = {
     '대장군 깃발': { en: "Marshal's Banner", ja: '大将軍の旗', zh: '大将军旗', zhTW: '大將軍旗' }, '오추마': { en: 'Wuzhui Steed', ja: '烏騅馬', zh: '乌骓马', zhTW: '烏騅馬' },
@@ -825,6 +846,16 @@
     '장각': { ko: '장각', en: 'Zhang Jue', ja: '張角', zh: '张角', zhTW: '張角' },
     '남만왕 맹획': { ko: '남만왕 맹획', en: 'Nanman King Meng Huo', ja: '南蛮王 孟獲', zh: '南蛮王 孟获', zhTW: '南蠻王 孟獲' }
   };
+  var RAID_TITLE = {
+    '관문의 맹장': { ko: '관문의 맹장', en: 'Champion of the Pass', ja: '関門の猛将', zh: '关隘猛将', zhTW: '關隘猛將' },
+    '하북의 패자': { ko: '하북의 패자', en: 'Hegemon of Hebei', ja: '河北の覇者', zh: '河北霸主', zhTW: '河北霸主' },
+    '위의 독안룡': { ko: '위의 독안룡', en: 'One-Eyed Dragon of Wei', ja: '魏の独眼竜', zh: '魏之独眼龙', zhTW: '魏之獨眼龍' },
+    '난세의 간웅': { ko: '난세의 간웅', en: 'Cunning Hero of Chaos', ja: '乱世の奸雄', zh: '乱世奸雄', zhTW: '亂世奸雄' },
+    '질풍의 명궁': { ko: '질풍의 명궁', en: 'Gale Master Archer', ja: '疾風の名弓', zh: '疾风神射手', zhTW: '疾風神射手' },
+    '이릉의 대도독': { ko: '이릉의 대도독', en: 'Grand Commander of Yiling', ja: '夷陵の大都督', zh: '夷陵大都督', zhTW: '夷陵大都督' },
+    '위의 총사령관': { ko: '위의 총사령관', en: 'Supreme Commander of Wei', ja: '魏の総司令官', zh: '魏军总司令', zhTW: '魏軍總司令' },
+    '진(晉)의 무제': { ko: '진(晉)의 무제', en: 'Emperor Wu of Jin', ja: '晋の武帝', zh: '晋之武帝', zhTW: '晉之武帝' }
+  };
 
   /* ---------- 적용 ---------- */
   function safe(arr, fn) { if (typeof arr !== 'undefined' && arr) fn(); }
@@ -845,6 +876,9 @@
   }
   if (typeof HW_ENEMIES !== 'undefined' && HW_ENEMIES) {
     ['basic', 'elite', 'boss'].forEach(function (g) { (HW_ENEMIES[g] || []).forEach(function (e) { e.name = pick(ENEMY, e.name); }); });
+  }
+  if (typeof HW_RAID !== 'undefined' && HW_RAID && HW_RAID.bosses) {
+    HW_RAID.bosses.forEach(function (b) { b.title = pick(RAID_TITLE, b.title); });
   }
   if (typeof HW_WEAPONS !== 'undefined' && HW_WEAPONS) {
     HW_WEAPONS.forEach(function (w) { var d = effDesc(w.effect || {}, WEAP_ORDER); w.name = pick(WNAME, w.name); if (d) w.desc = d; });
