@@ -13,19 +13,135 @@
   gtag('config', 'G-RZW78R7430');
 </script>
 <title>삼국지 카드 게임</title>
-<link rel="stylesheet" href="css/common.css?v=1.8.16">
-<link rel="stylesheet" href="css/home.css?v=1.8.16">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/common.css?v=1.8.17">
+<link rel="stylesheet" href="css/home.css?v=1.8.17">
+<link rel="stylesheet" href="css/intro.css?v=1.8.17">
 </head>
 <body class="home-body">
+  <!-- 인트로 / 스플래시 (앱 콜드 스타트 첫 화면) -->
+  <div class="intro" id="introScreen" hidden>
+    <img class="intro-kv" src="assets/img/home/intro-keyvisual.png?v=1.8.17" alt="">
+    <div class="intro-ov intro-ink"></div>
+    <div class="intro-ov intro-goldglow"></div>
+    <div class="intro-ov intro-vignette"></div>
+    <div class="intro-ov intro-film"></div>
+    <div class="intro-embers" id="introEmbers"></div>
+
+    <div class="intro-top">
+      <div class="intro-brand"><span class="intro-dot"></span><span class="intro-bl">THREE KINGDOMS <span>HEROES</span></span></div>
+      <div class="intro-ver" id="introVer">v1.8.16</div>
+    </div>
+
+    <span class="intro-sp"></span>
+
+    <div class="intro-title">
+      <div class="intro-copy">난 세 평 정 · 천 하 통 일</div>
+      <div class="intro-main">
+        <div class="intro-main-t">삼국영웅전</div>
+        <div class="intro-main-shine" aria-hidden="true">삼국영웅전</div>
+      </div>
+      <div class="intro-sub"><span class="intro-hair l"></span><span class="intro-sub-t">三國英雄傳</span><span class="intro-hair r"></span></div>
+    </div>
+
+    <span class="intro-sp"></span>
+
+    <div class="intro-load">
+      <div class="intro-loading" id="introLoading">
+        <div class="intro-load-row"><span class="intro-msg" id="introMsg">장수를 소집하는 중…</span><span class="intro-pct" id="introPct">0%</span></div>
+        <div class="intro-bar"><div class="intro-bar-fill" id="introBarFill" style="width:0%"></div></div>
+      </div>
+      <div class="intro-ready" id="introReady" hidden>
+        <div class="intro-touch"><span>👆</span><span class="intro-touch-t">터치하여 시작</span></div>
+        <div class="intro-touch-sub">화면을 누르면 홈으로 이동합니다</div>
+      </div>
+    </div>
+
+    <div class="intro-footer">
+      <div class="intro-foot-row"><span class="intro-hair2"></span><span class="intro-foot-t">세 가지 모드 · 하나의 천하</span><span class="intro-hair2"></span></div>
+      <div class="intro-copyr">© 2026 삼국영웅전 · All Rights Reserved</div>
+    </div>
+
+    <button class="intro-skip" id="introSkip">SKIP ▸</button>
+  </div>
+  <script>
+  (function () {
+    var scr = document.getElementById('introScreen');
+    if (!scr) return;
+    // 앱 콜드 스타트(세션 최초)에만 노출 — 같은 세션 내 페이지 이동/복귀 시엔 건너뜀
+    var KEY = 'hw_intro_seen';
+    try { if (sessionStorage.getItem(KEY)) { scr.parentNode.removeChild(scr); return; } } catch (e) {}
+    try { sessionStorage.setItem(KEY, '1'); } catch (e) {}
+    scr.hidden = false;
+
+    var ver = document.getElementById('introVer');
+    function setVer() { var vb = document.getElementById('verBadge'); if (vb && ver) { var m = vb.textContent.match(/[0-9][0-9.]*/); if (m) ver.textContent = 'v' + m[0]; } }
+    if (document.getElementById('verBadge')) setVer(); else document.addEventListener('DOMContentLoaded', setVer);
+
+    // 불티(embers)
+    var emb = document.getElementById('introEmbers');
+    if (emb) {
+      var html = '';
+      for (var i = 0; i < 9; i++) {
+        var left = 8 + (i * 10.5) % 88;
+        var size = 3 + (i % 3);
+        var dur = 5.5 + (i % 4) * 1.3;
+        var delay = (i * 0.7) % 5;
+        var op = 0.5 + (i % 3) * 0.18;
+        html += '<span style="left:' + left + '%;width:' + size + 'px;height:' + size + 'px;background:rgba(240,205,120,' + op + ');animation:introFloat ' + dur + 's linear ' + delay + 's infinite;"></span>';
+      }
+      emb.innerHTML = html;
+    }
+
+    var MSGS = ['장수를 소집하는 중…', '진영을 정비하는 중…', '병법서를 펼치는 중…', '천하를 준비하는 중…'];
+    var pct = 0, ready = false, timer = null;
+    var elPct = document.getElementById('introPct'), elMsg = document.getElementById('introMsg'),
+        elBar = document.getElementById('introBarFill'), elLoading = document.getElementById('introLoading'),
+        elReady = document.getElementById('introReady'), elSkip = document.getElementById('introSkip');
+
+    function render() {
+      if (elPct) elPct.textContent = pct + '%';
+      if (elBar) elBar.style.width = pct + '%';
+      if (elMsg) elMsg.textContent = MSGS[Math.min(MSGS.length - 1, Math.floor(pct / 26))];
+    }
+    function toReady() {
+      ready = true;
+      if (elLoading) elLoading.hidden = true;
+      if (elReady) elReady.hidden = false;
+      if (elSkip) elSkip.hidden = true;
+      scr.classList.add('ready');
+    }
+    function finish() { if (timer) { clearInterval(timer); timer = null; } pct = 100; render(); setTimeout(toReady, 200); }
+    function dismiss() {
+      if (!ready) return;
+      if (window.TCG) { try { TCG.sfx('tap'); } catch (e) {} }
+      scr.classList.add('out');
+      setTimeout(function () { if (scr.parentNode) scr.parentNode.removeChild(scr); }, 480);
+    }
+
+    render();
+    timer = setInterval(function () {
+      if (pct >= 100) return;
+      pct = Math.min(100, pct + 4 + Math.floor(Math.random() * 9));
+      render();
+      if (pct >= 100) { clearInterval(timer); timer = null; setTimeout(toReady, 320); }
+    }, 170);
+
+    if (elSkip) elSkip.addEventListener('click', function (e) { e.stopPropagation(); finish(); });
+    scr.addEventListener('click', dismiss);
+  })();
+  </script>
+
   <div class="home-app">
     <div class="home-texture"></div>
 
     <!-- 키 비주얼 -->
     <header class="kv">
-      <img class="kv-img" src="assets/img/home/hero-keyvisual.png?v=1.8.16" alt="">
+      <img class="kv-img" src="assets/img/home/hero-keyvisual.png?v=1.8.17" alt="">
       <div class="kv-fade"></div>
       <div class="kv-glow"></div>
-      <span class="ver-badge kv-ver" id="verBadge">v1.8.16 · 2026.06.21</span>
+      <span class="ver-badge kv-ver" id="verBadge">v1.8.17 · 2026.06.21</span>
     </header>
 
     <!-- 모드 카드 -->
@@ -33,7 +149,7 @@
       <a class="mode-card heroes" id="cardHeroes" href="heroes.html">
         <span class="mode-glow"></span>
         <div class="mc-head">
-          <span class="mc-icon"><img src="assets/img/home/icon-heroes.png?v=1.8.16" alt=""></span>
+          <span class="mc-icon"><img src="assets/img/home/icon-heroes.png?v=1.8.17" alt=""></span>
           <div class="mc-meta">
             <div class="mc-tag" data-i18n="heroesTag">난세 평정 · 천하통일</div>
             <div class="mc-title" data-i18n="heroesTitle">삼국 영웅전</div>
@@ -42,27 +158,27 @@
         <p class="mc-desc" data-i18n="heroesDesc">장수를 모집해 부대를 꾸리고 진군 경로를 헤쳐가는 턴제 전투. 황건적과 군벌을 격파하고 동탁·여포 등 보스를 토벌하세요.</p>
         <div class="mc-btn-row">
           <div class="mc-diff" id="heroesDiff" aria-label="난이도"></div>
-          <img class="mc-btn" src="assets/img/home/btn-chuljin.png?v=1.8.16" alt="출진">
+          <img class="mc-btn" src="assets/img/home/btn-chuljin.png?v=1.8.17" alt="출진">
         </div>
       </a>
 
       <a class="mode-card raid" id="cardRaid" href="daejang.html">
         <span class="mode-glow"></span>
         <div class="mc-head">
-          <span class="mc-icon"><img src="assets/img/home/icon-raid.png?v=1.8.16" alt=""></span>
+          <span class="mc-icon"><img src="assets/img/home/icon-raid.png?v=1.8.17" alt=""></span>
           <div class="mc-meta">
             <div class="mc-tag"><span data-i18n="raidTag">레이드 보스전</span> <span class="mc-badge">RAID</span></div>
             <div class="mc-title" data-i18n="raidTitle">삼국 대장전</div>
           </div>
         </div>
         <p class="mc-desc" data-i18n="raidDesc">삼국 영웅전의 <b>덱을 공유</b>해 거대 HP의 적장(레이드 보스)에 도전. <b>보스를 격파하면 그 적장을 전용 장수로 획득</b>하며, 이 장수들은 오직 대장전에서만 얻을 수 있습니다.</p>
-        <div class="mc-btn-row"><img class="mc-btn" src="assets/img/home/btn-tobeol.png?v=1.8.16" alt="토벌"></div>
+        <div class="mc-btn-row"><img class="mc-btn" src="assets/img/home/btn-tobeol.png?v=1.8.17" alt="토벌"></div>
       </a>
 
       <a class="mode-card queens" id="cardQueens" href="herosblood.html">
         <span class="mode-glow"></span>
         <div class="mc-head">
-          <span class="mc-icon"><img src="assets/img/home/icon-board.png?v=1.8.16" alt=""></span>
+          <span class="mc-icon"><img src="assets/img/home/icon-board.png?v=1.8.17" alt=""></span>
           <div class="mc-meta">
             <div class="mc-tag" data-i18n="queensTag">보드 카드 대전</div>
             <div class="mc-title" data-i18n="queensTitle">히어로즈 블러드</div>
@@ -71,17 +187,17 @@
         <p class="mc-desc" data-i18n="queensDesc">진영(3×5·4×5 선택)에 장수 카드를 배치해 영역을 넓히고, <b>배치한 카드의 무력 총합</b>이 높은 쪽이 승리하는 전략 카드 대전. 덱 빌더(장수 카드 69종)로 15장 덱을 짜고, 대전 결과는 영웅전 <b>골드로 정산</b>됩니다.</p>
         <div class="mc-btn-row">
           <div class="mc-diff" id="queensDeck"></div>
-          <img class="mc-btn" src="assets/img/home/btn-daejeon.png?v=1.8.16" alt="대전">
+          <img class="mc-btn" src="assets/img/home/btn-daejeon.png?v=1.8.17" alt="대전">
         </div>
       </a>
     </section>
 
     <!-- 하단 탭바 -->
     <nav class="tabbar">
-      <button class="tab" id="tabCodex"><span class="tab-tile"><img src="assets/img/home/tab-codex.png?v=1.8.16" alt=""></span><span class="tab-label" data-i18n="tabCodex">도감</span></button>
-      <button class="tab" id="tabShop"><span class="tab-tile"><img src="assets/img/home/tab-shop.png?v=1.8.16" alt=""></span><span class="tab-label" data-i18n="tabShop">상점</span></button>
-      <button class="tab" id="tabTavern"><span class="tab-tile"><img src="assets/img/home/tab-tavern.png?v=1.8.16" alt=""></span><span class="tab-label" data-i18n="tabTavern">주막</span></button>
-      <button class="tab" id="tabSettings"><span class="tab-tile"><img src="assets/img/home/tab-settings.png?v=1.8.16" alt=""></span><span class="tab-label" data-i18n="tabSettings">설정</span></button>
+      <button class="tab" id="tabCodex"><span class="tab-tile"><img src="assets/img/home/tab-codex.png?v=1.8.17" alt=""></span><span class="tab-label" data-i18n="tabCodex">도감</span></button>
+      <button class="tab" id="tabShop"><span class="tab-tile"><img src="assets/img/home/tab-shop.png?v=1.8.17" alt=""></span><span class="tab-label" data-i18n="tabShop">상점</span></button>
+      <button class="tab" id="tabTavern"><span class="tab-tile"><img src="assets/img/home/tab-tavern.png?v=1.8.17" alt=""></span><span class="tab-label" data-i18n="tabTavern">주막</span></button>
+      <button class="tab" id="tabSettings"><span class="tab-tile"><img src="assets/img/home/tab-settings.png?v=1.8.17" alt=""></span><span class="tab-label" data-i18n="tabSettings">설정</span></button>
     </nav>
 
     <!-- 설정 바텀시트 -->
@@ -168,10 +284,11 @@
   <!-- 변경 내역 팝업 -->
   <div class="overlay" id="changelogModal" hidden>
     <div class="modal" style="max-width:560px;text-align:left;">
-      <h2 style="text-align:center;">📜 변경 내역 <span style="color:var(--gold);font-size:14px;">v1.8.16</span></h2>
+      <h2 style="text-align:center;">📜 변경 내역 <span style="color:var(--gold);font-size:14px;">v1.8.17</span></h2>
       <div class="changelog-list">
         <h4>📅 2026.06.20</h4>
         <ul>
+          <li><b>인트로(스플래시) 화면 추가</b> — 앱 콜드 스타트 시 풀스크린 키비주얼·먹빛/금 오버레이·명조 타이틀(글로우+sweep)·불티 효과와 로딩바를 표시하고, 완료 후 <b>‘터치하여 시작’</b>으로 홈에 진입합니다(우상단 SKIP으로 즉시 완료). 같은 세션에선 한 번만 표시.</li>
           <li><b>덱 구성 아이콘 통일</b> — 새 ‘덱 편집’ 아이콘을 <b>덱 구성 페이지 상단 제목</b>과 <b>홈 화면 히어로즈 블러드 카드의 ‘덱 구성’ 버튼</b>(🃏 이모지 대체)에도 동일하게 적용했습니다.</li>
           <li><b>히어로즈 블러드 — 상단 아이콘 교체</b> — 첫 화면 상단 <b>‘덱 구성’ 버튼 아이콘</b>을 카드 3장(덱 편집) 아이콘으로, 타이틀 배너의 🎴 이모지를 <b>대전 보드판 아이콘</b>으로 교체했습니다.</li>
           <li><b>획득 알림(토스트) 가독성 개선</b> — 영웅 영입·보물/유물 획득 등 알림 토스트를 <b>화면 중앙 상단에 크게</b> 띄우고, 금색 테두리·발광·팝 애니메이션과 표시 시간(2초)으로 눈에 잘 띄도록 했습니다.</li>
@@ -380,8 +497,8 @@
     </div>
   </div>
 
-  <script src="js/util.js?v=1.8.16"></script>
-  <script src="js/heroes_data.js?v=1.8.16"></script>
+  <script src="js/util.js?v=1.8.17"></script>
+  <script src="js/heroes_data.js?v=1.8.17"></script>
   <script>
     // 난이도 선택 제거 — 기본 상(hard) 고정
     try { localStorage.setItem('tcg_difficulty', 'hard'); } catch (e) {}
@@ -473,7 +590,7 @@
       /* ── 히어로즈 블러드 덱 구성(대전 앞) — 덱 구성 페이지로 진입 ── */
       function renderQueensDeck() {
         var el = $('queensDeck'); if (!el) return;
-        el.innerHTML = '<span class="mc-diff-btn" data-act="deck"><img class="mc-deck-ic" src="assets/img/heroes/ic-deck-edit.png?v=1.8.16" alt=""> ' + tt('qbDeckBuild') + '</span>';
+        el.innerHTML = '<span class="mc-diff-btn" data-act="deck"><img class="mc-deck-ic" src="assets/img/heroes/ic-deck-edit.png?v=1.8.17" alt=""> ' + tt('qbDeckBuild') + '</span>';
       }
       renderQueensDeck();
       $('queensDeck').addEventListener('click', function (e) {
@@ -646,6 +763,6 @@
       });
     })();
   </script>
-  <script src="js/i18n.js?v=1.8.16"></script>
+  <script src="js/i18n.js?v=1.8.17"></script>
 </body>
 </html>
