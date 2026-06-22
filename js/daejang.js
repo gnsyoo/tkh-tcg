@@ -152,6 +152,7 @@
   function skillMp(sk) { var m = 2 + (sk.cost || 1); var base = (sk.type === 'buff' && sk.scope === 'army') ? m * 5 : m + 3; return Math.max(1, base - 1); } // 전반 -1(전군 버프 포함)
   var BASE_CRIT = 0.01;
   var BOSS_CRIT = 0.15; // 대장전 보스 치명타 확률(최소 15%)
+  var CRIT_MULT = 1.5;  // 대장전 치명타 데미지 배수(영웅전 2배 → 대장전 1.5배)
   function lordCritSum() { return party.reduce(function (s, h) { return s + wpnVal(h, 'lordCrit'); }, 0); } // 전국옥새 등: 주공(전 영웅) 치명타
   function critChance(h) { return Math.min(0.5, BASE_CRIT + wpnVal(h, 'crit') + lordCritSum() + relicSum('crit')) * 0.5; } // 대장전: 치명타 확률 50% 감소
   function rollCrit(c) { return Math.random() < c; }
@@ -624,7 +625,7 @@
       TCG.sfx('attack');
       var crit = rollCrit(critChance(h));
       var base = Math.max(1, Math.round(dmg * mult));
-      var hd = crit ? base * 2 : base;
+      var hd = crit ? Math.round(base * CRIT_MULT) : base;
       if (crit) anyCrit = true;
       total += dmgTarget(ti, hd, crit, pierce); // 실제 적용 피해 합산(방어력 반영)
       if (splash > 0) { // 인접 적에게 기본 공격력 비율 피해
@@ -653,8 +654,8 @@
     TCG.sfx(sk.type === 'heal' ? 'heal' : 'skill');
     var pw = effAtk(h);
     var pierce = hasWpnFlag(h, 'pierce'); // 방어 관통(스킬 데미지도 적용)
-    if (sk.type === 'strike') { var sc = rollCrit(critChance(h)); var sd = (pw + sk.val) * (sc ? 2 : 1); var sDealt = dmgTarget(ti, sd, sc, pierce); shake('big'); logMsg(h.def.name + ' 「' + sk.name + '」 ' + TCG.t('dx.logHitTarget', { target: tName, n: sDealt }) + (sc ? ' ' + TCG.t('dx.critTag') : '')); }
-    else if (sk.type === 'aoe') { var ac = rollCrit(critChance(h)); var av = sk.val * (ac ? 2 : 1); enemyIdxList().forEach(function (ei) { var en = enemyByIdx(ei); if (en && en.hp > 0) dmgTarget(ei, av, ac, pierce); }); shake('big'); logMsg(h.def.name + ' 「' + sk.name + '」 ' + TCG.t('dx.logHitAll', { n: av }) + (ac ? ' ' + TCG.t('dx.critTag') : '')); }
+    if (sk.type === 'strike') { var sc = rollCrit(critChance(h)); var sd = Math.round((pw + sk.val) * (sc ? CRIT_MULT : 1)); var sDealt = dmgTarget(ti, sd, sc, pierce); shake('big'); logMsg(h.def.name + ' 「' + sk.name + '」 ' + TCG.t('dx.logHitTarget', { target: tName, n: sDealt }) + (sc ? ' ' + TCG.t('dx.critTag') : '')); }
+    else if (sk.type === 'aoe') { var ac = rollCrit(critChance(h)); var av = Math.round(sk.val * (ac ? CRIT_MULT : 1)); enemyIdxList().forEach(function (ei) { var en = enemyByIdx(ei); if (en && en.hp > 0) dmgTarget(ei, av, ac, pierce); }); shake('big'); logMsg(h.def.name + ' 「' + sk.name + '」 ' + TCG.t('dx.logHitAll', { n: av }) + (ac ? ' ' + TCG.t('dx.critTag') : '')); }
     else if (sk.type === 'multi') {
       // 다회 공격 스킬은 타격당 공격력의 70% × 타수(타격 수) — 선택한 대상 집중
       var perHit = Math.max(1, Math.round(pw * 0.7));
@@ -662,7 +663,7 @@
       (function mhit() {
         var tt = enemyByIdx(ti);
         if (mi >= sk.val || !tt || tt.hp <= 0) { logMsg(h.def.name + ' 「' + sk.name + '」 ' + TCG.t('dx.logMultiHits', { hits: sk.val, per: perHit })); c.busy = false; finishPlay(); return; }
-        mi++; TCG.sfx('attack'); var mc = rollCrit(critChance(h)); dmgTarget(ti, mc ? perHit * 2 : perHit, mc, pierce); shake('sm'); renderCombat(); setTimeout(mhit, 210); })();
+        mi++; TCG.sfx('attack'); var mc = rollCrit(critChance(h)); dmgTarget(ti, mc ? Math.round(perHit * CRIT_MULT) : perHit, mc, pierce); shake('sm'); renderCombat(); setTimeout(mhit, 210); })();
       return; // 비동기 처리 — 아래 공통 finishPlay 건너뜀
     }
     else if (sk.type === 'confuse' || sk.type === 'charm') { fxSupport(bossEl(), '🛡 ' + TCG.t('dx.immune'), '#cfd8e3'); logMsg(b.name + ' — ' + TCG.t('dx.logImmune', { st: (sk.type === 'charm' ? TCG.t('dx.stCharm') : TCG.t('dx.stConfuse')) })); } // 레이드 보스는 행동 불가 면역
@@ -746,7 +747,7 @@
     (c.adds || []).forEach(function (a) {
       if (a.hp > 0 && c.lord.hp > 0) {
         if (a.stunned > 0) { a.stunned--; fxSupport(enemyElByIdx((c.adds.indexOf(a)) + 1), '💤 ' + TCG.t('dx.stStun'), '#ff9ad0'); return; } // 기절한 졸병은 행동 불가
-        var crit = rollCrit(BASE_CRIT), dmg = crit ? a.atk * 2 : a.atk;
+        var crit = rollCrit(BASE_CRIT), dmg = crit ? Math.round(a.atk * CRIT_MULT) : a.atk;
         TCG.sfx('hit'); var evA = dmgLord(dmg, crit);
         logMsg(a.name + ' ' + (evA ? TCG.t('dx.logToLordEvade') : (TCG.t('dx.logToLordDmg', { n: dmg }) + (crit ? ' ' + TCG.t('dx.critTag') : ''))));
       }
@@ -767,7 +768,7 @@
         var pick = (b.skills && b.skills.length && Math.random() < (b.skillChance || 0)) ? pickBossSkill(b) : null;
         var usedSkill = pick ? bossCast(b, pick) : false;
         if (!usedSkill) {
-          var intent = b.intent, crit = rollCrit(BOSS_CRIT), dmg = crit ? intent.dmg * 2 : intent.dmg;
+          var intent = b.intent, crit = rollCrit(BOSS_CRIT), dmg = crit ? Math.round(intent.dmg * CRIT_MULT) : intent.dmg;
           TCG.sfx('hit'); shake(crit || intent.type === 'aoe' ? 'big' : 'sm');
           var evB = dmgLord(dmg, crit);
           logMsg(b.name + ' ' + (evB ? TCG.t('dx.logToLordEvade') : (TCG.t('dx.logToLordDmg', { n: dmg }) + (crit ? ' ' + TCG.t('dx.critTag') : ''))));
