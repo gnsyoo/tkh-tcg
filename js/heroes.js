@@ -51,6 +51,9 @@
   function lordCritSum() { return run.party.reduce(function (s, h) { return s + wpnVal(h, 'lordCrit'); }, 0); } // 전국옥새 등: 주공(전 영웅) 치명타
   function critChance(h) { return Math.min(0.5, BASE_CRIT + (h ? wpnVal(h, 'crit') : 0) + lordCritSum() + relicSum('crit')); } // 치명타 확률 최대 50%(유물 합산)
   function rollCrit(chance) { return Math.random() < chance; }
+  // 속성 상성: 아군(h) → 적(e) 데미지 배수(영웅전은 raid=false)
+  function affOf(h, e) { return affMult(elemOf(h.def), elemOf((e && e.def) || e), false); }
+  function affFx(el, af) { if (af === 1 || !el) return; var p = rectOf(el); if (!p) return; fxFloat(p.x, p.y - 38, TCG.t(af > 1 ? 'cmb.superEff' : 'cmb.weakEff'), af > 1 ? '#7ef0b5' : '#9fb6c4', true); }
   function heroWpnIds(h) { return (h && h.weapons) ? h.weapons : []; }
   function heroWpns(h) { return heroWpnIds(h).map(function (id) { return HW_WEAPON_BY_ID[id]; }).filter(Boolean); }
   function wpnVal(h, key) { return heroWpns(h).reduce(function (s, w) { return s + (w.effect[key] || 0); }, 0); }
@@ -1151,7 +1154,7 @@
         (e.block > 0 ? '<div class="u-block">🛡' + e.block + '</div>' : '') +
         (e.armor > 0 ? '<div class="u-armor">🪖' + e.armor + '</div>' : '') +
         TCG.portrait(e.emoji, e.face || e.name) +
-        '<div class="u-name">' + e.name + '</div>' +
+        '<div class="u-name">' + (HW_ELEM_ICON[elemOf(e.def)] || '') + ' ' + e.name + '</div>' +
         hpBar({ hp: Math.max(0, e.hp), maxHp: e.maxHp }, true) +
         '<div class="u-stat"><span class="u-hp-text">♥ ' + Math.max(0, e.hp) + '/' + e.maxHp + '</span>' +
           (e.maxMp ? '<span class="u-mp-text">◈ ' + Math.max(0, e.mp) + '/' + e.maxMp + '</span>' : '') + '</div>' +
@@ -1210,7 +1213,7 @@
         '</div>' : '';
       return '<div class="' + cls + '" data-uid="' + uid + '">' + badge +
         TCG.portrait(h.def.emoji, h.def.id, 'cc-art', h.def.name) +
-        '<div class="cc-name">' + h.def.name + '</div>' +
+        '<div class="cc-name">' + (HW_ELEM_ICON[elemOf(h.def)] || '') + ' ' + h.def.name + '</div>' +
         '<div class="cc-atk">⚔' + effAtk(h) + '</div>' +
         (wEmoji ? '<div class="cc-wpn" title="' + wName + '">' + wEmoji + '</div>' : '') +
         '<div class="cc-skill">' + sk.name + '</div></div>';
@@ -1411,9 +1414,11 @@
       var hitDmg = crit ? base * 2 : base;
       if (crit) anyCrit = true;
       var ti = c.enemies.indexOf(tgt);
-      total += dmgEnemy(tgt, hitDmg, enemyEl(ti), crit ? 'crit' : null, pierce); // 실제 적용 피해 합산(방어력 반영)
+      var af = affOf(h, tgt); // 속성 상성
+      total += dmgEnemy(tgt, Math.max(1, Math.round(hitDmg * af)), enemyEl(ti), crit ? 'crit' : null, pierce); // 실제 적용 피해 합산(방어력 반영)
+      if (af !== 1 && mult === 1) affFx(enemyEl(ti), af); // 첫 타격에 상성 피드백
       if (splash > 0) { // 인접 적에게 기본 공격력 비율 피해
-        [ti - 1, ti + 1].forEach(function (ai) { var ae = c.enemies[ai]; if (ae && ae.hp > 0) dmgEnemy(ae, Math.max(1, Math.round(dmg * splash)), enemyEl(ai), 'aoe', pierce); });
+        [ti - 1, ti + 1].forEach(function (ai) { var ae = c.enemies[ai]; if (ae && ae.hp > 0) dmgEnemy(ae, Math.max(1, Math.round(dmg * splash * affOf(h, ae))), enemyEl(ai), 'aoe', pierce); });
       }
       if (stunCh > 0 && tgt.hp > 0 && Math.random() < stunCh) { tgt.stunned = (tgt.stunned || 0) + 1; } // 기절 부여
       if (chain && chainLeft > 0 && tgt.hp <= 0) { mults.push(1); chainLeft--; } // 연쇄: 처치 시 추가 타격(전력)
@@ -1446,14 +1451,16 @@
       var sbase = Math.round((pw + sk.val) * (sk.mult || 1)); // mult: 데미지 감쇠(개편 스킬 0.5)
       var sdmg = scrit ? sbase * 2 : sbase;
       var sti = c.enemies.indexOf(target);
-      var sDealt = dmgEnemy(target, sdmg, enemyEl(sti), scrit ? 'crit' : null, pierce); shake('big');
-      if (sk.splash) { [sti - 1, sti + 1].forEach(function (ai) { var ae = c.enemies[ai]; if (ae && ae.hp > 0) dmgEnemy(ae, Math.max(1, Math.round(sdmg * sk.splash)), enemyEl(ai), 'aoe', pierce); }); } // 인접 스플래시
+      var saf = affOf(h, target); // 속성 상성
+      var sDealt = dmgEnemy(target, Math.max(1, Math.round(sdmg * saf)), enemyEl(sti), scrit ? 'crit' : null, pierce); shake('big');
+      if (saf !== 1) affFx(enemyEl(sti), saf);
+      if (sk.splash) { [sti - 1, sti + 1].forEach(function (ai) { var ae = c.enemies[ai]; if (ae && ae.hp > 0) dmgEnemy(ae, Math.max(1, Math.round(sdmg * sk.splash * affOf(h, ae))), enemyEl(ai), 'aoe', pierce); }); } // 인접 스플래시
       if (sk.stun && target.hp > 0 && Math.random() < sk.stun) { target.stunned = (target.stunned || 0) + 1; } // 기절
       if (sk.poisonHit && target.hp > 0) { target.poison = (target.poison || 0) + sDealt; logMsg(TCG.t('hx.logPoisonApply', { name: target.name, n: sDealt })); } // 피해량만큼 중독
       logMsg(TCG.t('hx.logSkillDmg', { name: h.def.name, sk: sk.name, dmg: sDealt }) + (scrit ? TCG.t('hx.critSuffix') : ''));
     } else if (sk.type === 'aoe') {
       var acrit = rollCrit(critChance(h)); var aval = sk.val * (acrit ? 2 : 1);
-      living(c.enemies).forEach(function (e) { dmgEnemy(e, aval, enemyEl(c.enemies.indexOf(e)), acrit ? 'crit' : 'aoe', pierce); }); shake('big');
+      living(c.enemies).forEach(function (e) { var ei = c.enemies.indexOf(e); var aaf = affOf(h, e); dmgEnemy(e, Math.max(1, Math.round(aval * aaf)), enemyEl(ei), acrit ? 'crit' : 'aoe', pierce); if (aaf !== 1) affFx(enemyEl(ei), aaf); }); shake('big');
       logMsg(TCG.t('hx.logSkillAoe', { name: h.def.name, sk: sk.name, dmg: aval }) + (acrit ? TCG.t('hx.critSuffix') : ''));
     } else if (sk.type === 'multi') {
       // 다회 공격 스킬은 타격당 공격력의 70% × 타수(타격 수)만큼 공격
@@ -1466,7 +1473,7 @@
         var e2 = TCG.pick(alive);
         TCG.sfx('attack');
         var mcrit = rollCrit(critChance(h)); // 다회 스킬도 타격마다 치명타 판정
-        dmgEnemy(e2, mcrit ? perHit * 2 : perHit, enemyEl(c.enemies.indexOf(e2)), mcrit ? 'crit' : null, pierce);
+        dmgEnemy(e2, Math.max(1, Math.round((mcrit ? perHit * 2 : perHit) * affOf(h, e2))), enemyEl(c.enemies.indexOf(e2)), mcrit ? 'crit' : null, pierce);
         shake('sm'); renderCombat();
         setTimeout(mhit, 210);
       })();

@@ -150,12 +150,45 @@ var HW_HEROES = [
   { id:'mb_zhonghui',   name:'종회',   emoji:'📜', cls:'책략', rarity:'C',  hp:28, atk:6, exclusive:'mid',
     skill:{ name:'촉 평정', cost:2, type:'aoe', val:5, target:'allEnemies', desc:'모든 적에게 5 피해' } },
   { id:'mb_zhugedan',   name:'제갈탄', emoji:'⚔️', cls:'전사', rarity:'R', hp:34, atk:8, exclusive:'mid',
-    skill:{ name:'회남의 의기', cost:3, type:'charm', val:1, target:'enemy', desc:'적 1명을 1턴 매혹(행동 불능)' } }
+    skill:{ name:'회남의 의기', cost:3, type:'charm', val:1, target:'enemy', desc:'적 1명을 1턴 매혹(행동 불능)' } },
+  // ---- 황건적의 난(첫 스테이지) ----
+  { id:'zhangjiao', name:'장각',   emoji:'☯️', cls:'책략', rarity:'SSR', hp:36, atk:9,
+    skill:{ name:'태평요술', cost:3, type:'aoe', val:10, target:'allEnemies', desc:'모든 적에게 10 피해' } },
+  { id:'mb_zhangbao',   name:'장보', emoji:'🌀', cls:'책략', rarity:'R', hp:32, atk:7, exclusive:'mid',
+    skill:{ name:'환술', cost:2, type:'confuse', val:1, target:'enemy', desc:'적 1명을 1턴 혼란(행동 불능)' } },
+  { id:'mb_zhangliang', name:'장량', emoji:'🏯', cls:'수호', rarity:'R', hp:40, atk:6, exclusive:'mid',
+    skill:{ name:'인공의 진', cost:2, type:'shield', val:12, target:'self', desc:'주공 방어막 +12' } }
 ];
 var HW_BY_ID = {};
 HW_HEROES.forEach(function (h) { HW_BY_ID[h.id] = h; });
 
 var HW_STARTERS = ['glad', 'yuejin', 'mage', 'knight']; // 전위 · 악진 · 순욱 · 조인
+
+/* ===== 속성 상성(땅 ▶ 물 ▶ 불 ▶ 땅) ===== */
+var HW_CLASS_ELEM = { '전사':'fire', '기습':'fire', '책사':'water', '궁수':'water', '책략':'water', '무희':'water', '의원':'water', '수호':'earth', '군주':'earth', '기마':'earth' };
+var HW_ELEM_ICON = { fire:'🔥', water:'💧', earth:'🪨' };
+// 유닛(영웅 정의/적 템플릿)의 속성: 명시 elem > 직업 기반 > id/name 해시(적 결정적 배정)
+function elemOf(d) {
+  if (!d) return null;
+  if (d.elem) return d.elem;
+  if (d.cls && HW_CLASS_ELEM[d.cls]) return HW_CLASS_ELEM[d.cls]; // 영웅: 직업 기반
+  // 적장/중간보스: 연결 영웅(hero/hid) 속성으로 — 이름 번역과 무관하게 고정
+  if (typeof HW_BY_ID !== 'undefined' && HW_BY_ID) {
+    if (d.hero && HW_BY_ID[d.hero]) return elemOf(HW_BY_ID[d.hero]);
+    if (d.hid && HW_BY_ID[d.hid]) return elemOf(HW_BY_ID[d.hid]);
+  }
+  var s = String(d.id || d.name || ''), n = 0, i; // 그 외(일반 적): id 우선 해시
+  for (i = 0; i < s.length; i++) n += s.charCodeAt(i);
+  return ['fire', 'water', 'earth'][n % 3];
+}
+// 상성 배수: 정방향 1.5 / 역방향 0.67 (대장전 raid면 1.25 / 0.8). 동일·무속성 1
+function affMult(atkEl, defEl, raid) {
+  if (!atkEl || !defEl || atkEl === defEl) return 1;
+  var beats = { earth:'water', water:'fire', fire:'earth' }; // X가 beats[X]를 상대로 유리
+  if (beats[atkEl] === defEl) return raid ? 1.25 : 1.5;       // 유리
+  if (beats[defEl] === atkEl) return raid ? 0.8 : 0.67;       // 불리
+  return 1;
+}
 
 /* 적 (삼국지 세력) */
 var HW_ENEMIES = {
@@ -321,6 +354,7 @@ var HW_MID_SKILLS = [ // 아군 카드(장수)를 노리는 상태이상
 /* 고정 네임드 중간보스 — 각 전역의 5·10 출전(전역별 2명, 스토리 진영에 맞는 장수).
  * 기본 hp/atk에 HW_MID 배수와 난이도가 곱해집니다. 일반 적 1명과 함께 등장(고정). */
 var HW_MID_BOSSES = [
+  [ { name:'장보',   emoji:'🌀', hp:28, atk:6, hid:'mb_zhangbao', quote:'지공장군 장보가 여기 있다! 요술의 맛을 보아라!' }, { name:'장량',   emoji:'🏯', hp:34, atk:6, hid:'mb_zhangliang', quote:'인공장군의 진을 뚫을 수 있겠느냐?' } ],
   [ { name:'이각',   emoji:'🪓', hp:30, atk:7, hid:'mb_lijue',   quote:'동탁 승상의 명을 받든다. 네놈들은 여기서 끝이다!' }, { name:'곽사',   emoji:'🗡️', hp:32, atk:7, hid:'mb_guosi',   quote:'장안은 우리 손안에 있다. 썩 물러가라!' } ],
   [ { name:'순우경', emoji:'🍶', hp:32, atk:7, hid:'mb_chunyujing', quote:'오소의 군량은 내가 지킨다… 한 톨도 내줄 수 없지!' }, { name:'고람',   emoji:'🛡️', hp:36, atk:7, hid:'mb_gaolan',   quote:'원소 공의 방패가 여기 있다. 어디 뚫어보아라.' } ],
   [ { name:'조순',   emoji:'🐎', hp:34, atk:8, hid:'mb_zhaochun', quote:'유비를 쫓는다! 도망치는 자의 목을 가져가겠다.' }, { name:'문빙',   emoji:'🏹', hp:36, atk:8, hid:'mb_wenpin',   quote:'강하의 수비엔 빈틈이 없다. 발길을 돌려라.' } ],
@@ -344,6 +378,9 @@ var HW_MODE_ORDER = ['normal', 'hard', 'extreme'];
 /* 적장(커맨더) — 영웅전 보스 + 대장전 레이드 보스로 공용.
  * skills: 대장전 전용 2종(① 공격 또는 방어 · ② 회복 또는 행동 불가). 영웅전 보스는 hero의 단일 스킬을 사용. */
 var HW_COMMANDERS = {
+  cmd_zhangjiao: { name:'장각',   emoji:'☯️', hp:26,  atk:6, aoe:true, hero:'zhangjiao',
+    quote:'창천이 죽었으니 황천이 마땅히 서리라! 태평의 세상은 우리 손으로 연다!',
+    skills:[ { name:'태평요술', type:'aoe', val:10, cost:3 }, { name:'요술 부적', type:'confuse', val:1, cost:2 } ] },
   cmd_huaxiong:  { name:'화웅',   emoji:'🪓', hp:30,  atk:7,  hero:'huaxiong',
     quote:'내 앞을 가로막는 자, 모조리 목을 베리라! 이 관문은 한 발짝도 넘지 못한다.',
     skills:[ { name:'관문 수장', type:'strike', val:14, cost:2 }, { name:'맹장의 호통', type:'confuse', val:1, cost:2 } ] },
@@ -393,6 +430,8 @@ var HW_BOSS = {
 /* 전역(campaign) — 8개 역사 스테이지. 뒤로 갈수록 난이도 상승.
  * reward: 'hero'(영웅 영입) | 'relic'(유물) | 'final'(클리어) */
 var HW_STAGES = [
+  { name:'황건적의 난', year:'184년', desc:'장각 형제의 봉기로 천하가 어지러워진 난세의 시작', boss:'cmd_zhangjiao', adds:1, reward:'hero',
+    regions:['탁군 외곽','유주 가도','광종 들머리','거록 길목','곡양 비탈','하곡양 진채','광종성 외성','청하 나루','평원 들판','광종성 성벽','거록 본채'] },
   { name:'반동탁 연합군', year:'191년', desc:'동탁의 전횡에 맞서 제후들이 결집한 전투', boss:'cmd_huaxiong',   adds:1, reward:'hero',
     regions:['낙양 동문','형양 가도','변수 나루','광무 언덕','사수관 초입','호뢰관 외성','대곡 협로','성고 들판','환원관 고개','사수관 성벽','호뢰관 관문'] },
   { name:'관도대전',     year:'200년', desc:'조조가 원소를 꺾고 하북의 패권을 잡은 전환점', boss:'cmd_yuanshao',  adds:1, reward:'hero',

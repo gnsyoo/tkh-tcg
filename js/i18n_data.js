@@ -45,6 +45,8 @@
     'cmb.tagBoss': { ko: '적장', en: 'Commander', ja: '敵将', zh: '敌将', zhTW: '敵將' },
     'cmb.tagMid': { ko: '중간보스', en: 'Mid-boss', ja: '中ボス', zh: '中间首领', zhTW: '中間首領' },
     'cmb.crit': { ko: '💥 치명타!', en: '💥 Critical!', ja: '💥 クリティカル！', zh: '💥 暴击！', zhTW: '💥 暴擊！' },
+    'cmb.superEff': { ko: '효과적!', en: 'Effective!', ja: '効果抜群！', zh: '效果拔群！', zhTW: '效果絕佳！' },
+    'cmb.weakEff': { ko: '비효과적…', en: 'Not effective…', ja: '効果いまひとつ…', zh: '效果不佳…', zhTW: '效果不佳…' },
     'cmb.bannerBoss': { ko: '👑 적장 {name}', en: '👑 Commander {name}', ja: '👑 敵将 {name}', zh: '👑 敌将 {name}', zhTW: '👑 敵將 {name}' },
     'cmb.bannerSortie': { ko: '⚔ {stage} {n}/{max}', en: '⚔ {stage} {n}/{max}', ja: '⚔ {stage} {n}/{max}', zh: '⚔ {stage} {n}/{max}', zhTW: '⚔ {stage} {n}/{max}' },
     'cmb.bannerRound': { ko: '라운드 {n}', en: 'Round {n}', ja: 'ラウンド {n}', zh: '回合 {n}', zhTW: '回合 {n}' },
