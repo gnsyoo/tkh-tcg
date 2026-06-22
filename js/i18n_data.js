@@ -181,6 +181,7 @@
     'dx.energyHint': { ko: '가운데 카드를 선택해 <b>공격</b>하거나, 턴을 종료하세요', en: 'Pick a center card to <b>attack</b>, or end your turn', ja: '中央のカードを選んで<b>攻撃</b>、またはターン終了', zh: '选择中央卡牌进行<b>攻击</b>，或结束回合', zhTW: '選擇中央卡牌進行<b>攻擊</b>，或結束回合' },
     'dx.stConfuse': { ko: '혼란', en: 'Confuse', ja: '混乱', zh: '混乱', zhTW: '混亂' },
     'dx.stCharm': { ko: '매혹', en: 'Charm', ja: '魅了', zh: '魅惑', zhTW: '魅惑' },
+    'dx.stStun': { ko: '기절', en: 'Stun', ja: '気絶', zh: '眩晕', zhTW: '暈眩' },
     'dx.stPoison': { ko: '중독', en: 'Poison', ja: '中毒', zh: '中毒', zhTW: '中毒' },
     'dx.lordMe': { ko: '주공 (나)', en: 'Lord (You)', ja: '主公（あなた）', zh: '主公（你）', zhTW: '主公（你）' },
     'dx.drawPile': { ko: '뽑을 카드', en: 'Draw', ja: '引くカード', zh: '抽牌', zhTW: '抽牌' },
@@ -298,6 +299,7 @@
 'hx.finalBoss': { ko: '{stage} 최종 보스', en: '{stage} Final Boss', ja: '{stage} 最終ボス', zh: '{stage} 最终Boss', zhTW: '{stage} 最終Boss' },
 'hx.aoe': { ko: '광역', en: 'AoE', ja: '範囲', zh: '范围', zhTW: '範圍' },
 'hx.attackStat': { ko: '공격', en: 'ATK', ja: '攻撃', zh: '攻击', zhTW: '攻擊' },
+'hx.defenseStat': { ko: '방어', en: 'DEF', ja: '防御', zh: '防御', zhTW: '防禦' },
 'hx.attackSkill': { ko: '공격 스킬', en: 'Attack Skill', ja: '攻撃スキル', zh: '攻击技能', zhTW: '攻擊技能' },
 'hx.supportSkill': { ko: '보조 스킬', en: 'Support Skill', ja: '補助スキル', zh: '辅助技能', zhTW: '輔助技能' },
 'hx.bossSupportDesc': { ko: '<b>행동 불능 또는 회복</b> 중 하나를 확률로 시전', en: 'Randomly casts <b>disable or heal</b>', ja: '<b>行動不能または回復</b>のいずれかを確率で発動', zh: '随机施放<b>行动不能或回复</b>之一', zhTW: '隨機施放<b>行動不能或回復</b>之一' },
@@ -360,6 +362,7 @@
 'hx.abandonConfirm': { ko: '대기실로 돌아갑니다. 현재 전투는 포기됩니다. 계속할까요?', en: 'Return to camp? The current battle will be abandoned. Continue?', ja: '待機室に戻ります。現在の戦闘は放棄されます。続けますか？', zh: '返回待机室？当前战斗将被放弃。是否继续？', zhTW: '返回待機室？當前戰鬥將被放棄。是否繼續？' },
 'hx.stCharm': { ko: '매혹', en: 'Charm', ja: '魅了', zh: '魅惑', zhTW: '魅惑' },
 'hx.stConfuse': { ko: '혼란', en: 'Confuse', ja: '混乱', zh: '混乱', zhTW: '混亂' },
+'hx.stStun': { ko: '기절', en: 'Stun', ja: '気絶', zh: '眩晕', zhTW: '暈眩' },
 'hx.stPoison': { ko: '중독', en: 'Poison', ja: '中毒', zh: '中毒', zhTW: '中毒' },
 'hx.lordMe': { ko: '주공 (나)', en: 'Lord (You)', ja: '主公（私）', zh: '主公（我）', zhTW: '主公（我）' },
 'hx.drawPile': { ko: '뽑을 카드', en: 'Draw Pile', ja: '引くカード', zh: '抽牌堆', zhTW: '抽牌堆' },
@@ -609,6 +612,11 @@
       crit: { en: 'Crit +' + pct(val) + '%', ja: 'クリ率+' + pct(val) + '%', zh: '暴击+' + pct(val) + '%', zhTW: '暴擊+' + pct(val) + '%' },
       poison: { en: 'On hit, poison enemy +' + val, ja: '攻撃時 敵に毒+' + val, zh: '攻击时使敌中毒+' + val, zhTW: '攻擊時使敵中毒+' + val },
       doubleStrike: { en: 'Basic attack hits twice', ja: '通常攻撃2回', zh: '普通攻击2次', zhTW: '普通攻擊2次' },
+      pierce: { en: 'Ignores enemy DEF', ja: '敵の防御を無視', zh: '无视敌方防御', zhTW: '無視敵方防禦' },
+      chain: { en: 'Attacks again on kill', ja: '敵を倒すと追撃', zh: '击杀后追击', zhTW: '擊殺後追擊' },
+      stun: { en: 'On hit, ' + pct(val) + '% stun', ja: '攻撃時' + pct(val) + '%で気絶', zh: '攻击时' + pct(val) + '%概率眩晕', zhTW: '攻擊時' + pct(val) + '%機率暈眩' },
+      splash: { en: 'Splash ' + pct(val) + '% ATK to adjacent', ja: '隣接の敵に攻撃力' + pct(val) + '%', zh: '对相邻敌造成' + pct(val) + '%攻击', zhTW: '對相鄰敵造成' + pct(val) + '%攻擊' },
+      lordCrit: { en: 'Lord crit +' + pct(val) + '%', ja: '主公のクリ率+' + pct(val) + '%', zh: '主公暴击+' + pct(val) + '%', zhTW: '主公暴擊+' + pct(val) + '%' },
       lordHp: { en: 'Lord max HP +' + val, ja: '主公の最大HP+' + val, zh: '主公最大HP+' + val, zhTW: '主公最大HP+' + val },
       lordMp: { en: 'Lord max MP +' + val, ja: '主公の最大MP+' + val, zh: '主公最大MP+' + val, zhTW: '主公最大MP+' + val },
       evade: { en: 'Evade +' + pct(val) + '%', ja: '回避+' + pct(val) + '%', zh: '闪避+' + pct(val) + '%', zhTW: '閃避+' + pct(val) + '%' },
@@ -633,7 +641,7 @@
     }
     return parts.join(lang === 'ja' ? '・' : (lang === 'en' ? ', ' : '·'));
   }
-  var WEAP_ORDER = ['atk', 'doubleStrike', 'poison', 'crit', 'lordHp', 'lordMp', 'evade'];
+  var WEAP_ORDER = ['atk', 'doubleStrike', 'pierce', 'chain', 'stun', 'splash', 'poison', 'crit', 'lordCrit', 'lordHp', 'lordMp', 'evade'];
   var RELIC_ORDER = ['energy', 'skillHeal', 'startAtk', 'startBlock', 'startPoison', 'winHeal', 'winMp', 'maxHp', 'maxMp', 'crit', 'goldBonus'];
 
   /* ---------- 고유명사: 장비 / 유물 / 소모품 이름 ---------- */

@@ -34,7 +34,12 @@
   }
   function syncDeck() { run.deck = activeDeckUids(); } // 정규화 결과를 run.deck에 반영(자동 채움 포함)
   var BASE_CRIT = 0.01; // 기본 치명타 확률 1%
-  function critChance(h) { return Math.min(0.5, BASE_CRIT + (h ? wpnVal(h, 'crit') : 0) + relicSum('crit')); } // 치명타 확률 최대 50%(유물 합산)
+  // 적 고유 방어력(피격해도 사라지지 않음). 하드 이상에서만. 극악 = 하드 +3
+  var ARMOR_RANGE = { hard: { normal: [2, 3], mid: [3, 5], boss: [4, 7] }, extreme: { normal: [5, 6], mid: [6, 8], boss: [7, 10] } };
+  function armorRange(tier) { var t = ARMOR_RANGE[run.mode]; return t ? t[tier] : null; }
+  function rollArmor(tier) { var r = armorRange(tier); return r ? (r[0] + Math.floor(Math.random() * (r[1] - r[0] + 1))) : 0; }
+  function lordCritSum() { return run.party.reduce(function (s, h) { return s + wpnVal(h, 'lordCrit'); }, 0); } // 전국옥새 등: 주공(전 영웅) 치명타
+  function critChance(h) { return Math.min(0.5, BASE_CRIT + (h ? wpnVal(h, 'crit') : 0) + lordCritSum() + relicSum('crit')); } // 치명타 확률 최대 50%(유물 합산)
   function rollCrit(chance) { return Math.random() < chance; }
   function heroWpnIds(h) { return (h && h.weapons) ? h.weapons : []; }
   function heroWpns(h) { return heroWpnIds(h).map(function (id) { return HW_WEAPON_BY_ID[id]; }).filter(Boolean); }
@@ -454,8 +459,8 @@
     var main = run.mainStage, st = HW_STAGES[main];
     var md = HW_MODES[run.mode] || HW_MODES.normal;
     var prog = main * SUB_COUNT + sub;
-    var hpM = DCFG.eHp * (1 + prog * 0.020) * md.hpMult;
-    var atkM = DCFG.eAtk * (1 + prog * 0.005);
+    var hpM = DCFG.eHp * (1 + prog * 0.030) * md.hpMult;
+    var atkM = DCFG.eAtk * (1 + prog * 0.015);
     var body, isBoss = (sub === SUB_COUNT - 1);
     if (isBoss) {
       var cmd = HW_COMMANDERS[st.boss];
@@ -465,11 +470,12 @@
       var bAtkName = bAtkIsSkill ? bsk.name : TCG.t('hx.assault');
       var bAtkDesc = bAtkIsSkill ? bsk.desc : TCG.t('hx.strikeLord');
       var bPierce = (run.mode === 'hard' || run.mode === 'extreme') ? ' <span style="color:#ff9a7e">' + TCG.t('hx.pierce') + '</span>' : '';
+      var bArmorR = armorRange('boss'), bArmorTxt = bArmorR ? ' · 🪖 ' + TCG.t('hx.defenseStat') + ' ' + bArmorR[0] + '~' + bArmorR[1] : '';
       body = TCG.portrait(cmd.emoji, (cmd.hero && HW_BY_ID[cmd.hero]) ? cmd.hero : cmd.name, 'modal-portrait', cmd.name) +
         '<h2>👑 ' + cmd.name + ' <span class="rar-SSR" style="font-size:13px">' + TCG.t('hx.commander') + '</span></h2>' +
         '<p>' + TCG.t('hx.finalBoss', { stage: st.name }) + (cmd.aoe ? ' · 💥 ' + TCG.t('hx.aoe') : '') + '</p>' +
         '<div style="background:rgba(0,0,0,.25);border-radius:10px;padding:10px;text-align:left;font-size:13px;line-height:1.55">' +
-        '❤ HP ' + bhp + ' · ⚔ ' + TCG.t('hx.attackStat') + ' ' + batk +
+        '❤ HP ' + bhp + ' · ⚔ ' + TCG.t('hx.attackStat') + ' ' + batk + bArmorTxt +
         '<br>⚔ <b style="color:var(--gold)">' + TCG.t('hx.attackSkill') + '</b> 「' + bAtkName + '」 ' + bAtkDesc + bPierce +
         '<br>✨ <b style="color:var(--gold)">' + TCG.t('hx.supportSkill') + '</b> ' + TCG.t('hx.bossSupportDesc') +
         '<br><span style="color:var(--ink-dim)">' + TCG.t('hx.bossSkillNote') + '</span></div>';
@@ -477,6 +483,7 @@
       var idx = (sub === 9) ? 1 : 0, mb = (HW_MID_BOSSES[main] || [])[idx];
       if (!mb) { return; }
       var mhp = Math.round(mb.hp * hpM * HW_MID.hpMult * 1.3), matk = Math.max(1, Math.round(mb.atk * atkM * HW_MID.atkMult * 1.2 * 2 * 1.5));
+      var mArmorR = armorRange('mid'), mArmorTxt = mArmorR ? ' · 🪖 ' + TCG.t('hx.defenseStat') + ' ' + mArmorR[0] + '~' + mArmorR[1] : '';
       var msk = HW_MID_SKILLS[(main * 2 + idx) % HW_MID_SKILLS.length];
       var mbHero = (mb.hid && HW_BY_ID[mb.hid]) ? HW_BY_ID[mb.hid] : null;
       var recruitTxt = mbHero ? ('<br><span style="color:#d9b3ff">🃏 ' + TCG.t('hx.recruitOnDefeat') + ' — ' + mbHero.name + ' <span class="rar-' + mbHero.rarity + '">' + mbHero.rarity + '</span> (' + (idx === 0 ? TCG.t('hx.diffNormal') : TCG.t('hx.diffHard')) + ')</span>') : '';
@@ -484,7 +491,7 @@
         '<h2>⚜ ' + mb.name + ' <span class="rar-SR" style="font-size:13px">' + TCG.t('hx.midBoss') + '</span></h2>' +
         '<p>' + TCG.t('hx.stageSortie', { stage: st.name, n: sub + 1 }) + (mb.aoe ? ' · 💥 ' + TCG.t('hx.aoe') : '') + '</p>' +
         '<div style="background:rgba(0,0,0,.25);border-radius:10px;padding:10px;text-align:left;font-size:13px">' +
-        '❤ HP ' + mhp + ' · ⚔ ' + TCG.t('hx.attackStat') + ' ' + matk + '<br><b style="color:var(--gold)">「' + msk.name + '」</b> ' + msk.desc +
+        '❤ HP ' + mhp + ' · ⚔ ' + TCG.t('hx.attackStat') + ' ' + matk + mArmorTxt + '<br><b style="color:var(--gold)">「' + msk.name + '」</b> ' + msk.desc +
         '<br><span style="color:var(--ink-dim)">' + TCG.t('hx.midBossNote') + '</span>' + recruitTxt + '</div>';
     }
     document.getElementById('heroModalBody').innerHTML = body +
@@ -822,8 +829,8 @@
     var isBoss = sub === SUB_COUNT - 1;
     var prog = main * SUB_COUNT + sub; // 0..(8*12-1) 전체 진행도
     var md = HW_MODES[run.mode] || HW_MODES.normal; // 노멀/하드/극악
-    var hpM = DCFG.eHp * (1 + prog * 0.020) * md.hpMult;          // 모드: 모든 적 HP 배수
-    var atkM = DCFG.eAtk * (1 + prog * 0.005);
+    var hpM = DCFG.eHp * (1 + prog * 0.030) * md.hpMult;          // 모드: 모든 적 HP 배수
+    var atkM = DCFG.eAtk * (1 + prog * 0.015);
     var isMid = (sub === 4 || sub === 9); // 5·10번째 출전 = 중간보스
     function inst(d, boss, mid) {
       var hpx = boss ? HW_BOSS_MULT.hpMult : (mid ? HW_MID.hpMult : 1);
@@ -833,7 +840,7 @@
       var hp = Math.round(d.hp * hpM * hpx * bbHp);
       var atk = Math.max(1, Math.round(d.atk * atkM * (boss ? md.bossAtkMult : 1) * atkx * 2 * bbAtk)); // 적 공격력 일괄 2배 + 보스/중간보스 1.5배
       var e = { def: d, name: (mid ? '⚜ ' + d.name : d.name), emoji: d.emoji, face: (d.hid || d.hero || d.id || null), maxHp: hp, hp: hp,
-        atk: atk, aoe: !!d.aoe, boss: !!boss, mid: !!mid, quote: d.quote || null, crit: (boss ? Math.max(0.15, md.bossCrit) : BASE_CRIT), block: 0, intent: null }; // 적장(보스) 치명타 최소 15%
+        atk: atk, aoe: !!d.aoe, boss: !!boss, mid: !!mid, quote: d.quote || null, crit: (boss ? Math.max(0.15, md.bossCrit) : BASE_CRIT), block: 0, armor: rollArmor(boss ? 'boss' : (mid ? 'mid' : 'normal')), stunned: 0, intent: null }; // 적장(보스) 치명타 최소 15% · armor=고유 방어력
       if (boss && d.hero && HW_BY_ID[d.hero]) { // 적장: 공격 스킬 + 보조(행동불능/회복) 2종 보유
         var bc = HW_BOSS[diff] || HW_BOSS.normal;
         var heroSk = HW_BY_ID[d.hero].skill;
@@ -1122,14 +1129,17 @@
       var tgt = c.targeting && c.pending && c.pending.side === 'enemy' && !dead;
       var charmed = e.charmed > 0;
       var confd = e.confused > 0;
-      var intentTxt = charmed ? '💤 ' + TCG.t('hx.stCharm') : (confd ? '💤 ' + TCG.t('hx.stConfuse') : (e.intent ? (e.intent.type === 'aoe' ? '💥' + e.intent.dmg : '⚔️' + e.intent.dmg) : ''));
+      var stund = e.stunned > 0;
+      var intentTxt = charmed ? '💤 ' + TCG.t('hx.stCharm') : (confd ? '💤 ' + TCG.t('hx.stConfuse') : (stund ? '💤 ' + TCG.t('hx.stStun') : (e.intent ? (e.intent.type === 'aoe' ? '💥' + e.intent.dmg : '⚔️' + e.intent.dmg) : '')));
       var statuses = (charmed ? '<span class="u-st charm">💗 ' + TCG.t('hx.stCharm') + ' ' + e.charmed + '</span>' : '') +
         (confd ? '<span class="u-st charm">💫 ' + TCG.t('hx.stConfuse') + ' ' + e.confused + '</span>' : '') +
+        (stund ? '<span class="u-st charm">💫 ' + TCG.t('hx.stStun') + ' ' + e.stunned + '</span>' : '') +
         (e.poison > 0 ? '<span class="u-st pois">☠ ' + TCG.t('hx.stPoison') + ' ' + e.poison + '</span>' : '');
-      return '<div class="unit enemy' + (dead ? ' dead' : '') + (tgt ? ' targetable' : '') + ((charmed || confd) ? ' charmed' : '') + (e.boss ? ' is-boss' : '') + (e.mid ? ' is-mid' : '') + '" data-side="enemy" data-idx="' + idx + '">' +
+      return '<div class="unit enemy' + (dead ? ' dead' : '') + (tgt ? ' targetable' : '') + ((charmed || confd || stund) ? ' charmed' : '') + (e.boss ? ' is-boss' : '') + (e.mid ? ' is-mid' : '') + '" data-side="enemy" data-idx="' + idx + '">' +
         (e.mid ? '<div class="u-tag mid">' + TCG.t('cmb.tagMid') + '</div>' : (e.boss ? '<div class="u-tag boss">' + TCG.t('cmb.tagBoss') + '</div>' : '')) +
         (dead ? '' : '<div class="u-intent">' + intentTxt + '</div>') +
         (e.block > 0 ? '<div class="u-block">🛡' + e.block + '</div>' : '') +
+        (e.armor > 0 ? '<div class="u-armor">🪖' + e.armor + '</div>' : '') +
         TCG.portrait(e.emoji, e.face || e.name) +
         '<div class="u-name">' + e.name + '</div>' +
         hpBar({ hp: Math.max(0, e.hp), maxHp: e.maxHp }, true) +
@@ -1280,7 +1290,7 @@
     bar.innerHTML =
       '<div class="ab-title">' + h.def.name + ' — ' + TCG.t('cmb.chooseAction') + '</div>' +
       '<div class="ab-row">' +
-        '<button class="act-btn' + (atkSel ? ' chosen' : '') + '" data-act="attack">⚔ ' + TCG.t('cmb.attack') + '<small>' + TCG.t('cmb.dmg') + ' ' + effAtk(h) + (hasWpnFlag(h, 'tripleStrike') ? ' ×3' : (hasWpnFlag(h, 'doubleStrike') ? ' ×2' : '')) + (wpnVal(h, 'poison') ? ' ☠' + wpnVal(h, 'poison') : '') + (critPct > 1 ? ' 💥' + critPct + '%' : '') + ' · 💧0</small></button>' +
+        '<button class="act-btn' + (atkSel ? ' chosen' : '') + '" data-act="attack">⚔ ' + TCG.t('cmb.attack') + '<small>' + TCG.t('cmb.dmg') + ' ' + effAtk(h) + (hasWpnFlag(h, 'tripleStrike') ? ' ×3' : (hasWpnFlag(h, 'doubleStrike') ? ' ×2' : '')) + (wpnVal(h, 'poison') ? ' ☠' + wpnVal(h, 'poison') : '') + (hasWpnFlag(h, 'pierce') ? ' ⛏' : '') + (hasWpnFlag(h, 'chain') ? ' ⛓' : '') + (wpnVal(h, 'stun') ? ' 💫' + Math.round(wpnVal(h, 'stun') * 100) + '%' : '') + (wpnVal(h, 'splash') ? ' ↔' + Math.round(wpnVal(h, 'splash') * 100) + '%' : '') + (critPct > 1 ? ' 💥' + critPct + '%' : '') + ' · 💧0</small></button>' +
         '<button class="act-btn skill' + (skSel ? ' chosen' : '') + '" data-act="skill"' + (canSkill ? '' : ' disabled') + '>✦ ' + sk.name + '<small>' + mpLabel + ' · ' + sk.desc + '</small></button>' +
       '</div>' +
       '<button class="act-btn cancel" data-act="cancel">' + TCG.t('cmb.cancel') + '</button>';
@@ -1342,12 +1352,13 @@
     }
   }
 
-  function dmgEnemy(e, dmg, el, kind) {
+  function dmgEnemy(e, dmg, el, kind, pierce) {
     var wasAlive = e.hp > 0;
     var d = dmg;
     if (e.block > 0) { var ab = Math.min(e.block, d); e.block -= ab; d -= ab; }
+    if (!pierce && e.armor > 0 && d > 0) d = Math.max(1, d - e.armor); // 고유 방어력 차감(관통 시 무시)
     e.hp -= d;
-    fxHitEnemy(el, dmg, kind);
+    fxHitEnemy(el, d, kind);
     if (e.hp <= 0 && wasAlive) fxDeathAt(el, e.emoji);
   }
   // 적의 공격은 주공(나)을 노린다 — 블록으로 먼저 흡수 후 HP 감소. pierce=방어 관통(블록 무시)
@@ -1366,26 +1377,39 @@
   function doAttack(h, enemy) {
     var c = run.combat;
     var dmg = effAtk(h);
-    var hits = hasWpnFlag(h, 'tripleStrike') ? 3 : (hasWpnFlag(h, 'doubleStrike') ? 2 : 1);
+    var pierce = hasWpnFlag(h, 'pierce');     // 방어 관통
+    var chain = hasWpnFlag(h, 'chain');       // 연쇄(처치 시 재공격)
+    var splash = wpnVal(h, 'splash');         // 인접 스플래시 비율
+    var stunCh = wpnVal(h, 'stun');           // 기절 확률
+    var baseHits = hasWpnFlag(h, 'tripleStrike') ? 3 : (hasWpnFlag(h, 'doubleStrike') ? 2 : 1);
+    var mults = baseHits === 3 ? [1, 0.7, 0.5] : (baseHits === 2 ? [1, 0.7] : [1]); // 2·3타째 딜 감쇠
+    var chainLeft = chain ? c.enemies.length : 0; // 연쇄 상한(전멸 방지용 캡)
     c.busy = true; // 다회 공격은 타격마다 끊어서 연출
-    var total = 0, anyCrit = false, k = 0, tgt = enemy;
+    var total = 0, anyCrit = false, tgt = enemy, multi = (baseHits > 1);
     function step() {
-      if (k >= hits) { return done(); }
+      if (!mults.length) { return done(); }
       if (tgt.hp <= 0) { // 현재 대상이 죽으면 남은 타격은 다른 살아있는 적에게
         var pool = living(c.enemies);
         if (!pool.length) { return done(); } // 남은 적이 없으면 종료
         tgt = TCG.pick(pool);
       }
-      k++;
+      var mult = mults.shift();
       TCG.sfx('attack');
       var crit = rollCrit(critChance(h)); // 치명타: 공격력 2배
-      var hitDmg = crit ? dmg * 2 : dmg;
+      var base = Math.max(1, Math.round(dmg * mult));
+      var hitDmg = crit ? base * 2 : base;
       if (crit) anyCrit = true;
-      dmgEnemy(tgt, hitDmg, enemyEl(c.enemies.indexOf(tgt)), crit ? 'crit' : null);
-      if (!crit) shake('sm');
+      var ti = c.enemies.indexOf(tgt);
+      dmgEnemy(tgt, hitDmg, enemyEl(ti), crit ? 'crit' : null, pierce);
       total += hitDmg;
+      if (splash > 0) { // 인접 적에게 기본 공격력 비율 피해
+        [ti - 1, ti + 1].forEach(function (ai) { var ae = c.enemies[ai]; if (ae && ae.hp > 0) dmgEnemy(ae, Math.max(1, Math.round(dmg * splash)), enemyEl(ai), 'aoe', pierce); });
+      }
+      if (stunCh > 0 && tgt.hp > 0 && Math.random() < stunCh) { tgt.stunned = (tgt.stunned || 0) + 1; } // 기절 부여
+      if (chain && chainLeft > 0 && tgt.hp <= 0) { mults.push(1); chainLeft--; } // 연쇄: 처치 시 추가 타격(전력)
+      if (!crit) shake('sm');
       renderCombat();
-      setTimeout(step, hits > 1 ? 240 : 120);
+      setTimeout(step, (multi || mults.length) ? 240 : 120);
     }
     function done() {
       var pv = wpnVal(h, 'poison');
@@ -1406,14 +1430,15 @@
     fxFlash('rgba(150,200,255,0.16)');
     var hp0 = rectOf(lordEl()); if (hp0) fxRing(hp0.x, hp0.y, '#9fd2ff');
     var pw = effAtk(h);
+    var pierce = hasWpnFlag(h, 'pierce'); // 방어 관통(스킬 데미지도 적용)
     if (sk.type === 'strike') {
       var scrit = rollCrit(critChance(h)); // 스킬도 치명타 적용
       var sdmg = (pw + sk.val) * (scrit ? 2 : 1);
-      dmgEnemy(target, sdmg, enemyEl(c.enemies.indexOf(target)), scrit ? 'crit' : null); shake('big');
+      dmgEnemy(target, sdmg, enemyEl(c.enemies.indexOf(target)), scrit ? 'crit' : null, pierce); shake('big');
       logMsg(TCG.t('hx.logSkillDmg', { name: h.def.name, sk: sk.name, dmg: sdmg }) + (scrit ? TCG.t('hx.critSuffix') : ''));
     } else if (sk.type === 'aoe') {
       var acrit = rollCrit(critChance(h)); var aval = sk.val * (acrit ? 2 : 1);
-      living(c.enemies).forEach(function (e) { dmgEnemy(e, aval, enemyEl(c.enemies.indexOf(e)), acrit ? 'crit' : 'aoe'); }); shake('big');
+      living(c.enemies).forEach(function (e) { dmgEnemy(e, aval, enemyEl(c.enemies.indexOf(e)), acrit ? 'crit' : 'aoe', pierce); }); shake('big');
       logMsg(TCG.t('hx.logSkillAoe', { name: h.def.name, sk: sk.name, dmg: aval }) + (acrit ? TCG.t('hx.critSuffix') : ''));
     } else if (sk.type === 'multi') {
       // 다회 공격 스킬은 타격당 공격력의 70% × 타수(타격 수)만큼 공격
@@ -1426,7 +1451,7 @@
         var e2 = TCG.pick(alive);
         TCG.sfx('attack');
         var mcrit = rollCrit(critChance(h)); // 다회 스킬도 타격마다 치명타 판정
-        dmgEnemy(e2, mcrit ? perHit * 2 : perHit, enemyEl(c.enemies.indexOf(e2)), mcrit ? 'crit' : null);
+        dmgEnemy(e2, mcrit ? perHit * 2 : perHit, enemyEl(c.enemies.indexOf(e2)), mcrit ? 'crit' : null, pierce);
         shake('sm'); renderCombat();
         setTimeout(mhit, 210);
       })();
@@ -1617,9 +1642,9 @@
       }
       var e = foes[step++];
       if (e.hp <= 0) { next(); return; }
-      if (e.charmed > 0 || e.confused > 0) { // 매혹·혼란된 적은 이번 턴 쉰다
-        var was = e.charmed > 0 ? TCG.t('hx.stCharm') : TCG.t('hx.stConfuse');
-        if (e.charmed > 0) e.charmed--; else e.confused--;
+      if (e.charmed > 0 || e.confused > 0 || e.stunned > 0) { // 매혹·혼란·기절된 적은 이번 턴 쉰다
+        var was = e.charmed > 0 ? TCG.t('hx.stCharm') : (e.confused > 0 ? TCG.t('hx.stConfuse') : TCG.t('hx.stStun'));
+        if (e.charmed > 0) e.charmed--; else if (e.confused > 0) e.confused--; else e.stunned--;
         fxSupport(enemyEl(c.enemies.indexOf(e)), '💤 ' + was, '#ff9ad0');
         logMsg(TCG.t('hx.logEnemyStunned', { name: e.name, cause: was }));
         renderCombat();

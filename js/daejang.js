@@ -152,7 +152,8 @@
   function skillMp(sk) { var m = 2 + (sk.cost || 1); var base = (sk.type === 'buff' && sk.scope === 'army') ? m * 5 : m + 3; return Math.max(1, base - 1); } // 전반 -1(전군 버프 포함)
   var BASE_CRIT = 0.01;
   var BOSS_CRIT = 0.15; // 대장전 보스 치명타 확률(최소 15%)
-  function critChance(h) { return Math.min(0.5, BASE_CRIT + wpnVal(h, 'crit') + relicSum('crit')); } // 치명타 확률 최대 50%(유물 합산)
+  function lordCritSum() { return party.reduce(function (s, h) { return s + wpnVal(h, 'lordCrit'); }, 0); } // 전국옥새 등: 주공(전 영웅) 치명타
+  function critChance(h) { return Math.min(0.5, BASE_CRIT + wpnVal(h, 'crit') + lordCritSum() + relicSum('crit')); } // 치명타 확률 최대 50%(유물 합산)
   function rollCrit(c) { return Math.random() < c; }
   function defenseOf(h) { return 3 + Math.floor(effAtk(h) / 3); }
   function heroByUid(uid) { return party.find(function (h) { return h.uid === uid; }); }
@@ -353,7 +354,7 @@
     var bc = HW_BOSS[diff] || HW_BOSS.normal;
     var bmp = Math.max(0, bc.mp - 20) + 10 + 10; // 대장전 레이드 보스 MP -20 후 +10, 추가 +10 상향
     combat = {
-      raidIdx: idx, boss: { def: cmd, name: cmd.name, emoji: cmd.emoji, maxHp: hp, hp: hp, atk: atk, atk0: atk, aoe: !!cmd.aoe, block: 0, poison: 0, charmed: 0, intent: null,
+      raidIdx: idx, boss: { def: cmd, name: cmd.name, emoji: cmd.emoji, maxHp: hp, hp: hp, atk: atk, atk0: atk, aoe: !!cmd.aoe, block: 0, poison: 0, charmed: 0, stunned: 0, intent: null,
         skills: raidBossSkills(b), mp: bmp, maxMp: bmp, skillChance: bc.skillChance * 0.8 }, // 스킬 사용 빈도 약 20% 감소
       adds: makeRaidAdds(idx, hp, atk), tgtIdx: 0,
       round: 0, lord: { hp: mhp, maxHp: mhp, mp: mmp, maxMp: mmp, block: relicSum('startBlock') }, atkBuff: relicSum('startAtk'), lordStun: 0,
@@ -448,12 +449,13 @@
       };
     }
     document.getElementById('energyBox').innerHTML = '🎴 ' + TCG.t('dx.energyHint');
-    var dead = b.hp <= 0, charmed = b.charmed > 0 || b.confused > 0;
+    var dead = b.hp <= 0, charmed = b.charmed > 0 || b.confused > 0 || b.stunned > 0;
     var tgt = c.targeting && !dead;
-    var intentTxt = (b.confused > 0) ? '💤 ' + TCG.t('dx.stConfuse') : (b.charmed > 0) ? '💤 ' + TCG.t('dx.stCharm') : (b.intent ? (b.intent.type === 'aoe' ? '💥' + b.intent.dmg : '⚔️' + b.intent.dmg) : '');
+    var intentTxt = (b.confused > 0) ? '💤 ' + TCG.t('dx.stConfuse') : (b.charmed > 0) ? '💤 ' + TCG.t('dx.stCharm') : (b.stunned > 0) ? '💤 ' + TCG.t('dx.stStun') : (b.intent ? (b.intent.type === 'aoe' ? '💥' + b.intent.dmg : '⚔️' + b.intent.dmg) : '');
     var pct = Math.max(0, Math.round(b.hp / b.maxHp * 100));
     var bossStatuses = (b.charmed > 0 ? '<span class="u-st charm">💗 ' + TCG.t('dx.stCharm') + ' ' + b.charmed + '</span>' : '') +
       (b.confused > 0 ? '<span class="u-st charm">💫 ' + TCG.t('dx.stConfuse') + ' ' + b.confused + '</span>' : '') +
+      (b.stunned > 0 ? '<span class="u-st charm">💫 ' + TCG.t('dx.stStun') + ' ' + b.stunned + '</span>' : '') +
       (b.poison > 0 ? '<span class="u-st pois">☠ ' + TCG.t('dx.stPoison') + ' ' + b.poison + '</span>' : '');
     var bossHtml =
       '<div class="unit enemy raid-boss-unit' + (dead ? ' dead' : '') + (tgt ? ' targetable' : '') + (charmed ? ' charmed' : '') + '" data-side="enemy" data-idx="0">' +
@@ -468,9 +470,10 @@
         (bossStatuses ? '<div class="u-statuses">' + bossStatuses + '</div>' : '') + '</div>';
     var addHtmls = (c.adds || []).map(function (a, i) {
       var adead = a.hp <= 0, atgt = c.targeting && !adead, apct = Math.max(0, Math.round(a.hp / a.maxHp * 100));
-      var aStatuses = (a.poison > 0 ? '<span class="u-st pois">☠ ' + TCG.t('dx.stPoison') + ' ' + a.poison + '</span>' : '');
-      return '<div class="unit enemy raid-add' + (adead ? ' dead' : '') + (atgt ? ' targetable' : '') + '" data-side="enemy" data-idx="' + (i + 1) + '">' +
-        (adead ? '' : '<div class="u-intent">⚔️' + a.atk + '</div>') +
+      var aStatuses = (a.stunned > 0 ? '<span class="u-st charm">💫 ' + TCG.t('dx.stStun') + ' ' + a.stunned + '</span>' : '') +
+        (a.poison > 0 ? '<span class="u-st pois">☠ ' + TCG.t('dx.stPoison') + ' ' + a.poison + '</span>' : '');
+      return '<div class="unit enemy raid-add' + (adead ? ' dead' : '') + (atgt ? ' targetable' : '') + (a.stunned > 0 ? ' charmed' : '') + '" data-side="enemy" data-idx="' + (i + 1) + '">' +
+        (adead ? '' : '<div class="u-intent">' + (a.stunned > 0 ? '💤 ' + TCG.t('dx.stStun') : '⚔️' + a.atk) + '</div>') +
         (a.block > 0 ? '<div class="u-block">🛡' + a.block + '</div>' : '') +
         TCG.portrait(a.emoji, a.id || ('add' + i), '', a.name) +
         '<div class="u-name">' + a.name + '</div>' +
@@ -534,7 +537,7 @@
     bar.innerHTML =
       '<div class="ab-title">' + h.def.name + ' — ' + TCG.t('cmb.chooseAction') + '</div>' +
       '<div class="ab-row">' +
-        '<button class="act-btn' + (atkSel ? ' chosen' : '') + '" data-act="attack">⚔ ' + TCG.t('cmb.attack') + '<small>' + TCG.t('cmb.dmg') + ' ' + effAtk(h) + (hasWpnFlag(h, 'tripleStrike') ? ' ×3' : (hasWpnFlag(h, 'doubleStrike') ? ' ×2' : '')) + (wpnVal(h, 'poison') ? ' ☠' + wpnVal(h, 'poison') : '') + (critPct > 1 ? ' 💥' + critPct + '%' : '') + ' · 💧0</small></button>' +
+        '<button class="act-btn' + (atkSel ? ' chosen' : '') + '" data-act="attack">⚔ ' + TCG.t('cmb.attack') + '<small>' + TCG.t('cmb.dmg') + ' ' + effAtk(h) + (hasWpnFlag(h, 'tripleStrike') ? ' ×3' : (hasWpnFlag(h, 'doubleStrike') ? ' ×2' : '')) + (wpnVal(h, 'poison') ? ' ☠' + wpnVal(h, 'poison') : '') + (hasWpnFlag(h, 'pierce') ? ' ⛏' : '') + (hasWpnFlag(h, 'chain') ? ' ⛓' : '') + (wpnVal(h, 'stun') ? ' 💫' + Math.round(wpnVal(h, 'stun') * 100) + '%' : '') + (wpnVal(h, 'splash') ? ' ↔' + Math.round(wpnVal(h, 'splash') * 100) + '%' : '') + (critPct > 1 ? ' 💥' + critPct + '%' : '') + ' · 💧0</small></button>' +
         '<button class="act-btn skill' + (skSel ? ' chosen' : '') + '" data-act="skill"' + (canSkill ? '' : ' disabled') + '>✦ ' + sk.name + '<small>' + mpLabel + ' · ' + skDesc + '</small></button>' +
       '</div>' +
       '<button class="act-btn cancel" data-act="cancel">' + TCG.t('cmb.cancel') + '</button>';
@@ -597,23 +600,37 @@
   function dmgBoss(dmg, crit) { dmgTarget(0, dmg, crit); }
   function doAttack(h) {
     var c = combat, ti = c.tgtIdx || 0; if (!enemyByIdx(ti) || enemyByIdx(ti).hp <= 0) ti = 0;
-    var t = enemyByIdx(ti), dmg = effAtk(h), hits = hasWpnFlag(h, 'tripleStrike') ? 3 : (hasWpnFlag(h, 'doubleStrike') ? 2 : 1);
+    var t = enemyByIdx(ti), dmg = effAtk(h);
+    var chain = hasWpnFlag(h, 'chain');   // 연쇄(처치 시 재공격)
+    var splash = wpnVal(h, 'splash');     // 인접 스플래시 비율
+    var stunCh = wpnVal(h, 'stun');       // 기절 확률
+    var baseHits = hasWpnFlag(h, 'tripleStrike') ? 3 : (hasWpnFlag(h, 'doubleStrike') ? 2 : 1);
+    var mults = baseHits === 3 ? [1, 0.7, 0.5] : (baseHits === 2 ? [1, 0.7] : [1]); // 2·3타째 딜 감쇠
+    var chainLeft = chain ? enemyIdxList().length : 0; // 연쇄 상한
     c.busy = true; // 다회 공격은 타격마다 끊어서 연출
-    var total = 0, anyCrit = false, k = 0;
+    var total = 0, anyCrit = false, multi = (baseHits > 1);
     function step() {
-      if (k >= hits) { return done(); }
+      if (!mults.length) { return done(); }
       if (t.hp <= 0) { // 현재 대상이 죽으면 남은 타격은 다른 살아있는 적에게
         var pool = enemyIdxList().filter(function (ei) { var e = enemyByIdx(ei); return e && e.hp > 0; });
         if (!pool.length) { return done(); } // 남은 적이 없으면 종료
         ti = pool[0]; t = enemyByIdx(ti);
       }
-      k++;
+      var mult = mults.shift();
       TCG.sfx('attack');
-      var crit = rollCrit(critChance(h)); var hd = crit ? dmg * 2 : dmg;
+      var crit = rollCrit(critChance(h));
+      var base = Math.max(1, Math.round(dmg * mult));
+      var hd = crit ? base * 2 : base;
       if (crit) anyCrit = true;
-      dmgTarget(ti, hd, crit); shake(crit ? 'big' : 'sm'); total += hd;
+      dmgTarget(ti, hd, crit); total += hd;
+      if (splash > 0) { // 인접 적에게 기본 공격력 비율 피해
+        [ti - 1, ti + 1].forEach(function (ai) { if (ai < 0) return; var ae = enemyByIdx(ai); if (ae && ae.hp > 0) dmgTarget(ai, Math.max(1, Math.round(dmg * splash)), false); });
+      }
+      if (stunCh > 0 && t.hp > 0 && Math.random() < stunCh) { t.stunned = (t.stunned || 0) + 1; } // 기절 부여
+      if (chain && chainLeft > 0 && t.hp <= 0) { mults.push(1); chainLeft--; } // 연쇄: 처치 시 추가 타격(전력)
+      shake(crit ? 'big' : 'sm');
       renderCombat();
-      setTimeout(step, hits > 1 ? 240 : 120);
+      setTimeout(step, (multi || mults.length) ? 240 : 120);
     }
     function done() {
       var pv = wpnVal(h, 'poison'); if (pv && t.hp > 0) { t.poison = (t.poison || 0) + pv; logMsg(TCG.t('dx.logPoisonApplied', { target: t.name, n: pv })); }
@@ -723,6 +740,7 @@
     var c = combat;
     (c.adds || []).forEach(function (a) {
       if (a.hp > 0 && c.lord.hp > 0) {
+        if (a.stunned > 0) { a.stunned--; fxSupport(enemyElByIdx((c.adds.indexOf(a)) + 1), '💤 ' + TCG.t('dx.stStun'), '#ff9ad0'); return; } // 기절한 졸병은 행동 불가
         var crit = rollCrit(BASE_CRIT), dmg = crit ? a.atk * 2 : a.atk;
         TCG.sfx('hit'); var evA = dmgLord(dmg, crit);
         logMsg(a.name + ' ' + (evA ? TCG.t('dx.logToLordEvade') : (TCG.t('dx.logToLordDmg', { n: dmg }) + (crit ? ' ' + TCG.t('dx.critTag') : ''))));
@@ -736,8 +754,8 @@
     (c.adds || []).forEach(function (a) { if (a.poison > 0 && a.hp > 0) { a.hp = Math.max(0, a.hp - a.poison); } }); // 졸병 독 피해
     renderCombat();
     if (b.hp <= 0) { setTimeout(winRaid, 550); return; }
-    var skip = (b.charmed > 0 || b.confused > 0);
-    if (skip) { var was = b.charmed > 0 ? TCG.t('dx.stCharm') : TCG.t('dx.stConfuse'); if (b.charmed > 0) b.charmed--; else b.confused--; fxSupport(bossEl(), '💤 ' + was, '#ff9ad0'); logMsg(TCG.t('dx.logStunnedSkip', { name: b.name, st: was })); }
+    var skip = (b.charmed > 0 || b.confused > 0 || b.stunned > 0);
+    if (skip) { var was = b.charmed > 0 ? TCG.t('dx.stCharm') : (b.confused > 0 ? TCG.t('dx.stConfuse') : TCG.t('dx.stStun')); if (b.charmed > 0) b.charmed--; else if (b.confused > 0) b.confused--; else b.stunned--; fxSupport(bossEl(), '💤 ' + was, '#ff9ad0'); logMsg(TCG.t('dx.logStunnedSkip', { name: b.name, st: was })); }
     fxBanner(TCG.t('cmb.bossTurn'), 'foe-turn', 800);
     setTimeout(function () {
       if (!skip) {
