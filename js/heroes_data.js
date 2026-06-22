@@ -278,16 +278,16 @@ HW_WEAPONS.forEach(function (w) { HW_WEAPON_BY_ID[w.id] = w; });
  *  · 공격 2회(doubleStrike): 옵션당 +150
  *  · 주공 관련(lordHp/lordMp): 옵션당 +100
  *  · 그 외 능력치: 한개당 30~50 (능력치별 상이) */
-var HW_WPN_OPT_COST = { atk:50, crit:45, poison:40, evade:35 };
+var HW_WPN_OPT_COST = { atk:50, crit:45, poison:40, evade:35, chain:150, stun:100, splash:150 };
 function weaponCost(w) {
   if (!w || !w.effect) return 40;
   var total = 0;
   Object.keys(w.effect).forEach(function (k) {
     if (k === 'doubleStrike') total += 150;            // 공격 2회 옵션
     else if (k === 'lordHp' || k === 'lordMp') total += 100; // 주공 옵션
-    else total += (HW_WPN_OPT_COST[k] || 30);          // 그 외 능력치 30~50
+    else total += (HW_WPN_OPT_COST[k] || 30);          // 그 외 능력치 30~50 (연쇄·스플래시 150 / 기절 100)
   });
-  return total;
+  return total + 30; // 전체 장비 기본 +30
 }
 
 /* Difficulty tuning (기본 상/하드 고정 — 선택 화면 없음, 전반 상향) */
