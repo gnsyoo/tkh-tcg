@@ -53,8 +53,8 @@ var HW_HEROES = [
     skill:{ name:'간웅', cost:3, type:'buff', scope:'army', val:4, target:'ally', desc:'전군 공격력 +4 (전투 동안)' } },
   { id:'xiahoudun',name:'하후돈', emoji:'⚔️', cls:'전사', rarity:'SSR', hp:44, atk:11, exclusive:'raid', raidOf:'cmd_xiahoudun',
     skill:{ name:'발시담정', cost:2, type:'strike', val:11, target:'enemy', desc:'적 1명에게 공격력+11 피해' } },
-  { id:'xiahouyuan',name:'하후연',emoji:'🏹', cls:'궁수', rarity:'SR', hp:28, atk:8,
-    skill:{ name:'질풍사격', cost:1, type:'multi', val:3, target:'enemy', desc:'무작위 적을 3회 공격' } },
+  { id:'xiahouyuan',name:'하후연',emoji:'🏹', cls:'궁수', rarity:'SSR', hp:34, atk:12,
+    skill:{ name:'질풍사격', cost:2, type:'multi', val:5, target:'enemy', desc:'무작위 적을 5회 공격' } },
   { id:'sunce',    name:'손책',   emoji:'🗡️', cls:'전사', rarity:'SR', hp:30, atk:9,
     skill:{ name:'소패왕', cost:2, type:'strike', val:12, target:'enemy', desc:'적 1명에게 공격력+12 피해' } },
   { id:'ganning',  name:'감녕',   emoji:'🏹', cls:'기습', rarity:'SR', hp:30, atk:10,
@@ -155,7 +155,7 @@ var HW_HEROES = [
 var HW_BY_ID = {};
 HW_HEROES.forEach(function (h) { HW_BY_ID[h.id] = h; });
 
-var HW_STARTERS = ['glad', 'xiahouyuan', 'mage', 'knight']; // 전위 · 하후연 · 순욱 · 조인
+var HW_STARTERS = ['glad', 'yuejin', 'mage', 'knight']; // 전위 · 악진 · 순욱 · 조인
 
 /* 적 (삼국지 세력) */
 var HW_ENEMIES = {
