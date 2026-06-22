@@ -37,7 +37,17 @@
   // 적 고유 방어력(피격해도 사라지지 않음). 하드 이상에서만. 극악 = 하드 +3
   var ARMOR_RANGE = { normal: { mid: [2, 3], boss: [3, 5] }, hard: { normal: [2, 3], mid: [3, 5], boss: [4, 7] }, extreme: { normal: [5, 6], mid: [6, 8], boss: [7, 10] } };
   function armorRange(tier) { var t = ARMOR_RANGE[run.mode]; return t ? t[tier] : null; }
+  // 노말 모드 스테이지 게이팅: 1·2스테이지 중보·보스 방어 없음, 3·4스테이지 보스만, 5스테이지+ 현행. 하드/극악은 그대로
+  function armorRangeFor(tier, main) {
+    var base = armorRange(tier); if (!base) return null;
+    if (run.mode === 'normal') {
+      if (tier === 'boss' && main <= 1) return null; // 보스: 메인 3스테이지(main 2)부터
+      if (tier === 'mid' && main <= 3) return null;  // 중간보스: 메인 5스테이지(main 4)부터
+    }
+    return base;
+  }
   function rollArmor(tier) { var r = armorRange(tier); return r ? (r[0] + Math.floor(Math.random() * (r[1] - r[0] + 1))) : 0; }
+  function rollArmorFor(tier, main) { var r = armorRangeFor(tier, main); return r ? (r[0] + Math.floor(Math.random() * (r[1] - r[0] + 1))) : 0; }
   function lordCritSum() { return run.party.reduce(function (s, h) { return s + wpnVal(h, 'lordCrit'); }, 0); } // 전국옥새 등: 주공(전 영웅) 치명타
   function critChance(h) { return Math.min(0.5, BASE_CRIT + (h ? wpnVal(h, 'crit') : 0) + lordCritSum() + relicSum('crit')); } // 치명타 확률 최대 50%(유물 합산)
   function rollCrit(chance) { return Math.random() < chance; }
@@ -470,7 +480,7 @@
       var bAtkName = bAtkIsSkill ? bsk.name : TCG.t('hx.assault');
       var bAtkDesc = bAtkIsSkill ? bsk.desc : TCG.t('hx.strikeLord');
       var bPierce = (run.mode === 'hard' || run.mode === 'extreme') ? ' <span style="color:#ff9a7e">' + TCG.t('hx.pierce') + '</span>' : '';
-      var bArmorR = armorRange('boss'), bArmorTxt = bArmorR ? ' · 🪖 ' + TCG.t('hx.defenseStat') + ' ' + bArmorR[0] + '~' + bArmorR[1] : '';
+      var bArmorR = armorRangeFor('boss', main), bArmorTxt = bArmorR ? ' · 🪖 ' + TCG.t('hx.defenseStat') + ' ' + bArmorR[0] + '~' + bArmorR[1] : '';
       body = TCG.portrait(cmd.emoji, (cmd.hero && HW_BY_ID[cmd.hero]) ? cmd.hero : cmd.name, 'modal-portrait', cmd.name) +
         '<h2>👑 ' + cmd.name + ' <span class="rar-SSR" style="font-size:13px">' + TCG.t('hx.commander') + '</span></h2>' +
         '<p>' + TCG.t('hx.finalBoss', { stage: st.name }) + (cmd.aoe ? ' · 💥 ' + TCG.t('hx.aoe') : '') + '</p>' +
@@ -483,7 +493,7 @@
       var idx = (sub === 9) ? 1 : 0, mb = (HW_MID_BOSSES[main] || [])[idx];
       if (!mb) { return; }
       var mhp = Math.round(mb.hp * hpM * HW_MID.hpMult * 1.3), matk = Math.max(1, Math.round(mb.atk * atkM * HW_MID.atkMult * 1.2 * 2 * 1.5));
-      var mArmorR = armorRange('mid'), mArmorTxt = mArmorR ? ' · 🪖 ' + TCG.t('hx.defenseStat') + ' ' + mArmorR[0] + '~' + mArmorR[1] : '';
+      var mArmorR = armorRangeFor('mid', main), mArmorTxt = mArmorR ? ' · 🪖 ' + TCG.t('hx.defenseStat') + ' ' + mArmorR[0] + '~' + mArmorR[1] : '';
       var msk = HW_MID_SKILLS[(main * 2 + idx) % HW_MID_SKILLS.length];
       var mbHero = (mb.hid && HW_BY_ID[mb.hid]) ? HW_BY_ID[mb.hid] : null;
       var recruitTxt = mbHero ? ('<br><span style="color:#d9b3ff">🃏 ' + TCG.t('hx.recruitOnDefeat') + ' — ' + mbHero.name + ' <span class="rar-' + mbHero.rarity + '">' + mbHero.rarity + '</span> (' + (idx === 0 ? TCG.t('hx.diffNormal') : TCG.t('hx.diffHard')) + ')</span>') : '';
@@ -840,7 +850,7 @@
       var hp = Math.round(d.hp * hpM * hpx * bbHp);
       var atk = Math.max(1, Math.round(d.atk * atkM * (boss ? md.bossAtkMult : 1) * atkx * 2 * bbAtk)); // 적 공격력 일괄 2배 + 보스/중간보스 1.5배
       var e = { def: d, name: (mid ? '⚜ ' + d.name : d.name), emoji: d.emoji, face: (d.hid || d.hero || d.id || null), maxHp: hp, hp: hp,
-        atk: atk, aoe: !!d.aoe, boss: !!boss, mid: !!mid, quote: d.quote || null, crit: (boss ? Math.max(0.15, md.bossCrit) : BASE_CRIT), block: 0, armor: rollArmor(boss ? 'boss' : (mid ? 'mid' : 'normal')), stunned: 0, intent: null }; // 적장(보스) 치명타 최소 15% · armor=고유 방어력
+        atk: atk, aoe: !!d.aoe, boss: !!boss, mid: !!mid, quote: d.quote || null, crit: (boss ? Math.max(0.15, md.bossCrit) : BASE_CRIT), block: 0, armor: rollArmorFor(boss ? 'boss' : (mid ? 'mid' : 'normal'), main), stunned: 0, intent: null }; // 적장(보스) 치명타 최소 15% · armor=고유 방어력
       if (boss && d.hero && HW_BY_ID[d.hero]) { // 적장: 공격 스킬 + 보조(행동불능/회복) 2종 보유
         var bc = HW_BOSS[diff] || HW_BOSS.normal;
         var heroSk = HW_BY_ID[d.hero].skill;
