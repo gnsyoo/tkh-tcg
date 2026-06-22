@@ -588,8 +588,16 @@
   function skillName(sk) { var e = SKILL_NAME[sk.type]; return (e && e[lang]) ? e[lang] : (sk.name || ''); }
   function skillDesc(sk) {
     var v = sk.val;
+    var half = sk.mult && sk.mult !== 1;
+    var sp = sk.stun ? Math.round(sk.stun * 100) : (sk.splash ? Math.round(sk.splash * 100) : 0);
+    var strikeDesc = {
+      en: 'Deal ' + (half ? '50% of ATK+' + v : 'ATK+' + v) + ' to one enemy' + (sk.stun ? ' + ' + sp + '% stun' : sk.splash ? ' + splash ' + sp + '%' : sk.poisonHit ? ' + poison = dmg' : ''),
+      ja: '敵1体に' + (half ? '攻撃力+' + v + 'の50%' : '攻撃力+' + v) + 'ダメージ' + (sk.stun ? ' + ' + sp + '%で気絶' : sk.splash ? ' + 隣接' + sp + '%' : sk.poisonHit ? ' + ダメージ分の毒' : ''),
+      zh: '对1名敌人造成' + (half ? '攻击力+' + v + '的50%' : '攻击力+' + v) + '伤害' + (sk.stun ? ' + ' + sp + '%眩晕' : sk.splash ? ' + 相邻' + sp + '%' : sk.poisonHit ? ' + 等量中毒' : ''),
+      zhTW: '對1名敵人造成' + (half ? '攻擊力+' + v + '的50%' : '攻擊力+' + v) + '傷害' + (sk.stun ? ' + ' + sp + '%暈眩' : sk.splash ? ' + 相鄰' + sp + '%' : sk.poisonHit ? ' + 等量中毒' : '')
+    };
     var T = {
-      strike: { en: 'Deal ATK+' + v + ' to one enemy', ja: '敵1体に攻撃力+' + v + 'ダメージ', zh: '对1名敌人造成 攻击力+' + v + ' 伤害', zhTW: '對1名敵人造成 攻擊力+' + v + ' 傷害' },
+      strike: strikeDesc,
       aoe: { en: 'Deal ' + v + ' to all enemies', ja: '敵全体に' + v + 'ダメージ', zh: '对全体敌人造成' + v + '伤害', zhTW: '對全體敵人造成' + v + '傷害' },
       multi: { en: 'Hit random enemies ' + v + ' times', ja: 'ランダムな敵を' + v + '回攻撃', zh: '随机攻击敌人' + v + '次', zhTW: '隨機攻擊敵人' + v + '次' },
       shield: { en: 'Lord gains +' + v + ' shield', ja: '主公にシールド+' + v, zh: '主公护盾+' + v, zhTW: '主公護盾+' + v },

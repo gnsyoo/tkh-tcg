@@ -1443,8 +1443,13 @@
     var pierce = hasWpnFlag(h, 'pierce'); // 방어 관통(스킬 데미지도 적용)
     if (sk.type === 'strike') {
       var scrit = rollCrit(critChance(h)); // 스킬도 치명타 적용
-      var sdmg = (pw + sk.val) * (scrit ? 2 : 1);
-      var sDealt = dmgEnemy(target, sdmg, enemyEl(c.enemies.indexOf(target)), scrit ? 'crit' : null, pierce); shake('big');
+      var sbase = Math.round((pw + sk.val) * (sk.mult || 1)); // mult: 데미지 감쇠(개편 스킬 0.5)
+      var sdmg = scrit ? sbase * 2 : sbase;
+      var sti = c.enemies.indexOf(target);
+      var sDealt = dmgEnemy(target, sdmg, enemyEl(sti), scrit ? 'crit' : null, pierce); shake('big');
+      if (sk.splash) { [sti - 1, sti + 1].forEach(function (ai) { var ae = c.enemies[ai]; if (ae && ae.hp > 0) dmgEnemy(ae, Math.max(1, Math.round(sdmg * sk.splash)), enemyEl(ai), 'aoe', pierce); }); } // 인접 스플래시
+      if (sk.stun && target.hp > 0 && Math.random() < sk.stun) { target.stunned = (target.stunned || 0) + 1; } // 기절
+      if (sk.poisonHit && target.hp > 0) { target.poison = (target.poison || 0) + sDealt; logMsg(TCG.t('hx.logPoisonApply', { name: target.name, n: sDealt })); } // 피해량만큼 중독
       logMsg(TCG.t('hx.logSkillDmg', { name: h.def.name, sk: sk.name, dmg: sDealt }) + (scrit ? TCG.t('hx.critSuffix') : ''));
     } else if (sk.type === 'aoe') {
       var acrit = rollCrit(critChance(h)); var aval = sk.val * (acrit ? 2 : 1);

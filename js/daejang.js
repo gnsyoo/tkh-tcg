@@ -654,7 +654,17 @@
     TCG.sfx(sk.type === 'heal' ? 'heal' : 'skill');
     var pw = effAtk(h);
     var pierce = hasWpnFlag(h, 'pierce'); // 방어 관통(스킬 데미지도 적용)
-    if (sk.type === 'strike') { var sc = rollCrit(critChance(h)); var sd = Math.round((pw + sk.val) * (sc ? CRIT_MULT : 1)); var sDealt = dmgTarget(ti, sd, sc, pierce); shake('big'); logMsg(h.def.name + ' 「' + sk.name + '」 ' + TCG.t('dx.logHitTarget', { target: tName, n: sDealt }) + (sc ? ' ' + TCG.t('dx.critTag') : '')); }
+    if (sk.type === 'strike') {
+      var sc = rollCrit(critChance(h));
+      var sbase = Math.round((pw + sk.val) * (sk.mult || 1)); // mult: 데미지 감쇠(개편 스킬 0.5)
+      var sd = sc ? Math.round(sbase * CRIT_MULT) : sbase;
+      var sDealt = dmgTarget(ti, sd, sc, pierce); shake('big');
+      if (sk.splash) { [ti - 1, ti + 1].forEach(function (ai) { if (ai < 0) return; var ae = enemyByIdx(ai); if (ae && ae.hp > 0) dmgTarget(ai, Math.max(1, Math.round(sd * sk.splash)), false, pierce); }); } // 인접 스플래시
+      var stg = enemyByIdx(ti);
+      if (sk.stun && stg && stg.hp > 0 && stg !== c.boss && Math.random() < sk.stun) { stg.stunned = (stg.stunned || 0) + 1; } // 기절(보스 면역)
+      if (sk.poisonHit && stg && stg.hp > 0) { stg.poison = (stg.poison || 0) + sDealt; } // 피해량만큼 중독
+      logMsg(h.def.name + ' 「' + sk.name + '」 ' + TCG.t('dx.logHitTarget', { target: tName, n: sDealt }) + (sc ? ' ' + TCG.t('dx.critTag') : ''));
+    }
     else if (sk.type === 'aoe') { var ac = rollCrit(critChance(h)); var av = Math.round(sk.val * (ac ? CRIT_MULT : 1)); enemyIdxList().forEach(function (ei) { var en = enemyByIdx(ei); if (en && en.hp > 0) dmgTarget(ei, av, ac, pierce); }); shake('big'); logMsg(h.def.name + ' 「' + sk.name + '」 ' + TCG.t('dx.logHitAll', { n: av }) + (ac ? ' ' + TCG.t('dx.critTag') : '')); }
     else if (sk.type === 'multi') {
       // 다회 공격 스킬은 타격당 공격력의 70% × 타수(타격 수) — 선택한 대상 집중
