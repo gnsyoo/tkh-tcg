@@ -267,7 +267,7 @@ var HW_WEAPONS = [
   { id:'huxindao', name:'호심도',     emoji:'🗡️', desc:'공격력 +3 · 기절 30%',       effect:{ atk:3, stun:0.3 } },
   { id:'jinpaojia',name:'금포갑',     emoji:'🧥', desc:'주공 최대 HP +25, MP +5',   effect:{ lordHp:25, lordMp:5 } },
   { id:'chiyandao',name:'적염도',     emoji:'🔥', desc:'공격력 +7, 치명타 +7%',     effect:{ atk:7, crit:0.07 } },
-  { id:'baiyinqiang',name:'백은창',   emoji:'🔱', desc:'공격력 +8, 회피 +3.5%',     effect:{ atk:8, evade:0.035 } }
+  { id:'baiyinqiang',name:'백은창',   emoji:'🔱', desc:'공격력 +8 · 기절 30%',       effect:{ atk:8, stun:0.3 } }
 ];
 // 적장(보스)은 중간보스보다 강하게 — 전용 배수(중간보스 hpMult 2.05 / atkMult 1.22보다 높음)
 var HW_BOSS_MULT = { hpMult:2.7, atkMult:1.55 };

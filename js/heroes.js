@@ -35,7 +35,7 @@
   function syncDeck() { run.deck = activeDeckUids(); } // 정규화 결과를 run.deck에 반영(자동 채움 포함)
   var BASE_CRIT = 0.01; // 기본 치명타 확률 1%
   // 적 고유 방어력(피격해도 사라지지 않음). 하드 이상에서만. 극악 = 하드 +3
-  var ARMOR_RANGE = { hard: { normal: [2, 3], mid: [3, 5], boss: [4, 7] }, extreme: { normal: [5, 6], mid: [6, 8], boss: [7, 10] } };
+  var ARMOR_RANGE = { normal: { mid: [2, 3], boss: [3, 5] }, hard: { normal: [2, 3], mid: [3, 5], boss: [4, 7] }, extreme: { normal: [5, 6], mid: [6, 8], boss: [7, 10] } };
   function armorRange(tier) { var t = ARMOR_RANGE[run.mode]; return t ? t[tier] : null; }
   function rollArmor(tier) { var r = armorRange(tier); return r ? (r[0] + Math.floor(Math.random() * (r[1] - r[0] + 1))) : 0; }
   function lordCritSum() { return run.party.reduce(function (s, h) { return s + wpnVal(h, 'lordCrit'); }, 0); } // 전국옥새 등: 주공(전 영웅) 치명타
