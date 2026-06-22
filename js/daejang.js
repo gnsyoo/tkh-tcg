@@ -153,7 +153,7 @@
   var BASE_CRIT = 0.01;
   var BOSS_CRIT = 0.15; // 대장전 보스 치명타 확률(최소 15%)
   function lordCritSum() { return party.reduce(function (s, h) { return s + wpnVal(h, 'lordCrit'); }, 0); } // 전국옥새 등: 주공(전 영웅) 치명타
-  function critChance(h) { return Math.min(0.5, BASE_CRIT + wpnVal(h, 'crit') + lordCritSum() + relicSum('crit')); } // 치명타 확률 최대 50%(유물 합산)
+  function critChance(h) { return Math.min(0.5, BASE_CRIT + wpnVal(h, 'crit') + lordCritSum() + relicSum('crit')) * 0.5; } // 대장전: 치명타 확률 50% 감소
   function rollCrit(c) { return Math.random() < c; }
   function defenseOf(h) { return 3 + Math.floor(effAtk(h) / 3); }
   function heroByUid(uid) { return party.find(function (h) { return h.uid === uid; }); }
@@ -630,7 +630,7 @@
       if (splash > 0) { // 인접 적에게 기본 공격력 비율 피해
         [ti - 1, ti + 1].forEach(function (ai) { if (ai < 0) return; var ae = enemyByIdx(ai); if (ae && ae.hp > 0) dmgTarget(ai, Math.max(1, Math.round(dmg * splash)), false, pierce); });
       }
-      if (stunCh > 0 && t.hp > 0 && Math.random() < stunCh) { t.stunned = (t.stunned || 0) + 1; } // 기절 부여
+      if (stunCh > 0 && t.hp > 0 && t !== c.boss && Math.random() < stunCh) { t.stunned = (t.stunned || 0) + 1; } // 기절 부여(레이드 보스는 면역, 졸병만)
       if (chain && chainLeft > 0 && t.hp <= 0) { mults.push(1); chainLeft--; } // 연쇄: 처치 시 추가 타격(전력)
       shake(crit ? 'big' : 'sm');
       renderCombat();
@@ -706,7 +706,7 @@
     bossPhase();
   });
 
-  function lordEvade() { return Math.min(0.2, party.reduce(function (s, h) { return s + wpnVal(h, 'evade'); }, 0)); } // 회피(무기 합산, 최대 20%)
+  function lordEvade() { return Math.min(0.2, party.reduce(function (s, h) { return s + wpnVal(h, 'evade'); }, 0)) * 0.5; } // 대장전: 주공 회피 50% 감소(무기 합산, 최대 10%)
   function dmgLord(dmg, crit) {
     var L = combat.lord;
     if (Math.random() < lordEvade()) { fxSupport(lordEl(), TCG.t('dx.evade'), '#8effb0'); return true; } // 회피 — 피해 무효
