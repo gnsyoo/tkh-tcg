@@ -354,7 +354,7 @@
     var bc = HW_BOSS[diff] || HW_BOSS.normal;
     var bmp = Math.max(0, bc.mp - 20) + 10 + 10; // 대장전 레이드 보스 MP -20 후 +10, 추가 +10 상향
     combat = {
-      raidIdx: idx, boss: { def: cmd, name: cmd.name, emoji: cmd.emoji, maxHp: hp, hp: hp, atk: atk, atk0: atk, aoe: !!cmd.aoe, block: 0, poison: 0, charmed: 0, stunned: 0, intent: null,
+      raidIdx: idx, boss: { def: cmd, name: cmd.name, emoji: cmd.emoji, maxHp: hp, hp: hp, atk: atk, atk0: atk, aoe: !!cmd.aoe, block: 0, armor: Math.min(15, idx * 2), poison: 0, charmed: 0, stunned: 0, intent: null,
         skills: raidBossSkills(b), mp: bmp, maxMp: bmp, skillChance: bc.skillChance * 0.8 }, // 스킬 사용 빈도 약 20% 감소
       adds: makeRaidAdds(idx, hp, atk), tgtIdx: 0,
       round: 0, lord: { hp: mhp, maxHp: mhp, mp: mmp, maxMp: mmp, block: relicSum('startBlock') }, atkBuff: relicSum('startAtk'), lordStun: 0,
@@ -462,6 +462,7 @@
         '<div class="u-tag boss">' + TCG.t('cmb.tagBoss') + '</div>' +
         (dead ? '' : '<div class="u-intent">' + intentTxt + '</div>') +
         (b.block > 0 ? '<div class="u-block">🛡' + b.block + '</div>' : '') +
+        (b.armor > 0 ? '<div class="u-armor">🪖' + b.armor + '</div>' : '') +
         bossFace(b.def, '') +
         '<div class="u-name">' + b.name + '</div>' +
         '<div class="hpbar foe"><i style="width:' + pct + '%"></i></div>' +
@@ -591,16 +592,19 @@
   function enemyIdxList() { var l = [0]; (combat.adds || []).forEach(function (_, i) { l.push(i + 1); }); return l; }
   function enemyElByIdx(i) { return document.querySelector('#enemyRow .unit[data-idx="' + i + '"]') || bossEl(); }
   function fxHitEnemyEl(el, dmg, crit) { var p = rectOf(el); if (!p) return; fxSlash(p.x, p.y); fxBurst(p.x, p.y, crit ? '#ffd34d' : '#fff'); fxParticles(p.x, p.y, crit ? 10 : 7, crit ? '#ffe89a' : '#ffc6c6'); if (crit) fxFloat(p.x, p.y - 16, TCG.t('cmb.crit'), '#ffd34d', true); fxFloat(p.x, p.y, '-' + dmg, crit ? '#ffd34d' : '#ff9a9a', true); }
-  function dmgTarget(i, dmg, crit) {
-    var t = enemyByIdx(i); if (!t) return;
+  function dmgTarget(i, dmg, crit, pierce) {
+    var t = enemyByIdx(i); if (!t) return 0;
     var d = dmg; if (t.block > 0) { var ab = Math.min(t.block, d); t.block -= ab; d -= ab; }
+    if (!pierce && t.armor > 0 && d > 0) d = Math.max(1, d - t.armor); // 고유 방어력 차감(관통 시 무시)
     t.hp = Math.max(0, t.hp - d);
-    fxHitEnemyEl(enemyElByIdx(i), dmg, crit);
+    fxHitEnemyEl(enemyElByIdx(i), d, crit);
+    return d; // 실제 적용된 피해
   }
   function dmgBoss(dmg, crit) { dmgTarget(0, dmg, crit); }
   function doAttack(h) {
     var c = combat, ti = c.tgtIdx || 0; if (!enemyByIdx(ti) || enemyByIdx(ti).hp <= 0) ti = 0;
     var t = enemyByIdx(ti), dmg = effAtk(h);
+    var pierce = hasWpnFlag(h, 'pierce'); // 방어 관통
     var chain = hasWpnFlag(h, 'chain');   // 연쇄(처치 시 재공격)
     var splash = wpnVal(h, 'splash');     // 인접 스플래시 비율
     var stunCh = wpnVal(h, 'stun');       // 기절 확률
@@ -622,9 +626,9 @@
       var base = Math.max(1, Math.round(dmg * mult));
       var hd = crit ? base * 2 : base;
       if (crit) anyCrit = true;
-      dmgTarget(ti, hd, crit); total += hd;
+      total += dmgTarget(ti, hd, crit, pierce); // 실제 적용 피해 합산(방어력 반영)
       if (splash > 0) { // 인접 적에게 기본 공격력 비율 피해
-        [ti - 1, ti + 1].forEach(function (ai) { if (ai < 0) return; var ae = enemyByIdx(ai); if (ae && ae.hp > 0) dmgTarget(ai, Math.max(1, Math.round(dmg * splash)), false); });
+        [ti - 1, ti + 1].forEach(function (ai) { if (ai < 0) return; var ae = enemyByIdx(ai); if (ae && ae.hp > 0) dmgTarget(ai, Math.max(1, Math.round(dmg * splash)), false, pierce); });
       }
       if (stunCh > 0 && t.hp > 0 && Math.random() < stunCh) { t.stunned = (t.stunned || 0) + 1; } // 기절 부여
       if (chain && chainLeft > 0 && t.hp <= 0) { mults.push(1); chainLeft--; } // 연쇄: 처치 시 추가 타격(전력)
@@ -648,8 +652,9 @@
     var shl = relicSum('skillHeal'); if (shl && c.lord.hp > 0) { c.lord.hp = Math.min(c.lord.maxHp, c.lord.hp + shl); fxSupport(lordEl(), '+' + shl, '#7ef0b5'); } // 오추마·벽사부적(유물): 스킬 사용 시 회복
     TCG.sfx(sk.type === 'heal' ? 'heal' : 'skill');
     var pw = effAtk(h);
-    if (sk.type === 'strike') { var sc = rollCrit(critChance(h)); var sd = (pw + sk.val) * (sc ? 2 : 1); dmgTarget(ti, sd, sc); shake('big'); logMsg(h.def.name + ' 「' + sk.name + '」 ' + TCG.t('dx.logHitTarget', { target: tName, n: sd }) + (sc ? ' ' + TCG.t('dx.critTag') : '')); }
-    else if (sk.type === 'aoe') { var ac = rollCrit(critChance(h)); var av = sk.val * (ac ? 2 : 1); enemyIdxList().forEach(function (ei) { var en = enemyByIdx(ei); if (en && en.hp > 0) dmgTarget(ei, av, ac); }); shake('big'); logMsg(h.def.name + ' 「' + sk.name + '」 ' + TCG.t('dx.logHitAll', { n: av }) + (ac ? ' ' + TCG.t('dx.critTag') : '')); }
+    var pierce = hasWpnFlag(h, 'pierce'); // 방어 관통(스킬 데미지도 적용)
+    if (sk.type === 'strike') { var sc = rollCrit(critChance(h)); var sd = (pw + sk.val) * (sc ? 2 : 1); var sDealt = dmgTarget(ti, sd, sc, pierce); shake('big'); logMsg(h.def.name + ' 「' + sk.name + '」 ' + TCG.t('dx.logHitTarget', { target: tName, n: sDealt }) + (sc ? ' ' + TCG.t('dx.critTag') : '')); }
+    else if (sk.type === 'aoe') { var ac = rollCrit(critChance(h)); var av = sk.val * (ac ? 2 : 1); enemyIdxList().forEach(function (ei) { var en = enemyByIdx(ei); if (en && en.hp > 0) dmgTarget(ei, av, ac, pierce); }); shake('big'); logMsg(h.def.name + ' 「' + sk.name + '」 ' + TCG.t('dx.logHitAll', { n: av }) + (ac ? ' ' + TCG.t('dx.critTag') : '')); }
     else if (sk.type === 'multi') {
       // 다회 공격 스킬은 타격당 공격력의 70% × 타수(타격 수) — 선택한 대상 집중
       var perHit = Math.max(1, Math.round(pw * 0.7));
@@ -657,7 +662,7 @@
       (function mhit() {
         var tt = enemyByIdx(ti);
         if (mi >= sk.val || !tt || tt.hp <= 0) { logMsg(h.def.name + ' 「' + sk.name + '」 ' + TCG.t('dx.logMultiHits', { hits: sk.val, per: perHit })); c.busy = false; finishPlay(); return; }
-        mi++; TCG.sfx('attack'); var mc = rollCrit(critChance(h)); dmgTarget(ti, mc ? perHit * 2 : perHit, mc); shake('sm'); renderCombat(); setTimeout(mhit, 210); })();
+        mi++; TCG.sfx('attack'); var mc = rollCrit(critChance(h)); dmgTarget(ti, mc ? perHit * 2 : perHit, mc, pierce); shake('sm'); renderCombat(); setTimeout(mhit, 210); })();
       return; // 비동기 처리 — 아래 공통 finishPlay 건너뜀
     }
     else if (sk.type === 'confuse' || sk.type === 'charm') { fxSupport(bossEl(), '🛡 ' + TCG.t('dx.immune'), '#cfd8e3'); logMsg(b.name + ' — ' + TCG.t('dx.logImmune', { st: (sk.type === 'charm' ? TCG.t('dx.stCharm') : TCG.t('dx.stConfuse')) })); } // 레이드 보스는 행동 불가 면역

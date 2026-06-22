@@ -1360,6 +1360,7 @@
     e.hp -= d;
     fxHitEnemy(el, d, kind);
     if (e.hp <= 0 && wasAlive) fxDeathAt(el, e.emoji);
+    return d; // 실제 적용된 피해(방어력 차감 후)
   }
   // 적의 공격은 주공(나)을 노린다 — 블록으로 먼저 흡수 후 HP 감소. pierce=방어 관통(블록 무시)
   function dmgLord(dmg, crit, pierce) {
@@ -1400,8 +1401,7 @@
       var hitDmg = crit ? base * 2 : base;
       if (crit) anyCrit = true;
       var ti = c.enemies.indexOf(tgt);
-      dmgEnemy(tgt, hitDmg, enemyEl(ti), crit ? 'crit' : null, pierce);
-      total += hitDmg;
+      total += dmgEnemy(tgt, hitDmg, enemyEl(ti), crit ? 'crit' : null, pierce); // 실제 적용 피해 합산(방어력 반영)
       if (splash > 0) { // 인접 적에게 기본 공격력 비율 피해
         [ti - 1, ti + 1].forEach(function (ai) { var ae = c.enemies[ai]; if (ae && ae.hp > 0) dmgEnemy(ae, Math.max(1, Math.round(dmg * splash)), enemyEl(ai), 'aoe', pierce); });
       }
@@ -1434,8 +1434,8 @@
     if (sk.type === 'strike') {
       var scrit = rollCrit(critChance(h)); // 스킬도 치명타 적용
       var sdmg = (pw + sk.val) * (scrit ? 2 : 1);
-      dmgEnemy(target, sdmg, enemyEl(c.enemies.indexOf(target)), scrit ? 'crit' : null, pierce); shake('big');
-      logMsg(TCG.t('hx.logSkillDmg', { name: h.def.name, sk: sk.name, dmg: sdmg }) + (scrit ? TCG.t('hx.critSuffix') : ''));
+      var sDealt = dmgEnemy(target, sdmg, enemyEl(c.enemies.indexOf(target)), scrit ? 'crit' : null, pierce); shake('big');
+      logMsg(TCG.t('hx.logSkillDmg', { name: h.def.name, sk: sk.name, dmg: sDealt }) + (scrit ? TCG.t('hx.critSuffix') : ''));
     } else if (sk.type === 'aoe') {
       var acrit = rollCrit(critChance(h)); var aval = sk.val * (acrit ? 2 : 1);
       living(c.enemies).forEach(function (e) { dmgEnemy(e, aval, enemyEl(c.enemies.indexOf(e)), acrit ? 'crit' : 'aoe', pierce); }); shake('big');
