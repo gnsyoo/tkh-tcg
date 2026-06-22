@@ -223,7 +223,7 @@ var HW_WEAPONS = [
   { id:'taiping',  name:'태평요술서', emoji:'☯️', desc:'공격 시 적에게 독 +3',        effect:{ poison:3 } },
   { id:'qinggang', name:'청강검',     emoji:'🔪', desc:'치명타 +10% · 방어 관통',     effect:{ crit:0.10, pierce:true } },
   { id:'yitian',   name:'의천검',     emoji:'🗡️', desc:'치명타 +12% · 방어 관통',     effect:{ crit:0.12, pierce:true } },
-  { id:'cixiong',  name:'자웅일대검', emoji:'⚔️', desc:'치명타 확률 +15%, 기본 공격 3회', effect:{ crit:0.15, tripleStrike:true }, exclusive:'qb20' },
+  { id:'cixiong',  name:'자웅일대검', emoji:'⚔️', desc:'치명타 확률 +15%, 기본 공격 3회', effect:{ crit:0.15, tripleStrike:true }, exclusive:'qb20', price:1000 },
   { id:'yuxi',     name:'전국옥새',   emoji:'🟨', desc:'주공 최대 HP +100 · 최대 MP +30 · 주공 치명타 +5%', effect:{ lordHp:100, lordMp:30, lordCrit:0.05 }, exclusive:'collection' },
   { id:'sunzi',    name:'손자병법',   emoji:'📜', desc:'주공 최대 MP +20',           effect:{ lordMp:20 } },
   { id:'guanyu',   name:'한수정후인', emoji:'🟥', desc:'주공 최대 HP +30, MP +10',   effect:{ lordHp:30, lordMp:10 } },
@@ -281,6 +281,7 @@ HW_WEAPONS.forEach(function (w) { HW_WEAPON_BY_ID[w.id] = w; });
 var HW_WPN_OPT_COST = { atk:50, crit:45, poison:40, evade:35, chain:150, stun:100, splash:150 };
 function weaponCost(w) {
   if (!w || !w.effect) return 40;
+  if (w.price != null) return w.price; // 개별 고정가(예: 자웅일대검)
   var total = 0;
   Object.keys(w.effect).forEach(function (k) {
     if (k === 'doubleStrike') total += 150;            // 공격 2회 옵션
