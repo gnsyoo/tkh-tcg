@@ -235,7 +235,7 @@ var HW_WEAPONS = [
   { id:'qiangbow', name:'양유기 강궁',emoji:'🏹', desc:'기본 공격 2회 + 치명타 +8%', effect:{ doubleStrike:true, crit:0.08 } },
   { id:'liannu',   name:'제갈연노',   emoji:'🎯', desc:'공격 시 적에게 독 +4',        effect:{ poison:4 } },
   { id:'qibao',    name:'칠보도',     emoji:'🗡️', desc:'공격력 +2, 독 +2',           effect:{ atk:2, poison:2 } },
-  { id:'tiebian',  name:'철편(鐵鞭)', emoji:'🏏', desc:'공격력 +5 · 스플래시(인접 적 50%)', effect:{ atk:5, splash:0.5 } },
+  { id:'tiebian',  name:'철편(鐵鞭)', emoji:'🏏', desc:'공격력 +5 · 스플래시(인접 적 30%)', effect:{ atk:5, splash:0.3 } },
   { id:'huanshou', name:'환수도',     emoji:'🗡️', desc:'공격력 +3, 치명타 +10%',    effect:{ atk:3, crit:0.10 } },
   { id:'baiyu',    name:'백우선',     emoji:'🪭', desc:'주공 최대 MP +15',           effect:{ lordMp:15 } },
   { id:'tongque',  name:'동작대 보패', emoji:'🏯', desc:'주공 최대 HP +25, MP +8',   effect:{ lordHp:25, lordMp:8 } },
@@ -288,7 +288,7 @@ function weaponCost(w) {
     else if (k === 'lordHp' || k === 'lordMp') total += 100; // 주공 옵션
     else total += (HW_WPN_OPT_COST[k] || 30);          // 그 외 능력치 30~50 (연쇄·스플래시 150 / 기절 100)
   });
-  return total + 30; // 전체 장비 기본 +30
+  return total + 50; // 전체 장비 기본 가산(+50)
 }
 
 /* Difficulty tuning (기본 상/하드 고정 — 선택 화면 없음, 전반 상향) */
