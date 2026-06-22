@@ -278,7 +278,7 @@ HW_WEAPONS.forEach(function (w) { HW_WEAPON_BY_ID[w.id] = w; });
  *  · 공격 2회(doubleStrike): 옵션당 +150
  *  · 주공 관련(lordHp/lordMp): 옵션당 +100
  *  · 그 외 능력치: 한개당 30~50 (능력치별 상이) */
-var HW_WPN_OPT_COST = { atk:50, crit:45, poison:40, evade:35, chain:150, stun:100, splash:150 };
+var HW_WPN_OPT_COST = { atk:50, crit:45, poison:40, evade:35, chain:150, stun:100, splash:150, pierce:100 };
 function weaponCost(w) {
   if (!w || !w.effect) return 40;
   if (w.price != null) return w.price; // 개별 고정가(예: 자웅일대검)
