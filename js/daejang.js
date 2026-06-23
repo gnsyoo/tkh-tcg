@@ -1136,7 +1136,7 @@
         '<span class="cdx-pop-rb" style="background:' + rc + '">' + d.rarity + '</span>' + _cdxX +
         '<span class="cdx-pop-own" style="color:' + (got ? '#7ef0b5' : '#c4ab90') + '">' + (got ? TCG.t('dx.owning') : TCG.t('dx.notOwned')) + '</span></div>' +
       '<div style="padding:13px 15px 16px">' +
-        '<div class="cdx-pop-h"><b>' + d.name + '</b><small>' + d.cls + '</small></div>' +
+        '<div class="cdx-pop-h"><b>' + d.name + '</b><small>' + d.cls + ' · ' + (HW_ELEM_ICON[elemOf(d)] || '') + ' ' + TCG.t('el.' + elemOf(d)) + '</small></div>' +
         '<div class="cdx-pop-stats"><div class="atk"><div class="lbl">' + TCG.t('dx.atkLabel') + '</div><div class="val">⚔ ' + d.atk + '</div></div></div>' +
         '<div class="cdx-pop-box"><div class="sk">✦ ' + d.skill.name + ' <span style="color:#8a7560;font-weight:700;font-size:11px">MP ' + skillMp(d.skill) + '</span></div><div class="skd">' + d.skill.desc + '</div></div>' +
         '<div class="cdx-pop-src"><span style="font-size:14px">📍</span><div><div class="lbl">' + TCG.t('dx.acquirePath') + '</div><div class="v">' + heroPath(d) + '</div></div></div>' +

@@ -152,11 +152,11 @@ var HW_HEROES = [
   { id:'mb_zhugedan',   name:'제갈탄', emoji:'⚔️', cls:'전사', rarity:'R', hp:34, atk:8, exclusive:'mid',
     skill:{ name:'회남의 의기', cost:3, type:'charm', val:1, target:'enemy', desc:'적 1명을 1턴 매혹(행동 불능)' } },
   // ---- 황건적의 난(첫 스테이지) ----
-  { id:'zhangjiao', name:'장각',   emoji:'☯️', cls:'책략', rarity:'SSR', hp:36, atk:9,
+  { id:'zhangjiao', name:'장각',   emoji:'☯️', cls:'책략', rarity:'SSR', hp:36, atk:9, elem:'earth',
     skill:{ name:'태평요술', cost:3, type:'aoe', val:10, target:'allEnemies', desc:'모든 적에게 10 피해' } },
-  { id:'mb_zhangbao',   name:'장보', emoji:'🌀', cls:'책략', rarity:'R', hp:32, atk:7, exclusive:'mid',
+  { id:'mb_zhangbao',   name:'장보', emoji:'🌀', cls:'책략', rarity:'R', hp:32, atk:7, exclusive:'mid', elem:'earth',
     skill:{ name:'환술', cost:2, type:'confuse', val:1, target:'enemy', desc:'적 1명을 1턴 혼란(행동 불능)' } },
-  { id:'mb_zhangliang', name:'장량', emoji:'🏯', cls:'수호', rarity:'R', hp:40, atk:6, exclusive:'mid',
+  { id:'mb_zhangliang', name:'장량', emoji:'🏯', cls:'수호', rarity:'R', hp:40, atk:6, exclusive:'mid', elem:'earth',
     skill:{ name:'인공의 진', cost:2, type:'shield', val:12, target:'self', desc:'주공 방어막 +12' } }
 ];
 var HW_BY_ID = {};

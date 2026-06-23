@@ -47,6 +47,10 @@
     'cmb.crit': { ko: '💥 치명타!', en: '💥 Critical!', ja: '💥 クリティカル！', zh: '💥 暴击！', zhTW: '💥 暴擊！' },
     'cmb.superEff': { ko: '효과적!', en: 'Effective!', ja: '効果抜群！', zh: '效果拔群！', zhTW: '效果絕佳！' },
     'cmb.weakEff': { ko: '비효과적…', en: 'Not effective…', ja: '効果いまひとつ…', zh: '效果不佳…', zhTW: '效果不佳…' },
+    'el.fire': { ko: '불', en: 'Fire', ja: '火', zh: '火', zhTW: '火' },
+    'el.water': { ko: '물', en: 'Water', ja: '水', zh: '水', zhTW: '水' },
+    'el.earth': { ko: '땅', en: 'Earth', ja: '土', zh: '土', zhTW: '土' },
+    'el.label': { ko: '속성', en: 'Element', ja: '属性', zh: '属性', zhTW: '屬性' },
     'cmb.bannerBoss': { ko: '👑 적장 {name}', en: '👑 Commander {name}', ja: '👑 敵将 {name}', zh: '👑 敌将 {name}', zhTW: '👑 敵將 {name}' },
     'cmb.bannerSortie': { ko: '⚔ {stage} {n}/{max}', en: '⚔ {stage} {n}/{max}', ja: '⚔ {stage} {n}/{max}', zh: '⚔ {stage} {n}/{max}', zhTW: '⚔ {stage} {n}/{max}' },
     'cmb.bannerRound': { ko: '라운드 {n}', en: 'Round {n}', ja: 'ラウンド {n}', zh: '回合 {n}', zhTW: '回合 {n}' },
@@ -520,6 +524,7 @@
 
   /* ---------- 고유명사: 인물 이름 ---------- */
   var NAME = {
+    '장각': { en: 'Zhang Jue', ja: '張角', zh: '张角', zhTW: '張角' }, '장보': { en: 'Zhang Bao', ja: '張寶', zh: '张宝', zhTW: '張寶' }, '장량': { en: 'Zhang Liang', ja: '張梁', zh: '张梁', zhTW: '張梁' },
     '전위': { en: 'Dian Wei', ja: '典韋', zh: '典韦', zhTW: '典韋' }, '조인': { en: 'Cao Ren', ja: '曹仁', zh: '曹仁', zhTW: '曹仁' },
     '순욱': { en: 'Xun Yu', ja: '荀彧', zh: '荀彧', zhTW: '荀彧' }, '황충': { en: 'Huang Zhong', ja: '黄忠', zh: '黄忠', zhTW: '黃忠' },
     '순유': { en: 'Xun You', ja: '荀攸', zh: '荀攸', zhTW: '荀攸' }, '마대': { en: 'Ma Dai', ja: '馬岱', zh: '马岱', zhTW: '馬岱' },
@@ -723,6 +728,7 @@
 
   /* ---------- 스테이지 / 모드 ---------- */
   var STAGE = {
+    '황건적의 난': { en: 'Yellow Turban Rebellion', ja: '黄巾の乱', zh: '黄巾之乱', zhTW: '黃巾之亂' },
     '반동탁 연합군': { en: 'Anti-Dong Zhuo Coalition', ja: '反董卓連合軍', zh: '反董卓联军', zhTW: '反董卓聯軍' },
     '관도대전': { en: 'Battle of Guandu', ja: '官渡の戦い', zh: '官渡之战', zhTW: '官渡之戰' },
     '장판파 전투': { en: 'Battle of Changban', ja: '長坂坡の戦い', zh: '长坂坡之战', zhTW: '長坂坡之戰' },
@@ -733,6 +739,7 @@
     '위·촉·오 멸망': { en: 'Fall of Wei·Shu·Wu', ja: '魏・蜀・呉の滅亡', zh: '魏·蜀·吴的灭亡', zhTW: '魏·蜀·吳的滅亡' }
   };
   var STAGE_DESC = {
+    '황건적의 난': { en: "The Zhang brothers' uprising plunges the realm into chaos — the dawn of a turbulent age.", ja: '張角兄弟の蜂起で天下が乱れた、乱世の始まり。', zh: '张角兄弟起义、天下大乱的乱世开端。', zhTW: '張角兄弟起義、天下大亂的亂世開端。' },
     '반동탁 연합군': { en: "Lords unite against Dong Zhuo's tyranny.", ja: '董卓の専横に対し諸侯が結集した戦い。', zh: '诸侯结集对抗董卓暴政之战。', zhTW: '諸侯結集對抗董卓暴政之戰。' },
     '관도대전': { en: 'Cao Cao defeats Yuan Shao to seize Hebei.', ja: '曹操が袁紹を破り河北の覇権を握った転換点。', zh: '曹操击败袁绍、夺取河北霸权的转折点。', zhTW: '曹操擊敗袁紹、奪取河北霸權的轉捩點。' },
     '장판파 전투': { en: "Zhao Yun and Zhang Fei cover Liu Bei's retreat.", ja: '退却する劉備を趙雲・張飛が守り抜いた戦い。', zh: '赵云、张飞掩护刘备撤退之战。', zhTW: '趙雲、張飛掩護劉備撤退之戰。' },
@@ -751,6 +758,17 @@
   };
 
   var REGION = {
+    '탁군 외곽': { ko: '탁군 외곽', en: 'Zhuo Commandery Outskirts', ja: '涿郡郊外', zh: '涿郡郊外', zhTW: '涿郡郊外' },
+    '유주 가도': { ko: '유주 가도', en: 'Youzhou Road', ja: '幽州街道', zh: '幽州大道', zhTW: '幽州大道' },
+    '광종 들머리': { ko: '광종 들머리', en: 'Guangzong Approach', ja: '広宗入口', zh: '广宗入口', zhTW: '廣宗入口' },
+    '거록 길목': { ko: '거록 길목', en: 'Julu Pass', ja: '鉅鹿の道', zh: '巨鹿路口', zhTW: '鉅鹿路口' },
+    '곡양 비탈': { ko: '곡양 비탈', en: 'Quyang Slope', ja: '曲陽の坂', zh: '曲阳山坡', zhTW: '曲陽山坡' },
+    '하곡양 진채': { ko: '하곡양 진채', en: 'Lower Quyang Camp', ja: '下曲陽の陣', zh: '下曲阳营寨', zhTW: '下曲陽營寨' },
+    '광종성 외성': { ko: '광종성 외성', en: 'Guangzong Outer Wall', ja: '広宗城外郭', zh: '广宗城外城', zhTW: '廣宗城外城' },
+    '청하 나루': { ko: '청하 나루', en: 'Qinghe Ferry', ja: '清河の渡し', zh: '清河渡口', zhTW: '清河渡口' },
+    '평원 들판': { ko: '평원 들판', en: 'Pingyuan Field', ja: '平原の野', zh: '平原田野', zhTW: '平原田野' },
+    '광종성 성벽': { ko: '광종성 성벽', en: 'Guangzong Rampart', ja: '広宗城壁', zh: '广宗城墙', zhTW: '廣宗城牆' },
+    '거록 본채': { ko: '거록 본채', en: 'Julu Stronghold', ja: '鉅鹿本陣', zh: '巨鹿本寨', zhTW: '鉅鹿本寨' },
     '낙양 동문': { ko: '낙양 동문', en: 'Luoyang East Gate', ja: '洛陽東門', zh: '洛阳东门', zhTW: '洛陽東門' },
     '형양 가도': { ko: '형양 가도', en: 'Xingyang Road', ja: '滎陽街道', zh: '荥阳街道', zhTW: '滎陽街道' },
     '변수 나루': { ko: '변수 나루', en: 'Bianshui Ford', ja: '汴水の渡し', zh: '汴水渡口', zhTW: '汴水渡口' },
