@@ -305,7 +305,7 @@
     'hh.campHealT': { ko: 'HP · MP 회복', en: 'Restore HP · MP', ja: 'HP · MP 回復', zh: '恢复 HP · MP', zhTW: '恢復 HP · MP' },
     'hh.campHealS': { ko: '주공 HP·MP를 30% 회복', en: "Restore 30% of the Lord\'s HP·MP", ja: '主公のHP·MPを30%回復', zh: '恢复主公 HP·MP 的 30%', zhTW: '恢復主公 HP·MP 的 30%' },
     'hh.campTrainT': { ko: '장수 강화', en: 'Train Officer', ja: '武将強化', zh: '强化武将', zhTW: '強化武將' },
-    'hh.campTrainS': { ko: '원하는 장수 공격력 +3', en: "Chosen officer\'s ATK +3", ja: '選んだ武将の攻撃力 +3', zh: '所选武将攻击力 +3', zhTW: '所選武將攻擊力 +3' },
+    'hh.campTrainS': { ko: '원하는 장수 공격력 +1~3', en: "Chosen officer\'s ATK +1~3", ja: '選んだ武将の攻撃力 +1~3', zh: '所选武将攻击力 +1~3', zhTW: '所選武將攻擊力 +1~3' },
     'hh.shopGreet': { ko: '"먼 길 오셨소. 다음 전투 전에 <b>보급</b>을 갖추시오."', en: '"You\'ve traveled far. Stock up on <b>supplies</b> before the next battle."', ja: '「遠路はるばるお越しか。次の戦の前に<b>補給</b>を整えなされ。」', zh: '"远道而来辛苦了。下场战斗前先备好<b>补给</b>吧。"', zhTW: '「遠道而來辛苦了。下場戰鬥前先備好<b>補給</b>吧。」' },
     'hh.tavernHearthT': { ko: '주막에 모여든 인재들', en: 'Talents Gathered at the Tavern', ja: '酒場に集った人材たち', zh: '聚集酒馆的人才', zhTW: '聚集酒館的人才' },
     'hh.tavernHearthS': { ko: '천하의 장수들이 잔을 기울이며 주공을 기다립니다. 마음에 드는 인재를 <b style="color:#ffd9a0">등용</b>하세요.', en: 'Officers from across the land raise their cups and await the Lord. <b style="color:#ffd9a0">Recruit</b> the talent you favor.', ja: '天下の武将たちが杯を傾けながら主公を待っています。気に入った人材を<b style="color:#ffd9a0">登用</b>しましょう。', zh: '天下武将们举杯畅饮，等候主公。<b style="color:#ffd9a0">招揽</b>你中意的人才吧。', zhTW: '天下武將們舉杯暢飲，等候主公。<b style="color:#ffd9a0">招攬</b>你中意的人才吧。' },

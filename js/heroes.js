@@ -1976,7 +1976,7 @@
   });
   document.getElementById('restTrain').addEventListener('click', function () {
     pickPartyHero(TCG.t('hx.trainTitle'), TCG.t('hx.trainSub'), function (h) {
-      h.atk += 3; h.train = (h.train || 0) + 1; TCG.sfx('tap'); TCG.toast(TCG.t('hx.trainDone', { name: h.def.name, n: h.train, max: MAX_TRAIN })); advanceStage();
+      var inc = 1 + Math.floor(Math.random() * 3); h.atk += inc; h.train = (h.train || 0) + 1; TCG.sfx('tap'); TCG.toast(TCG.t('hx.trainDone', { name: h.def.name, inc: inc, n: h.train, max: MAX_TRAIN })); advanceStage();
     });
   });
 
@@ -2185,8 +2185,8 @@
     } else {
       // 영웅 강화 — 장수 선택 팝업. 선택 시 골드 차감·사용 처리(스테이지 단위 비활성 유지)
       pickPartyHero(TCG.t('hx.heroUpgrade'), TCG.t('hx.trainSub'), function (h) {
-        h.atk += 3; h.train = (h.train || 0) + 1; run.gold -= it.cost; it.sold = true; run.upgradeUsedStamp = tavernStamp();
-        TCG.sfx('tap'); TCG.toast(TCG.t('hx.trainDone', { name: h.def.name, n: h.train, max: MAX_TRAIN })); updateTop(); saveRun(); renderShop();
+        var inc = 1 + Math.floor(Math.random() * 3); h.atk += inc; h.train = (h.train || 0) + 1; run.gold -= it.cost; it.sold = true; run.upgradeUsedStamp = tavernStamp();
+        TCG.sfx('tap'); TCG.toast(TCG.t('hx.trainDone', { name: h.def.name, inc: inc, n: h.train, max: MAX_TRAIN })); updateTop(); saveRun(); renderShop();
       });
       return; // 차감·렌더는 선택 콜백에서 처리
     }
