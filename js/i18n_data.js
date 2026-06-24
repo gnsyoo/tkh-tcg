@@ -51,6 +51,8 @@
     'el.water': { ko: '물', en: 'Water', ja: '水', zh: '水', zhTW: '水' },
     'el.earth': { ko: '땅', en: 'Earth', ja: '土', zh: '土', zhTW: '土' },
     'el.label': { ko: '속성', en: 'Element', ja: '属性', zh: '属性', zhTW: '屬性' },
+    'el.strongVs': { ko: '유리', en: 'Strong vs', ja: '有利', zh: '克制', zhTW: '克制' },
+    'el.weakTo': { ko: '약점', en: 'Weak to', ja: '弱点', zh: '弱点', zhTW: '弱點' },
     'cmb.bannerBoss': { ko: '👑 적장 {name}', en: '👑 Commander {name}', ja: '👑 敵将 {name}', zh: '👑 敌将 {name}', zhTW: '👑 敵將 {name}' },
     'cmb.bannerSortie': { ko: '⚔ {stage} {n}/{max}', en: '⚔ {stage} {n}/{max}', ja: '⚔ {stage} {n}/{max}', zh: '⚔ {stage} {n}/{max}', zhTW: '⚔ {stage} {n}/{max}' },
     'cmb.bannerRound': { ko: '라운드 {n}', en: 'Round {n}', ja: 'ラウンド {n}', zh: '回合 {n}', zhTW: '回合 {n}' },

@@ -484,11 +484,12 @@
       var bAtkDesc = bAtkIsSkill ? bsk.desc : TCG.t('hx.strikeLord');
       var bPierce = (run.mode === 'hard' || run.mode === 'extreme') ? ' <span style="color:#ff9a7e">' + TCG.t('hx.pierce') + '</span>' : '';
       var bArmorR = armorRangeFor('boss', main), bArmorTxt = bArmorR ? ' · 🪖 ' + TCG.t('hx.defenseStat') + ' ' + bArmorR[0] + '~' + bArmorR[1] : '';
+      var bElemTxt = '<br>' + (HW_ELEM_ICON[elemOf(cmd)] || '') + ' ' + TCG.t('el.label') + ' ' + TCG.t('el.' + elemOf(cmd)) + ' · <span style="color:#ff9a7e">' + TCG.t('el.weakTo') + ' ' + (HW_ELEM_ICON[elemWeakTo(elemOf(cmd))] || '') + ' ' + TCG.t('el.' + elemWeakTo(elemOf(cmd))) + '</span>';
       body = TCG.portrait(cmd.emoji, (cmd.hero && HW_BY_ID[cmd.hero]) ? cmd.hero : cmd.name, 'modal-portrait', cmd.name) +
         '<h2>👑 ' + cmd.name + ' <span class="rar-SSR" style="font-size:13px">' + TCG.t('hx.commander') + '</span></h2>' +
         '<p>' + TCG.t('hx.finalBoss', { stage: st.name }) + (cmd.aoe ? ' · 💥 ' + TCG.t('hx.aoe') : '') + '</p>' +
         '<div style="background:rgba(0,0,0,.25);border-radius:10px;padding:10px;text-align:left;font-size:13px;line-height:1.55">' +
-        '❤ HP ' + bhp + ' · ⚔ ' + TCG.t('hx.attackStat') + ' ' + batk + bArmorTxt +
+        '❤ HP ' + bhp + ' · ⚔ ' + TCG.t('hx.attackStat') + ' ' + batk + bArmorTxt + bElemTxt +
         '<br>⚔ <b style="color:var(--gold)">' + TCG.t('hx.attackSkill') + '</b> 「' + bAtkName + '」 ' + bAtkDesc + bPierce +
         '<br>✨ <b style="color:var(--gold)">' + TCG.t('hx.supportSkill') + '</b> ' + TCG.t('hx.bossSupportDesc') +
         '<br><span style="color:var(--ink-dim)">' + TCG.t('hx.bossSkillNote') + '</span></div>';
@@ -497,6 +498,7 @@
       if (!mb) { return; }
       var mhp = Math.round(mb.hp * hpM * HW_MID.hpMult * 1.3), matk = Math.max(1, Math.round(mb.atk * atkM * HW_MID.atkMult * 1.2 * 2 * 1.5));
       var mArmorR = armorRangeFor('mid', main), mArmorTxt = mArmorR ? ' · 🪖 ' + TCG.t('hx.defenseStat') + ' ' + mArmorR[0] + '~' + mArmorR[1] : '';
+      var mElemTxt = '<br>' + (HW_ELEM_ICON[elemOf(mb)] || '') + ' ' + TCG.t('el.label') + ' ' + TCG.t('el.' + elemOf(mb)) + ' · <span style="color:#ff9a7e">' + TCG.t('el.weakTo') + ' ' + (HW_ELEM_ICON[elemWeakTo(elemOf(mb))] || '') + ' ' + TCG.t('el.' + elemWeakTo(elemOf(mb))) + '</span>';
       var msk = HW_MID_SKILLS[(main * 2 + idx) % HW_MID_SKILLS.length];
       var mbHero = (mb.hid && HW_BY_ID[mb.hid]) ? HW_BY_ID[mb.hid] : null;
       var recruitTxt = mbHero ? ('<br><span style="color:#d9b3ff">🃏 ' + TCG.t('hx.recruitOnDefeat') + ' — ' + mbHero.name + ' <span class="rar-' + mbHero.rarity + '">' + mbHero.rarity + '</span> (' + (idx === 0 ? TCG.t('hx.diffNormal') : TCG.t('hx.diffHard')) + ')</span>') : '';
@@ -504,7 +506,7 @@
         '<h2>⚜ ' + mb.name + ' <span class="rar-SR" style="font-size:13px">' + TCG.t('hx.midBoss') + '</span></h2>' +
         '<p>' + TCG.t('hx.stageSortie', { stage: st.name, n: sub + 1 }) + (mb.aoe ? ' · 💥 ' + TCG.t('hx.aoe') : '') + '</p>' +
         '<div style="background:rgba(0,0,0,.25);border-radius:10px;padding:10px;text-align:left;font-size:13px">' +
-        '❤ HP ' + mhp + ' · ⚔ ' + TCG.t('hx.attackStat') + ' ' + matk + mArmorTxt + '<br><b style="color:var(--gold)">「' + msk.name + '」</b> ' + msk.desc +
+        '❤ HP ' + mhp + ' · ⚔ ' + TCG.t('hx.attackStat') + ' ' + matk + mArmorTxt + mElemTxt + '<br><b style="color:var(--gold)">「' + msk.name + '」</b> ' + msk.desc +
         '<br><span style="color:var(--ink-dim)">' + TCG.t('hx.midBossNote') + '</span>' + recruitTxt + '</div>';
     }
     document.getElementById('heroModalBody').innerHTML = body +
@@ -768,7 +770,7 @@
         '<span class="cdx-pop-rb" style="background:' + rc + '">' + d.rarity + '</span>' + _cdxX +
         '<span class="cdx-pop-own" style="color:' + (got ? '#7ef0b5' : '#c4ab90') + '">' + (got ? TCG.t('hx.owned') : TCG.t('hx.notOwned')) + '</span></div>' +
       '<div style="padding:13px 15px 16px">' +
-        '<div class="cdx-pop-h"><b>' + d.name + '</b><small>' + d.cls + ' · ' + (HW_ELEM_ICON[elemOf(d)] || '') + ' ' + TCG.t('el.' + elemOf(d)) + '</small></div>' +
+        '<div class="cdx-pop-h"><b>' + d.name + '</b><small>' + d.cls + ' · ' + (HW_ELEM_ICON[elemOf(d)] || '') + ' ' + TCG.t('el.' + elemOf(d)) + ' · ' + TCG.t('el.strongVs') + ' ' + (HW_ELEM_ICON[elemStrongVs(elemOf(d))] || '') + '</small></div>' +
         '<div class="cdx-pop-stats"><div class="atk"><div class="lbl">' + TCG.t('hx.atkPower') + '</div><div class="val">⚔ ' + d.atk + '</div></div></div>' +
         '<div class="cdx-pop-box"><div class="sk">✦ ' + d.skill.name + ' <span style="color:#8a7560;font-weight:700;font-size:11px">MP ' + skillMp(d.skill) + '</span></div><div class="skd">' + d.skill.desc + '</div></div>' +
         '<div class="cdx-pop-src"><span style="font-size:14px">📍</span><div><div class="lbl">' + TCG.t('hx.acquirePath') + '</div><div class="v">' + heroPath(d) + '</div></div></div>' +

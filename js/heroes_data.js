@@ -25,7 +25,7 @@ var HW_HEROES = [
     skill:{ name:'화살비', cost:2, type:'aoe', val:5, target:'allEnemies', desc:'모든 적에게 5 피해' } },
   { id:'monk',   name:'주창',   emoji:'🪓', cls:'전사', rarity:'C', hp:30, atk:7,
     skill:{ name:'난격', cost:1, type:'multi', val:2, target:'enemy', desc:'무작위 적을 2회 공격' } },
-  { id:'warlock',name:'사마의', emoji:'🪶', cls:'책략', rarity:'SSR', hp:38, atk:11, exclusive:'raid', raidOf:'cmd_simayi',
+  { id:'warlock',name:'사마의', emoji:'🪶', cls:'책략', rarity:'SSR', hp:38, atk:11, exclusive:'raid', raidOf:'cmd_simayi', elem:'fire',
     skill:{ name:'화계', cost:3, type:'aoe', val:14, target:'allEnemies', desc:'모든 적에게 14 피해 (총사령관)' } },
   { id:'samurai',name:'관우',   emoji:'🗡️', cls:'전사', rarity:'SSR', hp:40, atk:13,
     skill:{ name:'청룡언월도', cost:2, type:'strike', val:14, target:'enemy', desc:'적 1명에게 공격력+14 피해' } },
@@ -49,9 +49,9 @@ var HW_HEROES = [
   { id:'reaper',  name:'조운',   emoji:'🗡️', cls:'전사', rarity:'SSR', hp:34, atk:14,
     skill:{ name:'단기필마', cost:2, type:'strike', val:16, target:'enemy', desc:'적 1명에게 공격력+16 피해' } },
   // ---- 추가 장수 2차 ----
-  { id:'caocao',   name:'조조',   emoji:'👑', cls:'군주', rarity:'SSR', hp:42, atk:10, exclusive:'raid', raidOf:'cmd_caocao',
+  { id:'caocao',   name:'조조',   emoji:'👑', cls:'군주', rarity:'SSR', hp:42, atk:10, exclusive:'raid', raidOf:'cmd_caocao', elem:'fire',
     skill:{ name:'간웅', cost:3, type:'buff', scope:'army', val:4, target:'ally', desc:'전군 공격력 +4 (전투 동안)' } },
-  { id:'xiahoudun',name:'하후돈', emoji:'⚔️', cls:'전사', rarity:'SSR', hp:44, atk:11, exclusive:'raid', raidOf:'cmd_xiahoudun',
+  { id:'xiahoudun',name:'하후돈', emoji:'⚔️', cls:'전사', rarity:'SSR', hp:44, atk:11, exclusive:'raid', raidOf:'cmd_xiahoudun', elem:'earth',
     skill:{ name:'발시담정', cost:2, type:'strike', mult:0.5, stun:0.5, val:11, target:'enemy', desc:'(공격력+11)의 50% 피해 + 50% 확률로 기절' } },
   { id:'xiahouyuan',name:'하후연',emoji:'🏹', cls:'궁수', rarity:'SSR', hp:34, atk:12,
     skill:{ name:'질풍사격', cost:2, type:'multi', val:5, target:'enemy', desc:'무작위 적을 5회 공격' } },
@@ -59,7 +59,7 @@ var HW_HEROES = [
     skill:{ name:'소패왕', cost:2, type:'strike', mult:0.5, stun:0.5, val:12, target:'enemy', desc:'(공격력+12)의 50% 피해 + 50% 확률로 기절' } },
   { id:'ganning',  name:'감녕',   emoji:'🏹', cls:'기습', rarity:'SR', hp:30, atk:10,
     skill:{ name:'백기겁영', cost:2, type:'strike', mult:0.5, stun:0.5, val:12, target:'enemy', desc:'(공격력+12)의 50% 피해 + 50% 확률로 기절' } },
-  { id:'luxun',    name:'육손',   emoji:'🔥', cls:'책략', rarity:'SR', hp:22, atk:6, exclusive:'raid', raidOf:'cmd_luxun',
+  { id:'luxun',    name:'육손',   emoji:'🔥', cls:'책략', rarity:'SR', hp:22, atk:6, exclusive:'raid', raidOf:'cmd_luxun', elem:'earth',
     skill:{ name:'이릉대화', cost:3, type:'aoe', val:9, target:'allEnemies', desc:'모든 적에게 9 피해' } },
   { id:'jiangwei', name:'강유',   emoji:'⚔️', cls:'전사', rarity:'SR', hp:34, atk:9,
     skill:{ name:'기산북벌', cost:2, type:'strike', mult:0.5, splash:0.3, val:8, target:'enemy', desc:'(공격력+8)의 50% 피해 + 인접 적에게 30% 피해' } },
@@ -111,9 +111,9 @@ var HW_HEROES = [
   // ---- 명장(대장전 전용) — 기존 로스터에 없던 적장을 장수로 추가. 해당 보스 격파로만 획득 ----
   { id:'huaxiong', name:'화웅', emoji:'🪓', cls:'전사', rarity:'SSR', hp:40, atk:13, exclusive:'raid', raidOf:'cmd_huaxiong',
     skill:{ name:'관문 수장', cost:2, type:'strike', mult:0.5, poisonHit:true, val:14, target:'enemy', desc:'(공격력+14)의 50% 피해 + 피해량만큼 중독' } },
-  { id:'yuanshao', name:'원소', emoji:'🎌', cls:'군주', rarity:'SSR', hp:44, atk:10, exclusive:'raid', raidOf:'cmd_yuanshao',
+  { id:'yuanshao', name:'원소', emoji:'🎌', cls:'군주', rarity:'SSR', hp:44, atk:10, exclusive:'raid', raidOf:'cmd_yuanshao', elem:'water',
     skill:{ name:'사세삼공', cost:3, type:'buff', scope:'army', val:4, target:'ally', desc:'전군 공격력 +4 (전투 동안)' } },
-  { id:'simayan', name:'사마염', emoji:'👑', cls:'군주', rarity:'SSR', hp:48, atk:13, exclusive:'raid', raidOf:'cmd_simayan',
+  { id:'simayan', name:'사마염', emoji:'👑', cls:'군주', rarity:'SSR', hp:48, atk:13, exclusive:'raid', raidOf:'cmd_simayan', elem:'water',
     skill:{ name:'삼국 통일', cost:3, type:'aoe', val:18, target:'allEnemies', desc:'모든 적에게 18 피해' } },
   // ---- 특수 획득 장수 ----
   { id:'lubu', name:'여포', emoji:'🐎', cls:'전사', rarity:'SSR', hp:46, atk:15, exclusive:'special',
@@ -189,6 +189,8 @@ function affMult(atkEl, defEl, raid) {
   if (beats[defEl] === atkEl) return raid ? 0.8 : 0.67;       // 불리
   return 1;
 }
+function elemStrongVs(el) { return { earth:'water', water:'fire', fire:'earth' }[el] || null; } // el이 유리하게 치는 속성
+function elemWeakTo(el) { var b = { earth:'water', water:'fire', fire:'earth' }; for (var k in b) if (b[k] === el) return k; return null; } // el의 약점(el을 이기는 속성)
 
 /* 적 (삼국지 세력) */
 var HW_ENEMIES = {
