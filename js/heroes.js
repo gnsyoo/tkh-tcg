@@ -1465,13 +1465,14 @@
       living(c.enemies).forEach(function (e) { var ei = c.enemies.indexOf(e); var aaf = affOf(h, e); dmgEnemy(e, Math.max(1, Math.round(aval * aaf)), enemyEl(ei), acrit ? 'crit' : 'aoe', pierce); if (aaf !== 1) affFx(enemyEl(ei), aaf); }); shake('big');
       logMsg(TCG.t('hx.logSkillAoe', { name: h.def.name, sk: sk.name, dmg: aval }) + (acrit ? TCG.t('hx.critSuffix') : ''));
     } else if (sk.type === 'multi') {
-      // 다회 공격 스킬은 타격당 공격력의 70% × 타수(타격 수)만큼 공격
-      var perHit = Math.max(1, Math.round(pw * 0.7));
+      // 다회 공격: 타격당 공격력 비율 감쇠 (1회 100% · 2회 70% · 3회 50%, 이후 50%)
+      var MFALL = [1, 0.7, 0.5];
       c.busy = true; var mi = 0; // 타격마다 끊어서 연출
       (function mhit() {
         var alive = living(c.enemies);
-        if (mi >= sk.val || !alive.length) { logMsg(TCG.t('hx.logSkillMulti', { name: h.def.name, sk: sk.name, hits: sk.val, per: perHit })); c.busy = false; finishPlay(); return; }
+        if (mi >= sk.val || !alive.length) { logMsg(TCG.t('hx.logSkillMulti', { name: h.def.name, sk: sk.name, hits: sk.val, per: Math.round(pw) })); c.busy = false; finishPlay(); return; }
         mi++;
+        var perHit = Math.max(1, Math.round(pw * MFALL[Math.min(mi, MFALL.length) - 1]));
         var e2 = TCG.pick(alive);
         TCG.sfx('attack');
         var mcrit = rollCrit(critChance(h)); // 다회 스킬도 타격마다 치명타 판정

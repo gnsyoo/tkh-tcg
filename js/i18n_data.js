@@ -608,7 +608,7 @@
     var T = {
       strike: strikeDesc,
       aoe: { en: 'Deal ' + v + ' to all enemies', ja: '敵全体に' + v + 'ダメージ', zh: '对全体敌人造成' + v + '伤害', zhTW: '對全體敵人造成' + v + '傷害' },
-      multi: { en: 'Hit random enemies ' + v + ' times', ja: 'ランダムな敵を' + v + '回攻撃', zh: '随机攻击敌人' + v + '次', zhTW: '隨機攻擊敵人' + v + '次' },
+      multi: (function () { var mp = [100, 70, 50].slice(0, Math.min(v, 3)).concat(v > 3 ? Array(v - 3).fill(50) : []).join('/'); return { en: 'Hit random enemies ' + v + ' times (' + mp + '%)', ja: 'ランダムな敵を' + v + '回攻撃 (' + mp + '%)', zh: '随机攻击敌人' + v + '次 (' + mp + '%)', zhTW: '隨機攻擊敵人' + v + '次 (' + mp + '%)' }; })(),
       shield: { en: 'Lord gains +' + v + ' shield', ja: '主公にシールド+' + v, zh: '主公护盾+' + v, zhTW: '主公護盾+' + v },
       buff: { en: 'One attack card +' + v + ' ATK (1 turn)', ja: '攻撃カード1枚の攻撃力+' + v + '(1ターン)', zh: '1张攻击卡 攻击力+' + v + '（1回合）', zhTW: '1張攻擊卡 攻擊力+' + v + '（1回合）' },
       heal: { en: 'Restore ' + v + ' HP to the Lord', ja: '主公のHPを' + v + '回復', zh: '恢复主公' + v + '点HP', zhTW: '恢復主公' + v + '點HP' },

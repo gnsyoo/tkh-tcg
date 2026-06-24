@@ -674,13 +674,13 @@
     }
     else if (sk.type === 'aoe') { var ac = rollCrit(critChance(h)); var av = Math.round(sk.val * (ac ? CRIT_MULT : 1)); enemyIdxList().forEach(function (ei) { var en = enemyByIdx(ei); if (en && en.hp > 0) { var aaf = affOf(h, en); dmgTarget(ei, Math.max(1, Math.round(av * aaf)), ac, pierce); if (aaf !== 1) affFx(enemyElByIdx(ei), aaf); } }); shake('big'); logMsg(h.def.name + ' 「' + sk.name + '」 ' + TCG.t('dx.logHitAll', { n: av }) + (ac ? ' ' + TCG.t('dx.critTag') : '')); }
     else if (sk.type === 'multi') {
-      // 다회 공격 스킬은 타격당 공격력의 70% × 타수(타격 수) — 선택한 대상 집중
-      var perHit = Math.max(1, Math.round(pw * 0.7));
+      // 다회 공격: 타격당 공격력 비율 감쇠 (1회 100% · 2회 70% · 3회 50%) — 선택한 대상 집중
+      var MFALL = [1, 0.7, 0.5];
       c.busy = true; var mi = 0; // 타격마다 끊어서 연출
       (function mhit() {
         var tt = enemyByIdx(ti);
-        if (mi >= sk.val || !tt || tt.hp <= 0) { logMsg(h.def.name + ' 「' + sk.name + '」 ' + TCG.t('dx.logMultiHits', { hits: sk.val, per: perHit })); c.busy = false; finishPlay(); return; }
-        mi++; TCG.sfx('attack'); var mc = rollCrit(critChance(h)); dmgTarget(ti, Math.max(1, Math.round((mc ? Math.round(perHit * CRIT_MULT) : perHit) * affOf(h, tt))), mc, pierce); shake('sm'); renderCombat(); setTimeout(mhit, 210); })();
+        if (mi >= sk.val || !tt || tt.hp <= 0) { logMsg(h.def.name + ' 「' + sk.name + '」 ' + TCG.t('dx.logMultiHits', { hits: sk.val, per: Math.round(pw) })); c.busy = false; finishPlay(); return; }
+        mi++; var perHit = Math.max(1, Math.round(pw * MFALL[Math.min(mi, MFALL.length) - 1])); TCG.sfx('attack'); var mc = rollCrit(critChance(h)); dmgTarget(ti, Math.max(1, Math.round((mc ? Math.round(perHit * CRIT_MULT) : perHit) * affOf(h, tt))), mc, pierce); shake('sm'); renderCombat(); setTimeout(mhit, 210); })();
       return; // 비동기 처리 — 아래 공통 finishPlay 건너뜀
     }
     else if (sk.type === 'confuse' || sk.type === 'charm') { fxSupport(bossEl(), '🛡 ' + TCG.t('dx.immune'), '#cfd8e3'); logMsg(b.name + ' — ' + TCG.t('dx.logImmune', { st: (sk.type === 'charm' ? TCG.t('dx.stCharm') : TCG.t('dx.stConfuse')) })); } // 레이드 보스는 행동 불가 면역
