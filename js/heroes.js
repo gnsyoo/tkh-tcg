@@ -908,7 +908,7 @@
     if (typeof run.lordHp !== 'number') run.lordHp = mhp;
     if (typeof run.lordMp !== 'number') run.lordMp = mmp;
     var startHp = Math.max(1, Math.min(run.lordHp, mhp)); // HP·MP 모두 모험 내내 유지
-    var startMp = Math.min(mmp, run.lordMp + Math.round(mmp * 0.10)); // 전투 시작 시 MP 10% 회복
+    var startMp = Math.min(mmp, run.lordMp); // 전투 시작 시 MP 회복 없음(현재 값 유지)
     run.combat = {
       main: run.mainStage, sub: s, enemies: enemies, round: 0,
       lord: { hp: startHp, maxHp: mhp, mp: startMp, maxMp: mmp, block: relicSum('startBlock') }, // 주공(나)
