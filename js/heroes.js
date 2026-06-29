@@ -832,7 +832,7 @@
       run.mainStage++;
       run.stageShopped = false;
       if (run.mainStage >= HW_STAGES.length) { victory(); return; }
-      run.lordHp = lordMaxHp(); run.lordMp = lordMaxMp(); // 전역 평정 시 주공 HP·MP 완전 회복
+      run.lordHp = Math.min(run.lordHp, lordMaxHp()); run.lordMp = Math.min(run.lordMp, lordMaxMp()); // 스테이지 클리어해도 HP·MP 회복 없이 그대로 유지(최대치만 클램프)
       TCG.toast(TCG.t('hx.stageCleared', { cleared: cleared.name, next: HW_STAGES[run.mainStage].name }));
     }
     showMap();
